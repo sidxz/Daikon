@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  gene.api:
+    image: ${DOCKER_REGISTRY-}gene
+    build:
+      context: .
+      dockerfile: Services/Gene/Gene.API/Dockerfile

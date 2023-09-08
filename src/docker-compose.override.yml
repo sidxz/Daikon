@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  gene.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8000:80"
+    
