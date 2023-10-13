@@ -1,8 +1,30 @@
 version: '3.4'
 
 services:
-  gene.api:
+  portainer:
+    image: portainer/portainer
+    
+  pgadmin:
+    image: dpage/pgadmin4
+
+  Gene.API:
     image: ${DOCKER_REGISTRY-}gene
     build:
       context: .
       dockerfile: Services/Gene/Gene.API/Dockerfile
+
+  MolDb_Postgres:
+    image: informaticsmatters/rdkit-cartridge-debian
+    
+    
+  MolDb.API:
+    image: ${DOCKER_REGISTRY-}moldb
+    build:
+      context: .
+      dockerfile: Services/Chem/MolDb.API/Dockerfile
+
+
+volumes:
+  portainer_data:
+  MolDb_data:
+  pgadmin_data:
