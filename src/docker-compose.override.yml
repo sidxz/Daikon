@@ -1,9 +1,41 @@
 version: '3.4'
 
 services:
-  gene.api:
+  Gene.API:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8000:80"
-    
+
+  MolDb_Postgres:
+    environment:
+      POSTGRES_DB: chemdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - MolDb_data:/var/lib/postgresql/data
+
+  MolDb.API:
+    ports:
+      - "8001:80"
+    depends_on:
+      - MolDb_Postgres
+
+  portainer:
+    container_name: portainer
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+  
+  pgadmin:
+    container_name: pgadmin
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=sid@tamu.edu
+      - PGADMIN_DEFAULT_PASSWORD=admin1234
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/root/.pgadmin
