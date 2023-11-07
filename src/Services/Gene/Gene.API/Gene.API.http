@@ -1,0 +1,6 @@
+@Gene.API_HostAddress = http://localhost:5249
+
+GET {{Gene.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

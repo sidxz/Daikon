@@ -24,6 +24,12 @@ services:
       dockerfile: Services/Chem/MolDb.API/Dockerfile
 
 
+  gene.api:
+    image: ${DOCKER_REGISTRY-}gene
+    build:
+      context: .
+      dockerfile: Services/Gene/Gene.API/Dockerfile
+
 volumes:
   portainer_data:
   MolDb_data:
