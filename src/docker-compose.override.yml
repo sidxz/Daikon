@@ -4,8 +4,9 @@ services:
   Gene.API:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
     ports:
-      - "8000:80"
+      - "8001:80"
 
   MolDb_Postgres:
     environment:
@@ -17,7 +18,7 @@ services:
 
   MolDb.API:
     ports:
-      - "8001:80"
+      - "8101:80"
     depends_on:
       - MolDb_Postgres
 
@@ -40,13 +41,3 @@ services:
     volumes:
       - pgadmin_data:/root/.pgadmin
 
-  gene.api:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-    ports:
-      - "80"
-      - "443"
-    volumes:
-      - ~/.aspnet/https:/root/.aspnet/https:ro
-      - ~/.microsoft/usersecrets:/root/.microsoft/usersecrets:ro

@@ -1,22 +1,35 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddControllers();
 
 // builder.Services.AddApiVersioning(
 //     options =>
 //     {
 //         // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
 //         options.ReportApiVersions = true;
+//         options.DefaultApiVersion = new ApiVersion(2, 0);
+//         options.AssumeDefaultVersionWhenUnspecified = true;
+//         options.ApiVersionReader = new UrlSegmentApiVersionReader();
 //     });
-// );
+
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 
 
 var app = builder.Build();
 
+app.MapControllers();
+
+// Print the environment name to the console.
+Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -24,7 +37,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 var summaries = new[]
 {
@@ -33,7 +46,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
