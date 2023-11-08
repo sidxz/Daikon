@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
-
+using Gene.Application;
+using Gene.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,6 +23,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add Application and Infrastructure services.
+builder.Services.AddInfrastructureService(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 
 var app = builder.Build();
