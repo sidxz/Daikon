@@ -6,6 +6,7 @@ using CQRS.Core.Domain;
 using CQRS.Core.Event;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Infrastructure;
+using CQRS.Core.Producers;
 using Gene.Domain.Aggregates;
 
 namespace Gene.Infrastructure.Command.Stores
@@ -14,19 +15,14 @@ namespace Gene.Infrastructure.Command.Stores
     {
         private readonly IEventStoreRepository _eventStoreRepository;
 
-        //private readonly IEventProducer _eventProducer;
+        private readonly IEventProducer _eventProducer;
 
-        public EventStore(IEventStoreRepository eventStoreRepository)
+
+        public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer)
         {
             _eventStoreRepository = eventStoreRepository;
-
+            _eventProducer = eventProducer;
         }
-        // TODO: Uncomment this when Kafka is ready
-        // public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer)
-        // {
-        //     _eventStoreRepository = eventStoreRepository;
-        //     _eventProducer = eventProducer;
-        // }
         public async Task<List<BaseEvent>> GetEventsAsync(Guid aggregateId)
         {
             var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
@@ -67,11 +63,16 @@ namespace Gene.Infrastructure.Command.Stores
 
                 await _eventStoreRepository.SaveAsync(eventModel);
 
-                // TODO: Uncomment this when Kafka is ready
-                //var topic = $"{eventModel.AggregateType}-{eventModel.EventType}";
-                // var topic = Environment.GetEnvironmentVariable("KAFKA_TOPIC");
-
-                // await _eventProducer.ProduceAsync(topic, @event);
+                var topic = Environment.GetEnvironmentVariable("GENE_KAFKA_TOPIC");
+                if (!string.IsNullOrEmpty(topic))
+                {
+                    await _eventProducer.ProduceAsync<BaseEvent>(topic, @event);
+                }
+                else
+                {
+                    throw new Exception("GENE_KAFKA_TOPIC environment variable not set");
+                }
+                    
             }
         }
     }

@@ -7,15 +7,15 @@ using MediatR;
 
 namespace Gene.Application.Features.Command.NewGene
 {
-    public class NewGeneCommand : BaseCommand, IRequest<int>
+    public class NewGeneCommand : BaseCommand, IRequest<Unit>
     {
-        public Guid StrainId { get; set; }
+        
         public string AccessionNumber { get; set; }
         public string Name { get; set; }
         public string Function { get; set; }
         public string Product { get; set; }
         public string FunctionalCategory { get; set; }
-        public List<Tuple<string, string>> ExternalIds { get; set; }
+        
         
     }
 }

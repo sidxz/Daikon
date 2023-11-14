@@ -1,13 +1,18 @@
-#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-preview AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0-preview AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
 COPY ["Services/Gene/Gene.API/Gene.API.csproj", "Services/Gene/Gene.API/"]
+COPY ["Services/Gene/Gene.Application/Gene.Application.csproj", "Services/Gene/Gene.Application/"]
+COPY ["Services/Gene/Gene.Domain/Gene.Domain.csproj", "Services/Gene/Gene.Domain/"]
+COPY ["Services/Gene/Gene.Infrastructure/Gene.Infrastructure.csproj", "Services/Gene/Gene.Infrastructure/"]
+
 RUN dotnet restore "Services/Gene/Gene.API/Gene.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Gene/Gene.API"

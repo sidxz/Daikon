@@ -1,11 +1,23 @@
-version: '3.4'
+version: "3.4"
 
 services:
-  portainer:
+  DKPortainer:
     image: portainer/portainer
-    
-  pgadmin:
+
+  DKPGAdmin:
     image: dpage/pgadmin4
+
+  Zookeeper:
+    image: bitnami/zookeeper
+    
+
+  Kafka:
+    image: bitnami/kafka
+    depends_on:
+      - Zookeeper
+
+  EventStoreDb:
+    image: mongo
 
   Gene.API:
     image: ${DOCKER_REGISTRY-}gene
@@ -15,8 +27,7 @@ services:
 
   MolDb_Postgres:
     image: informaticsmatters/rdkit-cartridge-debian
-    
-    
+
   MolDb.API:
     image: ${DOCKER_REGISTRY-}moldb
     build:
@@ -27,3 +38,5 @@ volumes:
   portainer_data:
   MolDb_data:
   pgadmin_data:
+  eventdb_mongo_data:
+  kafka_data:
