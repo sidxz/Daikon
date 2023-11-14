@@ -1,0 +1,67 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using Gene.API.DTOs;
+using Gene.Application.Features.Command.NewGene;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Gene.API.Controllers.V2
+{
+    [ApiController]
+    [Route("api/v2/[controller]")]
+    public class GeneController : ControllerBase
+    {
+
+        private readonly IMediator _mediator;
+        private readonly ILogger<GeneController> _logger;
+
+        public GeneController(IMediator mediator, ILogger<GeneController> logger)
+        {
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpPost(Name = "AddGene")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> AddGene(NewGeneCommand command)
+        {
+            var id = Guid.NewGuid();
+            try
+            {
+                command.Id = id;
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status201Created, new AddGeneResponse
+                {
+                    Message = "Gene added successfully",
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the gene";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new AddGeneResponse
+                {
+                    Id = id,
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+
+
+        }
+
+    }
+}

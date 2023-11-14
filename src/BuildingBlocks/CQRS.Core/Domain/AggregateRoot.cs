@@ -13,7 +13,7 @@ namespace CQRS.Core.Domain
     {
         protected Guid _id;
         public Guid Id => _id;
-        private readonly List<BaseEvent> _changes = [];
+        private readonly List<BaseEvent> _changes = new();
         public int Version { get; set; } = -1;
 
         /// <summary>

@@ -1,10 +1,63 @@
-version: '3.4'
+version: "3.4"
 
 services:
+  Zookeeper:
+    restart: always
+    ports:
+      - "2181:2181"
+    # volumes:
+    #   - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  Kafka:
+    ports:
+      - "9092:9092"
+    restart: always
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=Zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://Kafka:9092
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+
+  EventStoreDb:
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - "eventdb_mongo_data:/data/db"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+
   Gene.API:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - GENE_KAFKA_TOPIC=genes
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=genes"
+
+      - "GeneMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "GeneMongoDbSettings:DatabaseName=Gene"
+      - "GeneMongoDbSettings:CollectionName=Genes"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topic=genes"
+      - "KafkaConsumerSettings:GroupId=gene-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
     ports:
       - "8001:80"
 
@@ -22,16 +75,16 @@ services:
     depends_on:
       - MolDb_Postgres
 
-  portainer:
-    container_name: portainer
+  DKPortainer:
+    container_name: dk_portainer
     ports:
       - "9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
-  
-  pgadmin:
-    container_name: pgadmin
+
+  DKPGAdmin:
+    container_name: dk_pgadmin
     restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=sid@tamu.edu
@@ -40,4 +93,3 @@ services:
       - "5050:80"
     volumes:
       - pgadmin_data:/root/.pgadmin
-

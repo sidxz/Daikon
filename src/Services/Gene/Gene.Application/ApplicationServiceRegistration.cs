@@ -2,7 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CQRS.Core.Handlers;
 using FluentValidation;
+using Gene.Application.Features.Command.NewGene;
+using Gene.Application.Mappings;
+using Gene.Application.Query.Handlers;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,12 +18,14 @@ namespace Gene.Application
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
 
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddMediatR(typeof(ApplicationServiceRegistration).Assembly);
-            services.AddValidatorsFromAssembly(typeof(ApplicationServiceRegistration).Assembly);
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddMediatR(typeof(NewGeneCommandHandler).Assembly);
+            services.AddValidatorsFromAssembly(typeof(NewGeneCommandValidator).Assembly);
 
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
+
+            services.AddScoped<IEventHandler, Query.Handlers.EventHandler>();
 
             return services;
         }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CQRS.Core.Domain;
 using Daikon.Events.Gene;
-using Gene.Domain.Models;
 
 namespace Gene.Domain.Aggregates
 {
@@ -16,18 +15,18 @@ namespace Gene.Domain.Aggregates
 
         }
 
-        public GeneAggregate(GeneModel gene)
+        public GeneAggregate(Entities.Gene gene)
         {
             RaiseEvent(new GeneCreatedEvent
             {
                 Name = gene.Name,
                 Id = gene.Id,
-                StrainId = gene.StrainId,
+                
                 AccessionNumber = gene.AccessionNumber,
                 Function = gene.Function,
                 Product = gene.Product,
                 FunctionalCategory = gene.FunctionalCategory,
-                ExternalIds = gene.ExternalIds,
+                
                 DateCreated = DateTime.UtcNow
             });
         }
