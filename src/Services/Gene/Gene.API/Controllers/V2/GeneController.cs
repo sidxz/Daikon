@@ -36,6 +36,7 @@ namespace Gene.API.Controllers.V2
 
                 return StatusCode(StatusCodes.Status201Created, new AddGeneResponse
                 {
+                    Id = id,
                     Message = "Gene added successfully",
                 });
             }
