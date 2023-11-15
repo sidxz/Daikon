@@ -27,5 +27,18 @@ namespace Gene.Infrastructure.Command.Repositories
         {
             await _eventStoreCollection.InsertOneAsync(@event).ConfigureAwait(false);
         }
+
+        public async Task SaveBatchAsync(IEnumerable<EventModel> events)
+        {
+            if (events == null || !events.Any())
+            {
+                return; // No events to save
+            }
+
+            await _eventStoreCollection
+                .InsertManyAsync(events)
+                .ConfigureAwait(false);
+        }
+
     }
 }
