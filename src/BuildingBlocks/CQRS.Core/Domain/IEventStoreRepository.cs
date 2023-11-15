@@ -10,5 +10,6 @@ namespace CQRS.Core.Domain
     {
         Task SaveAsync(EventModel @event);
         Task<List<EventModel>> FindByAggregateId(Guid aggregateId);
+        Task SaveBatchAsync(IEnumerable<EventModel> events);
     }
 }

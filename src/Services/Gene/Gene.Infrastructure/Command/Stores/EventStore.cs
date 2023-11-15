@@ -17,6 +17,8 @@ namespace Gene.Infrastructure.Command.Stores
 
         private readonly IEventProducer _eventProducer;
 
+        private const string DefaultKafkaTopic = "default_topic";
+
 
         public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer)
         {
@@ -45,35 +47,61 @@ namespace Gene.Infrastructure.Command.Stores
 
             var version = expectedVersion;
 
+            var eventModels = new List<EventModel>();
+
             foreach (var @event in events)
             {
                 version++;
                 @event.Version = version;
 
-                var eventType = @event.GetType().Name;
-                var eventModel = new EventModel
-                {
-                    TimeStamp = DateTime.UtcNow,
-                    AggregateIdentifier = aggregateId,
-                    AggregateType = nameof(GeneAggregate),
-                    EventData = @event,
-                    EventType = eventType,
-                    Version = version
-                };
-
-                await _eventStoreRepository.SaveAsync(eventModel);
-
-                var topic = Environment.GetEnvironmentVariable("GENE_KAFKA_TOPIC");
-                if (!string.IsNullOrEmpty(topic))
-                {
-                    await _eventProducer.ProduceAsync<BaseEvent>(topic, @event);
-                }
-                else
-                {
-                    throw new Exception("GENE_KAFKA_TOPIC environment variable not set");
-                }
-                    
+                var eventModel = ConvertToEventModel(@event, aggregateId, version);
+                eventModels.Add(eventModel);
             }
+
+            await _eventStoreRepository.SaveBatchAsync(eventModels);
+            foreach (var eventModel in eventModels)
+            {
+                await ProduceEvent(eventModel.EventData);
+            }
+
+        }
+
+        private EventModel ConvertToEventModel(
+            BaseEvent @event, Guid aggregateId, int version,
+            string? userId = null, string? sessionId = null, string? source = null,
+            Guid correlationId = default, Guid causationId = default, string? metadata = null,
+            string? tenantId = null, string? eventState = null
+            )
+        {
+            return new EventModel
+            {
+                TimeStamp = DateTime.UtcNow,
+                AggregateIdentifier = aggregateId,
+                AggregateType = nameof(GeneAggregate),
+                EventData = @event,
+                EventType = @event.GetType().Name,
+                Version = version,
+                UserId = userId,
+                SessionId = sessionId,
+                Source = source,
+                CorrelationId = correlationId,
+                CausationId = causationId,
+                Metadata = metadata,
+                TenantId = tenantId,
+                EventState = eventState,
+            };
+        }
+
+        private async Task ProduceEvent(BaseEvent @event)
+        {
+            var topic = Environment.GetEnvironmentVariable("GENE_KAFKA_TOPIC") ?? DefaultKafkaTopic;
+            if (string.IsNullOrEmpty(topic))
+            {
+                // Log a warning or notify administrators
+                // Continue to produce event with default topic or handle as per application logic
+                throw new Exception("GENE_KAFKA_TOPIC environment variable not set");
+            }
+            await _eventProducer.ProduceAsync<BaseEvent>(topic, @event);
         }
     }
 }
