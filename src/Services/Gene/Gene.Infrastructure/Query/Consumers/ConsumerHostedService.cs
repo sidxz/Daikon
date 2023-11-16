@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CQRS.Core.Consumers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,10 +15,13 @@ namespace Gene.Infrastructure.Query.Consumers
         private readonly ILogger<ConsumerHostedService> _logger;
         private readonly IServiceProvider _serviceProvider;
 
-        public ConsumerHostedService(IServiceProvider serviceProvider, ILogger<ConsumerHostedService> logger)
+        private readonly string _topic;
+
+        public ConsumerHostedService(IServiceProvider serviceProvider, ILogger<ConsumerHostedService> logger, IConfiguration configuration)
         {
-            _serviceProvider = serviceProvider;
-            _logger = logger;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(_serviceProvider));
+            _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
+            _topic = configuration.GetValue<string>("KafkaConsumerSettings:Topic") ?? throw new ArgumentNullException(nameof(_topic));
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -27,8 +31,8 @@ namespace Gene.Infrastructure.Query.Consumers
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
                 var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
-                var topic = Environment.GetEnvironmentVariable("GENE_KAFKA_TOPIC");
-                Task.Run(() => eventConsumer.Consume(topic), cancellationToken);
+
+                Task.Run(() => eventConsumer.Consume(_topic), cancellationToken);
             }
 
             return Task.CompletedTask;
