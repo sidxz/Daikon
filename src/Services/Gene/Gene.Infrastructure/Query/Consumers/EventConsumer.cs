@@ -16,15 +16,6 @@ namespace Gene.Infrastructure.Query.Consumers
     {
         private readonly ConsumerConfig _config;
         private readonly IEventHandler _eventHandler;
-
-    //     "KafkaConsumerSettings": {
-    // "BootstrapServers": "localhost:9092",
-    // "Topic": "gene",
-    // "GroupId": "gene-consumer-group",
-    // "AutoOffsetReset": "Earliest",
-    // "EnableAutoCommit": false,
-    // "AllowAutoCreateTopics": true
-    //
         public EventConsumer(IConfiguration configuration, IEventHandler eventHandler)
         {
             _config = new ConsumerConfig
