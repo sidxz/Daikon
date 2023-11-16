@@ -6,23 +6,26 @@ using System.Threading.Tasks;
 using Confluent.Kafka;
 using CQRS.Core.Event;
 using CQRS.Core.Producers;
+using Daikon.EventStore.Settings;
 using Microsoft.Extensions.Configuration;
 
-namespace Gene.Infrastructure.Command.Producers
+namespace Daikon.EventStore.Producers
 {
     public class EventProducer : IEventProducer
     {
-       private readonly ProducerConfig _config;
+        private readonly ProducerConfig _config;
+        private readonly IKafkaProducerSettings _kafkaProducerSettings;
 
-        public EventProducer(IConfiguration configuration)
+        public EventProducer(IKafkaProducerSettings kafkaProducerSettings)
         {
+            _kafkaProducerSettings = kafkaProducerSettings;
             _config = new ProducerConfig
             {
-                BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers")
+                BootstrapServers = _kafkaProducerSettings.BootstrapServers
             };
         }
-        
-        public async Task ProduceAsync<T>(string topic, T @event) where T : BaseEvent
+
+        public async Task ProduceAsync<TEvent>(string topic, TEvent @event) where TEvent : BaseEvent
         {
             using var producer = new ProducerBuilder<string, string>(_config)
                                  .SetKeySerializer(Serializers.Utf8)
