@@ -1,22 +1,25 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using CQRS.Core.Domain;
 using CQRS.Core.Event;
+using Daikon.EventStore.Settings;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
-namespace Gene.Infrastructure.Command.Repositories
+namespace Daikon.EventStore.Repositories
 {
     public class EventStoreRepository : IEventStoreRepository
     {
         private readonly IMongoCollection<EventModel> _eventStoreCollection;
 
-        public EventStoreRepository(IConfiguration configuration)
+        public EventStoreRepository(IEventDatabaseSettings settings)
         {
-            var client = new MongoClient(configuration.GetValue<string>("EventDatabaseSettings:ConnectionString"));
-            var database = client.GetDatabase(configuration.GetValue<string>("EventDatabaseSettings:DatabaseName"));
-            _eventStoreCollection = database.GetCollection<EventModel>(configuration.GetValue<string>("EventDatabaseSettings:CollectionName"));
+            var client = new MongoClient(settings.ConnectionString);
+            var database = client.GetDatabase(settings.DatabaseName);
+            _eventStoreCollection = database.GetCollection<EventModel>(settings.CollectionName);
         }
-
         public async Task<List<EventModel>> FindByAggregateId(Guid aggregateId)
         {
             return await _eventStoreCollection.Find(x => x.AggregateIdentifier == aggregateId)

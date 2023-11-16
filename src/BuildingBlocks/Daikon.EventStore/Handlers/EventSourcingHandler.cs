@@ -1,24 +1,26 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using CQRS.Core.Domain;
 using CQRS.Core.Handlers;
 using CQRS.Core.Infrastructure;
-using Gene.Domain.Aggregates;
 
-namespace Gene.Infrastructure.Command.Handlers
+namespace Daikon.EventStore.Handlers
 {
-    public class EventSourcingHandler : IEventSourcingHandler<GeneAggregate>
+    public class EventSourcingHandler<TAggregate> : IEventSourcingHandler<TAggregate> where TAggregate : AggregateRoot, new()
     {
-        private readonly IEventStore _eventStore;
+        private readonly IEventStore<TAggregate> _eventStore;
 
-        public EventSourcingHandler(IEventStore eventStore)
+        public EventSourcingHandler(IEventStore<TAggregate> eventStore)
         {
             _eventStore = eventStore;
         }
 
-        public async Task<GeneAggregate> GetByAsyncId(Guid aggregateId)
+        public async Task<TAggregate> GetByAsyncId(Guid aggregateId)
 
         {
-            var aggregate = new GeneAggregate();
+            var aggregate = new TAggregate();
             var events = await _eventStore.GetEventsAsync(aggregateId);
 
             if (events == null || !events.Any())

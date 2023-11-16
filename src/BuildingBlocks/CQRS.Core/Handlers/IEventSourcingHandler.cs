@@ -3,9 +3,9 @@ using CQRS.Core.Domain;
 
 namespace CQRS.Core.Handlers
 {
-    public interface IEventSourcingHandler<T>
+    public interface IEventSourcingHandler<TAggregate> where TAggregate : AggregateRoot
     {
         Task SaveAsync(AggregateRoot Root);
-        Task<T> GetByAsyncId(Guid id);
+        Task<TAggregate> GetByAsyncId(Guid id);
     }
 }

@@ -7,23 +7,26 @@ using CQRS.Core.Event;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Infrastructure;
 using CQRS.Core.Producers;
-using Gene.Domain.Aggregates;
+using Daikon.EventStore.Settings;
 
-namespace Gene.Infrastructure.Command.Stores
+namespace Daikon.EventStore.Stores
 {
-    public class EventStore : IEventStore
+    public class EventStore<TAggregate> : IEventStore<TAggregate> where TAggregate : AggregateRoot
     {
         private readonly IEventStoreRepository _eventStoreRepository;
 
         private readonly IEventProducer _eventProducer;
 
+        private readonly IKafkaProducerSettings _kafkaProducerSettings;
+
         private const string DefaultKafkaTopic = "default_topic";
 
 
-        public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer)
+        public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer, IKafkaProducerSettings kafkaProducerSettings)
         {
             _eventStoreRepository = eventStoreRepository;
             _eventProducer = eventProducer;
+            _kafkaProducerSettings = kafkaProducerSettings;
         }
         public async Task<List<BaseEvent>> GetEventsAsync(Guid aggregateId)
         {
@@ -77,7 +80,7 @@ namespace Gene.Infrastructure.Command.Stores
             {
                 TimeStamp = DateTime.UtcNow,
                 AggregateIdentifier = aggregateId,
-                AggregateType = nameof(GeneAggregate),
+                AggregateType = typeof(TAggregate).Name,
                 EventData = @event,
                 EventType = @event.GetType().Name,
                 Version = version,
@@ -94,14 +97,16 @@ namespace Gene.Infrastructure.Command.Stores
 
         private async Task ProduceEvent(BaseEvent @event)
         {
-            var topic = Environment.GetEnvironmentVariable("GENE_KAFKA_TOPIC") ?? DefaultKafkaTopic;
+            var topic = _kafkaProducerSettings.Topic ?? DefaultKafkaTopic;
             if (string.IsNullOrEmpty(topic))
             {
                 // Log a warning or notify administrators
                 // Continue to produce event with default topic or handle as per application logic
-                throw new Exception("GENE_KAFKA_TOPIC environment variable not set");
+                throw new Exception("KAFKA_TOPIC environment variable not set");
             }
             await _eventProducer.ProduceAsync<BaseEvent>(topic, @event);
         }
+
+
     }
 }
