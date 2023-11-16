@@ -1,6 +1,5 @@
 
 using System.Text.Json;
-using Amazon.Runtime.Internal.Util;
 using Confluent.Kafka;
 using CQRS.Core.Event;
 using CQRS.Core.Producers;
