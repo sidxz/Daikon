@@ -1,13 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using CQRS.Core.Domain;
 using CQRS.Core.Event;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Infrastructure;
 using CQRS.Core.Producers;
 using Daikon.EventStore.Settings;
+
+/* 
+== Overview ==
+The EventStore<TAggregate> class, part of the Daikon.EventStore.Stores namespace, is a generic implementation of the IEventStore<TAggregate> interface. 
+It is designed to manage event sourcing operations for aggregates of type TAggregate, where TAggregate is a subclass of AggregateRoot.
+
+== Developer Notes ==
+_kafkaProducerSettings.Topic must be set in the application's configuration file.
+*/
 
 namespace Daikon.EventStore.Stores
 {
@@ -28,6 +34,14 @@ namespace Daikon.EventStore.Stores
             _eventProducer = eventProducer;
             _kafkaProducerSettings = kafkaProducerSettings;
         }
+
+        /*
+            GetEventsAsync(Guid aggregateId):
+
+            Asynchronously retrieves a list of events (List<BaseEvent>) for a specified aggregate ID.
+            Throws AggregateNotFoundException if no events are found for the given aggregate ID.
+            The events are ordered by their version number.
+        */
         public async Task<List<BaseEvent>> GetEventsAsync(Guid aggregateId)
         {
             var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
@@ -40,6 +54,14 @@ namespace Daikon.EventStore.Stores
 
         }
 
+        /*
+            SaveEventAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion):
+
+            Asynchronously saves a batch of events for a specified aggregate ID.
+            Ensures concurrency control by checking the expected version against the latest version in the event stream.
+            Throws ConcurrencyException if there is a version mismatch, indicating a concurrent modification.
+            Converts each BaseEvent to an EventModel and saves it to the repository. Then, it produces each event to the configured Kafka topic.
+        */
         public async Task SaveEventAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion)
         {
             var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
