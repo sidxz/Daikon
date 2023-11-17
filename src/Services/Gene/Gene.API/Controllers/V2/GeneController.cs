@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Gene.API.DTOs;
 using Gene.Application.Features.Command.NewGene;
+using Gene.Application.Features.Queries.GetGenesList;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,28 @@ namespace Gene.API.Controllers.V2
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpGet(Name = "GetGenesList")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(List<GenesListVM>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<List<GenesListVM>>> GetGenesList()
+        {
+            try
+            {
+                var genesList = await _mediator.Send(new GetGenesListQuery());
+                return Ok(genesList);
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the genes list";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
         [HttpPost(Name = "AddGene")]

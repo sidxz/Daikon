@@ -35,6 +35,11 @@ namespace Gene.Infrastructure.Query.Repositories
             throw new NotImplementedException();
         }
 
+        public async Task<List<Domain.Entities.Gene>> GetGenesList()
+        {
+            return await _geneCollection.Find(gene => true).ToListAsync();
+        }
+
         public Task UpdateGene(Domain.Entities.Gene gene)
         {
             throw new NotImplementedException();

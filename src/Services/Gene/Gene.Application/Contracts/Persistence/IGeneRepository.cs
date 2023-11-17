@@ -11,5 +11,6 @@ namespace Gene.Application.Contracts.Persistence
         Task UpdateGene(Domain.Entities.Gene gene);
         Task ReadGene(Guid id);
         Task DeleteGene(Guid id);
+        Task<List<Domain.Entities.Gene>> GetGenesList();
     }
 }
