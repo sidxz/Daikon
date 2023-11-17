@@ -11,7 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Gene.API.Controllers.V2
 {
     [ApiController]
-    [Route("api/v2/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("2.0")]
+
     public class GeneController : ControllerBase
     {
 
@@ -25,6 +27,7 @@ namespace Gene.API.Controllers.V2
         }
 
         [HttpPost(Name = "AddGene")]
+        [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddGene(NewGeneCommand command)
         {
