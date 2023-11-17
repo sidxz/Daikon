@@ -1,34 +1,51 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
+using Gene.API.Helper;
 using Gene.Application;
 using Gene.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// API VERSIONING
+builder.Services.AddApiVersioning(opt =>
+{
+    opt.DefaultApiVersion = new ApiVersion(1, 0);
+    opt.AssumeDefaultVersionWhenUnspecified = true;
+    opt.ReportApiVersions = true;
+    opt.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
+                                                    new HeaderApiVersionReader("x-api-version"),
+                                                    new MediaTypeApiVersionReader("x-api-version"));
+});
+builder.Services.AddVersionedApiExplorer(setup =>
+{
+    setup.GroupNameFormat = "'v'VVV";
+    setup.SubstituteApiVersionInUrl = true;
+});
+
 
 builder.Services.AddControllers();
-
-// builder.Services.AddApiVersioning(
-//     options =>
-//     {
-//         // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
-//         options.ReportApiVersions = true;
-//         options.DefaultApiVersion = new ApiVersion(2, 0);
-//         options.AssumeDefaultVersionWhenUnspecified = true;
-//         options.ApiVersionReader = new UrlSegmentApiVersionReader();
-//     });
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen();
 
-// Add Application and Infrastructure services.
+/* ------------------------------------------------- */
+/* Add Application and Infrastructure services. */
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 
 
 var app = builder.Build();
+
+
 
 app.MapControllers();
 
@@ -37,12 +54,19 @@ Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    var apiVersionDescriptionProvider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant());
+        }
+    });
 }
 
 //app.UseHttpsRedirection();
-
 
 
 app.Run();

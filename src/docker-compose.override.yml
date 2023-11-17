@@ -38,7 +38,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - GENE_KAFKA_TOPIC=genes
 
       - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
