@@ -1,8 +1,10 @@
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
+using CQRS.Core.Event;
 using CQRS.Core.Handlers;
 using CQRS.Core.Infrastructure;
 using CQRS.Core.Producers;
+using Daikon.Events.Gene;
 using Daikon.EventStore.Handlers;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
@@ -15,6 +17,7 @@ using Gene.Infrastructure.Query.Consumers;
 using Gene.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Bson.Serialization;
 namespace Gene.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -22,6 +25,11 @@ namespace Gene.Infrastructure
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
             /* Command */
+
+            BsonClassMap.RegisterClassMap<BaseEvent>();
+            BsonClassMap.RegisterClassMap<GeneCreatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneUpdatedEvent>();
+            
 
             var eventDatabaseSettings = new EventDatabaseSettings
             {

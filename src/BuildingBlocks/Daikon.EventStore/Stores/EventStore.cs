@@ -5,6 +5,8 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Infrastructure;
 using CQRS.Core.Producers;
 using Daikon.EventStore.Settings;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
 
 /* 
 == Overview ==
@@ -65,6 +67,15 @@ namespace Daikon.EventStore.Stores
         public async Task SaveEventAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion)
         {
             var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
+
+            Console.WriteLine($"EventStream count: {eventStream.Count}");
+            // print event stream in json format using dotnet json serializer
+            var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            Console.WriteLine($"EventStream: {eventStream.ToJson(jsonWriterSettings)}");
+            
+            
+
+
             if (expectedVersion != -1 && eventStream[^1].Version != expectedVersion)
             {
                 throw new ConcurrencyException($"Aggregate {aggregateId} has been modified since last read");
