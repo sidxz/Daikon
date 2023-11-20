@@ -9,7 +9,8 @@ namespace Gene.Application.Contracts.Persistence
     {
         Task CreateGene(Domain.Entities.Gene gene);
         Task UpdateGene(Domain.Entities.Gene gene);
-        Task ReadGene(Guid id);
+        Task<Domain.Entities.Gene> ReadGeneById(Guid id);
+        Task<Domain.Entities.Gene> ReadGeneByName(string name);
         Task DeleteGene(Guid id);
         Task<List<Domain.Entities.Gene>> GetGenesList();
     }

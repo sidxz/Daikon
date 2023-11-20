@@ -35,5 +35,19 @@ namespace Gene.Application.Query.Handlers
 
             await _geneRepository.CreateGene(gene);
         }
+
+        public async Task OnEvent(GeneUpdatedEvent @event)
+        {
+            var gene = _geneRepository.ReadGeneById(@event.Id).Result;
+            gene.Name = @event.Name;
+            gene.AccessionNumber = @event.AccessionNumber;
+            gene.Function = @event.Function;
+            gene.Product = @event.Product;
+            gene.FunctionalCategory = @event.FunctionalCategory;
+            gene.IsModified = true;
+            
+
+            await _geneRepository.UpdateGene(gene);
+        }
     }
 }

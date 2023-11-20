@@ -30,19 +30,51 @@ namespace Gene.Infrastructure.Query.Repositories
             throw new NotImplementedException();
         }
 
-        public Task ReadGene(Guid id)
+        public Task<Domain.Entities.Gene> ReadGeneById(Guid id)
         {
-            throw new NotImplementedException();
+            return _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
         }
+
+        public Task<Domain.Entities.Gene> ReadGeneByName(string name)
+        {
+            return _geneCollection.Find(gene => gene.Name == name).FirstOrDefaultAsync();
+        }
+
 
         public async Task<List<Domain.Entities.Gene>> GetGenesList()
         {
             return await _geneCollection.Find(gene => true).ToListAsync();
         }
 
-        public Task UpdateGene(Domain.Entities.Gene gene)
+        public async Task UpdateGene(Domain.Entities.Gene gene)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("++++++++++ GeneRepository.UpdateGene");
+            Console.WriteLine("gene.Id: " + gene.Id);
+            if (gene == null)
+            {
+                throw new ArgumentNullException(nameof(gene));
+            }
+
+            var filter = Builders<Domain.Entities.Gene>.Filter.Eq(g => g.Id, gene.Id);
+            var update = Builders<Domain.Entities.Gene>.Update
+                .Set(g => g.Name, gene.Name)
+                .Set(g => g.Function, gene.Function)
+                .Set(g => g.Product, gene.Product)
+                .Set(g => g.FunctionalCategory, gene.FunctionalCategory);
+
+            try
+            {
+                Console.WriteLine("await _geneCollection.UpdateOneAsync");
+                await _geneCollection.UpdateOneAsync(filter, update);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("----- EXCEPTION  GeneRepository.UpdateGene: " + ex.Message);
+                // Handle or log the exception as appropriate for your application
+                throw;
+            }
+            
         }
+
     }
 }

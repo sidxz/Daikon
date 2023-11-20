@@ -15,6 +15,8 @@ namespace Gene.Domain.Aggregates
 
         }
 
+        /* New Gene */
+
         public GeneAggregate(Entities.Gene gene)
         {
             RaiseEvent(new GeneCreatedEvent
@@ -34,6 +36,27 @@ namespace Gene.Domain.Aggregates
         public void Apply(GeneCreatedEvent @event)
         {
             _id = @event.Id;           
+        }
+
+        /* Update Gene */
+
+        public void UpdateGene(Entities.Gene gene)
+        {
+            RaiseEvent(new GeneUpdatedEvent
+            {
+                Id = gene.Id,
+                Name = gene.Name,
+                AccessionNumber = gene.AccessionNumber,
+                Function = gene.Function,
+                Product = gene.Product,
+                FunctionalCategory = gene.FunctionalCategory,
+                
+            });
+        }
+
+        public void Apply(GeneUpdatedEvent @event)
+        {
+            _id = @event.Id;
         }
     }
 }

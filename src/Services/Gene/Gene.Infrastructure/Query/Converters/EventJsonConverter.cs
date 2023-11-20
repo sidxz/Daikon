@@ -36,6 +36,7 @@ namespace Gene.Infrastructure.Query.Converters
             return typeDiscriminator switch
             {
                 "GeneCreatedEvent" => JsonSerializer.Deserialize<GeneCreatedEvent>(json, options),
+                "GeneUpdatedEvent" => JsonSerializer.Deserialize<GeneUpdatedEvent>(json, options),
                 
                 _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
             };
