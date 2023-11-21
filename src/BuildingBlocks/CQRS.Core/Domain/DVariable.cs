@@ -6,46 +6,112 @@ using System.Threading.Tasks;
 
 namespace CQRS.Core.Domain
 {
-    public class DVariable<TDataType>
+    public class DVariable<TDataType> : DocMetadata
     {
-        
+
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public TDataType Value { get; set; }
 
-        // /* Version Meta Data */
-        // public string ChangeType { get; set; } // Addition, Modification, Deletion
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? Author { get; set; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public DateTime? Date { get; set; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? Comment { get; set; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? Provenance { get; set; }
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public string? Source { get; set; }
+        public DVariable()
+        {
+            Value = default!;
+        }
 
-        // /* ML Generated Properties */
-        // public bool IsMLGenerated { get; set; }
-        // public string MLGeneratedBy { get; set; }
-        // public DateTime MLGeneratedDate { get; set; }
-        // public string MLGeneratedComment { get; set; }
-        // public float MLGeneratedConfidence { get; set; }
+        public override string ToString()
+        {
+            // Check if Value is null, which is a possibility for reference types and nullable value types
+            if (Value == null)
+            {
+                return "null";
+            }
+
+            // For other types, use the default ToString implementation of the Value
+            return Value?.ToString() ?? "null";
+        }
+
+        public static implicit operator TDataType(DVariable<TDataType> dVariable)
+        {
+            return dVariable.Value;
+        }
+
+        public static implicit operator DVariable<TDataType>(TDataType value)
+        {
+            return new DVariable<TDataType> { Value = value };
+        }
+
+        public static bool operator ==(DVariable<TDataType> dVariable, TDataType value)
+        {
+            return dVariable.Value?.Equals(value) ?? false;
+        }
 
 
-        // /* Approval Properties */
-        // public string ApprovalStatus { get; set; }
-        // public bool IsVerified { get; set; }
-        // public string VerifiedBy { get; set; }
-        // public string VerifiedComment { get; set; }
-        // public DateTime VerifiedDate { get; set; }
+        public static bool operator !=(DVariable<TDataType> dVariable, TDataType value)
+        {
+            return !dVariable.Value?.Equals(value) ?? false;
+
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is DVariable<TDataType> dVariable)
+            {
+                return dVariable.Value?.Equals(Value) ?? false;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return Value?.GetHashCode() ?? 0;
+        }
+
+        public static bool operator ==(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        {
+            return dVariable1.Value?.Equals(dVariable2.Value) ?? false;
+        }
+
+        public static bool operator !=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        {
+            return !dVariable1.Value?.Equals(dVariable2.Value) ?? false;
+        }
+
+        public static bool operator >(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        {
+            return dVariable1.Value switch
+            {
+                IComparable comparable => comparable.CompareTo(dVariable2.Value) > 0,
+                _ => throw new InvalidOperationException("Cannot compare values of this type"),
+            };
+        }
+
+        public static bool operator <(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        {
+            return dVariable1.Value switch
+            {
+                IComparable comparable => comparable.CompareTo(dVariable2.Value) < 0,
+                _ => throw new InvalidOperationException("Cannot compare values of this type"),
+            };
+        }
+
+        public static bool operator >=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        {
+            return dVariable1.Value switch
+            {
+                IComparable comparable => comparable.CompareTo(dVariable2.Value) >= 0,
+                _ => throw new InvalidOperationException("Cannot compare values of this type"),
+            };
+        }
+
+        public static bool operator <=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        {
+            return dVariable1.Value switch
+            {
+                IComparable comparable => comparable.CompareTo(dVariable2.Value) <= 0,
+                _ => throw new InvalidOperationException("Cannot compare values of this type"),
+            };
+        }
 
 
-        // /* Data Quality Properties */
-        // public string DataQualityIndicator { get; set; }
-
-
-        // public bool IsArchived { get; set; }
-        
     }
 }
