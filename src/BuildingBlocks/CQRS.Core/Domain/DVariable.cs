@@ -6,15 +6,46 @@ using System.Threading.Tasks;
 
 namespace CQRS.Core.Domain
 {
+    /*
+     == Overview ==
+    The DVariable<TDataType> class is a generic class designed to encapsulate a value of any type (TDataType)
+    along with additional metadata inherited from DocMetadata. It provides mechanisms for easy value manipulation
+    and comparison, while also supporting JSON serialization behaviors.
+
+    == Design Considerations ==
+    1. The class is designed to be generic to accommodate any data type.
+    2. It inherits from DocMetadata to include additional metadata.
+    3. Implicit operators are provided for ease of use, allowing the class to be used as if it were of type TDataType.
+    4. The class handles null values gracefully in ToString, Equals, and GetHashCode methods.
+    5. Comparison operators are implemented with a guard clause to ensure TDataType is comparable.
+
+    == Usage ==
+    This class can be used to encapsulate any type of data along with metadata. It is particularly useful
+    in scenarios where additional information about the data (like source, author, etc.) is required alongside the data itself.
+    Example:
+     var intVariable = new DVariable<int> { Value = 10 };
+     var stringVariable = new DVariable<string>("Hello");
+
+    */
+
     public class DVariable<TDataType> : DocMetadata
     {
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public TDataType Value { get; set; }
 
-        public DVariable()
+        public DVariable() : base()
         {
             Value = default!;
+        }
+
+        /* Copy Constructor */
+        public DVariable(DVariable<TDataType> dVariable) : base(dVariable) // Call base copy constructor
+        {
+            if (dVariable == null)
+                throw new ArgumentNullException(nameof(dVariable));
+
+            Value = dVariable.Value;
         }
 
         public override string ToString()
