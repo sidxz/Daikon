@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CQRS.Core.Domain
 {
-    public abstract class BaseEntity
+    public abstract class BaseEntity : DocMetadata
     {
         public Guid Id { get; set; }
         public DateTime DateCreated { get; set; }
