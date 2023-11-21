@@ -57,11 +57,11 @@ namespace Gene.API.Controllers.V2
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(GeneVM), (int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GeneVM>> GetGeneById(Guid id)
+        public async Task<ActionResult<GeneVM>> GetGeneById(Guid id, [FromQuery] bool IncludeMetadata = false)
         {
             try
             {
-                var gene = await _mediator.Send(new GetGeneByIdQuery { Id = id });
+                var gene = await _mediator.Send(new GetGeneByIdQuery { Id = id, IncludeMetadata = IncludeMetadata });
                 return Ok(gene);
             }
             catch (InvalidOperationException ex)
