@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CQRS.Core.Domain;
+using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
@@ -12,17 +14,25 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<Domain.Entities.Gene> _geneCollection;
+        private readonly IMongoCollection<Domain.EntityRevisions.GeneRevision> _geneRevisionCollection;
 
-        public GeneRepository(IConfiguration configuration)
+        private readonly IVersionMaintainer<Domain.EntityRevisions.GeneRevision> _versionMaintainer;
+
+        public GeneRepository(IConfiguration configuration, IVersionMaintainer<Domain.EntityRevisions.GeneRevision> versionMaintainer)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
-            _geneCollection = database.GetCollection<Domain.Entities.Gene>(configuration.GetValue<string>("GeneMongoDbSettings:CollectionName"));
+            _geneCollection = database.GetCollection<Domain.Entities.Gene>(configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName"));
+            _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.AccessionNumber), new CreateIndexOptions { Unique = true }));
+            
+            _versionMaintainer = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
         }
 
         public async Task CreateGene(Domain.Entities.Gene gene)
         {
             await _geneCollection.InsertOneAsync(@gene);
+            await _versionMaintainer.CommitVersion(gene);
+            
         }
 
         public Task DeleteGene(Guid id)
@@ -66,6 +76,7 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 Console.WriteLine("await _geneCollection.UpdateOneAsync");
                 await _geneCollection.UpdateOneAsync(filter, update);
+                await _versionMaintainer.CommitVersion(gene);
             }
             catch (Exception ex)
             {
