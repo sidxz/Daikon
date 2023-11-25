@@ -111,9 +111,10 @@ namespace Daikon.VersionStore.Handlers
                     // Set the CurrentValue
                     try
                     {
+                        var updatedValue = updatedProperty_Value.GetType().GetProperty("Value").GetValue(updatedProperty_Value);
+
                         _DVariableHistory_Value?.GetType()?.GetProperty("CurrentValue")?
-                            .SetValue(_DVariableHistory_Value, updatedProperty_Value.GetType()
-                            .GetProperty("Value"));
+                            .SetValue(_DVariableHistory_Value, updatedValue);
                     }
                     catch (Exception e)
                     {
