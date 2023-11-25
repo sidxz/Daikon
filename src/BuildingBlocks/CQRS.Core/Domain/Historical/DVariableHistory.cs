@@ -18,7 +18,8 @@ namespace CQRS.Core.Domain.Historical
         /* Accepted Versions */
         public List<VersionEntry<TDataType>> Versions { get; set; }
 
-        public DVariable<TDataType> CurrentValue { get; set; }
+        public DVariable<TDataType> Current { get; set; }
+        public TDataType CurrentValue { get; set; }
         public int CurrentVersion { get; set; }
         public string CurrentAuthor { get; set; }
         public bool IsInitialVersion { get; set; }
