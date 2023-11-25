@@ -21,6 +21,7 @@ services:
       - ALLOW_PLAINTEXT_LISTENER=yes
       - KAFKA_LISTENERS=PLAINTEXT://:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://Kafka:9092
+      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
 
   EventStoreDb:
@@ -44,13 +45,16 @@ services:
       - "EventDatabaseSettings:CollectionName=Events"
 
       - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      # - "KafkaProducerSettings:BootstrapServers=localhost:9092"
       - "KafkaProducerSettings:Topic=genes"
 
       - "GeneMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
       - "GeneMongoDbSettings:DatabaseName=Gene"
-      - "GeneMongoDbSettings:CollectionName=Genes"
+      - "GeneMongoDbSettings:GeneCollectionName=Genes"
+      - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      # - "KafkaConsumerSettings:BootstrapServers=localhost:9092"
       - "KafkaConsumerSettings:Topic=genes"
       - "KafkaConsumerSettings:GroupId=gene-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"

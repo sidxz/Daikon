@@ -7,10 +7,18 @@ namespace CQRS.Core.Domain.Historical
 {
     public class DVariableHistory<TDataType>
     {
+        public DVariableHistory()
+        {
+            Versions = new List<VersionEntry<TDataType>>();
+            CurrentVersion = 0;
+            IsInitialVersion = true;
+            CurrentModificationDate = DateTime.UtcNow;
+        }
+
         /* Accepted Versions */
         public List<VersionEntry<TDataType>> Versions { get; set; }
-       
-        public TDataType CurrentValue { get; set; }
+
+        public DVariable<TDataType> CurrentValue { get; set; }
         public int CurrentVersion { get; set; }
         public string CurrentAuthor { get; set; }
         public bool IsInitialVersion { get; set; }
@@ -20,15 +28,6 @@ namespace CQRS.Core.Domain.Historical
         public string LegalFlagReason { get; set; }
 
 
-
-
-
-        /* Proposed Versions */
-        public List<VersionEntry<TDataType>> ProposedVersions { get; set; }
-        public bool IsVersionProposed { get; set; }
-
-        /* Rejected Versions */
-        public List<VersionEntry<TDataType>> RejectedVersions { get; set; }
 
     }
 }

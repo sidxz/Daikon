@@ -10,9 +10,12 @@ using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
+using Daikon.VersionStore.Handlers;
+using Daikon.VersionStore.Repositories;
+using Daikon.VersionStore.Settings;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
-
+using Gene.Domain.EntityRevisions;
 using Gene.Infrastructure.Query.Consumers;
 using Gene.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -54,6 +57,18 @@ namespace Gene.Infrastructure
 
             /* Query */
             services.AddScoped<IGeneRepository, GeneRepository>();
+
+            var versionStoreSettings = new VersionDatabaseSettings
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.CollectionName))
+            };
+            services.AddSingleton<IVersionDatabaseSettings>(versionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<GeneRevision>, VersionStoreRepository<GeneRevision>>();
+            services.AddScoped<IVersionMaintainer<GeneRevision>, VersionMaintainer<GeneRevision>>();
+
+
             services.AddScoped<IEventConsumer, EventConsumer>();
 
             services.AddHostedService<ConsumerHostedService>();

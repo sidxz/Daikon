@@ -92,56 +92,56 @@ namespace CQRS.Core.Domain
             return false;
         }
 
-        public override int GetHashCode()
-        {
-            return Value?.GetHashCode() ?? 0;
-        }
+        // public override int GetHashCode()
+        // {
+        //     return Value?.GetHashCode() ?? 0;
+        // }
 
-        public static bool operator ==(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
-        {
-            return dVariable1.Value?.Equals(dVariable2.Value) ?? false;
-        }
+        // public static bool operator ==(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        // {
+        //     return dVariable1.Value?.Equals(dVariable2.Value) ?? false;
+        // }
 
-        public static bool operator !=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
-        {
-            return !dVariable1.Value?.Equals(dVariable2.Value) ?? false;
-        }
+        // public static bool operator !=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        // {
+        //     return !dVariable1.Value?.Equals(dVariable2.Value) ?? false;
+        // }
 
-        public static bool operator >(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
-        {
-            return dVariable1.Value switch
-            {
-                IComparable comparable => comparable.CompareTo(dVariable2.Value) > 0,
-                _ => throw new InvalidOperationException("Cannot compare values of this type"),
-            };
-        }
+        // public static bool operator >(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        // {
+        //     return dVariable1.Value switch
+        //     {
+        //         IComparable comparable => comparable.CompareTo(dVariable2.Value) > 0,
+        //         _ => throw new InvalidOperationException("Cannot compare values of this type"),
+        //     };
+        // }
 
-        public static bool operator <(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
-        {
-            return dVariable1.Value switch
-            {
-                IComparable comparable => comparable.CompareTo(dVariable2.Value) < 0,
-                _ => throw new InvalidOperationException("Cannot compare values of this type"),
-            };
-        }
+        // public static bool operator <(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        // {
+        //     return dVariable1.Value switch
+        //     {
+        //         IComparable comparable => comparable.CompareTo(dVariable2.Value) < 0,
+        //         _ => throw new InvalidOperationException("Cannot compare values of this type"),
+        //     };
+        // }
 
-        public static bool operator >=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
-        {
-            return dVariable1.Value switch
-            {
-                IComparable comparable => comparable.CompareTo(dVariable2.Value) >= 0,
-                _ => throw new InvalidOperationException("Cannot compare values of this type"),
-            };
-        }
+        // public static bool operator >=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        // {
+        //     return dVariable1.Value switch
+        //     {
+        //         IComparable comparable => comparable.CompareTo(dVariable2.Value) >= 0,
+        //         _ => throw new InvalidOperationException("Cannot compare values of this type"),
+        //     };
+        // }
 
-        public static bool operator <=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
-        {
-            return dVariable1.Value switch
-            {
-                IComparable comparable => comparable.CompareTo(dVariable2.Value) <= 0,
-                _ => throw new InvalidOperationException("Cannot compare values of this type"),
-            };
-        }
+        // public static bool operator <=(DVariable<TDataType> dVariable1, DVariable<TDataType> dVariable2)
+        // {
+        //     return dVariable1.Value switch
+        //     {
+        //         IComparable comparable => comparable.CompareTo(dVariable2.Value) <= 0,
+        //         _ => throw new InvalidOperationException("Cannot compare values of this type"),
+        //     };
+        // }
 
 
     }

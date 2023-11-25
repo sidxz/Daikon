@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Gene.Domain\Gene.Domain.csproj" />
     <ProjectReference Include="..\Gene.Application\Gene.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.EventStore\Daikon.EventStore.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.VersionStore\Daikon.VersionStore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
