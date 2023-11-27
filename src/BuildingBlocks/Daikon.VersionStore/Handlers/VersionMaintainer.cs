@@ -32,61 +32,20 @@ namespace Daikon.VersionStore.Handlers
 
                 NewVersion<VersionEntityModel> newVersion = new(_logger);
                 var newVersionModel = newVersion.Create(updatedEntity);
-               
+
                 await _versionStoreRepository.SaveAsync(newVersionModel).ConfigureAwait(false);
-                
+
             }
 
             else
             {
-                // Existing model
-                // Loop through each property and check if it has changed
-                foreach (var property in typeof(BaseEntity).GetProperties())
-                {
-                    var propertyEntry = property.GetValue(updatedEntity);
+                // Update model
+                // Update the existing version model
+                UpdateVersion<VersionEntityModel> updateVersion = new(_logger);
+                var updatedVersionModel = updateVersion.Update(updatedEntity, existingModel);
 
-                    // Check if the property is of type DVariable<T>
-                    if (propertyEntry is DVariable<object> dVariable_updatedEntity)
-                    {
-                        //  Updated Value of DVariableHistory
-                        var updatedValue = dVariable_updatedEntity.Value;
-
-                        // Get the existing value for comparison
-                        var versionPropertyEntry = typeof(VersionEntityModel).GetProperty(property.Name);
-                        var dVariableHistory_versionModel = versionPropertyEntry?.GetValue(existingModel) as DVariableHistory<object>;
-                        var existingValue = dVariableHistory_versionModel?.CurrentValue;
-
-                        if (!Equals(existingValue, updatedValue))
-                        {
-                            // The property has changed
-                            // Handle the change accordingly
-                            // ...
-
-                            // 1. Update Version
-                            var newVersion = dVariableHistory_versionModel.CurrentVersion + 1;
-                            dVariableHistory_versionModel.CurrentVersion = newVersion;
-
-                            // 2. Update Value
-                            dVariableHistory_versionModel.CurrentValue = updatedValue;
-
-                            // 3. Update UpdatedAt
-                            dVariableHistory_versionModel.CurrentModificationDate = DateTime.UtcNow;
-
-                            // 4 Insert new version
-                            dVariableHistory_versionModel.Versions.Add(new VersionEntry<object>
-                            {
-                                VersionNumber = newVersion,
-                                VersionDetails = dVariable_updatedEntity
-                            });
-
-
-
-                        }
-                    }
-
-                }
                 // Save the updated model
-                await _versionStoreRepository.UpdateAsync(existingModel).ConfigureAwait(false);
+                await _versionStoreRepository.UpdateAsync(updatedVersionModel).ConfigureAwait(false);
 
             }
 
