@@ -30,7 +30,7 @@ namespace Gene.Infrastructure.Query.Repositories
 
         public async Task CreateGene(Domain.Entities.Gene gene)
         {
-            await _geneCollection.InsertOneAsync(@gene);
+            await _geneCollection.InsertOneAsync(gene);
             await _versionMaintainer.CommitVersion(gene);
             
         }

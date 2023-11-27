@@ -10,26 +10,29 @@ using Microsoft.Extensions.Logging;
 
 namespace Daikon.VersionStore.Handlers
 {
-    public class NewVersion<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
+    public class UpdateVersion<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
     {
         private readonly ILogger<VersionMaintainer<VersionEntityModel>> _logger;
-        public NewVersion(ILogger<VersionMaintainer<VersionEntityModel>> logger)
+        public UpdateVersion(ILogger<VersionMaintainer<VersionEntityModel>> logger)
         {
             _logger = logger;
         }
 
-        public VersionEntityModel Create(BaseEntity updatedEntity)
+        public VersionEntityModel Update(BaseEntity updatedEntity, VersionEntityModel versionEntityModel)
         {
             // New model
             // Create a new version model
-            var newVersionModel = Activator.CreateInstance<VersionEntityModel>();
-            newVersionModel.Id = Guid.NewGuid();
+
+            if (versionEntityModel == null)
+            {
+                throw new Exception("VersionEntityModel cannot be null");
+            }
+
+
             if (updatedEntity.Id == Guid.Empty)
             {
                 throw new Exception("Entity Id cannot be empty");
             }
-
-            newVersionModel.EntityId = updatedEntity.Id;
 
             var updatedEntityType = updatedEntity.GetType();
 
@@ -55,38 +58,48 @@ namespace Daikon.VersionStore.Handlers
                         continue;
                     }
 
-                    var _DVariableHistory_Value = _DVariableHistory.GetValue(newVersionModel);
+                    var _DVariableHistory_Value = _DVariableHistory.GetValue(versionEntityModel);
                     //var _DVariableHistory_Type = _DVariableHistory.PropertyType;
-
-                    if (_DVariableHistory_Value != null)
-                    {
-                        throw new Exception("DVariableHistory property already exists in VersionEntityModel. " + updatedProperty.Name);
-                    }
-
 
                     Type genericTypeArgument = _DVariableHistory.PropertyType.GetGenericArguments()[0];
 
-                    // Create a new instance of DVariableHistory<T> to store the updated value
+                    if (_DVariableHistory_Value == null)
+                    {
+                        _logger.LogWarning("DVariableHistory property not found in VersionEntityModel. " + updatedProperty.Name);
+                        _logger.LogInformation("Create a new instance of DVariableHistory<T> to store the updated value");
+                        try
+                        {
+                            Type dVariableHistoryType = typeof(DVariableHistory<>).MakeGenericType(genericTypeArgument);
+                            _DVariableHistory_Value = Activator.CreateInstance(dVariableHistoryType);
+                            _logger.LogInformation("_DVariableHistory_Value_New Created");
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.LogInformation("Failed to create instance of DVariableHistory");
+                            _logger.LogInformation(e.ToString());
+                        }
+                    }
 
-                    _logger.LogInformation("Create a new instance of DVariableHistory<T> to store the updated value");
+                    // See if the property has changed
+                    var _DVariableHistory_Value_CurrentValue = _DVariableHistory_Value.GetType().GetProperty("CurrentValue").GetValue(_DVariableHistory_Value);
+                    var _DVariableUpdatedEntity_Value_CurrentValue = updatedProperty_Value.GetType().GetProperty("Value").GetValue(updatedProperty_Value);
 
+                    if (_DVariableHistory_Value_CurrentValue.Equals(_DVariableUpdatedEntity_Value_CurrentValue))
+                    {
+                        _logger.LogInformation("No change in value for " + updatedProperty.Name);
+                        continue;
+                    }
+
+                    // Value has changed
+
+
+                    // Update the current version
+                    int updatedVersion = 0;
                     try
                     {
-                        Type dVariableHistoryType = typeof(DVariableHistory<>).MakeGenericType(genericTypeArgument);
-                        _DVariableHistory_Value = Activator.CreateInstance(dVariableHistoryType);
-                        _logger.LogInformation("_DVariableHistory_Value_New Created");
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogInformation("Failed to create instance of DVariableHistory");
-                        _logger.LogInformation(e.ToString());
-                    }
-
-
-                    // Set the CurrentVersion of _DVariableHistory_Value_New to 1
-                    try
-                    {
-                        _DVariableHistory_Value?.GetType()?.GetProperty("CurrentVersion")?.SetValue(_DVariableHistory_Value, 1);
+                        var existingVersion = (int)_DVariableHistory_Value?.GetType()?.GetProperty("CurrentVersion")?.GetValue(_DVariableHistory_Value);
+                        updatedVersion = existingVersion + 1;
+                        _DVariableHistory_Value?.GetType()?.GetProperty("CurrentVersion")?.SetValue(_DVariableHistory_Value, updatedVersion);
                     }
                     catch (Exception e)
                     {
@@ -122,6 +135,28 @@ namespace Daikon.VersionStore.Handlers
                         _logger.LogInformation(e.ToString());
                     }
 
+                    // Mark IsInitialVersion false
+                    try
+                    {
+                        _DVariableHistory_Value?.GetType()?.GetProperty("IsInitialVersion")?.SetValue(_DVariableHistory_Value, false);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogInformation("Exception while setting IsInitialVersion");
+                        _logger.LogInformation(e.ToString());
+                    }
+
+                    // Update CurrentModificationDate
+                    try
+                    {
+                        _DVariableHistory_Value?.GetType()?.GetProperty("CurrentModificationDate")?.SetValue(_DVariableHistory_Value, DateTime.UtcNow);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogInformation("Exception while setting CurrentModificationDate");
+                        _logger.LogInformation(e.ToString());
+                    }
+
                     // Update CurrentAuthor
                     try
                     {
@@ -138,7 +173,8 @@ namespace Daikon.VersionStore.Handlers
                     // Add current version to the Versions list
                     var _versionsProperty = _DVariableHistory_Value?.GetType().GetProperty("Versions");
                     var _versionsList = _versionsProperty?.GetValue(_DVariableHistory_Value);
-                    
+
+
                     // Create Version Entry
                     try
                     {
@@ -148,8 +184,8 @@ namespace Daikon.VersionStore.Handlers
 
                         Type dVariableType = typeof(DVariable<>).MakeGenericType(genericTypeArgument);
                         var updatedPropertyValue = Activator.CreateInstance(dVariableType, updatedProperty_Value);
-                    
-                        _VersionValue.GetType().GetProperty("VersionNumber").SetValue(_VersionValue, 1);
+
+                        _VersionValue.GetType().GetProperty("VersionNumber").SetValue(_VersionValue, updatedVersion);
                         _VersionValue.GetType().GetProperty("VersionDetails").SetValue(_VersionValue, updatedPropertyValue);
 
 
@@ -162,13 +198,13 @@ namespace Daikon.VersionStore.Handlers
                     }
 
                     // Set it on the newVersionModel
-                    _DVariableHistory.SetValue(newVersionModel, _DVariableHistory_Value);
+                    _DVariableHistory.SetValue(versionEntityModel, _DVariableHistory_Value);
 
                 }
 
 
             }
-            return newVersionModel;
+            return versionEntityModel;
         }
     }
 }
