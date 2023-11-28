@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CQRS.Core.Exceptions;
 using Gene.API.DTOs;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Features.Command.UpdateGene;
@@ -64,6 +65,15 @@ namespace Gene.API.Controllers.V2
                 var gene = await _mediator.Send(new GetGeneByIdQuery { Id = id, IncludeMetadata = IncludeMetadata });
                 return Ok(gene);
             }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetGeneById: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            
             catch (InvalidOperationException ex)
             {
                 _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
