@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CQRS.Core.Domain;
+using CQRS.Core.Exceptions;
 using Gene.Application.Contracts.Persistence;
 using Gene.Application.Features.Queries.GetGene;
 using MediatR;
@@ -20,6 +21,11 @@ namespace Gene.Application.Features.Queries.GetGene.ById
         public async Task<GeneVM> Handle(GetGeneByIdQuery request, CancellationToken cancellationToken)
         {
             var gene = await _geneRepository.ReadGeneById(request.Id);
+
+            if (gene == null)
+            {
+                throw new ResourceNotFoundException(nameof(Gene), request.Id);
+            }
 
             if (request.IncludeMetadata)
             {
