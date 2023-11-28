@@ -27,7 +27,7 @@ namespace Gene.Application.Features.Queries.GetGene.ById
                 throw new ResourceNotFoundException(nameof(Gene), request.Id);
             }
 
-            if (request.IncludeMetadata)
+            if (request.WithMeta)
             {
                 return new GeneVM
                 {
