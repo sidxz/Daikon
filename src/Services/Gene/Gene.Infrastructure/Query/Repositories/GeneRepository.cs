@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CQRS.Core.Domain;
 using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
+using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
 
@@ -87,5 +88,12 @@ namespace Gene.Infrastructure.Query.Repositories
             
         }
 
+
+
+        public async Task<GeneRevision> GetGeneRevisions(Guid Id)
+        {
+            var geneRevision = await _versionMaintainer.GetVersions(Id);
+            return geneRevision;
+        }
     }
 }
