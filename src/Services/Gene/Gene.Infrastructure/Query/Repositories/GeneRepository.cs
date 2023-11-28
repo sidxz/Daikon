@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.Runtime.Internal.Util;
 using CQRS.Core.Domain;
+using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 
 namespace Gene.Infrastructure.Query.Repositories
@@ -15,31 +18,40 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<Domain.Entities.Gene> _geneCollection;
-        private readonly IMongoCollection<Domain.EntityRevisions.GeneRevision> _geneRevisionCollection;
+        private readonly IVersionHub<GeneRevision> _versionHub;
+        private readonly ILogger<GeneRepository> _logger;
 
-        private readonly IVersionMaintainer<Domain.EntityRevisions.GeneRevision> _versionMaintainer;
-
-        public GeneRepository(IConfiguration configuration, IVersionMaintainer<Domain.EntityRevisions.GeneRevision> versionMaintainer)
+        public GeneRepository(IConfiguration configuration, IVersionHub<GeneRevision> versionMaintainer, ILogger<GeneRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _geneCollection = database.GetCollection<Domain.Entities.Gene>(configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName"));
             _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.AccessionNumber), new CreateIndexOptions { Unique = true }));
-            
-            _versionMaintainer = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
+
+            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
+
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task CreateGene(Domain.Entities.Gene gene)
         {
-            await _geneCollection.InsertOneAsync(gene);
-            await _versionMaintainer.CommitVersion(gene);
-            
+
+            ArgumentNullException.ThrowIfNull(gene);
+
+            try
+            {
+                _logger.LogInformation("CreateGene: Creating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
+                await _geneCollection.InsertOneAsync(gene);
+                await _versionHub.CommitVersion(gene);
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", gene.Id);
+                throw new RepositoryException(nameof(GeneRepository), "Error creating gene", ex);
+            }
         }
 
-        public Task DeleteGene(Guid id)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public Task<Domain.Entities.Gene> ReadGeneById(Guid id)
         {
@@ -54,17 +66,21 @@ namespace Gene.Infrastructure.Query.Repositories
 
         public async Task<List<Domain.Entities.Gene>> GetGenesList()
         {
-            return await _geneCollection.Find(gene => true).ToListAsync();
+            try
+            {
+                return await _geneCollection.Find(gene => true).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the gene list");
+                throw new RepositoryException(nameof(GeneRepository), "Error getting gene list", ex);
+            }
+
         }
 
         public async Task UpdateGene(Domain.Entities.Gene gene)
         {
-            Console.WriteLine("++++++++++ GeneRepository.UpdateGene");
-            Console.WriteLine("gene.Id: " + gene.Id);
-            if (gene == null)
-            {
-                throw new ArgumentNullException(nameof(gene));
-            }
+            ArgumentNullException.ThrowIfNull(gene);
 
             var filter = Builders<Domain.Entities.Gene>.Filter.Eq(g => g.Id, gene.Id);
             var update = Builders<Domain.Entities.Gene>.Update
@@ -75,24 +91,42 @@ namespace Gene.Infrastructure.Query.Repositories
 
             try
             {
-                Console.WriteLine("await _geneCollection.UpdateOneAsync");
+                _logger.LogInformation("UpdateGene: Creating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
                 await _geneCollection.UpdateOneAsync(filter, update);
-                await _versionMaintainer.CommitVersion(gene);
+                await _versionHub.CommitVersion(gene);
             }
-            catch (Exception ex)
+            catch (MongoException ex)
             {
-                Console.WriteLine("----- EXCEPTION  GeneRepository.UpdateGene: " + ex.Message);
-                // Handle or log the exception as appropriate for your application
-                throw;
+                _logger.LogError(ex, "An error occurred while updating the gene with ID {GeneId}", gene.Id);
+                throw new RepositoryException(nameof(GeneRepository), "Error updating gene", ex);
             }
-            
+
+        }
+
+
+        public async Task DeleteGene(Guid id)
+        {
+            ArgumentNullException.ThrowIfNull(id);
+
+            try
+            {
+                _logger.LogInformation("DeleteGene: Deleting gene {GeneId}", id);
+                await _geneCollection.DeleteOneAsync(gene => gene.Id == id);
+                await _versionHub.ArchiveEntity(id);
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the gene with ID {GeneId}", id);
+                throw new RepositoryException(nameof(GeneRepository), "Error deleting gene", ex);
+            }
+
         }
 
 
 
         public async Task<GeneRevision> GetGeneRevisions(Guid Id)
         {
-            var geneRevision = await _versionMaintainer.GetVersions(Id);
+            var geneRevision = await _versionHub.GetVersions(Id);
             return geneRevision;
         }
     }

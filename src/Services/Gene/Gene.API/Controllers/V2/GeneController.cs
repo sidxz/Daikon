@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CQRS.Core.Exceptions;
 using Gene.API.DTOs;
+using Gene.Application.Features.Command.DeleteGene;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Features.Command.UpdateGene;
 using Gene.Application.Features.Queries.GetGene;
@@ -175,6 +176,52 @@ namespace Gene.API.Controllers.V2
             catch (Exception ex)
             {
                 const string SAFE_ERROR_MESSAGE = "An error occurred while updating the gene";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+
+        }
+
+        [HttpDelete("{id}", Name = "DeleteGene")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> DeleteGene(Guid id)
+        {
+            try
+            {
+                await _mediator.Send(new DeleteGeneCommand { Id = id });
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Gene deleted successfully",
+                });
+            }
+
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("DeleteGene: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the gene";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

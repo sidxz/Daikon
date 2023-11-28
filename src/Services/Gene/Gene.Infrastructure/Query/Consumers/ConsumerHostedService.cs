@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CQRS.Core.Consumers;
+using CQRS.Core.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -31,8 +32,17 @@ namespace Gene.Infrastructure.Query.Consumers
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
                 var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
-
-                Task.Run(() => eventConsumer.Consume(_topic), cancellationToken);
+                try {
+                    Task.Run(() => eventConsumer.Consume(_topic), cancellationToken);
+                }
+                catch (EventConsumeException ex)
+                {
+                    _logger.LogError(ex, "Error consuming event");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error consuming event");
+                }
             }
 
             return Task.CompletedTask;

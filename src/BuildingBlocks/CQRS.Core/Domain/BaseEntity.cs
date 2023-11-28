@@ -13,5 +13,10 @@ namespace CQRS.Core.Domain
         public bool IsArchived { get; set; }
         public bool IsDraft { get; set; }
 
+        public string ToJson()
+        {
+            return System.Text.Json.JsonSerializer.Serialize(this);
+        }
+
     }
 }

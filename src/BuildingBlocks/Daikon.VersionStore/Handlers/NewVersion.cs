@@ -15,9 +15,9 @@ namespace Daikon.VersionStore.Handlers
 
     public class NewVersion<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
     {
-        private readonly ILogger<VersionMaintainer<VersionEntityModel>> _logger;
+        private readonly ILogger<VersionHub<VersionEntityModel>> _logger;
         private readonly VersionStoreHelper<VersionEntityModel> _versionStoreHelper;
-        public NewVersion(ILogger<VersionMaintainer<VersionEntityModel>> logger)
+        public NewVersion(ILogger<VersionHub<VersionEntityModel>> logger)
         {
             _logger = logger;
             _versionStoreHelper = new VersionStoreHelper<VersionEntityModel>(logger);

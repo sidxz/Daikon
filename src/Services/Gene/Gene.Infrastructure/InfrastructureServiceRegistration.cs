@@ -32,6 +32,7 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<GeneCreatedEvent>();
             BsonClassMap.RegisterClassMap<GeneUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneDeletedEvent>();
             
 
             var eventDatabaseSettings = new EventDatabaseSettings
@@ -66,7 +67,7 @@ namespace Gene.Infrastructure
             };
             services.AddSingleton<IVersionDatabaseSettings>(versionStoreSettings);
             services.AddScoped<IVersionStoreRepository<GeneRevision>, VersionStoreRepository<GeneRevision>>();
-            services.AddScoped<IVersionMaintainer<GeneRevision>, VersionMaintainer<GeneRevision>>();
+            services.AddScoped<IVersionHub<GeneRevision>, VersionHub<GeneRevision>>();
 
 
             services.AddScoped<IEventConsumer, EventConsumer>();

@@ -9,5 +9,6 @@ namespace CQRS.Core.Domain.Historical
     {
         public Guid Id { get; set; }
         public Guid EntityId { get; set; }
+        public bool IsEntityDeleted { get; set; }
     }
 }

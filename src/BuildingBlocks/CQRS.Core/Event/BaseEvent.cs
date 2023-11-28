@@ -17,6 +17,10 @@ namespace CQRS.Core.Event
         public int Version { get; set; }
         public string Type { get; set; }
         
+        public string ToJson()
+        {
+            return System.Text.Json.JsonSerializer.Serialize(this);
+        }
 
     }
 }

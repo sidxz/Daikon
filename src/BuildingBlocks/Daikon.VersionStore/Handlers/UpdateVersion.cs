@@ -34,10 +34,10 @@ namespace Daikon.VersionStore.Handlers
 {
     public class UpdateVersion<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
     {
-        private readonly ILogger<VersionMaintainer<VersionEntityModel>> _logger;
+        private readonly ILogger<VersionHub<VersionEntityModel>> _logger;
         private readonly VersionStoreHelper<VersionEntityModel> _versionStoreHelper;
 
-        public UpdateVersion(ILogger<VersionMaintainer<VersionEntityModel>> logger)
+        public UpdateVersion(ILogger<VersionHub<VersionEntityModel>> logger)
         {
             _logger = logger;
             _versionStoreHelper = new VersionStoreHelper<VersionEntityModel>(logger);
