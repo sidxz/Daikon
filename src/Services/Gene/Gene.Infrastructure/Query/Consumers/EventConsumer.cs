@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Event;
+using CQRS.Core.Exceptions;
 using Gene.Application.Query.Handlers;
 using Gene.Infrastructure.Query.Converters;
 using Microsoft.Extensions.Configuration;
@@ -62,7 +63,15 @@ namespace Gene.Infrastructure.Query.Consumers
                     throw new ArgumentNullException(nameof(handlerMethod), "Handler method not found");
                 }
 
-                handlerMethod.Invoke(_eventHandler, new object[] { @event });
+                try
+                {
+                    handlerMethod.Invoke(_eventHandler, new object[] { @event });
+                }
+                catch (EventHandlerException ex)
+                {
+                    throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                }
+
                 consumer.Commit(consumeResult);
             }
         }

@@ -7,10 +7,11 @@ using CQRS.Core.Domain.Historical;
 
 namespace CQRS.Core.Handlers
 {
-    public interface IVersionMaintainer<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
+    public interface IVersionHub<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
     {
         Task CommitVersion(BaseEntity updatedEntity);
         Task<VersionEntityModel> GetVersions(Guid entityId);
+        Task ArchiveEntity(Guid entityId);
         
     }
 }

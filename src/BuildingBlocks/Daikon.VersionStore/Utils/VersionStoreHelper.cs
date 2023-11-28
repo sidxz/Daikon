@@ -108,6 +108,7 @@ namespace Daikon.VersionStore.Utils
                 var versionEntityModel = Activator.CreateInstance<VersionEntityModel>();
                 versionEntityModel.Id = Guid.NewGuid();
                 versionEntityModel.EntityId = entityId;
+                versionEntityModel.IsEntityDeleted = false;
                 return versionEntityModel;
             }
             catch (Exception e)

@@ -18,6 +18,7 @@ namespace Gene.Domain.Entities
         public DVariable<string> Function { get; set; }
         public DVariable<string> Product { get; set; }
         public DVariable<string> FunctionalCategory { get; set; }
+
         
     }
 }
