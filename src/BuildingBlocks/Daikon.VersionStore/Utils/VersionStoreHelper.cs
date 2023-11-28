@@ -65,10 +65,10 @@ namespace Daikon.VersionStore.Utils
             var versionProperty = typeof(VersionEntityModel).GetProperty(updatedProperty.Name);
             if (versionProperty == null)
             {
-                _logger.LogWarning($"Property {updatedProperty.Name} not found in VersionEntityModel. Versioning will not be maintained for this property.");
+                _logger.LogWarning("Property {UpdatedPropertyName} not found in VersionEntityModel. Versioning will not be maintained for this property.", updatedProperty.Name);
             }
 
-            return versionProperty;
+            return versionProperty!;
         }
 
 
@@ -171,12 +171,12 @@ namespace Daikon.VersionStore.Utils
                     }
                     catch (Exception e)
                     {
-                       _logger.LogError(e, "Error setting property {PropertyName} on {TargetType}: {ErrorMessage}", propertyName, target.GetType().Name, e.Message);
+                        _logger.LogError(e, "Error setting property {PropertyName} on {TargetType}: {ErrorMessage}", propertyName, target.GetType().Name, e.Message);
                     }
                 }
                 else
                 {
-                   _logger.LogWarning("Property {PropertyName} on {TargetType} is read-only.", propertyName, target.GetType().Name);
+                    _logger.LogWarning("Property {PropertyName} on {TargetType} is read-only.", propertyName, target.GetType().Name);
                 }
             }
             else
