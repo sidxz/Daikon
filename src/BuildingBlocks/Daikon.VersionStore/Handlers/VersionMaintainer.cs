@@ -65,5 +65,9 @@ namespace Daikon.VersionStore.Handlers
             }
         }
 
+        public async Task<VersionEntityModel> GetVersions(Guid entityId)
+        {
+           return await _versionStoreRepository.GetByAsyncEntityId(entityId).ConfigureAwait(false);
+        }
     }
 }

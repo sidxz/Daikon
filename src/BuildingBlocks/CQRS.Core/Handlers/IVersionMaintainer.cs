@@ -10,5 +10,7 @@ namespace CQRS.Core.Handlers
     public interface IVersionMaintainer<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
     {
         Task CommitVersion(BaseEntity updatedEntity);
+        Task<VersionEntityModel> GetVersions(Guid entityId);
+        
     }
 }
