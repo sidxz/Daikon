@@ -58,11 +58,11 @@ namespace Gene.API.Controllers.V2
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(GeneVM), (int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GeneVM>> GetGeneById(Guid id, [FromQuery] bool IncludeMetadata = false)
+        public async Task<ActionResult<GeneVM>> GetGeneById(Guid id, [FromQuery] bool WithMeta = false)
         {
             try
             {
-                var gene = await _mediator.Send(new GetGeneByIdQuery { Id = id, IncludeMetadata = IncludeMetadata });
+                var gene = await _mediator.Send(new GetGeneByIdQuery { Id = id, WithMeta = WithMeta });
                 return Ok(gene);
             }
             catch (ResourceNotFoundException ex)
