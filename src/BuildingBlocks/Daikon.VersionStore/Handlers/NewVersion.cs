@@ -1,174 +1,193 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
+
 using CQRS.Core.Domain;
 using CQRS.Core.Domain.Historical;
+using Daikon.VersionStore.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace Daikon.VersionStore.Handlers
 {
+    /// <summary>
+    /// == Overview
+    /// The NewVersion class is designed to create new version models for entities derived from BaseVersionEntity. 
+    /// It primarily handles entities with DVariable<T> properties, creating a new version history for each of these properties. 
+    /// The class uses reflection to dynamically interact with entity properties, ensuring flexibility and adaptability to different entity structures.
+    /// </summary>
+
     public class NewVersion<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
     {
         private readonly ILogger<VersionMaintainer<VersionEntityModel>> _logger;
+        private readonly VersionStoreHelper<VersionEntityModel> _versionStoreHelper;
         public NewVersion(ILogger<VersionMaintainer<VersionEntityModel>> logger)
         {
             _logger = logger;
+            _versionStoreHelper = new VersionStoreHelper<VersionEntityModel>(logger);
+        }
+
+        /*
+            * Validate the input
+            * Throw exception if input is invalid
+        */
+        private void ValidateInput(BaseEntity updatedEntity)
+        {
+            if (updatedEntity.Id == Guid.Empty)
+                throw new ArgumentException("Entity Id cannot be empty", nameof(updatedEntity));
         }
 
         public VersionEntityModel Create(BaseEntity updatedEntity)
         {
-            // New model
+
+            ValidateInput(updatedEntity);
+
+
             // Create a new version model
-            var newVersionModel = Activator.CreateInstance<VersionEntityModel>();
-            newVersionModel.Id = Guid.NewGuid();
-            if (updatedEntity.Id == Guid.Empty)
-            {
-                throw new Exception("Entity Id cannot be empty");
-            }
+            var versionEntityModel = _versionStoreHelper.CreateNewVersionModel(updatedEntity.Id);
 
-            newVersionModel.EntityId = updatedEntity.Id;
-
-            var updatedEntityType = updatedEntity.GetType();
 
             // Loop through each property and add it to the version model
-            foreach (var updatedProperty in updatedEntityType.GetProperties())
+            foreach (var updatedProperty in updatedEntity.GetType().GetProperties())
             {
 
-                var updatedProperty_Value = updatedProperty.GetValue(updatedEntity);
-                var updatedProperty_Type = updatedProperty.PropertyType;
-
                 // Check if the property is of type DVariable<T>; We only record changes to DVariable<T> properties
-
-                if (updatedProperty_Type != null && updatedProperty_Type.IsGenericType && updatedProperty_Type.GetGenericTypeDefinition() == typeof(DVariable<>))
+                if (_versionStoreHelper.IsDVariableProperty(updatedProperty, out Type genericTypeArgument))
                 {
+                    _logger.LogDebug("Property {PropertyName} is of type DVariable<T>", updatedProperty.Name);
 
 
                     // Find the equivalent property value in the version model
-                    var _DVariableHistory = typeof(VersionEntityModel).GetProperty(updatedProperty.Name);
-                    if (_DVariableHistory == null)
-                    {
-                        _logger.LogWarning("Property not found in VersionEntityModel. " + updatedProperty.Name);
-                        _logger.LogWarning("Versioning will not be maintained for this DVariable property");
-                        continue;
-                    }
+                    var versionProperty = _versionStoreHelper.FindVersionProperty(versionEntityModel, updatedProperty);
+                    if (versionProperty == null) continue;
 
-                    var _DVariableHistory_Value = _DVariableHistory.GetValue(newVersionModel);
-                    //var _DVariableHistory_Type = _DVariableHistory.PropertyType;
+                    var versionPropertyValue = versionProperty.GetValue(versionEntityModel);
+                    var updatedPropertyValue = updatedProperty.GetValue(updatedEntity);
 
-                    if (_DVariableHistory_Value != null)
+                    if (versionPropertyValue != null)
                     {
                         throw new Exception("DVariableHistory property already exists in VersionEntityModel. " + updatedProperty.Name);
                     }
 
 
-                    Type genericTypeArgument = _DVariableHistory.PropertyType.GetGenericArguments()[0];
-
                     // Create a new instance of DVariableHistory<T> to store the updated value
+                    _logger.LogDebug("Create a new instance of DVariableHistory<T> to store the updated value");
 
-                    _logger.LogInformation("Create a new instance of DVariableHistory<T> to store the updated value");
-
-                    try
-                    {
-                        Type dVariableHistoryType = typeof(DVariableHistory<>).MakeGenericType(genericTypeArgument);
-                        _DVariableHistory_Value = Activator.CreateInstance(dVariableHistoryType);
-                        _logger.LogInformation("_DVariableHistory_Value_New Created");
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogInformation("Failed to create instance of DVariableHistory");
-                        _logger.LogInformation(e.ToString());
-                    }
+                    versionPropertyValue = _versionStoreHelper.CreateNewVersionProperty(genericTypeArgument);
+                    versionProperty.SetValue(versionEntityModel, versionPropertyValue);
 
 
                     // Set the CurrentVersion of _DVariableHistory_Value_New to 1
                     try
                     {
-                        _DVariableHistory_Value?.GetType()?.GetProperty("CurrentVersion")?.SetValue(_DVariableHistory_Value, 1);
+                        _versionStoreHelper.SetPropertySafe(versionPropertyValue, "CurrentVersion", 1);
                     }
                     catch (Exception e)
                     {
-                        _logger.LogInformation("Exception while setting CurrentVersion");
-                        _logger.LogInformation(e.ToString());
+                        _logger.LogError("Exception while setting CurrentVersion {ExceptionMessage}", e.ToString());
                     }
 
 
-                    // Set the CurrentValue of _DVariableHistory to the updatedPropertyValue
+                    // Set the "Current" to the updated value
+                    Type dVariableType = typeof(DVariable<>).MakeGenericType(genericTypeArgument);
+                    var current = Activator.CreateInstance(dVariableType, updatedPropertyValue);
                     try
                     {
-                        Type dVariableType = typeof(DVariable<>).MakeGenericType(genericTypeArgument);
-                        var updatedPropertyValue = Activator.CreateInstance(dVariableType, updatedProperty_Value);
-                        _DVariableHistory_Value?.GetType()?.GetProperty("Current")?.SetValue(_DVariableHistory_Value, updatedPropertyValue);
-                    }
-                    catch (Exception e)
-                    {
-                        _logger.LogInformation("Exception while setting CurrentValue");
-                        _logger.LogInformation(e.ToString());
+                        if (current == null)
+                        {
+                            _logger.LogError("Failed to create instance of DVariable");
+                            throw new Exception("Failed to create instance of DVariable");
+                        }
+                        _versionStoreHelper.SetPropertySafe(versionPropertyValue, "Current", current);
                     }
 
-                    // Set the CurrentValue
+                    catch (Exception e)
+                    {
+                        _logger.LogError("Exception while setting CurrentValue: {ExceptionMessage}", e.ToString());
+                    }
+
+                    // Set the CurrentValue to the updated value *unwrapped*
                     try
                     {
-                        var updatedValue = updatedProperty_Value.GetType().GetProperty("Value").GetValue(updatedProperty_Value);
+                        var currentValue = updatedPropertyValue!.GetType()?.GetProperty("Value")?.GetValue(updatedPropertyValue);
+                        _versionStoreHelper.SetPropertySafe(versionPropertyValue, "CurrentValue", currentValue!);
 
-                        _DVariableHistory_Value?.GetType()?.GetProperty("CurrentValue")?
-                            .SetValue(_DVariableHistory_Value, updatedValue);
                     }
                     catch (Exception e)
                     {
-                        _logger.LogInformation("Exception while setting CurrentValue Object");
-                        _logger.LogInformation(e.ToString());
+                        _logger.LogError("Exception while setting CurrentValue Object: {ExceptionMessage}", e.ToString());
                     }
 
-                    // Update CurrentAuthor
+                    // Set IsInitialVersion to true
                     try
                     {
-                        var currentAuthor = updatedProperty_Value.GetType().GetProperty("Author").GetValue(updatedProperty_Value);
-                        _DVariableHistory_Value?.GetType()?.GetProperty("CurrentAuthor")?.SetValue(_DVariableHistory_Value, currentAuthor);
+                        _versionStoreHelper.SetPropertySafe(versionPropertyValue, "IsInitialVersion", true);
                     }
                     catch (Exception e)
                     {
-                        _logger.LogInformation("Exception while setting CurrentAuthor");
-                        _logger.LogInformation(e.ToString());
+                        _logger.LogError("Exception while setting IsInitialVersion to false: {ExceptionMessage}", e.ToString());
                     }
 
 
-                    // Add current version to the Versions list
-                    var _versionsProperty = _DVariableHistory_Value?.GetType().GetProperty("Versions");
-                    var _versionsList = _versionsProperty?.GetValue(_DVariableHistory_Value);
-                    
-                    // Create Version Entry
+                    // Set CurrentModificationDate to DateTime.UtcNow
                     try
                     {
-
-                        Type _VersionType = typeof(VersionEntry<>).MakeGenericType(genericTypeArgument);
-                        var _VersionValue = Activator.CreateInstance(_VersionType);
-
-                        Type dVariableType = typeof(DVariable<>).MakeGenericType(genericTypeArgument);
-                        var updatedPropertyValue = Activator.CreateInstance(dVariableType, updatedProperty_Value);
-                    
-                        _VersionValue.GetType().GetProperty("VersionNumber").SetValue(_VersionValue, 1);
-                        _VersionValue.GetType().GetProperty("VersionDetails").SetValue(_VersionValue, updatedPropertyValue);
-
-
-                        _versionsList.GetType().GetMethod("Add").Invoke(_versionsList, [_VersionValue]);
+                        _versionStoreHelper.SetPropertySafe(versionPropertyValue, "CurrentModificationDate", DateTime.UtcNow);
                     }
                     catch (Exception e)
                     {
-                        _logger.LogInformation("Exception while adding version entry to versions list");
-                        _logger.LogInformation(e.ToString());
+                        _logger.LogError("Exception while setting CurrentModificationDate: {ExceptionMessage}", e.ToString());
                     }
 
-                    // Set it on the newVersionModel
-                    _DVariableHistory.SetValue(newVersionModel, _DVariableHistory_Value);
+                    // Set CurrentAuthor to Author
+                    try
+                    {
+                        var currentAuthor = updatedPropertyValue?.GetType().GetProperty("Author")?.GetValue(updatedPropertyValue) ?? null;
+                        _versionStoreHelper.SetPropertySafe(versionPropertyValue, "CurrentAuthor", currentAuthor!);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError("Exception while setting CurrentAuthor: {ExceptionMessage}", e.ToString());
+                    }
+
+
+
+                    // Add a new VersionEntry to the Versions list
+                    // Get the Versions list
+                    var versionsListProp = versionPropertyValue?.GetType().GetProperty("Versions");
+                    var versionsList = versionsListProp?.GetValue(versionPropertyValue);
+                    var addMethod = versionsList?.GetType().GetMethod("Add");
+
+                    if (versionsList == null || addMethod == null)
+                    {
+                        _logger.LogError("Versions list not found");
+                        throw new Exception("Versions list not found");
+                    }
+
+
+                    // Create a new VersionEntry<T>
+                    try
+                    {
+                        Type versionEntryType = typeof(VersionEntry<>).MakeGenericType(genericTypeArgument);
+                        var versionEntry = Activator.CreateInstance(versionEntryType);
+
+
+                        _versionStoreHelper.SetPropertySafe(versionEntry, "VersionNumber", 1);
+                        _versionStoreHelper.SetPropertySafe(versionEntry, "VersionDetails", current);
+
+                        // Add it to the Versions list 
+                        addMethod.Invoke(versionsList, new[] { versionEntry });
+
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError("Exception while adding version entry to versions list: {ExceptionMessage}", e.ToString());
+                    }
+
+                    // Set the property value in the version model
+                    // SetPropertySafe(versionEntityModel, updatedProperty.Name, versionPropertyValue);
+                    versionProperty.SetValue(versionEntityModel, versionPropertyValue);
 
                 }
 
-
             }
-            return newVersionModel;
+            return versionEntityModel;
         }
     }
 }

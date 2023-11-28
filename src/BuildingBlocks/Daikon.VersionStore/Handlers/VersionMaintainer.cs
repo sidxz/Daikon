@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
+
 using CQRS.Core.Domain;
 using CQRS.Core.Domain.Historical;
 using CQRS.Core.Handlers;
@@ -11,6 +6,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Daikon.VersionStore.Handlers
 {
+    /// <summary>
+    /// The VersionMaintainer class is responsible for maintaining the version history of entities.
+    /// It handles the creation of new version models and the updating of existing ones.
+    /// </summary>
+    /// <typeparam name="VersionEntityModel">The type of the version entity model.</typeparam>
+    /// 
     public class VersionMaintainer<VersionEntityModel> : IVersionMaintainer<VersionEntityModel> where VersionEntityModel : BaseVersionEntity
     {
         private readonly IVersionStoreRepository<VersionEntityModel> _versionStoreRepository;
@@ -24,32 +25,44 @@ namespace Daikon.VersionStore.Handlers
 
         public async Task CommitVersion(BaseEntity updatedEntity)
         {
+            // Retrieve the existing version model for the entity
             var existingModel = await _versionStoreRepository.GetByAsyncEntityId(updatedEntity.Id).ConfigureAwait(false);
+
             if (existingModel == null)
             {
-                // New model
-                // Create a new version model
-
+                // If no existing model, create a new version model
                 NewVersion<VersionEntityModel> newVersion = new(_logger);
                 var newVersionModel = newVersion.Create(updatedEntity);
 
-                await _versionStoreRepository.SaveAsync(newVersionModel).ConfigureAwait(false);
+                // Save the new model
+                try
+                {
+                    await _versionStoreRepository.SaveAsync(newVersionModel).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error saving version model");
+                }
+
 
             }
-
             else
             {
-                // Update model
-                // Update the existing version model
+                // If an existing model is found, update it
                 UpdateVersion<VersionEntityModel> updateVersion = new(_logger);
                 var updatedVersionModel = updateVersion.Update(updatedEntity, existingModel);
 
                 // Save the updated model
-                await _versionStoreRepository.UpdateAsync(updatedVersionModel).ConfigureAwait(false);
+                try
+                {
+                    await _versionStoreRepository.UpdateAsync(updatedVersionModel).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating version model");
+                }
 
             }
-
-
         }
 
     }

@@ -1,0 +1,77 @@
+version: "3.4"
+
+services:
+  DKPortainer:
+    image: portainer/portainer
+    container_name: dk_portainer
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+  DKPGAdmin:
+    image: dpage/pgadmin4
+    container_name: dk_pgadmin
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=sid@tamu.edu
+      - PGADMIN_DEFAULT_PASSWORD=admin1234
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/root/.pgadmin
+
+  Zookeeper:
+    image: bitnami/zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    # volumes:
+    #   - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  Kafka:
+    image: bitnami/kafka
+    depends_on:
+      - Zookeeper
+    ports:
+      - "9092:9092"
+    restart: always
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=Zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://Kafka:9092
+      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+
+  EventStoreDb:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - "eventdb_mongo_data:/data/db"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  MolDb_Postgres:
+    image: informaticsmatters/rdkit-cartridge-debian
+    environment:
+      POSTGRES_DB: chemdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - MolDb_data:/var/lib/postgresql/data
+
+volumes:
+  portainer_data:
+  MolDb_data:
+  pgadmin_data:
+  eventdb_mongo_data:
+  kafka_data:
