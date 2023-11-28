@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Gene.Domain.Aggregates;
 using MediatR;
@@ -26,7 +27,8 @@ namespace Gene.Application.Features.Command.UpdateGene
 
         public async Task<Unit> Handle(UpdateGeneCommand request, CancellationToken cancellationToken)
         {
-           var gene = new Domain.Entities.Gene{
+            var gene = new Domain.Entities.Gene
+            {
                 Id = request.Id,
                 AccessionNumber = request.AccessionNumber,
                 Name = request.Name,
@@ -34,17 +36,18 @@ namespace Gene.Application.Features.Command.UpdateGene
                 Product = request.Product,
                 FunctionalCategory = request.FunctionalCategory
             };
-            
-            var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-            // Print the aggregate in json format
-            var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            var json = aggregate.ToJson(jsonWriterSettings);
-            
-            _logger.LogInformation($"++++++++Aggregate: {json}");
 
-            aggregate.UpdateGene(gene);
-            await _eventSourcingHandler.SaveAsync(aggregate);
-
+            try
+            {
+                var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
+                aggregate.UpdateGene(gene);
+                await _eventSourcingHandler.SaveAsync(aggregate);
+            }
+            catch (AggregateNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Aggregate not found");
+                throw new ResourceNotFoundException(nameof(GeneAggregate), request.Id);
+            }
             return Unit.Value;
         }
     }

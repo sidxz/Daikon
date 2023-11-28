@@ -73,7 +73,7 @@ namespace Gene.API.Controllers.V2
                     Message = ex.Message
                 });
             }
-            
+
             catch (InvalidOperationException ex)
             {
                 _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
@@ -150,6 +150,15 @@ namespace Gene.API.Controllers.V2
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {
                     Message = "Gene updated successfully",
+                });
+            }
+
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("UpdateGene: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
                 });
             }
             catch (InvalidOperationException ex)
