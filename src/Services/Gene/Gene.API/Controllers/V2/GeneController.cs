@@ -9,6 +9,7 @@ using Gene.Application.Features.Command.DeleteGene;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Features.Command.UpdateGene;
 using Gene.Application.Features.Queries.GetGene;
+using Gene.Application.Features.Queries.GetGene.ByAccession;
 using Gene.Application.Features.Queries.GetGene.ById;
 using Gene.Application.Features.Queries.GetGenesList;
 using Gene.Application.Features.Queries.GetGeneVersions;
@@ -96,6 +97,48 @@ namespace Gene.API.Controllers.V2
                 });
             }
         }
+
+
+        [HttpGet("by-accession/{accessionNo}", Name = "GetGeneByAccession")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(GeneVM), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<GeneVM>> GetGeneByAccession(string accessionNo, [FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var gene = await _mediator.Send(new GetGeneByAccessionQuery { AccessionNumber = accessionNo, WithMeta = WithMeta });
+                return Ok(gene);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetGeneById: Requested Resource Not Found {accession}", accessionNo);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the gene";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
 
         [HttpPost(Name = "AddGene")]
         [MapToApiVersion("2.0")]

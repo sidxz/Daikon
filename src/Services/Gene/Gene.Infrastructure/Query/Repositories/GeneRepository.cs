@@ -58,9 +58,9 @@ namespace Gene.Infrastructure.Query.Repositories
             return _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
         }
 
-        public Task<Domain.Entities.Gene> ReadGeneByName(string name)
+        public Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
         {
-            return _geneCollection.Find(gene => gene.Name == name).FirstOrDefaultAsync();
+            return _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
         }
 
 
