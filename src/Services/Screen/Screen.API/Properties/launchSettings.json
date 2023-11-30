@@ -4,20 +4,21 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:43691",
-      "sslPort": 44347
+      "applicationUrl": "http://localhost:35870",
+      "sslPort": 44388
     }
   },
   "profiles": {
-    "Target.API": {
+    "Screen.API": {
       "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5002",
+      "applicationUrl": "http://localhost:5003",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "GENE_KAFKA_TOPIC": "targets"
-      },
-      "dotnetRunMessages": true
+        "GENE_KAFKA_TOPIC": "screens"
+      }
     },
     "IIS Express": {
       "commandName": "IISExpress",
