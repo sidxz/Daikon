@@ -14,10 +14,14 @@ namespace Gene.Application.Features.Command.UpdateGene
     {
         public string AccessionNumber { get; set; }
         public string Name { get; set; }
-        
+
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string> Function { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string> Product { get; set; }
+        
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string> FunctionalCategory { get; set; }
     }
 }
