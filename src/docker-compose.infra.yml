@@ -69,9 +69,27 @@ services:
     volumes:
       - MolDb_data:/var/lib/postgresql/data
 
+  Neo4j:
+    image: neo4j:latest
+    container_name: dk_neo4j
+    ports:
+      - "7474:7474" # HTTP
+      - "7687:7687" # Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_import:/var/lib/neo4j/import
+      - neo4j_logs:/logs
+      - neo4j_plugins:/plugins
+    environment:
+      - NEO4J_AUTH=neo4j/1k5SPVHJ4FZ9
+
 volumes:
   portainer_data:
   MolDb_data:
   pgadmin_data:
   eventdb_mongo_data:
   kafka_data:
+  neo4j_data:
+  neo4j_import:
+  neo4j_logs:
+  neo4j_plugins:

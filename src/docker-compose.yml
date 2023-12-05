@@ -6,6 +6,12 @@ services:
     build:
       context: .
       dockerfile: Services/Gene/Gene.API/Dockerfile
+  
+  Horizon.API:
+    image: ${DOCKER_REGISTRY-}horizon
+    build:
+      context: .
+      dockerfile: Services/Horizon/Horizon.API/Dockerfile
 
   MolDb.API:
     image: ${DOCKER_REGISTRY-}moldb
