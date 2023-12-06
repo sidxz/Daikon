@@ -157,6 +157,15 @@ namespace Gene.API.Controllers.V2
                     Message = "Gene added successfully",
                 });
             }
+
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("AddGene: Requested Resource Already Exists {accessionNo}", ex.Message);
+                return Conflict(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
             catch (InvalidOperationException ex)
             {
                 _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");

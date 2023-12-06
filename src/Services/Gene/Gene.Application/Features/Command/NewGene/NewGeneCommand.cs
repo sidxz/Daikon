@@ -14,6 +14,7 @@ namespace Gene.Application.Features.Command.NewGene
     {
         
         public string AccessionNumber { get; set; }
+        public string StrainName { get; set; }
         public string Name { get; set; }
         
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
