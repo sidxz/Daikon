@@ -5,6 +5,7 @@ using CQRS.Core.Handlers;
 using CQRS.Core.Infrastructure;
 using CQRS.Core.Producers;
 using Daikon.Events.Gene;
+using Daikon.Events.Strains;
 using Daikon.EventStore.Handlers;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
@@ -15,6 +16,7 @@ using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
+using Gene.Domain.Entities;
 using Gene.Domain.EntityRevisions;
 using Gene.Infrastructure.Query.Consumers;
 using Gene.Infrastructure.Query.Repositories;
@@ -33,6 +35,10 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneCreatedEvent>();
             BsonClassMap.RegisterClassMap<GeneUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<StrainCreatedEvent>();
+            BsonClassMap.RegisterClassMap<StrainUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<StrainDeletedEvent>();
             
 
             var eventDatabaseSettings = new EventDatabaseSettings
@@ -50,14 +56,21 @@ namespace Gene.Infrastructure
             };
 
             services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
+            
 
-            services.AddScoped<IEventStoreRepository, EventStoreRepository>();
+            services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
+    
             services.AddScoped<IEventStore<GeneAggregate>, EventStore<GeneAggregate>>();
+            services.AddScoped<IEventStore<StrainAggregate>, EventStore<StrainAggregate>>();
+
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<GeneAggregate>, EventSourcingHandler<GeneAggregate>>();
+            services.AddScoped<IEventSourcingHandler<StrainAggregate>, EventSourcingHandler<StrainAggregate>>();
 
             /* Query */
             services.AddScoped<IGeneRepository, GeneRepository>();
+            
+            services.AddScoped<IStrainRepository, StrainRepository>();
 
             var versionStoreSettings = new VersionDatabaseSettings
             {
@@ -70,8 +83,7 @@ namespace Gene.Infrastructure
             services.AddScoped<IVersionHub<GeneRevision>, VersionHub<GeneRevision>>();
 
 
-            services.AddScoped<IEventConsumer, EventConsumer>();
-
+            services.AddScoped<IEventConsumer, GeneEventConsumer>(); // Depends on IKafkaConsumerSettings; Takes care of both gene and strain events
             services.AddHostedService<ConsumerHostedService>();
 
             return services;

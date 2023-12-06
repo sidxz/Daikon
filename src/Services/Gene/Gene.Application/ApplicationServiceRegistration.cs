@@ -25,10 +25,11 @@ namespace Gene.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-            services.AddScoped<IEventHandler, Query.Handlers.EventHandler>();
+            services.AddScoped<IGeneEventHandler, GeneEventHandler>();
+            services.AddScoped<IStrainEventHandler, StrainEventHandler>();
 
             return services;
         }
-        
+
     }
 }
