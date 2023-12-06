@@ -19,6 +19,7 @@ namespace Gene.Application.Query.Handlers
             var gene = new Domain.Entities.Gene
             {
                 Id = @event.Id,
+                StrainId = @event.StrainId,
                 Name = @event.Name,
 
                 AccessionNumber = @event.AccessionNumber,
@@ -45,6 +46,7 @@ namespace Gene.Application.Query.Handlers
         {
             var gene = _geneRepository.ReadGeneById(@event.Id).Result;
 
+            gene.StrainId = @event.StrainId;
             gene.Name = @event.Name;
             gene.AccessionNumber = @event.AccessionNumber;
             gene.Function = @event.Function;

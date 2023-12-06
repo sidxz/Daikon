@@ -22,7 +22,7 @@ namespace Horizon.Infrastructure.HostedServices
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var graphRepository = scope.ServiceProvider.GetRequiredService<IGraphRepository>();
+                var graphRepository = scope.ServiceProvider.GetRequiredService<IGraphRepositoryForGene>();
                 await graphRepository.CreateIndexesAsync();
                 await graphRepository.CreateConstraintsAsync();
             }

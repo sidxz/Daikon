@@ -8,12 +8,12 @@ using Polly;
 
 namespace Horizon.Infrastructure.Repositories
 {
-    public class GraphRepository : IGraphRepository
+    public class GraphRepositoryForGene : IGraphRepositoryForGene
     {
         private readonly IDriver _driver;
-        private ILogger<GraphRepository> _logger;
+        private ILogger<GraphRepositoryForGene> _logger;
 
-        public GraphRepository(IDriver driver, ILogger<GraphRepository> logger)
+        public GraphRepositoryForGene(IDriver driver, ILogger<GraphRepositoryForGene> logger)
         {
             _driver = driver;
             _logger = logger;
@@ -30,6 +30,7 @@ namespace Horizon.Infrastructure.Repositories
                     // Create the index if it does not exist
                     var createIndexQuery = "CREATE INDEX gene_accessionNo_index IF NOT EXISTS FOR (g:Gene) ON (g.accessionNumber);";
                     await tx.RunAsync(createIndexQuery);
+                    createIndexQuery = "CREATE INDEX strain_name_index IF NOT EXISTS FOR (s:Strain) ON (s.name);";
 
                 });
             }
@@ -59,57 +60,43 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
+        public async Task AddStrainToGraph(string name, string strainId, string organism)
+        {
+            _logger.LogInformation("AddStrainToGraph(): Adding strain with name {Name} and id {StrainId}", name, strainId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                await retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var createStrainQuery = @"
+                            CREATE (s:Strain {name: $name, strainId: $strainId, organism: $organism})
+                        ";      
 
-        // public async Task AddGeneToGraph(string accessionNumber, string name, string function, string product, string functionalCategory)
-        // {
-        //     var session = _driver.AsyncSession();
-        //     try
-        //     {
-        //         await session.ExecuteWriteAsync(async tx =>
-        //         {
-        //             var createGeneQuery = @"
-        //                 MERGE (g:Gene {accessionNumber: $accessionNumber})
-        //                 ON CREATE SET g.name = $name, g.function = $function, g.product = $product
-        //                 MERGE (fc:FunctionalCategory {name: $functionalCategory})
-        //                 MERGE (g)-[:BELONGS_TO]->(fc)
-        //             ";
 
-
-
-        //             if (string.IsNullOrWhiteSpace(functionalCategory))
-        //                 createGeneQuery = @"
-        //                 MERGE (g:Gene {accessionNumber: $accessionNumber})
-        //                 ON CREATE SET g.name = $name, g.function = $function, g.product = $product
-        //             ";
-
-        //             _logger.LogInformation("Adding gene with accession number {accessionNumber}", accessionNumber);
-        //             _logger.LogDebug("Adding gene with accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", accessionNumber, name, function, product, functionalCategory);
-        //             await tx.RunAsync(createGeneQuery, new
-        //             {
-        //                 accessionNumber,
-        //                 name,
-        //                 function,
-        //                 product,
-        //                 functionalCategory
-        //             });
-        //         });
-        //     }
-        //     catch (ClientException ex)
-        //     {
-        //         _logger.LogError(ex, "ClientException :Error in AddGeneToGraph");
-        //         throw new RepositoryException(nameof(GraphRepository), "Error Adding Gene To Graph", ex);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex, "Error in AddGeneToGraph");
-        //         throw new RepositoryException(nameof(GraphRepository), "Error Adding Gene To Graph", ex);
-        //     }
-        //     finally
-        //     {
-        //         await session.CloseAsync();
-        //     }
-        // }
-
+                        _logger.LogInformation("tx.RunAsync Adding strain with name {Name}", name);
+                        await tx.RunAsync(createStrainQuery, new
+                        {
+                            name,
+                            strainId,
+                            organism
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in AddStrainToGraph");
+                _logger.LogError(ex, "All retry attempts failed for adding strain with Name {Name}", name);
+                throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Adding Strain To Graph", ex);
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+        }
 
         public async Task AddGeneToGraph(string accessionNumber, string name, string function, string product, string functionalCategory)
         {
@@ -155,13 +142,15 @@ namespace Horizon.Infrastructure.Repositories
             {
                 _logger.LogError(ex, "Error in AddGeneToGraph");
                 _logger.LogError(ex, "All retry attempts failed for adding gene with accession number {AccessionNumber}", accessionNumber);
-                throw new RepositoryException(nameof(GraphRepository), "Error Adding Gene To Graph", ex);
+                throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Adding Gene To Graph", ex);
             }
             finally
             {
                 await session.CloseAsync();
             }
         }
+
+
 
         // Define the RetryPolicy
         /*
@@ -173,7 +162,7 @@ namespace Horizon.Infrastructure.Repositories
         The need for this retry policy is because multiple nodes of same functional category were created in the graph database
         when uploading in bulk.
         */
-        private static readonly Func<ILogger<GraphRepository>, IAsyncPolicy> CreateRetryPolicy = logger => Policy
+        private static readonly Func<ILogger<GraphRepositoryForGene>, IAsyncPolicy> CreateRetryPolicy = logger => Policy
             .Handle<ClientException>(ex => ex.Message.Contains("ConstraintValidationFailed"))
             .WaitAndRetryAsync(
                 new[]

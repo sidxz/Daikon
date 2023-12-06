@@ -27,7 +27,7 @@ namespace Gene.Domain.Aggregates
                 Name = gene.Name,
                 Id = gene.Id,
 
-                StrainName = gene.StrainName,
+                StrainId = gene.StrainId,
                 AccessionNumber = gene.AccessionNumber,
                 Function = gene.Function,
                 Product = gene.Product,
@@ -56,7 +56,7 @@ namespace Gene.Domain.Aggregates
             RaiseEvent(new GeneUpdatedEvent
             {
                 Id = gene.Id,
-                StrainName = gene.StrainName,
+                StrainId = gene.StrainId,
                 Name = gene.Name,
                 AccessionNumber = gene.AccessionNumber,
                 Function = gene.Function,

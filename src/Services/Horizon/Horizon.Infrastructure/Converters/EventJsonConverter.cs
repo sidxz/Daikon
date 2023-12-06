@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CQRS.Core.Event;
 using Daikon.Events.Gene;
+using Daikon.Events.Strains;
 
 namespace Horizon.Infrastructure.Query.Converters
 {
@@ -38,6 +39,7 @@ namespace Horizon.Infrastructure.Query.Converters
                 "GeneCreatedEvent" => JsonSerializer.Deserialize<GeneCreatedEvent>(json, options),
                 "GeneUpdatedEvent" => JsonSerializer.Deserialize<GeneUpdatedEvent>(json, options),
                 "GeneDeletedEvent" => JsonSerializer.Deserialize<GeneDeletedEvent>(json, options),
+                "StrainCreatedEvent" => JsonSerializer.Deserialize<StrainCreatedEvent>(json, options),
                 
                 _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
             };
