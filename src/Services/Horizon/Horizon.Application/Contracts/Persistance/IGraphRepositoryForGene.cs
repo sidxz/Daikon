@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace Horizon.Application.Contracts.Persistance
 {
-    public interface IGraphRepository
+    public interface IGraphRepositoryForGene
     {
         Task CreateIndexesAsync();
         Task CreateConstraintsAsync();
         Task AddGeneToGraph(string accessionNumber, string name, string function, string product, string functionalCategory);
+        Task AddStrainToGraph(string name, string strainId, string organism);
     }
 }

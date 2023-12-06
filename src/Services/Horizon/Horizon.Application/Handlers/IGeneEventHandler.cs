@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Daikon.Events.Gene;
+using Daikon.Events.Strains;
 
 namespace Horizon.Application.Query.Handlers
 {
@@ -11,6 +12,8 @@ namespace Horizon.Application.Query.Handlers
         Task OnEvent(GeneCreatedEvent @event);
         Task OnEvent(GeneUpdatedEvent @event);
         Task OnEvent(GeneDeletedEvent @event);
+
+        Task OnEvent(StrainCreatedEvent @event);
         
     }
 }

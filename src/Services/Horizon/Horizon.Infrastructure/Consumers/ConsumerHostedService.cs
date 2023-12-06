@@ -27,7 +27,7 @@ namespace Horizon.Infrastructure.Query.Consumers
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting Horizon-gene consumer hosted service");
+            _logger.LogInformation("Starting Horizon-gene consumer hosted service for topic: {@topic}", _topic);
 
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
