@@ -17,6 +17,7 @@ services:
       - "GeneMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
       - "GeneMongoDbSettings:DatabaseName=Gene"
       - "GeneMongoDbSettings:GeneCollectionName=Genes"
+      - "GeneMongoDbSettings:StrainCollectionName=Strains"
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"

@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon.Runtime.Internal.Util;
-using CQRS.Core.Domain;
+
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
@@ -53,14 +48,14 @@ namespace Gene.Infrastructure.Query.Repositories
 
 
 
-        public Task<Domain.Entities.Gene> ReadGeneById(Guid id)
+        public async Task<Domain.Entities.Gene> ReadGeneById(Guid id)
         {
-            return _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
+            return await _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
         }
 
-        public Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
+        public async Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
         {
-            return _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
+            return await _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
         }
 
 

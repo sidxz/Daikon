@@ -5,11 +5,11 @@ using Gene.Application.Contracts.Persistence;
 
 namespace Gene.Application.Query.Handlers
 {
-    public class EventHandler : IEventHandler
+    public class GeneEventHandler : IGeneEventHandler
     {
         private readonly IGeneRepository _geneRepository;
 
-        public EventHandler(IGeneRepository geneRepository)
+        public GeneEventHandler(IGeneRepository geneRepository)
         {
             _geneRepository = geneRepository;
         }
