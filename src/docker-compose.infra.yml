@@ -83,6 +83,14 @@ services:
     environment:
       - NEO4J_AUTH=neo4j/1k5SPVHJ4FZ9
 
+
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 5051:8080
+    environment:
+      DYNAMIC_CONFIG_ENABLED: 'true'
 volumes:
   portainer_data:
   MolDb_data:

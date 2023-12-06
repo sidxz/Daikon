@@ -1,6 +1,8 @@
 
+using CQRS.Core.Consumers;
 using Horizon.Application.Contracts.Persistance;
 using Horizon.Infrastructure.HostedServices;
+using Horizon.Infrastructure.Query.Consumers;
 using Horizon.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +34,10 @@ namespace Horizon.Infrastructure
             services.AddHostedService<Neo4jDatabaseSetupHostedService>();
 
             /* Query */
+
+            services.AddScoped<IEventConsumer, EventConsumer>();
+
+            services.AddHostedService<ConsumerHostedService>();
 
 
             return services;
