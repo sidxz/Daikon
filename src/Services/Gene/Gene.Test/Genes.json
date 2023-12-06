@@ -1,0 +1,58 @@
+[
+  {
+    "accessionNumber": "Rv1298",
+    "name": "aac",
+    "function": "Confers resistance to aminoglycosides (gentamicin, tobramycin, dibekacin, netilmicin, and 6'-N-ethylnetilmicin)",
+    "product": "Aminoglycoside 2'-N-acetyltransferase Aac (Aac(2')-IC)",
+    "functionalCategory": "Virulence, detoxification, adaptation"
+  },
+  {
+    "accessionNumber": "Rv0904c",
+    "name": "accD3",
+    "function": "This protein is a component of the acetyl coenzyme A carboxylase complex; first, biotin carboxylase catalyzes the carboxylation of the carrier protein and then the transcarboxylase transfers the carboxyl group to form malonyl-CoA [catalytic activity ATP + acetyl-CoA + HCO(3)(-) = ADP + phosphate + malonyl-CoA]",
+    "product": "Putative acetyl-coenzyme A carboxylase carboxyl transferase (subunit beta) AccD3 (accase beta chain)",
+    "functionalCategory": "Lipid metabolism"
+  },
+  {
+    "accessionNumber": "Rv0033",
+    "name": "acpA",
+    "function": "Key component in de novo fatty acid biosynthesis. This protein is supposed to be the carrier of the growing fatty acid chain in fatty acid biosynthesis",
+    "product": "Probable acyl carrier protein AcpA (ACP)",
+    "functionalCategory": "Lipid metabolism"
+  },
+  {
+    "accessionNumber": "Rv0384c",
+    "name": "clpB",
+    "function": "Thought to be an ATPase subunit of an intracellular ATP-dependent protease. Seems to be regulated positively by sigh (Rv3223c product) and negatively by HSPR (Rv0353 product)",
+    "product": "Probable endopeptidase ATP binding protein (chain B) ClpB (ClpB protein) (heat shock protein F84.1)",
+    "functionalCategory": "Virulence, detoxification, adaptation"
+  },
+  {
+    "accessionNumber": "Rv0905",
+    "name": "accD4",
+    "function": "This protein is a component of the acetyl coenzyme A carboxylase complex; first, biotin carboxylase catalyzes the carboxylation of the carrier protein and then the transcarboxylase transfers the carboxyl group to form malonyl-CoA [catalytic activity ATP + acetyl-CoA + HCO(3)(-) = ADP + phosphate + malonyl-CoA]",
+    "product": "Putative acetyl-coenzyme A carboxylase carboxyl transferase (subunit beta) AccD4 (accase beta chain)",
+    "functionalCategory": "Lipid metabolism"
+  },
+  {
+    "accessionNumber": "Rv0321",
+    "name": "dcd",
+    "function": "Involved in interconversion of dCTP and dUTP [catalytic activity: dCTP + H2O = dUTP + NH3].",
+    "product": "Probable deoxycytidine triphosphate deaminase Dcd (dCTP deaminase)",
+    "functionalCategory": "Intermediary metabolism and respiration"
+  },
+  {
+    "accessionNumber": "Rv0478",
+    "name": "deoC",
+    "function": "Involved in nucleotide and deoxyribonucleotide catabolism [catalytic activity: 2-deoxy-D-ribose 5-phosphate = D-glyceraldehyde 3-phosphate + acetaldehyde].",
+    "product": "Probable deoxyribose-phosphate aldolase DeoC (phosphodeoxyriboaldolase) (deoxyriboaldolase)",
+    "functionalCategory": "Intermediary metabolism and respiration"
+  },
+  {
+    "accessionNumber": "Rv0673",
+    "name": "echA4",
+    "function": "Could possibly oxidize fatty acids using specific components [catalytic activity: (3S)-3-hydroxyacyl-CoA = trans-2(or 3)-enoyl-CoA + H(2)O]",
+    "product": "Possible enoyl-CoA hydratase EchA4 (enoyl hydrase) (unsaturated acyl-CoA hydratase) (crotonase)",
+    "functionalCategory": "Lipid metabolism"
+  }
+]

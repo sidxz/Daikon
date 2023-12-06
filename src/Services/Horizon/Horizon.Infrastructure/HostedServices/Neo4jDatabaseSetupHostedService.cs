@@ -24,6 +24,7 @@ namespace Horizon.Infrastructure.HostedServices
             {
                 var graphRepository = scope.ServiceProvider.GetRequiredService<IGraphRepository>();
                 await graphRepository.CreateIndexesAsync();
+                await graphRepository.CreateConstraintsAsync();
             }
         }
 

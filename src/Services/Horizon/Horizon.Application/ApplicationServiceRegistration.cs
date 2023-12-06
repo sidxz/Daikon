@@ -2,6 +2,7 @@
 using FluentValidation;
 using Horizon.Application.Contracts.Persistance;
 using Horizon.Application.Features.Command.Gene.AddGene;
+using Horizon.Application.Query.Handlers;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,7 +23,7 @@ namespace Horizon.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-            //services.AddScoped<IEventHandler, Query.Handlers.EventHandler>();
+            services.AddScoped<IGeneEventHandler, GeneEventHandler>();
 
             return services;
         }

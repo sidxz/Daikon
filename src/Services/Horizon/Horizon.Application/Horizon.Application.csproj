@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.Events\Daikon.Events.csproj" />
+    <ProjectReference Include="..\Horizon.Domain\Horizon.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

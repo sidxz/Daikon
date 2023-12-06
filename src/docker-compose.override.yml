@@ -43,7 +43,7 @@ services:
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       # - "KafkaConsumerSettings:BootstrapServers=localhost:9092"
       - "KafkaConsumerSettings:Topic=genes"
-      - "KafkaConsumerSettings:GroupId=gene-consumer-group"
+      - "KafkaConsumerSettings:GroupId=horizon-gene-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
