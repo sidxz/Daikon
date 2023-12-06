@@ -16,6 +16,7 @@ namespace Daikon.Events.Gene
 
 
         public Guid StrainId { get; set; }
+        public string StrainName { get; set; }
         public string AccessionNumber { get; set; }
         public string Name { get; set; }
         public DVariable<string> Function { get; set; }

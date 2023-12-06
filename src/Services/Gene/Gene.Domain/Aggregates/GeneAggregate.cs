@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using CQRS.Core.Domain;
 using Daikon.Events.Gene;
 
@@ -29,7 +26,8 @@ namespace Gene.Domain.Aggregates
             {
                 Name = gene.Name,
                 Id = gene.Id,
-                
+
+                StrainName = gene.StrainName,
                 AccessionNumber = gene.AccessionNumber,
                 Function = gene.Function,
                 Product = gene.Product,
@@ -58,6 +56,7 @@ namespace Gene.Domain.Aggregates
             RaiseEvent(new GeneUpdatedEvent
             {
                 Id = gene.Id,
+                StrainName = gene.StrainName,
                 Name = gene.Name,
                 AccessionNumber = gene.AccessionNumber,
                 Function = gene.Function,
