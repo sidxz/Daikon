@@ -8,8 +8,9 @@ namespace Horizon.Domain.Genes
 {
     public class Gene : BaseEntity
     {
-         public string AccessionNumber { get; set; }
-        
+        public string GeneId { get; set; }
+        public string AccessionNumber { get; set; }
+        public string StrainId { get; set; }
         public string? Name { get; set; }
         public string? Function { get; set; }
         public string? Product { get; set; }
