@@ -63,7 +63,7 @@ namespace Horizon.Application.Query.Handlers
 
             try
             {
-                await _graphRepository.AddStrainToGraph(strain.Name, strain.StrainId, strain.Organism);
+                await _graphRepository.AddStrainToGraph(strain);
             }
             catch (RepositoryException ex)
             {
@@ -74,8 +74,54 @@ namespace Horizon.Application.Query.Handlers
 
         public async Task OnEvent(GeneUpdatedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id} {@event.Name}");
+             var gene = new Gene
+            {
+                GeneId = @event.Id.ToString(),
+                StrainId = @event.StrainId.ToString(),
 
+                Name = @event.Name,
+                AccessionNumber = @event.AccessionNumber,
+                Function = @event.Function,
+                Product = @event.Product,
+                FunctionalCategory = @event.FunctionalCategory,
+
+                DateCreated = DateTime.UtcNow,
+                IsModified = true,
+                IsDraft = false
+            };
+
+            try {
+                 await _graphRepository.UpdateGeneOfGraph(gene);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "GeneCreatedEvent Error creating gene", ex);
+            }
+
+        }
+
+        public async Task OnEvent(StrainUpdatedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: StrainUpdatedEvent: {@event.Id} {@event.Name}");
+            var strain = new Strain
+            {
+                StrainId = @event.Id.ToString(),
+                Name = @event.Name,
+                Organism = @event.Organism,
+                DateCreated = DateTime.UtcNow,
+                IsModified = true,
+                IsDraft = false
+            };
+
+            try
+            {
+                await _graphRepository.UpdateStrainOfGraph(strain);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "StrainCreatedEvent Error creating strain", ex);
+            }
         }
 
 

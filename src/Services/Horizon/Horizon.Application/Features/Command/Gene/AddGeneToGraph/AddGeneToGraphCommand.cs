@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CQRS.Core.Command;
 using MediatR;
 
-namespace Horizon.Application.Features.Command.Gene.AddGene
+namespace Horizon.Application.Features.Command.Gene.AddGeneToGraph
 {
     public class AddGeneToGraphCommand : BaseCommand, IRequest<Unit>
     {

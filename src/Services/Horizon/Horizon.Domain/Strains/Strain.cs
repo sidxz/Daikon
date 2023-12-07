@@ -10,7 +10,7 @@ namespace Horizon.Domain.Strains
     {
         public string StrainId { get; set; }
         public string Name { get; set; }
-        public string Organism { get; set; }
+        public string? Organism { get; set; }
         
     }
 }

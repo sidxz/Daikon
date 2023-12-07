@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
 using System.Net;
-using System.Threading.Tasks;
 using Horizon.API.DTOs;
-using Horizon.Application.Features.Command.Gene.AddGene;
+using Horizon.Application.Features.Command.Gene.AddGeneToGraph;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,17 +10,20 @@ namespace Horizon.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class HorizonController : ControllerBase
+    public class HorizonGeneController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<HorizonController> _logger;
+        private readonly ILogger<HorizonGeneController> _logger;
 
-        public HorizonController(IMediator mediator, ILogger<HorizonController> logger)
+        public HorizonGeneController(IMediator mediator, ILogger<HorizonGeneController> logger)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+
+        // This is intended for testing only
+        // Add Genes to the Graph should only be done via Consumer -> Event Handler -> Graph Repository
         [HttpPost(Name = "AddGene")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]

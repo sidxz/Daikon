@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CQRS.Core.Exceptions;
 using Horizon.Application.Contracts.Persistance;
 using Horizon.Domain.Genes;
+using Horizon.Domain.Strains;
 using Microsoft.Extensions.Logging;
 using Neo4j.Driver;
 using Polly;
@@ -61,9 +62,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task AddStrainToGraph(string name, string strainId, string organism)
+        public async Task AddStrainToGraph(Strain strain)
         {
-            _logger.LogInformation("AddStrainToGraph(): Adding strain with name {Name} and id {StrainId}", name, strainId);
+            _logger.LogInformation("AddStrainToGraph(): Adding strain with name {Name} and id {StrainId}", strain.Name, strain.StrainId);
             var session = _driver.AsyncSession();
             try
             {
@@ -74,15 +75,15 @@ namespace Horizon.Infrastructure.Repositories
                     {
                         var createStrainQuery = @"
                             CREATE (s:Strain {name: $name, strainId: $strainId, organism: $organism})
-                        ";      
+                        ";
 
 
-                        _logger.LogInformation("tx.RunAsync Adding strain with name {Name}", name);
+                        _logger.LogInformation("tx.RunAsync Adding strain with name {Name}", strain.Name);
                         await tx.RunAsync(createStrainQuery, new
                         {
-                            name,
-                            strainId,
-                            organism
+                            name = strain.Name,
+                            strainId = strain.StrainId,
+                            organism = strain.Organism
                         });
                     });
                 });
@@ -90,13 +91,51 @@ namespace Horizon.Infrastructure.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in AddStrainToGraph");
-                _logger.LogError(ex, "All retry attempts failed for adding strain with Name {Name}", name);
+                _logger.LogError(ex, "All retry attempts failed for adding strain with Name {Name}", strain.Name);
                 throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Adding Strain To Graph", ex);
             }
             finally
             {
                 await session.CloseAsync();
             }
+        }
+
+        public async Task UpdateStrainOfGraph(Strain strain)
+        {
+            _logger.LogInformation("UpdateStrainOfGraph(): Updating strain with name {Name} and id {StrainId}", strain.Name, strain.StrainId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                await retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var updateStrainQuery = @"
+                            MATCH (s:Strain {strainId: $strainId})
+                            SET s.name = $name, s.organism = $organism
+                        ";
+
+                        await tx.RunAsync(updateStrainQuery, new
+                        {
+                            name = strain.Name,
+                            strainId = strain.StrainId,
+                            organism = strain.Organism
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in UpdateStrainOfGraph");
+                _logger.LogError(ex, "All retry attempts failed for updating strain with Name {Name}", strain.Name);
+                throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Updating Strain Of Graph", ex);
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
         }
 
         public async Task AddGeneToGraph(Gene gene)
@@ -111,27 +150,19 @@ namespace Horizon.Infrastructure.Repositories
                     await session.ExecuteWriteAsync(async tx =>
                     {
                         var createGeneQuery = @"
-                    MERGE (g:Gene {accessionNumber: $accessionNumber})
-                    ON CREATE SET g.geneId = $geneId, g.name = $name, g.function = $function, g.product = $product
-                    WITH g
-                    MERGE (fc:FunctionalCategory {name: $functionalCategory})
-                    MERGE (g)-[:BELONGS_TO]->(fc)
-                    WITH g
-                    MERGE (s:Strain {strainId: $strainId})
-                    MERGE (g)-[:PART_OF]->(s)
-                   
-                ";
+                                MERGE (g:Gene {accessionNumber: $accessionNumber})
+                                ON CREATE SET g.geneId = $geneId, g.name = $name, g.function = $function, g.product = $product
 
-                        if (string.IsNullOrWhiteSpace(gene.FunctionalCategory))
-                        {
-                            createGeneQuery = @"
-                        MERGE (g:Gene {accessionNumber: $accessionNumber})
-                        ON CREATE SET g.name = $name, g.function = $function, g.product = $product
-                        WITH g
-                        MERGE (s:Strain {strainId: $strainId})
-                        MERGE (g)-[:PART_OF]->(s)
-                    ";
-                        }
+                                WITH g
+                                FOREACH (ignoreMe IN CASE WHEN $functionalCategory IS NOT NULL AND $functionalCategory <> '' THEN [1] ELSE [] END |
+                                    MERGE (fc:FunctionalCategory {name: $functionalCategory})
+                                    MERGE (g)-[:BELONGS_TO]->(fc)
+                                )
+
+                                WITH g
+                                MERGE (s:Strain {strainId: $strainId})
+                                MERGE (g)-[:PART_OF]->(s)
+                            ";
 
                         _logger.LogInformation("tx.RunAsync Adding gene with accession number {accessionNumber}", gene.AccessionNumber);
                         await tx.RunAsync(createGeneQuery, new
@@ -157,6 +188,69 @@ namespace Horizon.Infrastructure.Repositories
             {
                 await session.CloseAsync();
             }
+        }
+
+        public async Task UpdateGeneOfGraph(Gene gene)
+        {
+            _logger.LogInformation("UpdateGeneOfGraph(): Updating gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                await retryPolicy.ExecuteAsync(async () =>
+                {
+
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var updateGeneQuery = @"
+                                MATCH (g:Gene {accessionNumber: $accessionNumber})
+                                SET g.geneId = $geneId, g.name = $name, g.function = $function, g.product = $product
+
+                                WITH g
+                                OPTIONAL MATCH (g)-[r1:BELONGS_TO]->(oldFc:FunctionalCategory)
+                                WHERE (oldFc IS NULL AND $functionalCategory IS NOT NULL) OR (oldFc IS NOT NULL AND oldFc.name <> $functionalCategory)
+                                DELETE r1
+
+                                WITH g
+                                FOREACH (ignoreMe IN CASE WHEN $functionalCategory IS NOT NULL THEN [1] ELSE [] END |
+                                    MERGE (newFc:FunctionalCategory {name: $functionalCategory})
+                                    MERGE (g)-[:BELONGS_TO]->(newFc)
+                                )
+
+                                WITH g
+                                OPTIONAL MATCH (g)-[r2:PART_OF]->(oldStrain:Strain)
+                                WHERE oldStrain.strainId <> $strainId OR oldStrain IS NULL
+                                DELETE r2
+                                
+                                WITH g
+                                MERGE (newStrain:Strain {strainId: $strainId})
+                                MERGE (g)-[:PART_OF]->(newStrain)";
+
+                        _logger.LogInformation("tx.RunAsync Updating gene with accession number {accessionNumber}", gene.AccessionNumber);
+                        await tx.RunAsync(updateGeneQuery, new
+                        {
+                            geneId = gene.GeneId,
+                            strainId = gene.StrainId,
+                            accessionNumber = gene.AccessionNumber,
+                            name = gene.Name,
+                            function = gene.Function,
+                            product = gene.Product,
+                            functionalCategory = gene.FunctionalCategory
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in UpdateGeneOfGraph");
+                _logger.LogError(ex, "All retry attempts failed for updating gene with accession number {AccessionNumber}", gene.AccessionNumber);
+                throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Updating Gene Of Graph", ex);
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+
         }
 
 
