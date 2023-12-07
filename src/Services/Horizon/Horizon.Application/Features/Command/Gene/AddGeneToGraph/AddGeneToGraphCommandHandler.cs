@@ -4,7 +4,7 @@ using Horizon.Application.Contracts.Persistance;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Horizon.Application.Features.Command.Gene.AddGene
+namespace Horizon.Application.Features.Command.Gene.AddGeneToGraph
 {
     public class AddGeneToGraphCommandHandler : IRequestHandler<AddGeneToGraphCommand, Unit>
     {

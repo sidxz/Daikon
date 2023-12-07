@@ -1,7 +1,7 @@
 
 using FluentValidation;
 using Horizon.Application.Contracts.Persistance;
-using Horizon.Application.Features.Command.Gene.AddGene;
+using Horizon.Application.Features.Command.Gene.AddGeneToGraph;
 using Horizon.Application.Query.Handlers;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;

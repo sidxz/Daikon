@@ -1,7 +1,7 @@
 
 using FluentValidation;
 
-namespace Horizon.Application.Features.Command.Gene.AddGene
+namespace Horizon.Application.Features.Command.Gene.AddGeneToGraph
 {
     public class AddGeneToGraphCommandValidator : AbstractValidator<AddGeneToGraphCommand>
     {
