@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Horizon.Domain.Genes;
 
 namespace Horizon.Application.Contracts.Persistance
 {
@@ -9,7 +10,7 @@ namespace Horizon.Application.Contracts.Persistance
     {
         Task CreateIndexesAsync();
         Task CreateConstraintsAsync();
-        Task AddGeneToGraph(string accessionNumber, string name, string function, string product, string functionalCategory);
+        Task AddGeneToGraph(Gene gene);
         Task AddStrainToGraph(string name, string strainId, string organism);
     }
 }

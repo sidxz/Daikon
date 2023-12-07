@@ -25,9 +25,10 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: GeneCreatedEvent: {@event.Id} {@event.Name}");
             var gene = new Gene
             {
-                Id = @event.Id,
-                Name = @event.Name,
+                GeneId = @event.Id.ToString(),
+                StrainId = @event.StrainId.ToString(),
 
+                Name = @event.Name,
                 AccessionNumber = @event.AccessionNumber,
                 Function = @event.Function,
                 Product = @event.Product,
@@ -39,7 +40,7 @@ namespace Horizon.Application.Query.Handlers
             };
 
             try {
-                 await _graphRepository.AddGeneToGraph(gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
+                 await _graphRepository.AddGeneToGraph(gene);
             }
             catch (RepositoryException ex)
             {

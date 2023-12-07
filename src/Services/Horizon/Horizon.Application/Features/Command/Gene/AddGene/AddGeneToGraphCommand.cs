@@ -9,8 +9,9 @@ namespace Horizon.Application.Features.Command.Gene.AddGene
 {
     public class AddGeneToGraphCommand : BaseCommand, IRequest<Unit>
     {
+        public string GeneId { get; set; }
+        public string StrainId { get; set; }
         public string AccessionNumber { get; set; }
-        
         public string? Name { get; set; }
         public string? Function { get; set; }
         public string? Product { get; set; }

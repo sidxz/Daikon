@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CQRS.Core.Exceptions;
 using Horizon.Application.Contracts.Persistance;
+using Horizon.Domain.Genes;
 using Microsoft.Extensions.Logging;
 using Neo4j.Driver;
 using Polly;
@@ -98,9 +99,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task AddGeneToGraph(string accessionNumber, string name, string function, string product, string functionalCategory)
+        public async Task AddGeneToGraph(Gene gene)
         {
-            _logger.LogInformation("AddGeneToGraph(): Adding gene with accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", accessionNumber, name, function, product, functionalCategory);
+            _logger.LogInformation("AddGeneToGraph(): Adding gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
             var session = _driver.AsyncSession();
             try
             {
@@ -111,29 +112,37 @@ namespace Horizon.Infrastructure.Repositories
                     {
                         var createGeneQuery = @"
                     MERGE (g:Gene {accessionNumber: $accessionNumber})
-                    ON CREATE SET g.name = $name, g.function = $function, g.product = $product
+                    ON CREATE SET g.geneId = $geneId, g.name = $name, g.function = $function, g.product = $product
                     WITH g
                     MERGE (fc:FunctionalCategory {name: $functionalCategory})
                     MERGE (g)-[:BELONGS_TO]->(fc)
+                    WITH g
+                    MERGE (s:Strain {strainId: $strainId})
+                    MERGE (g)-[:PART_OF]->(s)
+                   
                 ";
 
-                        if (string.IsNullOrWhiteSpace(functionalCategory))
+                        if (string.IsNullOrWhiteSpace(gene.FunctionalCategory))
                         {
                             createGeneQuery = @"
                         MERGE (g:Gene {accessionNumber: $accessionNumber})
                         ON CREATE SET g.name = $name, g.function = $function, g.product = $product
+                        WITH g
+                        MERGE (s:Strain {strainId: $strainId})
+                        MERGE (g)-[:PART_OF]->(s)
                     ";
                         }
 
-                        _logger.LogInformation("tx.RunAsync Adding gene with accession number {accessionNumber}", accessionNumber);
-                        _logger.LogDebug("Adding gene with accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", accessionNumber, name, function, product, functionalCategory);
+                        _logger.LogInformation("tx.RunAsync Adding gene with accession number {accessionNumber}", gene.AccessionNumber);
                         await tx.RunAsync(createGeneQuery, new
                         {
-                            accessionNumber,
-                            name,
-                            function,
-                            product,
-                            functionalCategory
+                            geneId = gene.GeneId,
+                            strainId = gene.StrainId,
+                            accessionNumber = gene.AccessionNumber,
+                            name = gene.Name,
+                            function = gene.Function,
+                            product = gene.Product,
+                            functionalCategory = gene.FunctionalCategory
                         });
                     });
                 });
@@ -141,7 +150,7 @@ namespace Horizon.Infrastructure.Repositories
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in AddGeneToGraph");
-                _logger.LogError(ex, "All retry attempts failed for adding gene with accession number {AccessionNumber}", accessionNumber);
+                _logger.LogError(ex, "All retry attempts failed for adding gene with accession number {AccessionNumber}", gene.AccessionNumber);
                 throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Adding Gene To Graph", ex);
             }
             finally

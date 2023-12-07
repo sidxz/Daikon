@@ -19,9 +19,23 @@ namespace Horizon.Application.Features.Command.Gene.AddGene
 
         public Task<Unit> Handle(AddGeneToGraphCommand request, CancellationToken cancellationToken)
         {
-            try
+            var gene = new Domain.Genes.Gene
             {
-                _graphRepositoryForGene.AddGeneToGraph(request.AccessionNumber, request.Name, request.Function, request.Product, request.FunctionalCategory);
+                GeneId = request.Id.ToString(),
+                StrainId = request.StrainId.ToString(),
+                AccessionNumber = request.AccessionNumber,
+                Name = request.Name,
+                Function = request.Function,
+                Product = request.Product,
+                FunctionalCategory = request.FunctionalCategory,
+                DateCreated = DateTime.UtcNow,
+                IsModified = false,
+                IsDraft = false
+            };
+            try
+            {   
+                //(string geneId, string strainId, string accessionNumber, string name, string function, string product, string functionalCategory
+                _graphRepositoryForGene.AddGeneToGraph(gene);
                 return Task.FromResult(Unit.Value);
             }
             catch (RepositoryException ex)
