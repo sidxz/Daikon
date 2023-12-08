@@ -116,6 +116,9 @@ namespace Horizon.Infrastructure.Query.Consumers
                 catch (ConsumeException e)
                 {
                     _logger.LogError("Kafka consume error: {reason}", e.Error.Reason);
+                    // Implement a backoff strategy or wait before retrying
+                    _logger.LogInformation("Waiting 10 seconds before retrying");
+                    Task.Delay(TimeSpan.FromSeconds(10)).Wait();
                 }
                 catch (KafkaException e)
                 {

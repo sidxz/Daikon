@@ -14,6 +14,7 @@ namespace Horizon.Application.Query.Handlers
         Task OnEvent(GeneDeletedEvent @event);
 
         Task OnEvent(StrainCreatedEvent @event);
+        Task OnEvent(StrainUpdatedEvent @event);
         
     }
 }

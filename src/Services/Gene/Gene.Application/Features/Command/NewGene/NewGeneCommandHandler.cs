@@ -48,7 +48,7 @@ namespace Gene.Application.Features.Command.NewGene
             // check if both strainId and strainName are null; reject if they are
             if (request.StrainId == null && request.StrainName == null)
             {
-                throw new ArgumentNullException(nameof(request.StrainId), "StrainId and StrainName cannot both be null");
+                throw new ArgumentNullException(nameof(request.StrainId), "Both StrainId and StrainName cannot be null.");
             }
 
             // fetch strain using StrainId or StrainName, whichever is not null
