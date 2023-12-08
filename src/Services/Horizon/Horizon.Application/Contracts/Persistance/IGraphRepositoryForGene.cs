@@ -13,6 +13,7 @@ namespace Horizon.Application.Contracts.Persistance
         Task CreateConstraintsAsync();
         Task AddGeneToGraph(Gene gene);
         Task UpdateGeneOfGraph(Gene gene);
+        Task DeleteGeneFromGraph(string geneId);
         Task AddStrainToGraph(Strain strain);
         Task UpdateStrainOfGraph(Strain strain);
     }

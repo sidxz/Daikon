@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+
 using CQRS.Core.Exceptions;
 using Horizon.Application.Contracts.Persistance;
 using Horizon.Domain.Genes;
@@ -203,8 +202,8 @@ namespace Horizon.Infrastructure.Repositories
                     await session.ExecuteWriteAsync(async tx =>
                     {
                         var updateGeneQuery = @"
-                                MATCH (g:Gene {accessionNumber: $accessionNumber})
-                                SET g.geneId = $geneId, g.name = $name, g.function = $function, g.product = $product
+                                MATCH (g:Gene {geneId: $geneId})
+                                SET g.name = $name, g.function = $function, g.product = $product
 
                                 WITH g
                                 OPTIONAL MATCH (g)-[r1:BELONGS_TO]->(oldFc:FunctionalCategory)
@@ -251,6 +250,43 @@ namespace Horizon.Infrastructure.Repositories
                 await session.CloseAsync();
             }
 
+        }
+
+        // Delete a gene from the graph database
+        public async Task DeleteGeneFromGraph(string geneId)
+        {
+            _logger.LogInformation("DeleteGeneFromGraph(): Deleting gene with accession number {geneId}", geneId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                await retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var deleteGeneQuery = @"
+                            MATCH (g:Gene {geneId: $geneId})
+                            DETACH DELETE g
+                        ";
+
+                        _logger.LogInformation("tx.RunAsync Deleting gene with accession number {geneId}", geneId);
+                        await tx.RunAsync(deleteGeneQuery, new
+                        {
+                            geneId = geneId
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in DeleteGeneFromGraph");
+                _logger.LogError(ex, "All retry attempts failed for deleting gene with accession number {geneId}", geneId);
+                throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Deleting Gene From Graph", ex);
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
         }
 
 
