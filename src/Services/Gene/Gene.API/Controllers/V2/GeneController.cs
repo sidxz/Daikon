@@ -157,6 +157,14 @@ namespace Gene.API.Controllers.V2
                     Message = "Gene added successfully",
                 });
             }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("UpdateGene: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
             catch (DuplicateEntityRequestException ex)
             {
@@ -205,6 +213,14 @@ namespace Gene.API.Controllers.V2
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {
                     Message = "Gene updated successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("UpdateGene: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
                 });
             }
 
