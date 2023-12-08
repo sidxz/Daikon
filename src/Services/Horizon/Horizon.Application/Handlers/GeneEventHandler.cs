@@ -22,7 +22,7 @@ namespace Horizon.Application.Query.Handlers
 
         public async Task OnEvent(GeneCreatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: GeneCreatedEvent: {@event.Id} {@event.Name}");
+            _logger.LogInformation($"Horizon: GeneCreatedEvent: {@event.Id} {@event.AccessionNumber}");
             var gene = new Gene
             {
                 GeneId = @event.Id.ToString(),
@@ -74,7 +74,7 @@ namespace Horizon.Application.Query.Handlers
 
         public async Task OnEvent(GeneUpdatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id} {@event.Name}");
+            _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id} {@event.AccessionNumber}");
              var gene = new Gene
             {
                 GeneId = @event.Id.ToString(),
@@ -127,8 +127,14 @@ namespace Horizon.Application.Query.Handlers
 
         public async Task OnEvent(GeneDeletedEvent @event)
         {
-            throw new NotImplementedException();
-
+            _logger.LogInformation($"Horizon: GeneDeletedEvent: {@event.Id} {@event.AccessionNumber}");
+            try {
+                 await _graphRepository.DeleteGeneFromGraph(@event.Id.ToString());
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "GeneDeletedEvent Error deleting gene", ex);
+            }
         }
     }
 }
