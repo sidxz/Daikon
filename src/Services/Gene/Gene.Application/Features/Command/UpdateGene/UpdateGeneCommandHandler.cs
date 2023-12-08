@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
@@ -13,15 +14,18 @@ namespace Gene.Application.Features.Command.UpdateGene
     {
 
         private readonly ILogger<UpdateGeneCommandHandler> _logger;
+        private readonly IMapper _mapper;
 
         private readonly IEventSourcingHandler<GeneAggregate> _eventSourcingHandler;
         private readonly IGeneRepository _geneRepository;
         private readonly IStrainRepository _strainRepository;
 
 
-        public UpdateGeneCommandHandler(ILogger<UpdateGeneCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler, IGeneRepository geneRepository, IStrainRepository strainRepository)
+        public UpdateGeneCommandHandler(ILogger<UpdateGeneCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler,
+                                        IGeneRepository geneRepository, IStrainRepository strainRepository, IMapper mapper)
         {
             _logger = logger;
+            _mapper = mapper;
             _eventSourcingHandler = eventSourcingHandler;
             _geneRepository = geneRepository;
             _strainRepository = strainRepository;
@@ -34,6 +38,13 @@ namespace Gene.Application.Features.Command.UpdateGene
             if (request.StrainId == null && request.StrainName == null)
             {
                 throw new ArgumentNullException(nameof(request.StrainId), "Both StrainId and StrainName cannot be null.");
+            }
+
+            // check if accessionNo is modified; reject if it is
+            var existingGene = await _geneRepository.ReadGeneById(request.Id);
+            if (existingGene.AccessionNumber != request.AccessionNumber)
+            {
+                throw new InvalidOperationException("AccessionNumber cannot be modified");
             }
 
             // fetch strain using StrainId or StrainName, whichever is not null
@@ -52,19 +63,13 @@ namespace Gene.Application.Features.Command.UpdateGene
             {
                 throw new ResourceNotFoundException(nameof(StrainAggregate), $"Strain with Id {request.StrainId} or Name {request.StrainName} not found");
             }
-
             
-            var gene = new Domain.Entities.Gene
-            {
-                Id = request.Id,
-                StrainId = strain.Id,
-                AccessionNumber = request.AccessionNumber,
-                Name = request.Name,
-                Function = request.Function,
-                Product = request.Product,
-                FunctionalCategory = request.FunctionalCategory
-            };
+            var gene = _mapper.Map<Domain.Entities.Gene>(request);
 
+            // Things that cannot be modified
+            gene.AccessionNumber = existingGene.AccessionNumber;
+            gene.StrainId = strain.Id;
+            
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

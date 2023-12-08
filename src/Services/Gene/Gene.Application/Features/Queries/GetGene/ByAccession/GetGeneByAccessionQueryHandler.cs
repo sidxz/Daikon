@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRS.Core.Domain;
+
+using AutoMapper;
 using CQRS.Core.Exceptions;
 using Gene.Application.Contracts.Persistence;
-using Gene.Application.Features.Queries.GetGene;
 using MediatR;
 
 namespace Gene.Application.Features.Queries.GetGene.ByAccession
@@ -13,10 +9,12 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
     public class GetGeneByAccessionQueryHandler : IRequestHandler<GetGeneByAccessionQuery, GeneVM>
     {
         private readonly IGeneRepository _geneRepository;
+        private readonly IMapper _mapper;
 
-        public GetGeneByAccessionQueryHandler(IGeneRepository geneRepository)
+        public GetGeneByAccessionQueryHandler(IGeneRepository geneRepository, IMapper mapper)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
         public async Task<GeneVM> Handle(GetGeneByAccessionQuery request, CancellationToken cancellationToken)
         {
@@ -27,28 +25,7 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
                 throw new ResourceNotFoundException(nameof(Gene), request.AccessionNumber);
             }
 
-            if (request.WithMeta)
-            {
-                return new GeneVM
-                {
-                    Id = gene.Id,
-                    Name = gene.Name,
-                    AccessionNumber = gene.AccessionNumber,
-                    Function = gene.Function,
-                    Product = gene.Product,
-                    FunctionalCategory = gene.FunctionalCategory
-                };
-            }
-
-            return new GeneVM
-            {
-                Id = gene.Id,
-                Name = gene.Name,
-                AccessionNumber = gene.AccessionNumber,
-                Function = gene.Function.Value,
-                Product = gene.Product.Value,
-                FunctionalCategory = gene.FunctionalCategory.Value
-            };
+            return _mapper.Map<GeneVM>(gene, opts => opts.Items["WithMeta"] = request.WithMeta);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Gene.Application.Features.Queries.GetGenesList
     public class GenesListVM
     {
         public Guid Id { get; set; }
+        public Guid StrainId { get; set; }
         public string AccessionNumber { get; set; }
         public string Name { get; set; }
         public string Function { get; set; }

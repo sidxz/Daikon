@@ -16,16 +16,16 @@ namespace Gene.Application.Features.Command.NewGene
     public class NewGeneCommandHandler : IRequestHandler<NewGeneCommand, Unit>
     {
 
-        //private readonly IMapper _mapper;
+        private readonly IMapper _mapper;
         private readonly ILogger<NewGeneCommandHandler> _logger;
 
         private readonly IEventSourcingHandler<GeneAggregate> _eventSourcingHandler;
         private readonly IGeneRepository _geneRepository;
         private readonly IStrainRepository _strainRepository;
 
-        public NewGeneCommandHandler(ILogger<NewGeneCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler, IGeneRepository geneRepository, IStrainRepository strainRepository)
+        public NewGeneCommandHandler(ILogger<NewGeneCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler, IGeneRepository geneRepository, IStrainRepository strainRepository, IMapper mapper)
         {
-            //_mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _eventSourcingHandler = eventSourcingHandler ?? throw new ArgumentNullException(nameof(eventSourcingHandler));
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -68,17 +68,19 @@ namespace Gene.Application.Features.Command.NewGene
                 throw new ResourceNotFoundException(nameof(StrainAggregate), $"Strain with Id {request.StrainId} or Name {request.StrainName} not found");
             }
 
+            var gene = _mapper.Map<Domain.Entities.Gene>(request);
 
-            var gene = new Domain.Entities.Gene
-            {
-                Id = request.Id,
-                StrainId = strain.Id,
-                AccessionNumber = request.AccessionNumber,
-                Name = request.Name,
-                Function = request.Function,
-                Product = request.Product,
-                FunctionalCategory = request.FunctionalCategory
-            };
+
+            // var gene = new Domain.Entities.Gene
+            // {
+            //     Id = request.Id,
+            //     StrainId = strain.Id,
+            //     AccessionNumber = request.AccessionNumber,
+            //     Name = request.Name,
+            //     Function = request.Function,
+            //     Product = request.Product,
+            //     FunctionalCategory = request.FunctionalCategory
+            // };
 
             var aggregate = new GeneAggregate(gene);
             await _eventSourcingHandler.SaveAsync(aggregate);
