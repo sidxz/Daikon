@@ -11,5 +11,7 @@ namespace Gene.Application.Features.Queries.GetGene
         public object Product { get; set; }
         public object FunctionalCategory { get; set; }
 
+        public List<GeneEssentialityVM> Essentialities { get; set; }
+
     }
 }
