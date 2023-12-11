@@ -81,6 +81,12 @@ namespace Daikon.VersionStore.Handlers
                     _logger.LogInformation("versionPropertyValue: " + versionPropertyValue);
                     _logger.LogInformation("updatedPropertyValue: " + updatedPropertyValue);
 
+                    if(updatedPropertyValue == null)
+                    {
+                        _logger.LogDebug("Property {PropertyName} is null", updatedProperty.Name);
+                        continue;
+                    }
+
 
                     if (versionPropertyValue == null)
                     {

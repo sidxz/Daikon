@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Daikon.VersionStore.Settings
 {
-    public class VersionDatabaseSettings : IVersionDatabaseSettings
+    public class VersionDatabaseSettings <VersionEntityModel> : IVersionDatabaseSettings<VersionEntityModel>
     {
         public required string ConnectionString { get; set; }
         public required string DatabaseName { get; set; }

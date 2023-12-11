@@ -27,17 +27,20 @@ namespace Daikon.VersionStore.Handlers
         public async Task CommitVersion(BaseEntity updatedEntity)
         {
             // Retrieve the existing version model for the entity
+            _logger.LogDebug("Retrieving existing version model for entity with id {EntityId}", updatedEntity.Id);
             var existingModel = await _versionStoreRepository.GetByAsyncEntityId(updatedEntity.Id).ConfigureAwait(false);
 
             if (existingModel == null)
             {
                 // If no existing model, create a new version model
+                _logger.LogDebug("No existing version model found for entity with id {EntityId}", updatedEntity.Id);
                 NewVersion<VersionEntityModel> newVersion = new(_logger);
                 var newVersionModel = newVersion.Create(updatedEntity);
 
                 // Save the new model
                 try
                 {
+                    _logger.LogDebug("Saving new version model for entity with id {EntityId}", updatedEntity.Id);
                     await _versionStoreRepository.SaveAsync(newVersionModel).ConfigureAwait(false);
                 }
                 catch (Exception ex)
