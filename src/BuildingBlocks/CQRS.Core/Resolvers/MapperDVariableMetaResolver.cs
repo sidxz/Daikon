@@ -37,8 +37,31 @@ namespace CQRS.Core.Resolvers
 
         public object Resolve(TSource source, object destination, object destMember, ResolutionContext context)
         {
-            bool withMeta = context.Items.ContainsKey("WithMeta") && (bool)context.Items["WithMeta"];
+
+            // Check if the source is null
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source), "Source cannot be null.");
+            }
+
+            // Check if the selector function is null
+            if (_selector == null)
+            {
+                throw new InvalidOperationException("Selector function cannot be null.");
+            }
+
             var memberValue = _selector(source);
+
+            // Check if the member value is null
+            if (memberValue == null)
+            {
+                // Handle the null case appropriately, return null or a default value
+                return default(TDataType); 
+            }
+
+
+
+            bool withMeta = context.Items.ContainsKey("WithMeta") && (bool)context.Items["WithMeta"];
             return withMeta ? memberValue : memberValue.Value;
         }
     }
