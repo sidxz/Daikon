@@ -65,6 +65,12 @@ namespace Daikon.VersionStore.Handlers
                         throw new Exception("DVariableHistory property already exists in VersionEntityModel. " + updatedProperty.Name);
                     }
 
+                    if(updatedPropertyValue == null)
+                    {
+                        _logger.LogDebug("Property {PropertyName} is null", updatedProperty.Name);
+                        continue;
+                    }
+
 
                     // Create a new instance of DVariableHistory<T> to store the updated value
                     _logger.LogDebug("Create a new instance of DVariableHistory<T> to store the updated value");
@@ -74,6 +80,7 @@ namespace Daikon.VersionStore.Handlers
 
 
                     // Set the CurrentVersion of _DVariableHistory_Value_New to 1
+                    _logger.LogDebug("Set the CurrentVersion of _DVariableHistory_Value_New to 1");
                     try
                     {
                         _versionStoreHelper.SetPropertySafe(versionPropertyValue, "CurrentVersion", 1);
@@ -85,8 +92,21 @@ namespace Daikon.VersionStore.Handlers
 
 
                     // Set the "Current" to the updated value
+                    _logger.LogDebug("Set the Current to the updated value");
                     Type dVariableType = typeof(DVariable<>).MakeGenericType(genericTypeArgument);
-                    var current = Activator.CreateInstance(dVariableType, updatedPropertyValue);
+                    _logger.LogDebug("DVariableType: {DVariableType}", dVariableType);
+                    object current;
+                    try
+                    {
+                        current = Activator.CreateInstance(dVariableType, updatedPropertyValue);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError("Exception while creating instance of DVariable: {ExceptionMessage}", e.ToString());
+                        throw;
+                    }
+                    
+                    _logger.LogDebug("Current: {Current}", current);
                     try
                     {
                         if (current == null)
@@ -94,6 +114,7 @@ namespace Daikon.VersionStore.Handlers
                             _logger.LogError("Failed to create instance of DVariable");
                             throw new Exception("Failed to create instance of DVariable");
                         }
+                        _logger.LogDebug("SetPropertySafe the CurrentValue to the updated value");
                         _versionStoreHelper.SetPropertySafe(versionPropertyValue, "Current", current);
                     }
 
@@ -103,6 +124,7 @@ namespace Daikon.VersionStore.Handlers
                     }
 
                     // Set the CurrentValue to the updated value *unwrapped*
+                    _logger.LogDebug("Set the CurrentValue to the updated value *unwrapped*");
                     try
                     {
                         var currentValue = updatedPropertyValue!.GetType()?.GetProperty("Value")?.GetValue(updatedPropertyValue);
@@ -149,11 +171,13 @@ namespace Daikon.VersionStore.Handlers
 
 
                     // Add a new VersionEntry to the Versions list
+                    _logger.LogDebug("Add a new VersionEntry to the Versions list");
                     // Get the Versions list
                     var versionsListProp = versionPropertyValue?.GetType().GetProperty("Versions");
                     var versionsList = versionsListProp?.GetValue(versionPropertyValue);
                     var addMethod = versionsList?.GetType().GetMethod("Add");
 
+                    _logger.LogDebug("Versions list: {VersionsList}", versionsList);
                     if (versionsList == null || addMethod == null)
                     {
                         _logger.LogError("Versions list not found");
@@ -162,6 +186,7 @@ namespace Daikon.VersionStore.Handlers
 
 
                     // Create a new VersionEntry<T>
+                    _logger.LogDebug("Create a new VersionEntry<T>");
                     try
                     {
                         Type versionEntryType = typeof(VersionEntry<>).MakeGenericType(genericTypeArgument);
@@ -182,6 +207,7 @@ namespace Daikon.VersionStore.Handlers
 
                     // Set the property value in the version model
                     // SetPropertySafe(versionEntityModel, updatedProperty.Name, versionPropertyValue);
+                    _logger.LogDebug("Set the property value in the version model");
                     versionProperty.SetValue(versionEntityModel, versionPropertyValue);
 
                 }
