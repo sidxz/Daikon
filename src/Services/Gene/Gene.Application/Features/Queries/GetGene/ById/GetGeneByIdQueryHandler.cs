@@ -28,8 +28,8 @@ namespace Gene.Application.Features.Queries.GetGene.ById
             {
                 throw new ResourceNotFoundException(nameof(Gene), request.Id);
             }
-            
-            var essentialities = await _geneEssentialityRepository.GetEssentialityOfGene(request.Id);
+
+            var essentialities = await _geneEssentialityRepository.GetEssentialityOfGene(gene.Id);
 
             var geneVm = _mapper.Map<GeneVM>(gene, opts => opts.Items["WithMeta"] = request.WithMeta);
             geneVm.Essentialities = _mapper.Map<List<GeneEssentialityVM>>(essentialities, opts => opts.Items["WithMeta"] = request.WithMeta);

@@ -10,11 +10,13 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
     {
         private readonly IGeneRepository _geneRepository;
         private readonly IMapper _mapper;
+        private readonly IGeneEssentialityRepository _geneEssentialityRepository;
 
-        public GetGeneByAccessionQueryHandler(IGeneRepository geneRepository, IMapper mapper)
+        public GetGeneByAccessionQueryHandler(IGeneRepository geneRepository, IMapper mapper, IGeneEssentialityRepository geneEssentialityRepository)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _geneEssentialityRepository = geneEssentialityRepository ?? throw new ArgumentNullException(nameof(geneEssentialityRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByAccessionQuery request, CancellationToken cancellationToken)
         {
@@ -25,7 +27,12 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
                 throw new ResourceNotFoundException(nameof(Gene), request.AccessionNumber);
             }
 
-            return _mapper.Map<GeneVM>(gene, opts => opts.Items["WithMeta"] = request.WithMeta);
+            var essentialities = await _geneEssentialityRepository.GetEssentialityOfGene(gene.Id);
+
+            var geneVm = _mapper.Map<GeneVM>(gene, opts => opts.Items["WithMeta"] = request.WithMeta);
+            geneVm.Essentialities = _mapper.Map<List<GeneEssentialityVM>>(essentialities, opts => opts.Items["WithMeta"] = request.WithMeta);
+            
+            return geneVm;
         }
     }
 }
