@@ -6,9 +6,14 @@ namespace Gene.Application.Features.Command.NewEssentiality
     {
         public NewEssentialityCommandValidator()
         {
-            RuleFor(p => p.Classification)
+            RuleFor(e => e.Classification)
             .NotEmpty().WithMessage("{Classification} is required")
             .NotNull();
+
+            RuleFor(e => e.GeneId)
+            .NotEmpty().WithMessage("{GeneId} is required")
+            .NotNull()
+            .NotEqual(Guid.Empty).WithMessage("{GeneId} is required");
         }
     }
 }

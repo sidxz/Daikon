@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CQRS.Core.Event;
+using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Daikon.Events.Strains;
 
@@ -39,7 +40,7 @@ namespace Horizon.Infrastructure.Query.Converters
                 "StrainCreatedEvent" => JsonSerializer.Deserialize<StrainCreatedEvent>(json, options),
                 "StrainUpdatedEvent" => JsonSerializer.Deserialize<StrainUpdatedEvent>(json, options),
                 
-                _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
+                _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };
         }
 

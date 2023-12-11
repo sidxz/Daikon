@@ -1,7 +1,8 @@
 
 using System.Net;
 using CQRS.Core.Exceptions;
-using Gene.API.DTOs;
+using CQRS.Core.Responses;
+
 using Gene.Application.Features.Command.DeleteStrain;
 using Gene.Application.Features.Command.NewStrain;
 using Gene.Application.Features.Command.UpdateStrain;
@@ -146,7 +147,7 @@ namespace Gene.API.Controllers.V2
                 command.Id = id;
                 await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddStrainResponse
+                return StatusCode(StatusCodes.Status201Created, new AddResponse
                 {
                     Id = id,
                     Message = "Strain added successfully",
@@ -175,7 +176,7 @@ namespace Gene.API.Controllers.V2
                 const string SAFE_ERROR_MESSAGE = "An error occurred while adding the strain";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddStrainResponse
+                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
                     Id = id,
                     Message = SAFE_ERROR_MESSAGE

@@ -101,7 +101,7 @@ namespace Gene.Infrastructure.Query.Repositories
 
             try
             {
-                _logger.LogInformation("UpdateGene: Creating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
+                _logger.LogInformation("UpdateGene: Updating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
                 await _geneCollection.UpdateOneAsync(filter, update);
                 await _versionHub.CommitVersion(gene);
             }
