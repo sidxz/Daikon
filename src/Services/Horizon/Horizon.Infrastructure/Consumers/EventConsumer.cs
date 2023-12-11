@@ -88,8 +88,24 @@ namespace Horizon.Infrastructure.Query.Consumers
                         {
                             Converters = { new EventJSONConverter() }
                         };
-
-                        var @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
+                        
+                        BaseEvent @event;
+                        try 
+                        {
+                            @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
+                        }
+                        catch (UnknownEventDiscriminatorException ex)
+                        {
+                            _logger.LogInformation("Horizon: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                           
+                            continue;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error deserializing event: {message}", consumeResult.Message.Value);
+                            throw new EventConsumeException(nameof(EventConsumer), $"Error deserializing event: {consumeResult.Message.Value}", ex);
+                        }
+                        
 
                         var handlerMethod = _eventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
 

@@ -34,6 +34,7 @@ namespace Gene.Application.Features.Command.NewEssentiality
         {
             
             var newEssentiality = _mapper.Map<Essentiality>(request);
+            
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

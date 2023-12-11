@@ -114,6 +114,7 @@ namespace Gene.Domain.Aggregates
             RaiseEvent(new GeneEssentialityAddedEvent
             {
                 Id = _id,
+                GeneId = _id,
                 EssentialityId = essentiality.EssentialityId,
                 Classification = essentiality.Classification,
                 Condition = essentiality.Condition,
@@ -157,6 +158,7 @@ namespace Gene.Domain.Aggregates
             RaiseEvent(new GeneEssentialityUpdatedEvent
             {
                 Id = _id,
+                GeneId = _id,
                 EssentialityId = essentiality.EssentialityId,
                 Classification = essentiality.Classification,
                 Condition = essentiality.Condition,
@@ -196,6 +198,7 @@ namespace Gene.Domain.Aggregates
             RaiseEvent(new GeneEssentialityDeletedEvent
             {
                 Id = _id,
+                GeneId = _id,
                 EssentialityId = essentiality.EssentialityId
 
             });

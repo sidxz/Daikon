@@ -9,7 +9,7 @@ namespace Daikon.Events.Gene
         {
         }
 
-
+        public Guid GeneId { get; set; }
         public Guid EssentialityId { get; set; }
     }
 }

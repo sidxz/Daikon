@@ -39,7 +39,13 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<StrainCreatedEvent>();
             BsonClassMap.RegisterClassMap<StrainUpdatedEvent>();
             BsonClassMap.RegisterClassMap<StrainDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneEssentialityAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneEssentialityUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneEssentialityDeletedEvent>();
+
             
+            /* Event Database */
 
             var eventDatabaseSettings = new EventDatabaseSettings
             {
@@ -49,6 +55,7 @@ namespace Gene.Infrastructure
             };
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
 
+
             var kafkaProducerSettings = new KafkaProducerSettings
             {
                 BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers") ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers)),
@@ -56,7 +63,6 @@ namespace Gene.Infrastructure
             };
 
             services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
-            
 
             services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
     
@@ -67,22 +73,46 @@ namespace Gene.Infrastructure
             services.AddScoped<IEventSourcingHandler<GeneAggregate>, EventSourcingHandler<GeneAggregate>>();
             services.AddScoped<IEventSourcingHandler<StrainAggregate>, EventSourcingHandler<StrainAggregate>>();
 
+            
+
             /* Query */
+
+            /* Repositories */
             services.AddScoped<IGeneRepository, GeneRepository>();
             
             services.AddScoped<IStrainRepository, StrainRepository>();
 
-            var versionStoreSettings = new VersionDatabaseSettings
+            services.AddScoped<IGeneEssentialityRepository, GeneEssentialityRepository>();
+
+
+            /* Version Store */
+
+            var geneVersionStoreSettings = new VersionDatabaseSettings
             {
                 ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.ConnectionString)),
                 DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.DatabaseName)),
                 CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.CollectionName))
             };
-            services.AddSingleton<IVersionDatabaseSettings>(versionStoreSettings);
+            services.AddSingleton<IVersionDatabaseSettings>(geneVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<GeneRevision>, VersionStoreRepository<GeneRevision>>();
             services.AddScoped<IVersionHub<GeneRevision>, VersionHub<GeneRevision>>();
 
+            var essentialityVersionStoreSettings = new VersionDatabaseSettings
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:EssentialityRevisionCollectionName") 
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "Essentiality"
+            };
 
+            services.AddSingleton<IVersionDatabaseSettings>(essentialityVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<EssentialityRevision>, VersionStoreRepository<EssentialityRevision>>();
+            services.AddScoped<IVersionHub<EssentialityRevision>, VersionHub<EssentialityRevision>>();
+
+
+
+
+            /* Consumers */
             services.AddScoped<IEventConsumer, GeneEventConsumer>(); // Depends on IKafkaConsumerSettings; Takes care of both gene and strain events
             services.AddHostedService<ConsumerHostedService>();
 
