@@ -3,6 +3,7 @@ using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Gene.Application.Features.Command.NewEssentiality;
+using Gene.Application.Features.Command.UpdateEssentiality;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -72,6 +73,67 @@ namespace Gene.API.Controllers.V2
                 });
             }
 
+
+        }
+
+
+
+
+        [HttpPut("{id}/update-essentiality/{essentialityId}", Name = "UpdateEssentiality")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> UpdateEssentiality(Guid id, Guid essentialityId, UpdateEssentialityCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                command.EssentialityId = essentialityId;
+
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Essentiality updated successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("UpdateEssentiality: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("UpdateEssentiality: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the gene essentiality";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
 
         }
 

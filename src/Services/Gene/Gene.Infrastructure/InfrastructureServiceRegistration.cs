@@ -44,7 +44,7 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneEssentialityUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneEssentialityDeletedEvent>();
 
-            
+
             /* Event Database */
 
             var eventDatabaseSettings = new EventDatabaseSettings
@@ -65,7 +65,7 @@ namespace Gene.Infrastructure
             services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
 
             services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
-    
+
             services.AddScoped<IEventStore<GeneAggregate>, EventStore<GeneAggregate>>();
             services.AddScoped<IEventStore<StrainAggregate>, EventStore<StrainAggregate>>();
 
@@ -73,13 +73,13 @@ namespace Gene.Infrastructure
             services.AddScoped<IEventSourcingHandler<GeneAggregate>, EventSourcingHandler<GeneAggregate>>();
             services.AddScoped<IEventSourcingHandler<StrainAggregate>, EventSourcingHandler<StrainAggregate>>();
 
-            
+
 
             /* Query */
 
             /* Repositories */
             services.AddScoped<IGeneRepository, GeneRepository>();
-            
+
             services.AddScoped<IStrainRepository, StrainRepository>();
 
             services.AddScoped<IGeneEssentialityRepository, GeneEssentialityRepository>();
@@ -87,25 +87,26 @@ namespace Gene.Infrastructure
 
             /* Version Store */
 
-            var geneVersionStoreSettings = new VersionDatabaseSettings
+
+            var geneVersionStoreSettings = new VersionDatabaseSettings<GeneRevision>
             {
-                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.CollectionName))
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<GeneRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<GeneRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<GeneRevision>.CollectionName))
             };
-            services.AddSingleton<IVersionDatabaseSettings>(geneVersionStoreSettings);
+            services.AddSingleton<IVersionDatabaseSettings<GeneRevision>>(geneVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<GeneRevision>, VersionStoreRepository<GeneRevision>>();
             services.AddScoped<IVersionHub<GeneRevision>, VersionHub<GeneRevision>>();
 
-            var essentialityVersionStoreSettings = new VersionDatabaseSettings
+            var essentialityVersionStoreSettings = new VersionDatabaseSettings<EssentialityRevision>
             {
-                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:EssentialityRevisionCollectionName") 
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<EssentialityRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<EssentialityRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:EssentialityRevisionCollectionName")
                 ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "Essentiality"
             };
 
-            services.AddSingleton<IVersionDatabaseSettings>(essentialityVersionStoreSettings);
+            services.AddSingleton<IVersionDatabaseSettings<EssentialityRevision>>(essentialityVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<EssentialityRevision>, VersionStoreRepository<EssentialityRevision>>();
             services.AddScoped<IVersionHub<EssentialityRevision>, VersionHub<EssentialityRevision>>();
 

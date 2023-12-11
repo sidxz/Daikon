@@ -1,8 +1,10 @@
+using Gene.API.Conventions;
 using Gene.API.Helper;
 using Gene.Application;
 using Gene.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -29,7 +31,11 @@ builder.Services.AddVersionedApiExplorer(setup =>
 });
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+    {
+        options.Conventions.Add(
+            new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+    });
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
