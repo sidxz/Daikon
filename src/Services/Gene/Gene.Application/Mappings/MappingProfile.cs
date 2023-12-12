@@ -64,6 +64,9 @@ namespace Gene.Application.Mappings
             
             CreateMap<Features.Command.NewHypomorph.NewHypomorphCommand, Domain.Entities.Hypomorph>().ReverseMap();
             CreateMap<Features.Command.UpdateHypomorph.UpdateHypomorphCommand, Domain.Entities.Hypomorph>().ReverseMap();
+
+            CreateMap<Features.Command.NewCrispriStrain.NewCrispriStrainCommand, Domain.Entities.CrispriStrain>().ReverseMap();
+            CreateMap<Features.Command.UpdateCrispriStrain.UpdateCrispriStrainCommand, Domain.Entities.CrispriStrain>().ReverseMap();
         }
     }
 }
