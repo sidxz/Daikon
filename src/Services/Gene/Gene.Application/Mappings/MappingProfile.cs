@@ -33,6 +33,9 @@ namespace Gene.Application.Mappings
 
             CreateMap<Features.Command.NewEssentiality.NewEssentialityCommand, Domain.Entities.Essentiality>().ReverseMap();
             CreateMap<Features.Command.UpdateEssentiality.UpdateEssentialityCommand, Domain.Entities.Essentiality>().ReverseMap();
+
+            CreateMap<Features.Command.NewProteinProduction.NewProteinProductionCommand, Domain.Entities.ProteinProduction>().ReverseMap();
+            CreateMap<Features.Command.UpdateProteinProduction.UpdateProteinProductionCommand, Domain.Entities.ProteinProduction>().ReverseMap();
             
         }
     }
