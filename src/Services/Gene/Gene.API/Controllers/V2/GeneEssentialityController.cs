@@ -25,16 +25,17 @@ namespace Gene.API.Controllers.V2
         }
 
 
-        [HttpPost(Name = "AddEssentiality")]
+        [HttpPost("{id}/add-essentiality", Name = "AddEssentiality")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> AddEssentiality(NewEssentialityCommand command)
+        public async Task<ActionResult> AddEssentiality(Guid id, NewEssentialityCommand command)
         {
             var essentialityId = Guid.NewGuid();
             try
             {
                 command.EssentialityId = essentialityId;
-                command.Id = command.GeneId;
+                command.Id = id;
+                command.GeneId = id;
 
                 await _mediator.Send(command);
 
