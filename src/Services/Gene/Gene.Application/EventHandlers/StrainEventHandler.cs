@@ -4,7 +4,7 @@ using Daikon.Events.Strains;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
 
-namespace Gene.Application.Query.Handlers
+namespace Gene.Application.Query.EventHandlers
 {
     public class StrainEventHandler : IStrainEventHandler
     {

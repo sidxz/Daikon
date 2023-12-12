@@ -3,7 +3,7 @@ using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Microsoft.Extensions.Logging;
 
-namespace Gene.Application.Query.Handlers
+namespace Gene.Application.Query.EventHandlers
 {
     public partial class GeneEventHandler
     {

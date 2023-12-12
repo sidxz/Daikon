@@ -20,10 +20,14 @@ services:
       - "GeneMongoDbSettings:GeneCollectionName=Genes"
       - "GeneMongoDbSettings:StrainCollectionName=Strains"
       - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
+      - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
 
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
       - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
+      - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
+
+      
       
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"

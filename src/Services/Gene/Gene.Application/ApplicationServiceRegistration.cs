@@ -6,7 +6,7 @@ using CQRS.Core.Handlers;
 using FluentValidation;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Mappings;
-using Gene.Application.Query.Handlers;
+using Gene.Application.Query.EventHandlers;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 

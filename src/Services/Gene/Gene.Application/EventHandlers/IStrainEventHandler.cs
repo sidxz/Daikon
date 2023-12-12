@@ -1,7 +1,7 @@
 
 using Daikon.Events.Strains;
 
-namespace Gene.Application.Query.Handlers
+namespace Gene.Application.Query.EventHandlers
 {
     public interface IStrainEventHandler
     {
