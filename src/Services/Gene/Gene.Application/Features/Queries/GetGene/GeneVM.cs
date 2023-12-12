@@ -13,6 +13,7 @@ namespace Gene.Application.Features.Queries.GetGene
 
         public List<GeneEssentialityVM> Essentialities { get; set; }
         public List<GeneProteinProductionVM> ProteinProductions { get; set; }
+        public List<GeneProteinActivityAssayVM> ProteinActivityAssays { get; set; }
 
     }
 }

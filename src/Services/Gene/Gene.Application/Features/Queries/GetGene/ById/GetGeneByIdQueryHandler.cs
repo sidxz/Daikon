@@ -12,18 +12,26 @@ namespace Gene.Application.Features.Queries.GetGene.ById
         private readonly IGeneEssentialityRepository _geneEssentialityRepository;
 
         private readonly IGeneProteinProductionRepository _geneProteinProductionRepository;
+
+        private readonly IGeneProteinActivityAssayRepository _geneProteinActivityAssayRepository;
+
+
+
+
         private readonly IMapper _mapper;
 
 
         public GetGeneByIdQueryHandler(IGeneRepository geneRepository, IMapper mapper, 
                                 IGeneEssentialityRepository geneEssentialityRepository,
-                                IGeneProteinProductionRepository geneProteinProductionRepository
+                                IGeneProteinProductionRepository geneProteinProductionRepository,
+                                IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository
                                 )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _geneEssentialityRepository = geneEssentialityRepository ?? throw new ArgumentNullException(nameof(geneEssentialityRepository));
             _geneProteinProductionRepository = geneProteinProductionRepository ?? throw new ArgumentNullException(nameof(geneProteinProductionRepository));
+            _geneProteinActivityAssayRepository = geneProteinActivityAssayRepository ?? throw new ArgumentNullException(nameof(geneProteinActivityAssayRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByIdQuery request, CancellationToken cancellationToken)
         {
@@ -42,6 +50,9 @@ namespace Gene.Application.Features.Queries.GetGene.ById
             
             var proteinProductions = await _geneProteinProductionRepository.GetProteinProductionOfGene(gene.Id);
             geneVm.ProteinProductions = _mapper.Map<List<GeneProteinProductionVM>>(proteinProductions, opts => opts.Items["WithMeta"] = request.WithMeta);
+
+            var proteinActivityAssays = await _geneProteinActivityAssayRepository.GetProteinActivityAssayOfGene(gene.Id);
+            geneVm.ProteinActivityAssays = _mapper.Map<List<GeneProteinActivityAssayVM>>(proteinActivityAssays, opts => opts.Items["WithMeta"] = request.WithMeta);
 
             return geneVm;
 
