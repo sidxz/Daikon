@@ -51,6 +51,10 @@ namespace Gene.Infrastructure.Query.Converters
                 "GeneProteinProductionAddedEvent" => JsonSerializer.Deserialize<GeneProteinProductionAddedEvent>(json, options),
                 "GeneProteinProductionUpdatedEvent" => JsonSerializer.Deserialize<GeneProteinProductionUpdatedEvent>(json, options),
                 "GeneProteinProductionDeletedEvent" => JsonSerializer.Deserialize<GeneProteinProductionDeletedEvent>(json, options),
+
+                "GeneProteinActivityAssayAddedEvent" => JsonSerializer.Deserialize<GeneProteinActivityAssayAddedEvent>(json, options),
+                "GeneProteinActivityAssayUpdatedEvent" => JsonSerializer.Deserialize<GeneProteinActivityAssayUpdatedEvent>(json, options),
+                "GeneProteinActivityAssayDeletedEvent" => JsonSerializer.Deserialize<GeneProteinActivityAssayDeletedEvent>(json, options),
                 
                 _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
             };

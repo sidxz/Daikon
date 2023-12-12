@@ -17,5 +17,8 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneProteinProductionUpdatedEvent @event);
         Task OnEvent(GeneProteinProductionDeletedEvent @event);
         
+        Task OnEvent(GeneProteinActivityAssayAddedEvent @event);
+        Task OnEvent(GeneProteinActivityAssayUpdatedEvent @event);
+        Task OnEvent(GeneProteinActivityAssayDeletedEvent @event);
     }
 }
