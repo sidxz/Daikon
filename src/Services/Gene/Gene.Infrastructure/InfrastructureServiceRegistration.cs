@@ -61,26 +61,23 @@ namespace Gene.Infrastructure
                 CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName))
             };
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
+            services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
 
+            
+            services.AddScoped<IEventStore<GeneAggregate>, EventStore<GeneAggregate>>();
+            services.AddScoped<IEventStore<StrainAggregate>, EventStore<StrainAggregate>>();
 
-            var kafkaProducerSettings = new KafkaProducerSettings
+            /* Kafka Producer */
+             var kafkaProducerSettings = new KafkaProducerSettings
             {
                 BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers") ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers)),
                 Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic") ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic))
             };
-
             services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
-
-            services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
-
-            services.AddScoped<IEventStore<GeneAggregate>, EventStore<GeneAggregate>>();
-            services.AddScoped<IEventStore<StrainAggregate>, EventStore<StrainAggregate>>();
 
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<GeneAggregate>, EventSourcingHandler<GeneAggregate>>();
             services.AddScoped<IEventSourcingHandler<StrainAggregate>, EventSourcingHandler<StrainAggregate>>();
-
-
 
             /* Query */
 
