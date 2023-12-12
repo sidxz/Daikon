@@ -28,7 +28,7 @@ namespace CQRS.Core.Domain
 
     */
 
-    public class DVariable<TDataType> : DocMetadata
+    public class DVariable<TDataType> : DocMetadata, IValueProperty<TDataType>
     {
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

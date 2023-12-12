@@ -13,6 +13,7 @@ namespace Gene.Application.Contracts.Persistence
         Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber);
         Task DeleteGene(Guid id);
         Task<List<Domain.Entities.Gene>> GetGenesList();
+        Task<List<Domain.Entities.Gene>> GetGenesListByStrainId(Guid strainId);
         Task<Domain.EntityRevisions.GeneRevision> GetGeneRevisions(Guid id);
     }
 }

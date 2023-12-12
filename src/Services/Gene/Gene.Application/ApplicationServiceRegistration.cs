@@ -6,7 +6,7 @@ using CQRS.Core.Handlers;
 using FluentValidation;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Mappings;
-using Gene.Application.Query.Handlers;
+using Gene.Application.Query.EventHandlers;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,10 +25,11 @@ namespace Gene.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-            services.AddScoped<IEventHandler, Query.Handlers.EventHandler>();
+            services.AddScoped<IGeneEventHandler, GeneEventHandler>();
+            services.AddScoped<IStrainEventHandler, StrainEventHandler>();
 
             return services;
         }
-        
+
     }
 }

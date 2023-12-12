@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRS.Core.Domain;
+
+using AutoMapper;
 using CQRS.Core.Exceptions;
 using Gene.Application.Contracts.Persistence;
-using Gene.Application.Features.Queries.GetGene;
 using MediatR;
 
 namespace Gene.Application.Features.Queries.GetGene.ById
@@ -13,13 +9,25 @@ namespace Gene.Application.Features.Queries.GetGene.ById
     public class GetGeneByIdQueryHandler : IRequestHandler<GetGeneByIdQuery, GeneVM>
     {
         private readonly IGeneRepository _geneRepository;
+        private readonly IGeneEssentialityRepository _geneEssentialityRepository;
 
-        public GetGeneByIdQueryHandler(IGeneRepository geneRepository)
+        private readonly IGeneProteinProductionRepository _geneProteinProductionRepository;
+        private readonly IMapper _mapper;
+
+
+        public GetGeneByIdQueryHandler(IGeneRepository geneRepository, IMapper mapper, 
+                                IGeneEssentialityRepository geneEssentialityRepository,
+                                IGeneProteinProductionRepository geneProteinProductionRepository
+                                )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _geneEssentialityRepository = geneEssentialityRepository ?? throw new ArgumentNullException(nameof(geneEssentialityRepository));
+            _geneProteinProductionRepository = geneProteinProductionRepository ?? throw new ArgumentNullException(nameof(geneProteinProductionRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByIdQuery request, CancellationToken cancellationToken)
         {
+            
             var gene = await _geneRepository.ReadGeneById(request.Id);
 
             if (gene == null)
@@ -27,28 +35,16 @@ namespace Gene.Application.Features.Queries.GetGene.ById
                 throw new ResourceNotFoundException(nameof(Gene), request.Id);
             }
 
-            if (request.WithMeta)
-            {
-                return new GeneVM
-                {
-                    Id = gene.Id,
-                    Name = gene.Name,
-                    AccessionNumber = gene.AccessionNumber,
-                    Function = gene.Function,
-                    Product = gene.Product,
-                    FunctionalCategory = gene.FunctionalCategory
-                };
-            }
+            var geneVm = _mapper.Map<GeneVM>(gene, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-            return new GeneVM
-            {
-                Id = gene.Id,
-                Name = gene.Name,
-                AccessionNumber = gene.AccessionNumber,
-                Function = gene.Function.Value,
-                Product = gene.Product.Value,
-                FunctionalCategory = gene.FunctionalCategory.Value
-            };
+            var essentialities = await _geneEssentialityRepository.GetEssentialityOfGene(gene.Id);
+            geneVm.Essentialities = _mapper.Map<List<GeneEssentialityVM>>(essentialities, opts => opts.Items["WithMeta"] = request.WithMeta);
+            
+            var proteinProductions = await _geneProteinProductionRepository.GetProteinProductionOfGene(gene.Id);
+            geneVm.ProteinProductions = _mapper.Map<List<GeneProteinProductionVM>>(proteinProductions, opts => opts.Items["WithMeta"] = request.WithMeta);
+
+            return geneVm;
+
         }
     }
 }
