@@ -21,13 +21,14 @@ services:
       - "GeneMongoDbSettings:StrainCollectionName=Strains"
       - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
       - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
-
+      - "GeneMongoDbSettings:GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
+      
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
       - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
       - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
+      - "GeneMongoDbSettings:GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
 
-      
       
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"

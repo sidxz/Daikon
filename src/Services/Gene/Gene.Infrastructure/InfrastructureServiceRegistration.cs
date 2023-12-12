@@ -49,6 +49,10 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneProteinProductionAddedEvent>();
             BsonClassMap.RegisterClassMap<GeneProteinProductionUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneProteinProductionDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneProteinActivityAssayAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneProteinActivityAssayUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneProteinActivityAssayDeletedEvent>();
             
 
 
@@ -93,6 +97,8 @@ namespace Gene.Infrastructure
 
             services.AddScoped<IGeneProteinProductionRepository, GeneProteinProductionRepository>();
 
+            services.AddScoped<IGeneProteinActivityAssayRepository, GeneProteinActivityAssayRepository>();
+
 
             /* Version Store */
 
@@ -129,6 +135,17 @@ namespace Gene.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<ProteinProductionRevision>>(proteinProductionVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<ProteinProductionRevision>, VersionStoreRepository<ProteinProductionRevision>>();
             services.AddScoped<IVersionHub<ProteinProductionRevision>, VersionHub<ProteinProductionRevision>>();
+
+            var proteinActivityAssayVersionStoreSettings = new VersionDatabaseSettings<ProteinActivityAssayRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ProteinActivityAssayRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ProteinActivityAssayRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:ProteinActivityAssayRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "ProteinActivityAssay"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<ProteinActivityAssayRevision>>(proteinActivityAssayVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<ProteinActivityAssayRevision>, VersionStoreRepository<ProteinActivityAssayRevision>>();
+            services.AddScoped<IVersionHub<ProteinActivityAssayRevision>, VersionHub<ProteinActivityAssayRevision>>();
 
 
 
