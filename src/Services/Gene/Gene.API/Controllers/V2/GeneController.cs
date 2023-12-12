@@ -157,7 +157,7 @@ namespace Gene.API.Controllers.V2
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogInformation("UpdateGene: ArgumentNullException {Id}", id);
+                _logger.LogInformation("AddGene: ArgumentNullException {Id}", id);
                 return BadRequest(new BaseResponse
                 {
                     Message = ex.Message
