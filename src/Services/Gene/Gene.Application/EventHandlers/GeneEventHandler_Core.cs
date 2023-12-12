@@ -12,17 +12,20 @@ namespace Gene.Application.Query.EventHandlers
         private readonly IGeneEssentialityRepository _geneEssentialityRepository;
         private readonly IGeneProteinProductionRepository _geneProteinProductionRepository;
 
+        private readonly IGeneProteinActivityAssayRepository _geneProteinActivityAssayRepository;
+
         private readonly ILogger<GeneEventHandler> _logger;
 
         public GeneEventHandler(IGeneRepository geneRepository, 
                                 IGeneEssentialityRepository geneEssentialityRepository,
                                 IGeneProteinProductionRepository geneProteinProductionRepository,
+                                IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
                                 ILogger<GeneEventHandler> logger)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
             _geneEssentialityRepository = geneEssentialityRepository ?? throw new ArgumentNullException(nameof(geneEssentialityRepository));
             _geneProteinProductionRepository = geneProteinProductionRepository ?? throw new ArgumentNullException(nameof(geneProteinProductionRepository));
-            
+            _geneProteinActivityAssayRepository = geneProteinActivityAssayRepository ?? throw new ArgumentNullException(nameof(geneProteinActivityAssayRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -89,6 +92,8 @@ namespace Gene.Application.Query.EventHandlers
             try
             {
                 await _geneEssentialityRepository.DeleteAllEssentialitiesOfGene(gene.Id);
+                await _geneProteinProductionRepository.DeleteAllProteinProductionsOfGene(gene.Id);
+                await _geneProteinActivityAssayRepository.DeleteAllProteinActivityAssaysOfGene(gene.Id);
                 await _geneRepository.DeleteGene(gene.Id);
             }
             catch (RepositoryException ex)
