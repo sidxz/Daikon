@@ -4,7 +4,7 @@ using Gene.Application.Contracts.Infrastructure;
 using Gene.Domain.Batch;
 using MediatR;
 
-namespace Gene.Application.Features.Queries.BatchExportAll
+namespace  Gene.Application.BatchOperations.BatchQueries.BatchExportAll
 {
     public class BatchExportAllQueryHandler : IRequestHandler<BatchExportAllQuery, List<GeneExport>>
     {

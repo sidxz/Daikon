@@ -2,8 +2,8 @@
 using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
-using Gene.Application.Features.Command.BatchImportOne;
-using Gene.Application.Features.Queries.BatchExportAll;
+using Gene.Application.BatchOperations.BatchCommands.BatchImportOne;
+using Gene.Application.BatchOperations.BatchQueries.BatchExportAll;
 using Gene.Application.Features.Queries.GetGene;
 using Gene.Application.Features.Queries.GetGene.ById;
 using Gene.Domain.Batch;
