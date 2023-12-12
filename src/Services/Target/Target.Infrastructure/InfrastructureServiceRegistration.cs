@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using CQRS.Core.Domain;
 using CQRS.Core.Event;
 using CQRS.Core.Handlers;
@@ -13,10 +10,16 @@ using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
+using Daikon.VersionStore.Handlers;
+using Daikon.VersionStore.Repositories;
+using Daikon.VersionStore.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
+using Target.Domain.EntityRevisions;
+using Target.Infrastructure.Repositories;
 
 namespace Target.Infrastructure
 {
@@ -56,6 +59,20 @@ namespace Target.Infrastructure
             services.AddScoped<IEventSourcingHandler<TargetAggregate>, EventSourcingHandler<TargetAggregate>>();
 
 
+
+            /* Query */
+            services.AddScoped<ITargetRepository, TargetRepository>();
+
+            /* Version Store */
+            var targetVersionStoreSettings = new VersionDatabaseSettings<TargetRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<TargetRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<TargetRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("TargetMongoDbSettings:TargetRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<TargetRevision>.CollectionName))
+            };
+            services.AddSingleton<IVersionDatabaseSettings<TargetRevision>>(targetVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<TargetRevision>, VersionStoreRepository<TargetRevision>>();
+            services.AddScoped<IVersionHub<TargetRevision>, VersionHub<TargetRevision>>();
 
 
 
