@@ -14,10 +14,12 @@ using Daikon.EventStore.Stores;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
+using Gene.Application.Contracts.Infrastructure;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
 using Gene.Domain.EntityRevisions;
+using Gene.Infrastructure.Batch;
 using Gene.Infrastructure.Query.Consumers;
 using Gene.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -116,6 +118,10 @@ namespace Gene.Infrastructure
             /* Consumers */
             services.AddScoped<IEventConsumer, GeneEventConsumer>(); // Depends on IKafkaConsumerSettings; Takes care of both gene and strain events
             services.AddHostedService<ConsumerHostedService>();
+
+
+            /* Batch */
+            services.AddScoped<IBatchRepositoryOperations, BatchRepositoryOperations>(); // Depends on IMongoCollection<Domain.Entities.Gene> and IMongoCollection<Domain.Entities.Essentiality>
 
             return services;
         }
