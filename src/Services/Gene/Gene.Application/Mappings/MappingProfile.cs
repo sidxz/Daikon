@@ -35,6 +35,13 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinProduction, IValueProperty<string>, string>(src => src.Notes)))
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinProduction, IValueProperty<string>, string>(src => src.URL)));
                 
+            CreateMap<Domain.Entities.ProteinActivityAssay, Features.Queries.GetGene.GeneProteinActivityAssayVM>()
+                .ForMember(dest => dest.Assay, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.Assay)))
+                .ForMember(dest => dest.Method, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.Method)))
+                .ForMember(dest => dest.Throughput, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.Throughput)))
+                .ForMember(dest => dest.PMID, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.PMID)))
+                .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.Reference)))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.URL)));
 
 
             CreateMap<Features.Command.NewGene.NewGeneCommand , Domain.Entities.Gene>().ReverseMap();
@@ -47,6 +54,7 @@ namespace Gene.Application.Mappings
             CreateMap<Features.Command.UpdateProteinProduction.UpdateProteinProductionCommand, Domain.Entities.ProteinProduction>().ReverseMap();
 
             CreateMap<Features.Command.NewProteinActivityAssay.NewProteinActivityAssayCommand, Domain.Entities.ProteinActivityAssay>().ReverseMap();
+            CreateMap<Features.Command.UpdateProteinActivityAssay.UpdateProteinActivityAssayCommand, Domain.Entities.ProteinActivityAssay>().ReverseMap();
             
         }
     }
