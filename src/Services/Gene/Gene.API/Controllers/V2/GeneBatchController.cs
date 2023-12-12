@@ -4,9 +4,9 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Gene.Application.BatchOperations.BatchCommands.BatchImportOne;
 using Gene.Application.BatchOperations.BatchQueries.BatchExportAll;
+using Gene.Application.BatchOperations.BatchQueries.DTOs;
 using Gene.Application.Features.Queries.GetGene;
 using Gene.Application.Features.Queries.GetGene.ById;
-using Gene.Domain.Batch;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -73,9 +73,9 @@ namespace Gene.API.Controllers.V2
 
         [HttpGet(Name = "GetAll")]
         [MapToApiVersion("2.0")]
-        [ProducesResponseType(typeof(List<GeneExport>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<GeneExportDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<GeneExport>>> GetAll()
+        public async Task<ActionResult<List<GeneExportDto>>> GetAll()
         {
             try
             {
