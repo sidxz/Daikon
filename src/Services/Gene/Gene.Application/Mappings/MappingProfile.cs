@@ -56,6 +56,8 @@ namespace Gene.Application.Mappings
             CreateMap<Features.Command.NewProteinActivityAssay.NewProteinActivityAssayCommand, Domain.Entities.ProteinActivityAssay>().ReverseMap();
             CreateMap<Features.Command.UpdateProteinActivityAssay.UpdateProteinActivityAssayCommand, Domain.Entities.ProteinActivityAssay>().ReverseMap();
             
+            CreateMap<Features.Command.NewHypomorph.NewHypomorphCommand, Domain.Entities.Hypomorph>().ReverseMap();
+            CreateMap<Features.Command.UpdateHypomorph.UpdateHypomorphCommand, Domain.Entities.Hypomorph>().ReverseMap();
         }
     }
 }
