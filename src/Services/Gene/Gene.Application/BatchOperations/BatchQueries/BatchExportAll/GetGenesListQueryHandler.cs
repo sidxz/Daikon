@@ -1,12 +1,13 @@
 
 using CQRS.Core.Exceptions;
+using Gene.Application.BatchOperations.BatchQueries.DTOs;
 using Gene.Application.Contracts.Infrastructure;
-using Gene.Domain.Batch;
+
 using MediatR;
 
 namespace  Gene.Application.BatchOperations.BatchQueries.BatchExportAll
 {
-    public class BatchExportAllQueryHandler : IRequestHandler<BatchExportAllQuery, List<GeneExport>>
+    public class BatchExportAllQueryHandler : IRequestHandler<BatchExportAllQuery, List<GeneExportDto>>
     {
         private readonly IBatchRepositoryOperations _batchRepositoryOperations;
         
@@ -15,13 +16,13 @@ namespace  Gene.Application.BatchOperations.BatchQueries.BatchExportAll
         {
             _batchRepositoryOperations = batchRepositoryOperations;
         }
-        public async Task<List<GeneExport>> Handle(BatchExportAllQuery request, CancellationToken cancellationToken)
+        public async Task<List<GeneExportDto>> Handle(BatchExportAllQuery request, CancellationToken cancellationToken)
         {
             try
             {
-                var geneExportList = await _batchRepositoryOperations.GetAll();
+                var GeneExportDtoList = await _batchRepositoryOperations.GetAll();
                 
-                return geneExportList;
+                return GeneExportDtoList;
             }
             catch (RepositoryException ex)
             {
