@@ -7,7 +7,7 @@ using MongoDB.Driver;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.EntityRevisions;
 
-namespace Target.Infrastructure.Repositories
+namespace Target.Infrastructure.Query.Repositories
 {
     public class TargetRepository : ITargetRepository
     {

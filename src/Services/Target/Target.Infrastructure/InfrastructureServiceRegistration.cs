@@ -1,4 +1,5 @@
 
+using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
 using CQRS.Core.Event;
 using CQRS.Core.Handlers;
@@ -19,7 +20,8 @@ using MongoDB.Bson.Serialization;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
 using Target.Domain.EntityRevisions;
-using Target.Infrastructure.Repositories;
+using Target.Infrastructure.Query.Consumers;
+using Target.Infrastructure.Query.Repositories;
 
 namespace Target.Infrastructure
 {
@@ -74,7 +76,9 @@ namespace Target.Infrastructure
             services.AddScoped<IVersionStoreRepository<TargetRevision>, VersionStoreRepository<TargetRevision>>();
             services.AddScoped<IVersionHub<TargetRevision>, VersionHub<TargetRevision>>();
 
-
+             /* Consumers */
+            services.AddScoped<IEventConsumer, TargetEventConsumer>(); // Depends on IKafkaConsumerSettings; Takes care of both gene and strain events
+            services.AddHostedService<ConsumerHostedService>();
 
             return services;
         }
