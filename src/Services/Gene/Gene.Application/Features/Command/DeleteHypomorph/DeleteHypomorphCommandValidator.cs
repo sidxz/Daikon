@@ -1,9 +1,9 @@
 
 using FluentValidation;
 
-namespace Gene.Application.Features.Command.DeleteEssentiality
+namespace Gene.Application.Features.Command.DeleteHypomorph
 {
-    public class DeleteEssentialityCommandValidator : AbstractValidator<DeleteEssentialityCommand>
+    public class DeleteHypomorphCommandValidator : AbstractValidator<DeleteHypomorphCommand>
     {
         
     }
