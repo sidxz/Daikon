@@ -25,16 +25,17 @@ namespace Gene.API.Controllers.V2
         }
 
 
-        [HttpPost(Name = "AddProteinProduction")]
+        [HttpPost("{id}/add-protein-production", Name = "AddProteinProduction")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> AddProteinProduction(NewProteinProductionCommand command)
+        public async Task<ActionResult> AddProteinProduction(Guid id, NewProteinProductionCommand command)
         {
             var proteinProductionId = Guid.NewGuid();
             try
             {
                 command.ProteinProductionId = proteinProductionId;
-                command.Id = command.GeneId;
+                command.Id = id;
+                command.GeneId = id;
 
                 await _mediator.Send(command);
 
