@@ -1,7 +1,7 @@
 
 using FluentValidation;
-using Gene.Application.Features.Command.BatchImportOne;
-namespace Gene.Application.Features.Command.NewGene
+
+namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
 {
     public class BatchImportOneCommandValidator : AbstractValidator<BatchImportOneCommand>
     {

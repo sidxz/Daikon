@@ -12,7 +12,7 @@ using Gene.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Gene.Application.Features.Command.BatchImportOne
+namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
 {
     public class BatchImportOneCommandHandler : IRequestHandler<BatchImportOneCommand, Unit>
     {

@@ -1,12 +1,10 @@
 
-using System.Text.Json.Serialization;
 using CQRS.Core.Command;
-using CQRS.Core.Converters;
 using CQRS.Core.Domain;
 using Gene.Domain.Entities;
 using MediatR;
 
-namespace Gene.Application.Features.Command.BatchImportOne
+namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
 {
     public class BatchImportOneCommand : BaseCommand, IRequest<Unit>
     {
