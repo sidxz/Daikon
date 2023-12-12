@@ -43,6 +43,12 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.Reference)))
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ProteinActivityAssay, IValueProperty<string>, string>(src => src.URL)));
 
+            CreateMap<Domain.Entities.Hypomorph, Features.Queries.GetGene.GeneHypomorphVM>()
+                .ForMember(dest => dest.KnockdownStrain, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hypomorph, IValueProperty<string>, string>(src => src.KnockdownStrain)))
+                .ForMember(dest => dest.Phenotype, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hypomorph, IValueProperty<string>, string>(src => src.Phenotype)))
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hypomorph, IValueProperty<string>, string>(src => src.Notes)));
+             
+
 
             CreateMap<Features.Command.NewGene.NewGeneCommand , Domain.Entities.Gene>().ReverseMap();
             CreateMap<Features.Command.UpdateGene.UpdateGeneCommand, Domain.Entities.Gene>().ReverseMap();
