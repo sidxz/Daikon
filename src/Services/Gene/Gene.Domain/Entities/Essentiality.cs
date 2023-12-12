@@ -15,19 +15,6 @@ namespace Gene.Domain.Entities
         public DVariable<string>? Reference { get; set; }
         public DVariable<string>? Note { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is Essentiality other)
-            {
-                return (Classification == null && other.Classification == null || Classification?.Equals(other.Classification) == true) &&
-                       (Condition == null && other.Condition == null || Condition?.Equals(other.Condition) == true) &&
-                       (Method == null && other.Method == null || Method?.Equals(other.Method) == true) &&
-                       (Reference == null && other.Reference == null || Reference?.Equals(other.Reference) == true) &&
-                       (Note == null && other.Note == null || Note?.Equals(other.Note) == true);
-            }
-
-            return false;
-        }
 
     }
 }
