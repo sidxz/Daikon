@@ -20,5 +20,9 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneProteinActivityAssayAddedEvent @event);
         Task OnEvent(GeneProteinActivityAssayUpdatedEvent @event);
         Task OnEvent(GeneProteinActivityAssayDeletedEvent @event);
+
+        Task OnEvent(GeneHypomorphAddedEvent @event);
+        Task OnEvent(GeneHypomorphUpdatedEvent @event);
+        Task OnEvent(GeneHypomorphDeletedEvent @event);
     }
 }
