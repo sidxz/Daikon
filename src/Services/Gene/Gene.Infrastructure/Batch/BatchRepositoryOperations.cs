@@ -1,6 +1,6 @@
 
+using Gene.Application.BatchOperations.BatchQueries.DTOs;
 using Gene.Application.Contracts.Infrastructure;
-using Gene.Domain.Batch;
 
 using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
@@ -24,10 +24,10 @@ namespace Gene.Infrastructure.Batch
         }
 
         // Get a dump of all genes and their essentialities from both collections
-        public async Task<List<GeneExport>> GetAll()
+        public async Task<List<GeneExportDto>> GetAll()
         {
             var geneExport = await _geneCollection.Aggregate()
-                .Lookup<Domain.Entities.Gene, Domain.Entities.Essentiality, GeneExport>(
+                .Lookup<Domain.Entities.Gene, Domain.Entities.Essentiality, GeneExportDto>(
                     _essentialityCollection,
                     gene => gene.Id,
                     essentiality => essentiality.GeneId,

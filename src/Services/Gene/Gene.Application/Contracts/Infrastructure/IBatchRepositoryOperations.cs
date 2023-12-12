@@ -1,11 +1,12 @@
 
 
-using Gene.Domain.Batch;
+
+using Gene.Application.BatchOperations.BatchQueries.DTOs;
 
 namespace Gene.Application.Contracts.Infrastructure
 {
     public interface IBatchRepositoryOperations
     {
-        Task<List<GeneExport>> GetAll();
+        Task<List<GeneExportDto>> GetAll();
     }
 }
