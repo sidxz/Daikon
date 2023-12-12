@@ -1,4 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.EventStore\Daikon.EventStore.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.VersionStore\Daikon.VersionStore.csproj" />
+    <ProjectReference Include="..\Target.Application\Target.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
+  </ItemGroup>
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
