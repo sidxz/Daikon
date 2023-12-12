@@ -54,6 +54,10 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneProteinActivityAssayUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneProteinActivityAssayDeletedEvent>();
             
+            BsonClassMap.RegisterClassMap<GeneHypomorphAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneHypomorphUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneHypomorphDeletedEvent>();
+            
 
 
             /* Event Database */
@@ -98,6 +102,8 @@ namespace Gene.Infrastructure
             services.AddScoped<IGeneProteinProductionRepository, GeneProteinProductionRepository>();
 
             services.AddScoped<IGeneProteinActivityAssayRepository, GeneProteinActivityAssayRepository>();
+
+            services.AddScoped<IGeneHypomorphRepository, GeneHypomorphRepository>();
 
 
             /* Version Store */
@@ -146,6 +152,14 @@ namespace Gene.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<ProteinActivityAssayRevision>>(proteinActivityAssayVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<ProteinActivityAssayRevision>, VersionStoreRepository<ProteinActivityAssayRevision>>();
             services.AddScoped<IVersionHub<ProteinActivityAssayRevision>, VersionHub<ProteinActivityAssayRevision>>();
+
+            var hypomorphVersionStoreSettings = new VersionDatabaseSettings<HypomorphRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HypomorphRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HypomorphRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:HypomorphRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "Hypomorph"
+            };
 
 
 

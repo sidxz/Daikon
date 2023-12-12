@@ -22,12 +22,14 @@ services:
       - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
       - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
       - "GeneMongoDbSettings:GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
+      - "GeneMongoDbSettings:GeneHypomorphCollectionName=Hypomorphs"
       
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
       - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
       - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
       - "GeneMongoDbSettings:GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
+      - "GeneMongoDbSettings:GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
 
       
 
