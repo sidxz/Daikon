@@ -2,6 +2,7 @@
 using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
+using Gene.Application.BatchOperations.BatchCommands.BatchImportMany;
 using Gene.Application.BatchOperations.BatchCommands.BatchImportOne;
 using Gene.Application.BatchOperations.BatchQueries.BatchExportAll;
 using Gene.Application.BatchOperations.BatchQueries.DTOs;
@@ -27,11 +28,11 @@ namespace Gene.API.Controllers.V2
         }
 
 
-        [HttpGet("{id}", Name = "GetOne")]
+        [HttpGet("export-one/{id}", Name = "ExportOne")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(GeneVM), (int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GeneVM>> GetOne(Guid id, [FromQuery] bool WithMeta = false)
+        public async Task<ActionResult<GeneVM>> ExportOne(Guid id, [FromQuery] bool WithMeta = false)
         {
             try
             {
@@ -71,11 +72,11 @@ namespace Gene.API.Controllers.V2
 
 
 
-        [HttpGet(Name = "GetAll")]
+        [HttpGet("export-all", Name = "ExportAll")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(List<GeneExportDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<GeneExportDto>>> GetAll()
+        public async Task<ActionResult<List<GeneExportDto>>> ExportAll()
         {
             try
             {
@@ -104,7 +105,7 @@ namespace Gene.API.Controllers.V2
             }
         }
 
-        [HttpPost(Name = "ImportOne")]
+        [HttpPost("import-one", Name = "ImportOne")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(Unit), (int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -122,6 +123,62 @@ namespace Gene.API.Controllers.V2
             catch (ArgumentNullException ex)
             {
                 _logger.LogInformation("ImportOne: ArgumentNullException");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("AddGene: Requested Resource Already Exists {accessionNo}", ex.Message);
+                return Conflict(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the gene";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+
+        }
+
+
+
+        [HttpPost("import-many", Name = "ImportMany")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(Unit), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<Unit>> ImportMany([FromBody] BatchImportManyCommand command)
+        {
+            try
+            {
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status201Created, new BaseResponse
+                {
+                    Message = "Genes imported successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("ImportMany: ArgumentNullException");
                 return BadRequest(new BaseResponse
                 {
                     Message = ex.Message
