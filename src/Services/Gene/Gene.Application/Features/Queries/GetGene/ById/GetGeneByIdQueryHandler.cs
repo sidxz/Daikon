@@ -15,8 +15,7 @@ namespace Gene.Application.Features.Queries.GetGene.ById
 
         private readonly IGeneProteinActivityAssayRepository _geneProteinActivityAssayRepository;
 
-
-
+        private readonly IGeneHypomorphRepository _geneHypomorphRepository;
 
         private readonly IMapper _mapper;
 
@@ -24,7 +23,8 @@ namespace Gene.Application.Features.Queries.GetGene.ById
         public GetGeneByIdQueryHandler(IGeneRepository geneRepository, IMapper mapper, 
                                 IGeneEssentialityRepository geneEssentialityRepository,
                                 IGeneProteinProductionRepository geneProteinProductionRepository,
-                                IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository
+                                IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
+                                IGeneHypomorphRepository geneHypomorphRepository
                                 )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -32,6 +32,7 @@ namespace Gene.Application.Features.Queries.GetGene.ById
             _geneEssentialityRepository = geneEssentialityRepository ?? throw new ArgumentNullException(nameof(geneEssentialityRepository));
             _geneProteinProductionRepository = geneProteinProductionRepository ?? throw new ArgumentNullException(nameof(geneProteinProductionRepository));
             _geneProteinActivityAssayRepository = geneProteinActivityAssayRepository ?? throw new ArgumentNullException(nameof(geneProteinActivityAssayRepository));
+            _geneHypomorphRepository = geneHypomorphRepository ?? throw new ArgumentNullException(nameof(geneHypomorphRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByIdQuery request, CancellationToken cancellationToken)
         {
@@ -54,6 +55,10 @@ namespace Gene.Application.Features.Queries.GetGene.ById
             var proteinActivityAssays = await _geneProteinActivityAssayRepository.GetProteinActivityAssayOfGene(gene.Id);
             geneVm.ProteinActivityAssays = _mapper.Map<List<GeneProteinActivityAssayVM>>(proteinActivityAssays, opts => opts.Items["WithMeta"] = request.WithMeta);
 
+            var hypomorphs = await _geneHypomorphRepository.GetHypomorphOfGene(gene.Id);
+            geneVm.Hypomorphs = _mapper.Map<List<GeneHypomorphVM>>(hypomorphs, opts => opts.Items["WithMeta"] = request.WithMeta);
+
+            
             return geneVm;
 
         }
