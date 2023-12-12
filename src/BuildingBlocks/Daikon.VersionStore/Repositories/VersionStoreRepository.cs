@@ -13,7 +13,7 @@ namespace Daikon.VersionStore.Repositories
     {
         private readonly IMongoCollection<VersionEntityModel> _eventStoreCollection;
 
-        public VersionStoreRepository(IVersionDatabaseSettings settings)
+        public VersionStoreRepository(IVersionDatabaseSettings<VersionEntityModel> settings)
         {
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);

@@ -16,8 +16,19 @@ services:
 
       - "GeneMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
       - "GeneMongoDbSettings:DatabaseName=Gene"
+
       - "GeneMongoDbSettings:GeneCollectionName=Genes"
+      - "GeneMongoDbSettings:StrainCollectionName=Strains"
+      - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
+      - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
+
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
+      - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
+      - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
+      - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
+
+      
+      
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       # - "KafkaConsumerSettings:BootstrapServers=localhost:9092"
@@ -29,6 +40,27 @@ services:
 
     ports:
       - "8001:80"
+
+  Horizon.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "HorizonNeo4jSettings:Uri=bolt://neo4j:7687"
+      # - "HorizonNeo4jSettings:Uri=bolt://localhost:7687"
+      - "HorizonNeo4jSettings:User=neo4j"
+      - "HorizonNeo4jSettings:Password=1k5SPVHJ4FZ9"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      # - "KafkaConsumerSettings:BootstrapServers=localhost:9092"
+      - "KafkaConsumerSettings:Topic=genes"
+      - "KafkaConsumerSettings:GroupId=horizon-gene-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+    ports:
+      - "8006:80"
 
   MolDb.API:
     ports:

@@ -1,9 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon.Runtime.Internal.Util;
-using CQRS.Core.Domain;
+
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
@@ -53,14 +48,14 @@ namespace Gene.Infrastructure.Query.Repositories
 
 
 
-        public Task<Domain.Entities.Gene> ReadGeneById(Guid id)
+        public async Task<Domain.Entities.Gene> ReadGeneById(Guid id)
         {
-            return _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
+            return await _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
         }
 
-        public Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
+        public async Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
         {
-            return _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
+            return await _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
         }
 
 
@@ -78,12 +73,27 @@ namespace Gene.Infrastructure.Query.Repositories
 
         }
 
+        public async Task<List<Domain.Entities.Gene>> GetGenesListByStrainId(Guid strainId)
+        {
+            try
+            {
+                return await _geneCollection.Find(gene => gene.StrainId == strainId).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the gene list");
+                throw new RepositoryException(nameof(GeneRepository), "Error getting gene list", ex);
+            }
+
+        }
+
         public async Task UpdateGene(Domain.Entities.Gene gene)
         {
             ArgumentNullException.ThrowIfNull(gene);
 
             var filter = Builders<Domain.Entities.Gene>.Filter.Eq(g => g.Id, gene.Id);
             var update = Builders<Domain.Entities.Gene>.Update
+                .Set(g => g.StrainId, gene.StrainId)
                 .Set(g => g.Name, gene.Name)
                 .Set(g => g.Function, gene.Function)
                 .Set(g => g.Product, gene.Product)
@@ -91,7 +101,7 @@ namespace Gene.Infrastructure.Query.Repositories
 
             try
             {
-                _logger.LogInformation("UpdateGene: Creating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
+                _logger.LogInformation("UpdateGene: Updating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
                 await _geneCollection.UpdateOneAsync(filter, update);
                 await _versionHub.CommitVersion(gene);
             }

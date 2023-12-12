@@ -69,7 +69,7 @@ namespace Daikon.VersionStore.Handlers
 
                 if (_versionStoreHelper.IsDVariableProperty(updatedProperty, out Type genericTypeArgument))
                 {
-                    _logger.LogDebug("Property {PropertyName} is of type DVariable<T>", updatedProperty.Name);
+                    //_logger.LogDebug("Property {PropertyName} is of type DVariable<T>", updatedProperty.Name);
 
 
                     var versionProperty = _versionStoreHelper.FindVersionProperty(versionEntityModel, updatedProperty); //_DVariableHistory
@@ -80,6 +80,12 @@ namespace Daikon.VersionStore.Handlers
 
                     _logger.LogInformation("versionPropertyValue: " + versionPropertyValue);
                     _logger.LogInformation("updatedPropertyValue: " + updatedPropertyValue);
+
+                    if(updatedPropertyValue == null)
+                    {
+                        //_logger.LogDebug("Property {PropertyName} is null", updatedProperty.Name);
+                        continue;
+                    }
 
 
                     if (versionPropertyValue == null)
@@ -93,7 +99,7 @@ namespace Daikon.VersionStore.Handlers
                     // Proceed only if the value has changed
                     if (!_versionStoreHelper.HasValueChanged(updatedPropertyValue, versionPropertyValue))
                     {
-                        _logger.LogDebug("No change in value for {DVarName}", updatedProperty.Name);
+                        //_logger.LogDebug("No change in value for {DVarName}", updatedProperty.Name);
                         continue;
                     }
 

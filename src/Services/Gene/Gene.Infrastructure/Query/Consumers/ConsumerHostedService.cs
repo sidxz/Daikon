@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using CQRS.Core.Consumers;
-using CQRS.Core.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,21 +25,25 @@ namespace Gene.Infrastructure.Query.Consumers
         {
             _logger.LogInformation("Starting gene consumer hosted service");
 
-            using (IServiceScope scope = _serviceProvider.CreateScope())
+            var scope = _serviceProvider.CreateScope(); // Store scope to dispose of later
+            var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
+
+            // Run the consuming in a separate task
+            _ = Task.Run(() =>
             {
-                var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
-                try {
-                    Task.Run(() => eventConsumer.Consume(_topic), cancellationToken);
-                }
-                catch (EventConsumeException ex)
+                try
                 {
-                    _logger.LogError(ex, "Error consuming event");
+                    eventConsumer.Consume(_topic);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error consuming event");
                 }
-            }
+                finally
+                {
+                    scope.Dispose(); // Ensure to dispose of the scope when the task is done
+                }
+            }, cancellationToken);
 
             return Task.CompletedTask;
         }

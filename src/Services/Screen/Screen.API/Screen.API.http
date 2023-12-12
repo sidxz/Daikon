@@ -1,0 +1,6 @@
+@Screen.API_HostAddress = http://localhost:5182
+
+GET {{Screen.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

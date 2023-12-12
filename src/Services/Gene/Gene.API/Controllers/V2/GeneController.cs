@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
 using System.Net;
-using System.Threading.Tasks;
 using CQRS.Core.Exceptions;
-using Gene.API.DTOs;
+using CQRS.Core.Responses;
 using Gene.Application.Features.Command.DeleteGene;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Features.Command.UpdateGene;
@@ -19,6 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
+    
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
@@ -151,10 +149,27 @@ namespace Gene.API.Controllers.V2
                 command.Id = id;
                 await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddGeneResponse
+                return StatusCode(StatusCodes.Status201Created, new AddResponse
                 {
                     Id = id,
                     Message = "Gene added successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("AddGene: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("AddGene: Requested Resource Already Exists {accessionNo}", ex.Message);
+                return Conflict(new BaseResponse
+                {
+                    Message = ex.Message
                 });
             }
             catch (InvalidOperationException ex)
@@ -171,7 +186,7 @@ namespace Gene.API.Controllers.V2
                 const string SAFE_ERROR_MESSAGE = "An error occurred while adding the gene";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddGeneResponse
+                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
                     Id = id,
                     Message = SAFE_ERROR_MESSAGE
@@ -196,6 +211,14 @@ namespace Gene.API.Controllers.V2
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {
                     Message = "Gene updated successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("UpdateGene: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
                 });
             }
 
