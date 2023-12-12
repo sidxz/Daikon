@@ -4,7 +4,7 @@ using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Event;
 using CQRS.Core.Exceptions;
-using Gene.Application.Query.Handlers;
+using Gene.Application.Query.EventHandlers;
 using Gene.Infrastructure.Query.Converters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

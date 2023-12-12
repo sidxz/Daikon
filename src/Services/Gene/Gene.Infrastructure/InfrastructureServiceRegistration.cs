@@ -46,6 +46,11 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneEssentialityUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneEssentialityDeletedEvent>();
 
+            BsonClassMap.RegisterClassMap<GeneProteinProductionAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneProteinProductionUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneProteinProductionDeletedEvent>();
+            
+
 
             /* Event Database */
 
@@ -86,6 +91,8 @@ namespace Gene.Infrastructure
 
             services.AddScoped<IGeneEssentialityRepository, GeneEssentialityRepository>();
 
+            services.AddScoped<IGeneProteinProductionRepository, GeneProteinProductionRepository>();
+
 
             /* Version Store */
 
@@ -111,6 +118,17 @@ namespace Gene.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<EssentialityRevision>>(essentialityVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<EssentialityRevision>, VersionStoreRepository<EssentialityRevision>>();
             services.AddScoped<IVersionHub<EssentialityRevision>, VersionHub<EssentialityRevision>>();
+
+            var proteinProductionVersionStoreSettings = new VersionDatabaseSettings<ProteinProductionRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ProteinProductionRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ProteinProductionRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:ProteinProductionRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "ProteinProduction"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<ProteinProductionRevision>>(proteinProductionVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<ProteinProductionRevision>, VersionStoreRepository<ProteinProductionRevision>>();
+            services.AddScoped<IVersionHub<ProteinProductionRevision>, VersionHub<ProteinProductionRevision>>();
 
 
 

@@ -4,19 +4,25 @@ using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
 using Microsoft.Extensions.Logging;
 
-namespace Gene.Application.Query.Handlers
+namespace Gene.Application.Query.EventHandlers
 {
     public partial class GeneEventHandler : IGeneEventHandler
     {
         private readonly IGeneRepository _geneRepository;
         private readonly IGeneEssentialityRepository _geneEssentialityRepository;
+        private readonly IGeneProteinProductionRepository _geneProteinProductionRepository;
 
         private readonly ILogger<GeneEventHandler> _logger;
 
-        public GeneEventHandler(IGeneRepository geneRepository, IGeneEssentialityRepository geneEssentialityRepository, ILogger<GeneEventHandler> logger)
+        public GeneEventHandler(IGeneRepository geneRepository, 
+                                IGeneEssentialityRepository geneEssentialityRepository,
+                                IGeneProteinProductionRepository geneProteinProductionRepository,
+                                ILogger<GeneEventHandler> logger)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
             _geneEssentialityRepository = geneEssentialityRepository ?? throw new ArgumentNullException(nameof(geneEssentialityRepository));
+            _geneProteinProductionRepository = geneProteinProductionRepository ?? throw new ArgumentNullException(nameof(geneProteinProductionRepository));
+            
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
