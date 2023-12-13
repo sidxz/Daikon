@@ -17,13 +17,18 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
 
         private readonly IGeneHypomorphRepository _geneHypomorphRepository;
 
+        private readonly IGeneCrispriStrainRepository _geneCrispriStrainRepository;
+
+
+
 
 
         public GetGeneByAccessionQueryHandler(IGeneRepository geneRepository, IMapper mapper,
                     IGeneEssentialityRepository geneEssentialityRepository,
                     IGeneProteinProductionRepository geneProteinProductionRepository,
                     IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
-                    IGeneHypomorphRepository geneHypomorphRepository
+                    IGeneHypomorphRepository geneHypomorphRepository,
+                    IGeneCrispriStrainRepository geneCrispriStrainRepository
         )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -32,6 +37,7 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
             _geneProteinProductionRepository = geneProteinProductionRepository ?? throw new ArgumentNullException(nameof(geneProteinProductionRepository));
             _geneProteinActivityAssayRepository = geneProteinActivityAssayRepository ?? throw new ArgumentNullException(nameof(geneProteinActivityAssayRepository));
             _geneHypomorphRepository = geneHypomorphRepository ?? throw new ArgumentNullException(nameof(geneHypomorphRepository));
+            _geneCrispriStrainRepository = geneCrispriStrainRepository ?? throw new ArgumentNullException(nameof(geneCrispriStrainRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByAccessionQuery request, CancellationToken cancellationToken)
         {
@@ -55,6 +61,9 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
 
             var hypomorphs = await _geneHypomorphRepository.GetHypomorphOfGene(gene.Id);
             geneVm.Hypomorphs = _mapper.Map<List<GeneHypomorphVM>>(hypomorphs, opts => opts.Items["WithMeta"] = request.WithMeta);
+
+            var crispriStrains = await _geneCrispriStrainRepository.GetCrispriStrainOfGene(gene.Id);
+            geneVm.CrispriStrains = _mapper.Map<List<GeneCrispriStrainVM>>(crispriStrains, opts => opts.Items["WithMeta"] = request.WithMeta);
 
             return geneVm;
         }

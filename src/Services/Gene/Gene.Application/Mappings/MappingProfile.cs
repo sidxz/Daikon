@@ -48,7 +48,9 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Phenotype, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hypomorph, IValueProperty<string>, string>(src => src.Phenotype)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hypomorph, IValueProperty<string>, string>(src => src.Notes)));
              
-
+            CreateMap<Domain.Entities.CrispriStrain, Features.Queries.GetGene.GeneCrispriStrainVM>()
+                .ForMember(dest => dest.CrispriStrainName, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.CrispriStrain, IValueProperty<string>, string>(src => src.CrispriStrainName)))
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.CrispriStrain, IValueProperty<string>, string>(src => src.Notes)));
 
             CreateMap<Features.Command.NewGene.NewGeneCommand , Domain.Entities.Gene>().ReverseMap();
             CreateMap<Features.Command.UpdateGene.UpdateGeneCommand, Domain.Entities.Gene>().ReverseMap();
