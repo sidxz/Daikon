@@ -23,6 +23,7 @@ services:
       - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
       - "GeneMongoDbSettings:GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
       - "GeneMongoDbSettings:GeneHypomorphCollectionName=Hypomorphs"
+      - "GeneMongoDbSettings:GeneCrispriStrainCollectionName=CrispriStrains"
       
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
@@ -30,6 +31,7 @@ services:
       - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
       - "GeneMongoDbSettings:GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
       - "GeneMongoDbSettings:GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
+      - "GeneMongoDbSettings:GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
 
       
 
