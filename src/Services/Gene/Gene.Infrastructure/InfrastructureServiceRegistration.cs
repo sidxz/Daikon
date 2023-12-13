@@ -57,6 +57,10 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneHypomorphAddedEvent>();
             BsonClassMap.RegisterClassMap<GeneHypomorphUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneHypomorphDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneCrispriStrainAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneCrispriStrainUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneCrispriStrainDeletedEvent>();
             
 
 
@@ -104,6 +108,8 @@ namespace Gene.Infrastructure
             services.AddScoped<IGeneProteinActivityAssayRepository, GeneProteinActivityAssayRepository>();
 
             services.AddScoped<IGeneHypomorphRepository, GeneHypomorphRepository>();
+
+            services.AddScoped<IGeneCrispriStrainRepository, GeneCrispriStrainRepository>();
 
 
             /* Version Store */
@@ -160,6 +166,20 @@ namespace Gene.Infrastructure
                 CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:HypomorphRevisionCollectionName")
                 ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "Hypomorph"
             };
+            services.AddSingleton<IVersionDatabaseSettings<HypomorphRevision>>(hypomorphVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<HypomorphRevision>, VersionStoreRepository<HypomorphRevision>>();
+            services.AddScoped<IVersionHub<HypomorphRevision>, VersionHub<HypomorphRevision>>();
+
+            var crispriStrainVersionStoreSettings = new VersionDatabaseSettings<CrispriStrainRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<CrispriStrainRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<CrispriStrainRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:CrispriStrainRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "CrispriStrain"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<CrispriStrainRevision>>(crispriStrainVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<CrispriStrainRevision>, VersionStoreRepository<CrispriStrainRevision>>();
+            services.AddScoped<IVersionHub<CrispriStrainRevision>, VersionHub<CrispriStrainRevision>>();
 
 
 
