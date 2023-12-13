@@ -1,9 +1,9 @@
 
 using FluentValidation;
 
-namespace Gene.Application.Features.Command.DeleteEssentiality
+namespace Gene.Application.Features.Command.DeleteResistanceMutation
 {
-    public class DeleteEssentialityCommandValidator : AbstractValidator<DeleteEssentialityCommand>
+    public class DeleteResistanceMutationCommandValidator : AbstractValidator<DeleteResistanceMutationCommand>
     {
         
     }

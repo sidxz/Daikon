@@ -2,11 +2,11 @@
 using CQRS.Core.Command;
 using MediatR;
 
-namespace Gene.Application.Features.Command.DeleteEssentiality
+namespace Gene.Application.Features.Command.DeleteResistanceMutation
 {
-    public class DeleteEssentialityCommand : BaseCommand, IRequest<Unit>
+    public class DeleteResistanceMutationCommand : BaseCommand, IRequest<Unit>
     {
         public Guid GeneId { get; set; }
-        public Guid EssentialityId { get; set; }
+        public Guid ResistanceMutationId { get; set; }
     }
 }
