@@ -42,7 +42,7 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneUnpublishedStructuralInformationUpdatedEvent: {UnpublishedStructuralInformationId}", @event.UnpublishedStructuralInformationId);
 
-            var unpublishedStructuralInformation = _geneUnpublishedStructuralInformationRepository.Read(@event.UnpublishedStructuralInformationId).Result;
+            var unpublishedStructuralInformation = await _geneUnpublishedStructuralInformationRepository.Read(@event.UnpublishedStructuralInformationId);
 
             unpublishedStructuralInformation.Organization = @event.Organization;
             unpublishedStructuralInformation.Method = @event.Method;

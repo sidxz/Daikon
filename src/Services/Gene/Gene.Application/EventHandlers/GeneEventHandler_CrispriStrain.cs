@@ -36,7 +36,7 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneCrispriStrainUpdatedEvent: {CrispriStrainId}", @event.CrispriStrainId);
 
-            var crispriStrain = _geneCrispriStrainRepository.Read(@event.CrispriStrainId).Result;
+            var crispriStrain = await _geneCrispriStrainRepository.Read(@event.CrispriStrainId);
 
             crispriStrain.CrispriStrainName = @event.CrispriStrainName;
             crispriStrain.Notes = @event.Notes;

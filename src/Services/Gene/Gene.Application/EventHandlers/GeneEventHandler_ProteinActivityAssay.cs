@@ -41,7 +41,7 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneProteinActivityAssayUpdatedEvent: {ProteinActivityAssayId}", @event.ProteinActivityAssayId);
 
-            var proteinActivityAssay = _geneProteinActivityAssayRepository.Read(@event.ProteinActivityAssayId).Result;
+            var proteinActivityAssay = await _geneProteinActivityAssayRepository.Read(@event.ProteinActivityAssayId);
 
             proteinActivityAssay.Assay = @event.Assay;
             proteinActivityAssay.Method = @event.Method;
