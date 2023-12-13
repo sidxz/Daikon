@@ -104,6 +104,9 @@ namespace Gene.Application.Mappings
 
             CreateMap<Features.Command.NewVulnerability.NewVulnerabilityCommand, Domain.Entities.Vulnerability>().ReverseMap();
             CreateMap<Features.Command.UpdateVulnerability.UpdateVulnerabilityCommand, Domain.Entities.Vulnerability>().ReverseMap();
+
+            CreateMap<Features.Command.NewUnpublishedStructuralInformation.NewUnpublishedStructuralInformationCommand, Domain.Entities.UnpublishedStructuralInformation>().ReverseMap();
+            CreateMap<Features.Command.UpdateUnpublishedStructuralInformation.UpdateUnpublishedStructuralInformationCommand, Domain.Entities.UnpublishedStructuralInformation>().ReverseMap();
         }
     }
 }
