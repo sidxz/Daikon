@@ -5,13 +5,12 @@ using CQRS.Core.Converters;
 using CQRS.Core.Domain;
 using MediatR;
 
-namespace Gene.Application.Features.Command.NewResistanceMutation
+namespace Gene.Application.Features.Command.UpdateResistanceMutation
 {
-    public class NewResistanceMutationCommand : BaseCommand, IRequest<Unit>
+    public class UpdateResistanceMutationCommand : BaseCommand, IRequest<Unit>
     {
-        
-        public Guid GeneId { get; set; }
-        public Guid? ResistanceMutationId { get; set; }
+        public Guid ResistanceMutationId { get; set; }
+        public Guid? GeneId { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public required DVariable<string> Mutation { get; set; }
@@ -39,7 +38,6 @@ namespace Gene.Application.Features.Command.NewResistanceMutation
         
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Notes { get; set; }
-        
         
     }
 }
