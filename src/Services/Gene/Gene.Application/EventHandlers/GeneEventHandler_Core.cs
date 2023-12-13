@@ -82,7 +82,7 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneUpdatedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneUpdatedEvent: {Id}", @event.Id);
-            var gene = _geneRepository.ReadGeneById(@event.Id).Result;
+            var gene = await _geneRepository.ReadGeneById(@event.Id);
 
             gene.StrainId = @event.StrainId;
             gene.Name = @event.Name;
@@ -107,7 +107,7 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneDeletedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneDeletedEvent: {Id}", @event.Id);
-            var gene = _geneRepository.ReadGeneById(@event.Id).Result;
+            var gene = await _geneRepository.ReadGeneById(@event.Id);
 
             try
             {

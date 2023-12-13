@@ -44,7 +44,7 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneProteinProductionUpdatedEvent: {ProteinProductionId}", @event.ProteinProductionId);
 
-            var proteinProduction = _geneProteinProductionRepository.Read(@event.ProteinProductionId).Result;
+            var proteinProduction = await _geneProteinProductionRepository.Read(@event.ProteinProductionId);
 
             proteinProduction.Production = @event.Production;
             proteinProduction.Method = @event.Method;

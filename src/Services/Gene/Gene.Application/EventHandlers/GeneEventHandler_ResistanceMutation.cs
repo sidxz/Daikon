@@ -44,7 +44,7 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneResistanceMutationUpdatedEvent: {ResistanceMutationId}", @event.ResistanceMutationId);
 
-            var resistanceMutation = _geneResistanceMutationRepository.Read(@event.ResistanceMutationId).Result;
+            var resistanceMutation = await _geneResistanceMutationRepository.Read(@event.ResistanceMutationId);
 
             resistanceMutation.Mutation = @event.Mutation;
             resistanceMutation.Isolate = @event.Isolate;
