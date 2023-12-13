@@ -72,6 +72,10 @@ namespace Gene.Infrastructure.Query.Converters
                 "GeneVulnerabilityUpdatedEvent" => JsonSerializer.Deserialize<GeneVulnerabilityUpdatedEvent>(json, options),
                 "GeneVulnerabilityDeletedEvent" => JsonSerializer.Deserialize<GeneVulnerabilityDeletedEvent>(json, options),
 
+                "GeneUnpublishedStructuralInformationAddedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationAddedEvent>(json, options),
+                "GeneUnpublishedStructuralInformationUpdatedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationUpdatedEvent>(json, options),
+                "GeneUnpublishedStructuralInformationDeletedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationDeletedEvent>(json, options),
+
 
                 
                 _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
