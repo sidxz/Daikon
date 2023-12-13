@@ -5,40 +5,28 @@ using CQRS.Core.Converters;
 using CQRS.Core.Domain;
 using MediatR;
 
-namespace Gene.Application.Features.Command.NewResistanceMutation
+namespace Gene.Application.Features.Command.NewEssentiality
 {
-    public class NewResistanceMutationCommand : BaseCommand, IRequest<Unit>
+    public class NewEssentialityCommand : BaseCommand, IRequest<Unit>
     {
         
         public Guid GeneId { get; set; }
-        public Guid? ResistanceMutationId { get; set; }
+        public Guid? EssentialityId { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public required DVariable<string> Mutation { get; set; }
+        public required DVariable<string> Classification { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? Isolate { get; set; }
+        public DVariable<string>? Condition { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? ParentStrain { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? Compound { get; set; }
-        
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? ShiftInMIC { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? Organization { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? Researcher { get; set; }
+        public DVariable<string>? Method { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Reference { get; set; }
         
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? Notes { get; set; }
+        public DVariable<string>? Note { get; set; }
         
         
     }

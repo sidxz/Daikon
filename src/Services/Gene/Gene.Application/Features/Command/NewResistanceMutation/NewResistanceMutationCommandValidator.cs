@@ -1,13 +1,13 @@
 
 using FluentValidation;
-namespace Gene.Application.Features.Command.NewEssentiality
+namespace Gene.Application.Features.Command.NewResistanceMutation
 {
-    public class NewEssentialityCommandValidator : AbstractValidator<NewEssentialityCommand>
+    public class NewResistanceMutationCommandValidator : AbstractValidator<NewResistanceMutationCommand>
     {
-        public NewEssentialityCommandValidator()
+        public NewResistanceMutationCommandValidator()
         {
-            RuleFor(e => e.Classification)
-            .NotEmpty().WithMessage("{Classification} is required")
+            RuleFor(e => e.Mutation)
+            .NotEmpty().WithMessage("{Mutation} is required")
             .NotNull();
 
             RuleFor(e => e.GeneId)
