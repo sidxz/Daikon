@@ -41,14 +41,50 @@ namespace Target.Application.EventHandlers
             }
         }
 
-        public Task OnEvent(TargetUpdatedEvent @event)
+        public async Task OnEvent(TargetUpdatedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("OnEvent: TargetUpdatedEvent: {Id}", @event.Id);
+            var existingTarget = await _targetRepository.ReadTargetById(@event.Id);
+
+            if (existingTarget == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetUpdatedEvent Error updating target {@event.Id}", new Exception("Target not found"));
+            }
+
+            var target = _mapper.Map<Domain.Entities.Target>(@event);
+            target.DateCreated = existingTarget.DateCreated;
+            target.IsModified = true;
+
+            try
+            {
+                await _targetRepository.UpdateTarget(target);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetUpdatedEvent Error updating target {@event.Id}", ex);
+            }
+
         }
 
-        public Task OnEvent(TargetDeletedEvent @event)
+        public async Task OnEvent(TargetDeletedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("OnEvent: TargetUpdatedEvent: {Id}", @event.Id);
+
+            var existingTarget = await _targetRepository.ReadTargetById(@event.Id);
+            if (existingTarget == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetDeletedEvent Error deleting target {@event.Id}", new Exception("Target not found"));
+            }
+
+
+            try
+            {
+                await _targetRepository.DeleteTarget(existingTarget);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetDeletedEvent Error deleting target {@event.Id}", ex);
+            }
         }
     }
 }

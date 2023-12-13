@@ -16,6 +16,7 @@ namespace Target.Application.Mappings
             CreateMap<NewTargetCommand, Domain.Entities.Target>().ReverseMap();
 
             CreateMap<Domain.Entities.Target, TargetCreatedEvent>().ReverseMap();
+            CreateMap<Domain.Entities.Target, TargetUpdatedEvent>().ReverseMap();
 
 
             CreateMap<Domain.Entities.Target, TargetVM>()
