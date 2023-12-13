@@ -100,7 +100,7 @@ namespace Gene.Infrastructure.Query.Repositories
                 .Set(e => e.Organization, resistanceMutation.Organization)
                 .Set(e => e.Researcher, resistanceMutation.Researcher)
                 .Set(e => e.Reference, resistanceMutation.Reference)
-                .Set(e => e.Notes, resistanceMutation.Notes)
+                .Set(e => e.Notes, resistanceMutation.Notes);
 
             try
             {
