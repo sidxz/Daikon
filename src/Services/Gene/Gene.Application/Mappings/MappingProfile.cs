@@ -69,6 +69,9 @@ namespace Gene.Application.Mappings
 
             CreateMap<Features.Command.NewCrispriStrain.NewCrispriStrainCommand, Domain.Entities.CrispriStrain>().ReverseMap();
             CreateMap<Features.Command.UpdateCrispriStrain.UpdateCrispriStrainCommand, Domain.Entities.CrispriStrain>().ReverseMap();
+
+            CreateMap<Features.Command.NewResistanceMutation.NewResistanceMutationCommand, Domain.Entities.ResistanceMutation>().ReverseMap();
+            CreateMap<Features.Command.UpdateResistanceMutation.UpdateResistanceMutationCommand, Domain.Entities.ResistanceMutation>().ReverseMap();
         }
     }
 }
