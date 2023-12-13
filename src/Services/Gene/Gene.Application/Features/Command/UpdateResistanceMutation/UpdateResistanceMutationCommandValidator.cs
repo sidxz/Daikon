@@ -1,20 +1,20 @@
 
 using FluentValidation;
 
-namespace Gene.Application.Features.Command.UpdateEssentiality
+namespace Gene.Application.Features.Command.UpdateResistanceMutation
 {
-    public class UpdateEssentialityCommandValidator : AbstractValidator<UpdateEssentialityCommand>
+    public class UpdateResistanceMutationCommandValidator : AbstractValidator<UpdateResistanceMutationCommand>
     {
-        public UpdateEssentialityCommandValidator()
+        public UpdateResistanceMutationCommandValidator()
         {
-             RuleFor(e => e.Classification)
-            .NotEmpty().WithMessage("{Classification} is required")
+             RuleFor(e => e.Mutation)
+            .NotEmpty().WithMessage("{Mutation} is required")
             .NotNull();
 
-            RuleFor(e => e.EssentialityId)
-            .NotEmpty().WithMessage("{EssentialityId} is required")
+            RuleFor(e => e.ResistanceMutationId)
+            .NotEmpty().WithMessage("{ResistanceMutationId} is required")
             .NotNull()
-            .NotEqual(Guid.Empty).WithMessage("{EssentialityId} is required");
+            .NotEqual(Guid.Empty).WithMessage("{ResistanceMutationId} is required");
         }
     }
 }

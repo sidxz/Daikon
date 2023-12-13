@@ -5,36 +5,36 @@ using Gene.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Gene.Application.Features.Command.DeleteEssentiality
+namespace Gene.Application.Features.Command.DeleteResistanceMutation
 {
-  public class DeleteEssentialityCommandHandler : IRequestHandler<DeleteEssentialityCommand, Unit>
+  public class DeleteResistanceMutationCommandHandler : IRequestHandler<DeleteResistanceMutationCommand, Unit>
   {
-    private readonly ILogger<DeleteEssentialityCommandHandler> _logger;
+    private readonly ILogger<DeleteResistanceMutationCommandHandler> _logger;
 
     private readonly IEventSourcingHandler<GeneAggregate> _eventSourcingHandler;
 
-    public DeleteEssentialityCommandHandler(ILogger<DeleteEssentialityCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler)
+    public DeleteResistanceMutationCommandHandler(ILogger<DeleteResistanceMutationCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler)
     {
       _logger = logger;
       _eventSourcingHandler = eventSourcingHandler;
     }
 
-    public async Task<Unit> Handle(DeleteEssentialityCommand request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(DeleteResistanceMutationCommand request, CancellationToken cancellationToken)
     {
 
 
       try
       {
         var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-        var essentiality = new Domain.Entities.Essentiality
+        var resistanceMutation = new Domain.Entities.ResistanceMutation
         {
           Id = request.Id,
           GeneId = request.GeneId,
-          EssentialityId = request.EssentialityId,
-          Classification = ""
+          ResistanceMutationId = request.ResistanceMutationId,
+          Mutation = ""
         };
 
-        aggregate.DeleteEssentiality(essentiality);
+        aggregate.DeleteResistanceMutation(resistanceMutation);
         await _eventSourcingHandler.SaveAsync(aggregate);
       }
       catch (AggregateNotFoundException ex)
