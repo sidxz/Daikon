@@ -67,7 +67,7 @@ namespace Target.Domain.Aggregates
             var targetDeletedEvent = new TargetDeletedEvent()
             {
                 Id = target.Id,
-                Name = target.Name
+                Name = _Name
             };
             
             RaiseEvent(targetDeletedEvent);
