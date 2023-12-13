@@ -37,7 +37,7 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneHypomorphUpdatedEvent: {HypomorphId}", @event.HypomorphId);
 
-            var hypomorph = _geneHypomorphRepository.Read(@event.HypomorphId).Result;
+            var hypomorph = await _geneHypomorphRepository.Read(@event.HypomorphId);
 
             hypomorph.KnockdownStrain = @event.KnockdownStrain;
             hypomorph.Phenotype = @event.Phenotype;
