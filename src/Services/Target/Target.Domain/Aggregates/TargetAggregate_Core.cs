@@ -35,5 +35,49 @@ namespace Target.Domain.Aggregates
             _active = true;
             _Name = @event.Name;
         }
+
+        /* Update Target */
+        public void UpdateTarget(Entities.Target target, IMapper mapper)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This target is deleted.");
+            }
+
+            var targetUpdatedEvent = mapper.Map<TargetUpdatedEvent>(target);
+            targetUpdatedEvent.Id = target.Id;
+            targetUpdatedEvent.Name = target.Name;
+
+            RaiseEvent(targetUpdatedEvent);
+        }
+
+        public void Apply(TargetUpdatedEvent @event)
+        {
+            _id = @event.Id;
+        }
+
+        /* Delete Target */
+        public void DeleteTarget(Entities.Target target, IMapper mapper)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This target is already deleted.");
+            }
+
+            var targetDeletedEvent = new TargetDeletedEvent()
+            {
+                Id = target.Id,
+                Name = target.Name
+            };
+            
+            RaiseEvent(targetDeletedEvent);
+        }
+
+        public void Apply(TargetDeletedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
+            _active = false;
+        }
     }
 }
