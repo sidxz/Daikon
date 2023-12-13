@@ -84,6 +84,9 @@ namespace Gene.Application.Mappings
 
             CreateMap<Features.Command.NewResistanceMutation.NewResistanceMutationCommand, Domain.Entities.ResistanceMutation>().ReverseMap();
             CreateMap<Features.Command.UpdateResistanceMutation.UpdateResistanceMutationCommand, Domain.Entities.ResistanceMutation>().ReverseMap();
+
+            CreateMap<Features.Command.NewVulnerability.NewVulnerabilityCommand, Domain.Entities.Vulnerability>().ReverseMap();
+            CreateMap<Features.Command.UpdateVulnerability.UpdateVulnerabilityCommand, Domain.Entities.Vulnerability>().ReverseMap();
         }
     }
 }
