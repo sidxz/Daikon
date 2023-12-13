@@ -16,6 +16,7 @@ namespace Gene.Application.Features.Queries.GetGene
         public List<GeneProteinActivityAssayVM> ProteinActivityAssays { get; set; }
         public List<GeneHypomorphVM> Hypomorphs { get; set; }
         public List<GeneCrispriStrainVM> CrispriStrains { get; set; }
+        public List<GeneResistanceMutationVM> ResistanceMutations { get; set; }
 
     }
 }

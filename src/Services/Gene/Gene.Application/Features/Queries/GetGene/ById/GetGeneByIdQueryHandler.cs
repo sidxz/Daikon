@@ -17,7 +17,11 @@ namespace Gene.Application.Features.Queries.GetGene.ById
 
         private readonly IGeneHypomorphRepository _geneHypomorphRepository;
 
-         private readonly IGeneCrispriStrainRepository _geneCrispriStrainRepository;
+        private readonly IGeneCrispriStrainRepository _geneCrispriStrainRepository;
+
+        private readonly IGeneResistanceMutationRepository _geneResistanceMutationRepository;
+
+
 
 
 
@@ -29,7 +33,8 @@ namespace Gene.Application.Features.Queries.GetGene.ById
                                 IGeneProteinProductionRepository geneProteinProductionRepository,
                                 IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
                                 IGeneHypomorphRepository geneHypomorphRepository,
-                                IGeneCrispriStrainRepository geneCrispriStrainRepository
+                                IGeneCrispriStrainRepository geneCrispriStrainRepository,
+                                IGeneResistanceMutationRepository geneResistanceMutationRepository
                                 )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -39,6 +44,7 @@ namespace Gene.Application.Features.Queries.GetGene.ById
             _geneProteinActivityAssayRepository = geneProteinActivityAssayRepository ?? throw new ArgumentNullException(nameof(geneProteinActivityAssayRepository));
             _geneHypomorphRepository = geneHypomorphRepository ?? throw new ArgumentNullException(nameof(geneHypomorphRepository));
             _geneCrispriStrainRepository = geneCrispriStrainRepository ?? throw new ArgumentNullException(nameof(geneCrispriStrainRepository));
+            _geneResistanceMutationRepository = geneResistanceMutationRepository ?? throw new ArgumentNullException(nameof(geneResistanceMutationRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByIdQuery request, CancellationToken cancellationToken)
         {
@@ -66,6 +72,9 @@ namespace Gene.Application.Features.Queries.GetGene.ById
 
             var crispriStrains = await _geneCrispriStrainRepository.GetCrispriStrainOfGene(gene.Id);
             geneVm.CrispriStrains = _mapper.Map<List<GeneCrispriStrainVM>>(crispriStrains, opts => opts.Items["WithMeta"] = request.WithMeta);
+
+            var resistanceMutations = await _geneResistanceMutationRepository.GetResistanceMutationOfGene(gene.Id);
+            geneVm.ResistanceMutations = _mapper.Map<List<GeneResistanceMutationVM>>(resistanceMutations, opts => opts.Items["WithMeta"] = request.WithMeta);
 
             
             return geneVm;
