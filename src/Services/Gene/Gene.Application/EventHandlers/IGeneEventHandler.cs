@@ -36,6 +36,11 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneVulnerabilityAddedEvent @event);
         Task OnEvent(GeneVulnerabilityUpdatedEvent @event);
         Task OnEvent(GeneVulnerabilityDeletedEvent @event);
+
+        Task OnEvent(GeneUnpublishedStructuralInformationAddedEvent @event);
+        Task OnEvent(GeneUnpublishedStructuralInformationUpdatedEvent @event);
+        Task OnEvent(GeneUnpublishedStructuralInformationDeletedEvent @event);
+        
         
         
     }

@@ -77,7 +77,15 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.Reference)))
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.URL)));
             
-            
+            CreateMap<Domain.Entities.UnpublishedStructuralInformation, Features.Queries.GetGene.GeneUnpublishedStructuralInformationVM>()
+                .ForMember(dest => dest.Organization, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Organization)))
+                .ForMember(dest => dest.Method, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Method)))
+                .ForMember(dest => dest.Resolution, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Resolution)))
+                .ForMember(dest => dest.Ligands, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Ligands)))
+                .ForMember(dest => dest.Researcher, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Researcher)))
+                .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Reference)))
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Notes)))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.URL)));
             
             
             

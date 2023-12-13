@@ -23,6 +23,8 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
 
         private readonly IGeneVulnerabilityRepository _geneVulnerabilityRepository;
 
+        private readonly IGeneUnpublishedStructuralInformationRepository _geneUnpublishedStructuralInformationRepository;
+
 
 
 
@@ -34,7 +36,8 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
                     IGeneHypomorphRepository geneHypomorphRepository,
                     IGeneCrispriStrainRepository geneCrispriStrainRepository,
                     IGeneResistanceMutationRepository geneResistanceMutationRepository,
-                    IGeneVulnerabilityRepository geneVulnerabilityRepository
+                    IGeneVulnerabilityRepository geneVulnerabilityRepository,
+                    IGeneUnpublishedStructuralInformationRepository geneUnpublishedStructuralInformationRepository
         )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -46,6 +49,7 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
             _geneCrispriStrainRepository = geneCrispriStrainRepository ?? throw new ArgumentNullException(nameof(geneCrispriStrainRepository));
             _geneResistanceMutationRepository = geneResistanceMutationRepository ?? throw new ArgumentNullException(nameof(geneResistanceMutationRepository));
             _geneVulnerabilityRepository = geneVulnerabilityRepository ?? throw new ArgumentNullException(nameof(geneVulnerabilityRepository));
+            _geneUnpublishedStructuralInformationRepository = geneUnpublishedStructuralInformationRepository ?? throw new ArgumentNullException(nameof(geneUnpublishedStructuralInformationRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByAccessionQuery request, CancellationToken cancellationToken)
         {
@@ -78,6 +82,9 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
 
             var vulnerabilities = await _geneVulnerabilityRepository.GetVulnerabilityOfGene(gene.Id);
             geneVm.Vulnerabilities = _mapper.Map<List<GeneVulnerabilityVM>>(vulnerabilities, opts => opts.Items["WithMeta"] = request.WithMeta);
+
+            var unpublishedStructuralInformations = await _geneUnpublishedStructuralInformationRepository.GetUnpublishedStructuralInformationOfGene(gene.Id);
+            geneVm.UnpublishedStructuralInformations = _mapper.Map<List<GeneUnpublishedStructuralInformationVM>>(unpublishedStructuralInformations, opts => opts.Items["WithMeta"] = request.WithMeta);
 
             return geneVm;
         }
