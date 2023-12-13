@@ -64,6 +64,23 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Reference)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Notes)));
             
+            
+            CreateMap<Domain.Entities.Vulnerability, Features.Queries.GetGene.GeneVulnerabilityVM>()
+                .ForMember(dest => dest.Rank, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.Rank)))
+                .ForMember(dest => dest.ViUpperBound, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.ViUpperBound)))
+                .ForMember(dest => dest.ViLowerBound, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.ViLowerBound)))
+                .ForMember(dest => dest.VulnerabilityIndex, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.VulnerabilityIndex)))
+                .ForMember(dest => dest.VulnerabilityCondition, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.VulnerabilityCondition)))
+                .ForMember(dest => dest.TnSeqEss, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.TnSeqEss)))
+                .ForMember(dest => dest.CrisprEss, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.CrisprEss)))
+                .ForMember(dest => dest.HighConfidenceVulnerabilityCall, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.HighConfidenceVulnerabilityCall)))
+                .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.Reference)))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Vulnerability, IValueProperty<string>, string>(src => src.URL)));
+            
+            
+            
+            
+            
             CreateMap<Features.Command.NewGene.NewGeneCommand , Domain.Entities.Gene>().ReverseMap();
             CreateMap<Features.Command.UpdateGene.UpdateGeneCommand, Domain.Entities.Gene>().ReverseMap();
 

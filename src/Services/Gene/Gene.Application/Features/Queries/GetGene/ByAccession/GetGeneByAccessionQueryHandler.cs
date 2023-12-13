@@ -21,6 +21,8 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
 
         private readonly IGeneResistanceMutationRepository _geneResistanceMutationRepository;
 
+        private readonly IGeneVulnerabilityRepository _geneVulnerabilityRepository;
+
 
 
 
@@ -31,7 +33,8 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
                     IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
                     IGeneHypomorphRepository geneHypomorphRepository,
                     IGeneCrispriStrainRepository geneCrispriStrainRepository,
-                    IGeneResistanceMutationRepository geneResistanceMutationRepository
+                    IGeneResistanceMutationRepository geneResistanceMutationRepository,
+                    IGeneVulnerabilityRepository geneVulnerabilityRepository
         )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -42,6 +45,7 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
             _geneHypomorphRepository = geneHypomorphRepository ?? throw new ArgumentNullException(nameof(geneHypomorphRepository));
             _geneCrispriStrainRepository = geneCrispriStrainRepository ?? throw new ArgumentNullException(nameof(geneCrispriStrainRepository));
             _geneResistanceMutationRepository = geneResistanceMutationRepository ?? throw new ArgumentNullException(nameof(geneResistanceMutationRepository));
+            _geneVulnerabilityRepository = geneVulnerabilityRepository ?? throw new ArgumentNullException(nameof(geneVulnerabilityRepository));
         }
         public async Task<GeneVM> Handle(GetGeneByAccessionQuery request, CancellationToken cancellationToken)
         {
@@ -71,6 +75,9 @@ namespace Gene.Application.Features.Queries.GetGene.ByAccession
 
             var resistanceMutations = await _geneResistanceMutationRepository.GetResistanceMutationOfGene(gene.Id);
             geneVm.ResistanceMutations = _mapper.Map<List<GeneResistanceMutationVM>>(resistanceMutations, opts => opts.Items["WithMeta"] = request.WithMeta);
+
+            var vulnerabilities = await _geneVulnerabilityRepository.GetVulnerabilityOfGene(gene.Id);
+            geneVm.Vulnerabilities = _mapper.Map<List<GeneVulnerabilityVM>>(vulnerabilities, opts => opts.Items["WithMeta"] = request.WithMeta);
 
             return geneVm;
         }

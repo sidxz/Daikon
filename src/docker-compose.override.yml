@@ -25,6 +25,7 @@ services:
       - "GeneMongoDbSettings:GeneHypomorphCollectionName=Hypomorphs"
       - "GeneMongoDbSettings:GeneCrispriStrainCollectionName=CrispriStrains"
       - "GeneMongoDbSettings:GeneResistanceMutationCollectionName=ResistanceMutations"
+      - "GeneMongoDbSettings:GeneVulnerabilityCollectionName=Vulnerabilities"
       
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
@@ -34,6 +35,7 @@ services:
       - "GeneMongoDbSettings:GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
       - "GeneMongoDbSettings:GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
       - "GeneMongoDbSettings:GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
+      - "GeneMongoDbSettings:GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
 
 
       

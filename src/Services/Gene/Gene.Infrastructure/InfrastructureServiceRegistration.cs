@@ -66,6 +66,9 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneResistanceMutationUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneResistanceMutationDeletedEvent>();
             
+            BsonClassMap.RegisterClassMap<GeneVulnerabilityAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneVulnerabilityUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneVulnerabilityDeletedEvent>();
 
 
             /* Event Database */
@@ -116,6 +119,8 @@ namespace Gene.Infrastructure
             services.AddScoped<IGeneCrispriStrainRepository, GeneCrispriStrainRepository>();
 
             services.AddScoped<IGeneResistanceMutationRepository, GeneResistanceMutationRepository>();
+
+            services.AddScoped<IGeneVulnerabilityRepository, GeneVulnerabilityRepository>();
 
 
             /* Version Store */
@@ -198,7 +203,16 @@ namespace Gene.Infrastructure
             services.AddScoped<IVersionStoreRepository<ResistanceMutationRevision>, VersionStoreRepository<ResistanceMutationRevision>>();
             services.AddScoped<IVersionHub<ResistanceMutationRevision>, VersionHub<ResistanceMutationRevision>>();
 
-
+            var vulnerabilityVersionStoreSettings = new VersionDatabaseSettings<VulnerabilityRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<VulnerabilityRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<VulnerabilityRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:VulnerabilityRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "Vulnerability"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<VulnerabilityRevision>>(vulnerabilityVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<VulnerabilityRevision>, VersionStoreRepository<VulnerabilityRevision>>();
+            services.AddScoped<IVersionHub<VulnerabilityRevision>, VersionHub<VulnerabilityRevision>>();
 
 
             /* Consumers */

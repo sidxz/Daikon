@@ -32,6 +32,11 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneResistanceMutationAddedEvent @event);
         Task OnEvent(GeneResistanceMutationUpdatedEvent @event);
         Task OnEvent(GeneResistanceMutationDeletedEvent @event);
+
+        Task OnEvent(GeneVulnerabilityAddedEvent @event);
+        Task OnEvent(GeneVulnerabilityUpdatedEvent @event);
+        Task OnEvent(GeneVulnerabilityDeletedEvent @event);
+        
         
     }
 }
