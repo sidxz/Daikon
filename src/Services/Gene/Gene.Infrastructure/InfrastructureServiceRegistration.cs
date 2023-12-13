@@ -61,6 +61,10 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneCrispriStrainAddedEvent>();
             BsonClassMap.RegisterClassMap<GeneCrispriStrainUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneCrispriStrainDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneResistanceMutationAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneResistanceMutationUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneResistanceMutationDeletedEvent>();
             
 
 
@@ -110,6 +114,8 @@ namespace Gene.Infrastructure
             services.AddScoped<IGeneHypomorphRepository, GeneHypomorphRepository>();
 
             services.AddScoped<IGeneCrispriStrainRepository, GeneCrispriStrainRepository>();
+
+            services.AddScoped<IGeneResistanceMutationRepository, GeneResistanceMutationRepository>();
 
 
             /* Version Store */
@@ -180,6 +186,17 @@ namespace Gene.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<CrispriStrainRevision>>(crispriStrainVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<CrispriStrainRevision>, VersionStoreRepository<CrispriStrainRevision>>();
             services.AddScoped<IVersionHub<CrispriStrainRevision>, VersionHub<CrispriStrainRevision>>();
+
+            var resistanceMutationVersionStoreSettings = new VersionDatabaseSettings<ResistanceMutationRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ResistanceMutationRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ResistanceMutationRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:ResistanceMutationRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "ResistanceMutation"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<ResistanceMutationRevision>>(resistanceMutationVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<ResistanceMutationRevision>, VersionStoreRepository<ResistanceMutationRevision>>();
+            services.AddScoped<IVersionHub<ResistanceMutationRevision>, VersionHub<ResistanceMutationRevision>>();
 
 
 
