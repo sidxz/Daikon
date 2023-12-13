@@ -47,6 +47,7 @@ namespace Horizon.Infrastructure.Query.Consumers
         private readonly ConsumerConfig _config;
         private readonly IGeneEventHandler _eventHandler;
         private readonly ILogger<EventConsumer> _logger;
+
         public EventConsumer(IConfiguration configuration, IGeneEventHandler eventHandler, ILogger<EventConsumer> logger)
         {
             _config = new ConsumerConfig
@@ -62,8 +63,13 @@ namespace Horizon.Infrastructure.Query.Consumers
             _logger = logger;
         }
 
-
         public void Consume(string topic)
+        {
+            Consume(new[] { topic });
+        }
+
+
+        public void Consume(IEnumerable<string> topics)
         {
             while (true)
             {
@@ -74,7 +80,7 @@ namespace Horizon.Infrastructure.Query.Consumers
                     .SetValueDeserializer(Deserializers.Utf8)
                     .Build();
 
-                    consumer.Subscribe(topic);
+                    consumer.Subscribe(topics);
                     while (true)
                     {
                         var consumeResult = consumer.Consume();

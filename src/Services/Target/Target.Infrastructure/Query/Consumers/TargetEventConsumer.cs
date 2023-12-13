@@ -9,6 +9,26 @@ using Microsoft.Extensions.Logging;
 using Target.Application.EventHandlers;
 using Target.Infrastructure.Query.Converters;
 
+/*
+ * EventConsumer Class
+ * 
+ * Purpose:
+ * --------
+ * The EventConsumer class is designed to consume messages from a Kafka topic. It is part of a larger CQRS and event handling architecture.
+ * 
+ * Key Functionalities:
+ * --------------------
+ * 1. Kafka Consumer Configuration: Configures and initializes a Kafka consumer based on settings provided through the IConfiguration interface.
+ * 2. Continuous Message Consumption: Continuously consumes messages from a specified Kafka topic.
+ * 3. Message Deserialization: Deserializes incoming messages using a custom JSON converter to convert them into BaseEvent objects.
+ * 4. Dynamic Event Handling: Utilizes reflection to dynamically invoke the appropriate event handler method based on the event type.
+ * 5. Error Handling: Robust error handling to manage Kafka consume errors, Kafka exceptions, and general exceptions. Logs errors for troubleshooting.
+ * 6. Retry Mechanism: Implements a retry mechanism to handle Kafka connection errors, ensuring resilience and stability.
+ * 7. Graceful Shutdown: Supports graceful shutdown through a CancellationToken, allowing the consumer to safely close and release resources.
+ * 8. Commit Strategy: Commits each message after successful processing to ensure at-least-once delivery semantics.
+ */
+
+
 namespace Target.Infrastructure.Query.Consumers
 {
     public class TargetEventConsumer : IEventConsumer
@@ -32,8 +52,14 @@ namespace Target.Infrastructure.Query.Consumers
             _logger = logger;
         }
 
-
         public void Consume(string topic)
+        {
+            Consume(new[] { topic });
+        }
+
+
+
+        public void Consume(IEnumerable<string> topics)
         {
 
             while (true)
@@ -45,7 +71,7 @@ namespace Target.Infrastructure.Query.Consumers
                     .SetValueDeserializer(Deserializers.Utf8)
                     .Build();
 
-                    consumer.Subscribe(topic);
+                    consumer.Subscribe(topics);
                     while (true)
                     {
                         var consumeResult = consumer.Consume();
