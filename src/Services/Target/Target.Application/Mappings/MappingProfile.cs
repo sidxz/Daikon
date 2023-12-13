@@ -5,6 +5,7 @@ using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.Targets;
 using Target.Application.Features.Command.NewTarget;
+using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Queries.GetTarget;
 
 namespace Target.Application.Mappings
@@ -14,6 +15,8 @@ namespace Target.Application.Mappings
         public MappingProfile()
         {
             CreateMap<NewTargetCommand, Domain.Entities.Target>().ReverseMap();
+            CreateMap<UpdateTargetCommand, Domain.Entities.Target>().ReverseMap();
+
 
             CreateMap<Domain.Entities.Target, TargetCreatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Target, TargetUpdatedEvent>().ReverseMap();
