@@ -20,5 +20,7 @@ namespace Gene.Application.Features.Queries.GetGene
 
         public List<GeneVulnerabilityVM> Vulnerabilities { get; set; }
 
+        public List<GeneUnpublishedStructuralInformationVM> UnpublishedStructuralInformations { get; set; }
+
     }
 }

@@ -26,6 +26,7 @@ services:
       - "GeneMongoDbSettings:GeneCrispriStrainCollectionName=CrispriStrains"
       - "GeneMongoDbSettings:GeneResistanceMutationCollectionName=ResistanceMutations"
       - "GeneMongoDbSettings:GeneVulnerabilityCollectionName=Vulnerabilities"
+      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
       
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
@@ -36,6 +37,7 @@ services:
       - "GeneMongoDbSettings:GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
       - "GeneMongoDbSettings:GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
       - "GeneMongoDbSettings:GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
+      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
 
 
       

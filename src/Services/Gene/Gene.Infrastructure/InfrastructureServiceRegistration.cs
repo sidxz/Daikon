@@ -70,6 +70,10 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneVulnerabilityUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneVulnerabilityDeletedEvent>();
 
+            BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationDeletedEvent>();
+
 
             /* Event Database */
 
@@ -121,6 +125,8 @@ namespace Gene.Infrastructure
             services.AddScoped<IGeneResistanceMutationRepository, GeneResistanceMutationRepository>();
 
             services.AddScoped<IGeneVulnerabilityRepository, GeneVulnerabilityRepository>();
+
+            services.AddScoped<IGeneUnpublishedStructuralInformationRepository, GeneUnpublishedStructuralInformationRepository>();
 
 
             /* Version Store */
@@ -213,6 +219,17 @@ namespace Gene.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<VulnerabilityRevision>>(vulnerabilityVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<VulnerabilityRevision>, VersionStoreRepository<VulnerabilityRevision>>();
             services.AddScoped<IVersionHub<VulnerabilityRevision>, VersionHub<VulnerabilityRevision>>();
+
+            var unpublishedStructuralInformationVersionStoreSettings = new VersionDatabaseSettings<UnpublishedStructuralInformationRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<UnpublishedStructuralInformationRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<UnpublishedStructuralInformationRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:UnpublishedStructuralInformationRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "UnpublishedStructuralInformation"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<UnpublishedStructuralInformationRevision>>(unpublishedStructuralInformationVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<UnpublishedStructuralInformationRevision>, VersionStoreRepository<UnpublishedStructuralInformationRevision>>();
+            services.AddScoped<IVersionHub<UnpublishedStructuralInformationRevision>, VersionHub<UnpublishedStructuralInformationRevision>>();
 
 
             /* Consumers */
