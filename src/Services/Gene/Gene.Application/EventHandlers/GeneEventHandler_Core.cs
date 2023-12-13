@@ -16,6 +16,8 @@ namespace Gene.Application.Query.EventHandlers
 
         private readonly IGeneHypomorphRepository _geneHypomorphRepository;
 
+        private readonly IGeneCrispriStrainRepository _geneCrispriStrainRepository;
+
         private readonly ILogger<GeneEventHandler> _logger;
 
         public GeneEventHandler(IGeneRepository geneRepository, 
@@ -23,6 +25,7 @@ namespace Gene.Application.Query.EventHandlers
                                 IGeneProteinProductionRepository geneProteinProductionRepository,
                                 IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
                                 IGeneHypomorphRepository geneHypomorphRepository,
+                                IGeneCrispriStrainRepository geneCrispriStrainRepository,
                                 ILogger<GeneEventHandler> logger)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -30,6 +33,7 @@ namespace Gene.Application.Query.EventHandlers
             _geneProteinProductionRepository = geneProteinProductionRepository ?? throw new ArgumentNullException(nameof(geneProteinProductionRepository));
             _geneProteinActivityAssayRepository = geneProteinActivityAssayRepository ?? throw new ArgumentNullException(nameof(geneProteinActivityAssayRepository));
             _geneHypomorphRepository = geneHypomorphRepository ?? throw new ArgumentNullException(nameof(geneHypomorphRepository));
+            _geneCrispriStrainRepository = geneCrispriStrainRepository ?? throw new ArgumentNullException(nameof(geneCrispriStrainRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -99,11 +103,12 @@ namespace Gene.Application.Query.EventHandlers
                 await _geneProteinProductionRepository.DeleteAllProteinProductionsOfGene(gene.Id);
                 await _geneProteinActivityAssayRepository.DeleteAllProteinActivityAssaysOfGene(gene.Id);
                 await _geneHypomorphRepository.DeleteAllHypomorphsOfGene(gene.Id);
+                await _geneCrispriStrainRepository.DeleteAllCrispriStrainsOfGene(gene.Id);
                 await _geneRepository.DeleteGene(gene.Id);
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), "GeneDeletedEvent Error deleting essentialities of gene with id @event.Id", ex);
+                throw new EventHandlerException(nameof(EventHandler), "GeneDeletedEvent Error deleting gene with id @event.Id", ex);
             }
 
         }

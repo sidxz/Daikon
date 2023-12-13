@@ -24,5 +24,10 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneHypomorphAddedEvent @event);
         Task OnEvent(GeneHypomorphUpdatedEvent @event);
         Task OnEvent(GeneHypomorphDeletedEvent @event);
+
+        Task OnEvent(GeneCrispriStrainAddedEvent @event);
+        Task OnEvent(GeneCrispriStrainUpdatedEvent @event);
+        Task OnEvent(GeneCrispriStrainDeletedEvent @event);
+        
     }
 }
