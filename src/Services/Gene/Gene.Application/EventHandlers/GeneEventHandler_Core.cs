@@ -20,6 +20,8 @@ namespace Gene.Application.Query.EventHandlers
 
         private readonly IGeneResistanceMutationRepository _geneResistanceMutationRepository;
 
+        private readonly IGeneVulnerabilityRepository _geneVulnerabilityRepository;
+
         private readonly ILogger<GeneEventHandler> _logger;
 
         public GeneEventHandler(IGeneRepository geneRepository, 
@@ -29,6 +31,7 @@ namespace Gene.Application.Query.EventHandlers
                                 IGeneHypomorphRepository geneHypomorphRepository,
                                 IGeneCrispriStrainRepository geneCrispriStrainRepository,
                                 IGeneResistanceMutationRepository geneResistanceMutationRepository,
+                                IGeneVulnerabilityRepository geneVulnerabilityRepository,
                                 ILogger<GeneEventHandler> logger)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -38,6 +41,7 @@ namespace Gene.Application.Query.EventHandlers
             _geneHypomorphRepository = geneHypomorphRepository ?? throw new ArgumentNullException(nameof(geneHypomorphRepository));
             _geneCrispriStrainRepository = geneCrispriStrainRepository ?? throw new ArgumentNullException(nameof(geneCrispriStrainRepository));
             _geneResistanceMutationRepository = geneResistanceMutationRepository ?? throw new ArgumentNullException(nameof(geneResistanceMutationRepository));
+            _geneVulnerabilityRepository = geneVulnerabilityRepository ?? throw new ArgumentNullException(nameof(geneVulnerabilityRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -109,6 +113,7 @@ namespace Gene.Application.Query.EventHandlers
                 await _geneHypomorphRepository.DeleteAllHypomorphsOfGene(gene.Id);
                 await _geneCrispriStrainRepository.DeleteAllCrispriStrainsOfGene(gene.Id);
                 await _geneResistanceMutationRepository.DeleteAllResistanceMutationsOfGene(gene.Id);
+                await _geneVulnerabilityRepository.DeleteAllVulnerabilitiesOfGene(gene.Id);
                 await _geneRepository.DeleteGene(gene.Id);
             }
             catch (RepositoryException ex)
