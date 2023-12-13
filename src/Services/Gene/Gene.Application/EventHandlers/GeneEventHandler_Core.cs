@@ -18,6 +18,8 @@ namespace Gene.Application.Query.EventHandlers
 
         private readonly IGeneCrispriStrainRepository _geneCrispriStrainRepository;
 
+        private readonly IGeneResistanceMutationRepository _geneResistanceMutationRepository;
+
         private readonly ILogger<GeneEventHandler> _logger;
 
         public GeneEventHandler(IGeneRepository geneRepository, 
@@ -26,6 +28,7 @@ namespace Gene.Application.Query.EventHandlers
                                 IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
                                 IGeneHypomorphRepository geneHypomorphRepository,
                                 IGeneCrispriStrainRepository geneCrispriStrainRepository,
+                                IGeneResistanceMutationRepository geneResistanceMutationRepository,
                                 ILogger<GeneEventHandler> logger)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -34,6 +37,7 @@ namespace Gene.Application.Query.EventHandlers
             _geneProteinActivityAssayRepository = geneProteinActivityAssayRepository ?? throw new ArgumentNullException(nameof(geneProteinActivityAssayRepository));
             _geneHypomorphRepository = geneHypomorphRepository ?? throw new ArgumentNullException(nameof(geneHypomorphRepository));
             _geneCrispriStrainRepository = geneCrispriStrainRepository ?? throw new ArgumentNullException(nameof(geneCrispriStrainRepository));
+            _geneResistanceMutationRepository = geneResistanceMutationRepository ?? throw new ArgumentNullException(nameof(geneResistanceMutationRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -104,6 +108,7 @@ namespace Gene.Application.Query.EventHandlers
                 await _geneProteinActivityAssayRepository.DeleteAllProteinActivityAssaysOfGene(gene.Id);
                 await _geneHypomorphRepository.DeleteAllHypomorphsOfGene(gene.Id);
                 await _geneCrispriStrainRepository.DeleteAllCrispriStrainsOfGene(gene.Id);
+                await _geneResistanceMutationRepository.DeleteAllResistanceMutationsOfGene(gene.Id);
                 await _geneRepository.DeleteGene(gene.Id);
             }
             catch (RepositoryException ex)

@@ -29,5 +29,9 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneCrispriStrainUpdatedEvent @event);
         Task OnEvent(GeneCrispriStrainDeletedEvent @event);
         
+        Task OnEvent(GeneResistanceMutationAddedEvent @event);
+        Task OnEvent(GeneResistanceMutationUpdatedEvent @event);
+        Task OnEvent(GeneResistanceMutationDeletedEvent @event);
+        
     }
 }

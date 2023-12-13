@@ -52,6 +52,18 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.CrispriStrainName, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.CrispriStrain, IValueProperty<string>, string>(src => src.CrispriStrainName)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.CrispriStrain, IValueProperty<string>, string>(src => src.Notes)));
 
+            
+            CreateMap<Domain.Entities.ResistanceMutation, Features.Queries.GetGene.GeneResistanceMutationVM>()
+                .ForMember(dest => dest.Mutation, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Mutation)))
+                .ForMember(dest => dest.Isolate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Isolate)))
+                .ForMember(dest => dest.ParentStrain, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.ParentStrain)))
+                .ForMember(dest => dest.Compound, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Compound)))
+                .ForMember(dest => dest.ShiftInMIC, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.ShiftInMIC)))
+                .ForMember(dest => dest.Organization, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Organization)))
+                .ForMember(dest => dest.Researcher, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Researcher)))
+                .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Reference)))
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ResistanceMutation, IValueProperty<string>, string>(src => src.Notes)));
+            
             CreateMap<Features.Command.NewGene.NewGeneCommand , Domain.Entities.Gene>().ReverseMap();
             CreateMap<Features.Command.UpdateGene.UpdateGeneCommand, Domain.Entities.Gene>().ReverseMap();
 
