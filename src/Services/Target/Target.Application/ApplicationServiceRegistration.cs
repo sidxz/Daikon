@@ -3,6 +3,7 @@ using FluentValidation;
 
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Target.Application.EventHandlers;
 using Target.Application.Features.Command.NewTarget;
 using Target.Application.Mappings;
 
@@ -22,7 +23,7 @@ namespace Target.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-            //services.AddScoped<IGeneEventHandler, GeneEventHandler>();
+            services.AddScoped<ITargetEventHandler, TargetEventHandler>();
           
 
             return services;
