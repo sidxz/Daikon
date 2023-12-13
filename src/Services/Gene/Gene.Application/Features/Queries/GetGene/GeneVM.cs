@@ -18,5 +18,7 @@ namespace Gene.Application.Features.Queries.GetGene
         public List<GeneCrispriStrainVM> CrispriStrains { get; set; }
         public List<GeneResistanceMutationVM> ResistanceMutations { get; set; }
 
+        public List<GeneVulnerabilityVM> Vulnerabilities { get; set; }
+
     }
 }
