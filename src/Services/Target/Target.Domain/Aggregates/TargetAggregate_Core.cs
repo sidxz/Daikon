@@ -56,6 +56,32 @@ namespace Target.Domain.Aggregates
             _id = @event.Id;
         }
 
+        /* Update Target Associated Genes */
+        public void UpdateTargetAssociatedGenes(Dictionary<string, string> associatedGenes, IMapper mapper)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This target is deleted.");
+            }
+
+            var targetAssociatedGenesUpdatedEvent = new TargetAssociatedGenesUpdatedEvent()
+            {
+                Id = target.Id,
+                Name = _Name,
+                AssociatedGenes = associatedGenes
+            };
+            targetAssociatedGenesUpdatedEvent.Id = target.Id;
+            targetAssociatedGenesUpdatedEvent.Name = target.Name;
+
+            RaiseEvent(targetAssociatedGenesUpdatedEvent);
+        }
+
+        public void Apply(TargetAssociatedGenesUpdatedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
+        }
+
         /* Delete Target */
         public void DeleteTarget(Entities.Target target, IMapper mapper)
         {

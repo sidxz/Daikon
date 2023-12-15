@@ -34,6 +34,7 @@ namespace Target.Infrastructure
             BsonClassMap.RegisterClassMap<TargetCreatedEvent>();
             BsonClassMap.RegisterClassMap<TargetUpdatedEvent>();
             BsonClassMap.RegisterClassMap<TargetDeletedEvent>();
+            BsonClassMap.RegisterClassMap<TargetAssociatedGenesUpdatedEvent>();
 
             /* Event Database */
             var eventDatabaseSettings = new EventDatabaseSettings
