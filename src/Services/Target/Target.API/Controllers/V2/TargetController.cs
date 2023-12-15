@@ -10,6 +10,7 @@ using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Command.UpdateTargetAssociatedGenes;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTarget.ById;
+using Target.Application.Features.Queries.GetTargetsList;
 
 namespace Target.API.Controllers.V2
 {
@@ -25,6 +26,29 @@ namespace Target.API.Controllers.V2
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpGet(Name = "GetTargetsList")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(List<TargetsListVM>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<List<TargetsListVM>>> GetTargetsList()
+        {
+            try
+            {
+                var targetsList = await _mediator.Send(new GetTargetsListQuery());
+                return Ok(targetsList);
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the target list";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+            
         }
 
 
