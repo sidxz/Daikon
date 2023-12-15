@@ -41,6 +41,9 @@ namespace Target.Application.Mappings
 
             .ReverseMap();
 
+            CreateMap<Domain.Entities.Target, Features.Queries.GetTargetsList.TargetsListVM>().ReverseMap();
+            
+
 
             
         }
