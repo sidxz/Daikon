@@ -24,6 +24,7 @@ namespace Horizon.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
             services.AddScoped<IGeneEventHandler, GeneEventHandler>();
+            services.AddScoped<ITargetEventHandler, TargetEventHandler>();
 
             return services;
         }

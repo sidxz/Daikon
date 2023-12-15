@@ -44,18 +44,23 @@ namespace Horizon.Infrastructure.Query.Consumers
         private readonly ILogger<ConsumerHostedService> _logger;
         private readonly IServiceProvider _serviceProvider;
 
-        private readonly string _topic;
+        private readonly string[] _topics;
 
         public ConsumerHostedService(IServiceProvider serviceProvider, ILogger<ConsumerHostedService> logger, IConfiguration configuration)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(_serviceProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-            _topic = configuration.GetValue<string>("KafkaConsumerSettings:Topic") ?? throw new ArgumentNullException(nameof(_topic));
+            var topics = configuration.GetValue<string>("KafkaConsumerSettings:Topics") ?? throw new ArgumentNullException(nameof(_topics));
+            if (string.IsNullOrEmpty(topics))
+            {
+                throw new ArgumentNullException(nameof(_topics), "Kafka topics are not configured");
+            }
+            _topics = topics.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting Horizon-gene consumer hosted service for topic: {@topic}", _topic);
+            _logger.LogInformation("[Starting] Horizon consumer hosted service for topics: {@topic}", _topics.ToString());
 
             var scope = _serviceProvider.CreateScope(); // Store scope to dispose of later
             var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
@@ -65,7 +70,7 @@ namespace Horizon.Infrastructure.Query.Consumers
             {
                 try
                 {
-                    eventConsumer.Consume(_topic);
+                    eventConsumer.Consume(_topics);
                 }
                 catch (Exception ex)
                 {
@@ -83,7 +88,7 @@ namespace Horizon.Infrastructure.Query.Consumers
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Stopping Horizon-gene consumer hosted service");
+            _logger.LogInformation("[Stopping] Horizon consumer hosted service");
             return Task.CompletedTask;
         }
     }
