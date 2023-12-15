@@ -59,5 +59,18 @@ namespace Target.Application.Features.Command.NewTarget
         [JsonConverter(typeof(DVariableJsonConverter<double>))]
         public DVariable<double>? Safety { get; set; }
 
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Background { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Enablement { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Strategy { get; set; }
+        
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Challenges { get; set; }
+
+
     }
 }

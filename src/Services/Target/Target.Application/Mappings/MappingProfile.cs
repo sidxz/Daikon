@@ -38,6 +38,10 @@ namespace Target.Application.Mappings
             .ForMember(dest => dest.SBDFeasibility, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<double>, double>(src => src.SBDFeasibility)))
             .ForMember(dest => dest.Progressibility, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<double>, double>(src => src.Progressibility)))
             .ForMember(dest => dest.Safety, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<double>, double>(src => src.Safety)))
+            .ForMember(dest => dest.Background, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Background)))
+            .ForMember(dest => dest.Enablement, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Enablement)))
+            .ForMember(dest => dest.Strategy, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Strategy)))
+            .ForMember(dest => dest.Challenges, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Challenges)))
 
             .ReverseMap();
 
