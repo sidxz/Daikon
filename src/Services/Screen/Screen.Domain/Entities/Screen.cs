@@ -10,7 +10,7 @@ namespace Screen.Domain.Entities
         public required string Name { get; set; }
         public Dictionary<string, string>? AssociatedTargets { get; set; }
         public string? ScreenType { get; set; }
-        public string? Method { get; set; }
+        public DVariable<string>? Method { get; set; }
         public DVariable<string>? Status { get; set; }
         public DateTime? LastStatusChangedDate { get; set; }
         public DVariable<string>? Notes { get; set; }

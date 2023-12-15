@@ -13,6 +13,6 @@ namespace Screen.Domain.Entities
         public DVariable<bool> VotedNegative { get; set; }
         public DVariable<DateTime> VotedOn { get; set; }
         public DVariable<DateTime> UpdatedOn { get; set; }
-        public DVariable<string> Comment { get; set; }
+        public DVariable<string>? Comment { get; set; }
     }
 }
