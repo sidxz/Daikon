@@ -66,18 +66,10 @@ namespace Gene.Application.Features.Command.NewGene
             }
 
             var gene = _mapper.Map<Domain.Entities.Gene>(request);
+            
+            // Ensure Strain Id is set
+            gene.StrainId = strain.Id;
 
-
-            // var gene = new Domain.Entities.Gene
-            // {
-            //     Id = request.Id,
-            //     StrainId = strain.Id,
-            //     AccessionNumber = request.AccessionNumber,
-            //     Name = request.Name,
-            //     Function = request.Function,
-            //     Product = request.Product,
-            //     FunctionalCategory = request.FunctionalCategory
-            // };
 
             var aggregate = new GeneAggregate(gene);
             await _eventSourcingHandler.SaveAsync(aggregate);

@@ -45,9 +45,12 @@ namespace Horizon.Infrastructure.Query.Consumers
     public class EventConsumer : IEventConsumer
     {
         private readonly ConsumerConfig _config;
-        private readonly IGeneEventHandler _eventHandler;
+        private readonly IGeneEventHandler _geneEventHandler;
+        private readonly ITargetEventHandler _targetEventHandler;
         private readonly ILogger<EventConsumer> _logger;
-        public EventConsumer(IConfiguration configuration, IGeneEventHandler eventHandler, ILogger<EventConsumer> logger)
+
+        public EventConsumer(IConfiguration configuration, IGeneEventHandler eventHandler, ITargetEventHandler targetEventHandler,
+                     ILogger<EventConsumer> logger)
         {
             _config = new ConsumerConfig
             {
@@ -58,12 +61,18 @@ namespace Horizon.Infrastructure.Query.Consumers
                 AllowAutoCreateTopics = configuration.GetValue<bool>("KafkaConsumerSettings:AllowAutoCreateTopics")
             };
 
-            _eventHandler = eventHandler;
+            _geneEventHandler = eventHandler;
+            _targetEventHandler = targetEventHandler;
             _logger = logger;
         }
 
-
         public void Consume(string topic)
+        {
+            Consume(new[] { topic });
+        }
+
+
+        public void Consume(IEnumerable<string> topics)
         {
             while (true)
             {
@@ -74,7 +83,7 @@ namespace Horizon.Infrastructure.Query.Consumers
                     .SetValueDeserializer(Deserializers.Utf8)
                     .Build();
 
-                    consumer.Subscribe(topic);
+                    consumer.Subscribe(topics);
                     while (true)
                     {
                         var consumeResult = consumer.Consume();
@@ -106,27 +115,50 @@ namespace Horizon.Infrastructure.Query.Consumers
                             throw new EventConsumeException(nameof(EventConsumer), $"Error deserializing event: {consumeResult.Message.Value}", ex);
                         }
                         
-
-                        var handlerMethod = _eventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
-
-                        if (handlerMethod == null)
+                        // 1st check if the event is a Gene event
+                        var geneHandlerMethod = _geneEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (geneHandlerMethod != null)
                         {
-                            _logger.LogError("Handler method not found {name}", nameof(handlerMethod));
-                            throw new ArgumentNullException(nameof(handlerMethod), "Handler method not found");
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", geneHandlerMethod.Name, @event.ToJson());
+                                geneHandlerMethod.Invoke(_geneEventHandler, new object[] { @event });
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(geneHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            consumer.Commit(consumeResult);
+                            continue;
                         }
 
-                        try
+                        // 2nd check if the event is a Target event
+                        var targetHandlerMethod = _targetEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (targetHandlerMethod != null)
                         {
-                            _logger.LogDebug("Invoking {handlerMethod} with {@event}", handlerMethod.Name, @event.ToJson());
-                            handlerMethod.Invoke(_eventHandler, new object[] { @event });
-                        }
-                        catch (EventHandlerException ex)
-                        {
-                            _logger.LogError(ex, "EventHandlerException while Invoking {ExceptionMessage}", @event.ToJson());
-                            throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", targetHandlerMethod.Name, @event.ToJson());
+                                targetHandlerMethod.Invoke(_targetEventHandler, new object[] { @event });
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(targetHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            consumer.Commit(consumeResult);
+                            continue;
                         }
 
-                        consumer.Commit(consumeResult);
+
+                        // check if no handler method was found, throw an exception
+                        if (geneHandlerMethod == null && targetHandlerMethod == null)
+                        {
+                            _logger.LogError("Horizon Event is registered but no handler method found");
+                            throw new ArgumentNullException(nameof(EventConsumer), "Handler method not found");
+                        }
+                        
                     }
                 }
                 catch (ConsumeException e)
