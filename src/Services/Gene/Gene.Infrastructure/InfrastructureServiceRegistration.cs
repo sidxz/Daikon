@@ -49,7 +49,30 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneProteinProductionAddedEvent>();
             BsonClassMap.RegisterClassMap<GeneProteinProductionUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneProteinProductionDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneProteinActivityAssayAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneProteinActivityAssayUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneProteinActivityAssayDeletedEvent>();
             
+            BsonClassMap.RegisterClassMap<GeneHypomorphAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneHypomorphUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneHypomorphDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneCrispriStrainAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneCrispriStrainUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneCrispriStrainDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneResistanceMutationAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneResistanceMutationUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneResistanceMutationDeletedEvent>();
+            
+            BsonClassMap.RegisterClassMap<GeneVulnerabilityAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneVulnerabilityUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneVulnerabilityDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationDeletedEvent>();
 
 
             /* Event Database */
@@ -90,6 +113,18 @@ namespace Gene.Infrastructure
 
             services.AddScoped<IGeneProteinProductionRepository, GeneProteinProductionRepository>();
 
+            services.AddScoped<IGeneProteinActivityAssayRepository, GeneProteinActivityAssayRepository>();
+
+            services.AddScoped<IGeneHypomorphRepository, GeneHypomorphRepository>();
+
+            services.AddScoped<IGeneCrispriStrainRepository, GeneCrispriStrainRepository>();
+
+            services.AddScoped<IGeneResistanceMutationRepository, GeneResistanceMutationRepository>();
+
+            services.AddScoped<IGeneVulnerabilityRepository, GeneVulnerabilityRepository>();
+
+            services.AddScoped<IGeneUnpublishedStructuralInformationRepository, GeneUnpublishedStructuralInformationRepository>();
+
 
             /* Version Store */
 
@@ -127,7 +162,71 @@ namespace Gene.Infrastructure
             services.AddScoped<IVersionStoreRepository<ProteinProductionRevision>, VersionStoreRepository<ProteinProductionRevision>>();
             services.AddScoped<IVersionHub<ProteinProductionRevision>, VersionHub<ProteinProductionRevision>>();
 
+            var proteinActivityAssayVersionStoreSettings = new VersionDatabaseSettings<ProteinActivityAssayRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ProteinActivityAssayRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ProteinActivityAssayRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:ProteinActivityAssayRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "ProteinActivityAssay"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<ProteinActivityAssayRevision>>(proteinActivityAssayVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<ProteinActivityAssayRevision>, VersionStoreRepository<ProteinActivityAssayRevision>>();
+            services.AddScoped<IVersionHub<ProteinActivityAssayRevision>, VersionHub<ProteinActivityAssayRevision>>();
 
+            var hypomorphVersionStoreSettings = new VersionDatabaseSettings<HypomorphRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HypomorphRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HypomorphRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:HypomorphRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "Hypomorph"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<HypomorphRevision>>(hypomorphVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<HypomorphRevision>, VersionStoreRepository<HypomorphRevision>>();
+            services.AddScoped<IVersionHub<HypomorphRevision>, VersionHub<HypomorphRevision>>();
+
+            var crispriStrainVersionStoreSettings = new VersionDatabaseSettings<CrispriStrainRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<CrispriStrainRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<CrispriStrainRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:CrispriStrainRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "CrispriStrain"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<CrispriStrainRevision>>(crispriStrainVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<CrispriStrainRevision>, VersionStoreRepository<CrispriStrainRevision>>();
+            services.AddScoped<IVersionHub<CrispriStrainRevision>, VersionHub<CrispriStrainRevision>>();
+
+            var resistanceMutationVersionStoreSettings = new VersionDatabaseSettings<ResistanceMutationRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ResistanceMutationRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ResistanceMutationRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:ResistanceMutationRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "ResistanceMutation"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<ResistanceMutationRevision>>(resistanceMutationVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<ResistanceMutationRevision>, VersionStoreRepository<ResistanceMutationRevision>>();
+            services.AddScoped<IVersionHub<ResistanceMutationRevision>, VersionHub<ResistanceMutationRevision>>();
+
+            var vulnerabilityVersionStoreSettings = new VersionDatabaseSettings<VulnerabilityRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<VulnerabilityRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<VulnerabilityRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:VulnerabilityRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "Vulnerability"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<VulnerabilityRevision>>(vulnerabilityVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<VulnerabilityRevision>, VersionStoreRepository<VulnerabilityRevision>>();
+            services.AddScoped<IVersionHub<VulnerabilityRevision>, VersionHub<VulnerabilityRevision>>();
+
+            var unpublishedStructuralInformationVersionStoreSettings = new VersionDatabaseSettings<UnpublishedStructuralInformationRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<UnpublishedStructuralInformationRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<UnpublishedStructuralInformationRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:UnpublishedStructuralInformationRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "UnpublishedStructuralInformation"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<UnpublishedStructuralInformationRevision>>(unpublishedStructuralInformationVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<UnpublishedStructuralInformationRevision>, VersionStoreRepository<UnpublishedStructuralInformationRevision>>();
+            services.AddScoped<IVersionHub<UnpublishedStructuralInformationRevision>, VersionHub<UnpublishedStructuralInformationRevision>>();
 
 
             /* Consumers */

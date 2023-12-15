@@ -13,6 +13,14 @@ namespace Gene.Application.Features.Queries.GetGene
 
         public List<GeneEssentialityVM> Essentialities { get; set; }
         public List<GeneProteinProductionVM> ProteinProductions { get; set; }
+        public List<GeneProteinActivityAssayVM> ProteinActivityAssays { get; set; }
+        public List<GeneHypomorphVM> Hypomorphs { get; set; }
+        public List<GeneCrispriStrainVM> CrispriStrains { get; set; }
+        public List<GeneResistanceMutationVM> ResistanceMutations { get; set; }
+
+        public List<GeneVulnerabilityVM> Vulnerabilities { get; set; }
+
+        public List<GeneUnpublishedStructuralInformationVM> UnpublishedStructuralInformations { get; set; }
 
     }
 }
