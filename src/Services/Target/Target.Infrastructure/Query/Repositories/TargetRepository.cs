@@ -20,7 +20,8 @@ namespace Target.Infrastructure.Query.Repositories
             var client = new MongoClient(configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName"));
             _targetCollection = database.GetCollection<Domain.Entities.Target>(configuration.GetValue<string>("TargetMongoDbSettings:TargetCollectionName"));
-            _targetCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Target>(Builders<Domain.Entities.Target>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = true }));
+            _targetCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Target>(Builders<Domain.Entities.Target>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
+            _targetCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Target>(Builders<Domain.Entities.Target>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 

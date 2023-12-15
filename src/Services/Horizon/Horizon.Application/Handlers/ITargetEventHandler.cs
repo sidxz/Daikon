@@ -7,6 +7,7 @@ namespace Horizon.Application.Query.Handlers
     {
         Task OnEvent(TargetCreatedEvent @event);
         Task OnEvent(TargetUpdatedEvent @event);
+        Task OnEvent(TargetAssociatedGenesUpdatedEvent @event);
         Task OnEvent(TargetDeletedEvent @event);
         
     }

@@ -8,19 +8,19 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using CQRS.Core.Comparators;
 
-namespace Target.Application.Features.Command.UpdateTarget
+namespace Target.Application.Features.Command.UpdateTargetAssociatedGenes
 {
-    public class UpdateTargetCommandHandler : IRequestHandler<UpdateTargetCommand, Unit>
+    public class UpdateTargetAssociatedGenesCommandHandler : IRequestHandler<UpdateTargetAssociatedGenesCommand, Unit>
     {
 
-        private readonly ILogger<UpdateTargetCommandHandler> _logger;
+        private readonly ILogger<UpdateTargetAssociatedGenesCommandHandler> _logger;
         private readonly IMapper _mapper;
 
         private readonly IEventSourcingHandler<TargetAggregate> _eventSourcingHandler;
         private readonly ITargetRepository _targetRepository;
 
 
-        public UpdateTargetCommandHandler(ILogger<UpdateTargetCommandHandler> logger, IEventSourcingHandler<TargetAggregate> eventSourcingHandler,
+        public UpdateTargetAssociatedGenesCommandHandler(ILogger<UpdateTargetAssociatedGenesCommandHandler> logger, IEventSourcingHandler<TargetAggregate> eventSourcingHandler,
                                         ITargetRepository targetRepository, IMapper mapper)
         {
             _logger = logger;
@@ -29,31 +29,22 @@ namespace Target.Application.Features.Command.UpdateTarget
             _targetRepository = targetRepository;
         }
 
-        public async Task<Unit> Handle(UpdateTargetCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateTargetAssociatedGenesCommand request, CancellationToken cancellationToken)
         {
 
             // check if name is modified; reject if it is
-            var existingTarget = await _targetRepository.ReadTargetById(request.Id);
-            if (existingTarget.Name != request.Name)
-            {
-                throw new InvalidOperationException("Name cannot be modified");
-            }
-
+            var target = await _targetRepository.ReadTargetById(request.Id);
+            
             // check if associated genes have been modified; reject if they have, perform a deep comparison
-            if (!existingTarget.AssociatedGenes.DictionaryEqual(request.AssociatedGenes))
+            if (target.AssociatedGenes.DictionaryEqual(request.AssociatedGenes))
             {
-                throw new InvalidOperationException("Associated genes cannot be modified using this command. Please use the UpdateTargetAssociatedGenesCommand");
+                throw new InvalidOperationException("No changes to associated genes detected.");
             }
 
-
-            var target = _mapper.Map<Domain.Entities.Target>(request);
-
-            // Things that cannot be modified
-            target.Name = existingTarget.Name;
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateTarget(target, _mapper);
+                aggregate.UpdateTargetAssociatedGenes(request.AssociatedGenes, _mapper);
 
                 await _eventSourcingHandler.SaveAsync(aggregate);
             }

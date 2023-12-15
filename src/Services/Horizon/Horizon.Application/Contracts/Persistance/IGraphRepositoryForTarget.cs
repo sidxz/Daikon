@@ -8,6 +8,7 @@ namespace Horizon.Application.Contracts.Persistance
         Task CreateIndexesAsync();
         Task AddTargetToGraph(Target target);
         Task UpdateTargetOfGraph(Target target);
+        Task UpdateAssociatedGenesOfTarget(Target target);
         Task DeleteTargetFromGraph(string targetId);
     }
 }

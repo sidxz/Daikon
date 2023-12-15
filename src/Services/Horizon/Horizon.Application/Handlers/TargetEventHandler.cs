@@ -1,5 +1,4 @@
 
-
 using CQRS.Core.Exceptions;
 using Daikon.Events.Targets;
 using Horizon.Application.Contracts.Persistance;
@@ -31,14 +30,15 @@ namespace Horizon.Application.Query.Handlers
                 GeneAccessionNumbers = @event.AssociatedGenes.Values.ToList(),
                 TargetType = @event.TargetType,
                 Bucket = @event.Bucket,
-                
+
                 DateCreated = DateTime.UtcNow,
                 IsModified = false,
                 IsDraft = false
             };
 
-            try {
-                 await _graphRepository.AddTargetToGraph(target);
+            try
+            {
+                await _graphRepository.AddTargetToGraph(target);
             }
             catch (RepositoryException ex)
             {
@@ -46,46 +46,60 @@ namespace Horizon.Application.Query.Handlers
             }
         }
 
-        public Task OnEvent(TargetUpdatedEvent @event)
+        public async Task OnEvent(TargetUpdatedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation($"Horizon: TargetUpdatedEvent: {@event.Id} {@event.Name}");
+            var target = new Target
+            {
+                TargetId = @event.Id.ToString(),
+                StrainId = @event.StrainId.ToString(),
+
+                Name = @event.Name,
+                GeneAccessionNumbers = @event.AssociatedGenes.Values.ToList(),
+                TargetType = @event.TargetType,
+                Bucket = @event.Bucket,
+
+                DateCreated = DateTime.UtcNow,
+                IsModified = true,
+                IsDraft = false
+            };
+
+            try
+            {
+                await _graphRepository.UpdateTargetOfGraph(target);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "TargetUpdatedEvent Error updating target", ex);
+            }
+        }
+
+        public async Task OnEvent(TargetAssociatedGenesUpdatedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: TargetAssociatedGenesUpdatedEvent: {@event.Id} {@event.Name}");
+            var target = new Target
+            {
+                TargetId = @event.Id.ToString(),
+                Name = @event.Name,
+                GeneAccessionNumbers = @event.AssociatedGenes.Values.ToList(),
+                IsModified = true,
+                IsDraft = false
+            };
+            try
+            {
+                await _graphRepository.UpdateAssociatedGenesOfTarget(target);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "TargetAssociatedGenesUpdatedEvent Error updating target", ex);
+            }
         }
 
         public Task OnEvent(TargetDeletedEvent @event)
         {
+            _logger.LogInformation($"Horizon: TargetDeletedEvent: {@event.Id} {@event.Name}");
             throw new NotImplementedException();
         }
-
-
-        // public async Task OnEvent(GeneUpdatedEvent @event)
-        // {
-        //     _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id} {@event.AccessionNumber}");
-        //      var gene = new Gene
-        //     {
-        //         GeneId = @event.Id.ToString(),
-        //         StrainId = @event.StrainId.ToString(),
-
-        //         Name = @event.Name,
-        //         AccessionNumber = @event.AccessionNumber,
-        //         Function = @event.Function,
-        //         Product = @event.Product,
-        //         FunctionalCategory = @event.FunctionalCategory,
-
-        //         DateCreated = DateTime.UtcNow,
-        //         IsModified = true,
-        //         IsDraft = false
-        //     };
-
-        //     try {
-        //          await _graphRepository.UpdateGeneOfGraph(gene);
-        //     }
-        //     catch (RepositoryException ex)
-        //     {
-        //         throw new EventHandlerException(nameof(EventHandler), "GeneCreatedEvent Error creating gene", ex);
-        //     }
-
-        // }
-
 
 
 

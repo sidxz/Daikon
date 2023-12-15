@@ -63,8 +63,33 @@ namespace Target.Application.EventHandlers
             {
                 throw new EventHandlerException(nameof(EventHandler), $"TargetUpdatedEvent Error updating target {@event.Id}", ex);
             }
-
         }
+
+
+        public async Task OnEvent(TargetAssociatedGenesUpdatedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: TargetAssociatedGenesUpdatedEvent: {Id}", @event.Id);
+            var target = await _targetRepository.ReadTargetById(@event.Id);
+
+            if (target == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetUpdatedEvent Error updating target {@event.Id}", new Exception("Target not found"));
+            }
+
+            target.AssociatedGenes = @event.AssociatedGenes;
+            target.IsModified = true;
+
+            try
+            {
+                await _targetRepository.UpdateTarget(target);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetUpdatedEvent Error updating target {@event.Id}", ex);
+            }
+        }
+
+
 
         public async Task OnEvent(TargetDeletedEvent @event)
         {

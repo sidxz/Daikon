@@ -1,21 +1,20 @@
 
 using FluentValidation;
-namespace Target.Application.Features.Command.NewTarget
+
+namespace Target.Application.Features.Command.UpdateTargetAssociatedGenes
 {
-    public class NewTargetCommandValidator : AbstractValidator<NewTargetCommand>
+    public class UpdateTargetAssociatedGenesCommandValidator : AbstractValidator<UpdateTargetAssociatedGenesCommand>
     {
-        public NewTargetCommandValidator()
+        public UpdateTargetAssociatedGenesCommandValidator()
         {
             
-            RuleFor(t => t.Name)
-            .NotEmpty().WithMessage("{Name} is required")
-            .NotNull();
-
             RuleFor(t => t.AssociatedGenes)
                .Must(BeValidGuidKeyDictionary)
                .WithMessage("Each key in AssociatedGenes must be a valid GUID.");
-
+        
         }
+
+
         private bool BeValidGuidKeyDictionary(Dictionary<string, string>? dictionary)
         {
             if (dictionary == null) return true; // Assuming null is valid. If not, return false.

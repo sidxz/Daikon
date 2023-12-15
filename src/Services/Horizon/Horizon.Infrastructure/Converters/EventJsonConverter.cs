@@ -43,6 +43,7 @@ namespace Horizon.Infrastructure.Query.Converters
                 "TargetCreatedEvent" => JsonSerializer.Deserialize<TargetCreatedEvent>(json, options),
                 "TargetUpdatedEvent" => JsonSerializer.Deserialize<TargetUpdatedEvent>(json, options),
                 "TargetDeletedEvent" => JsonSerializer.Deserialize<TargetDeletedEvent>(json, options),
+                "TargetAssociatedGenesUpdatedEvent" => JsonSerializer.Deserialize<TargetAssociatedGenesUpdatedEvent>(json, options),
                 
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };

@@ -35,6 +35,7 @@ namespace Target.Infrastructure.Query.Converters
                 "TargetCreatedEvent" => JsonSerializer.Deserialize<TargetCreatedEvent>(json, options),
                 "TargetUpdatedEvent" => JsonSerializer.Deserialize<TargetUpdatedEvent>(json, options),
                 "TargetDeletedEvent" => JsonSerializer.Deserialize<TargetDeletedEvent>(json, options),
+                "TargetAssociatedGenesUpdatedEvent" => JsonSerializer.Deserialize<TargetAssociatedGenesUpdatedEvent>(json, options),
 
                 
                 _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
