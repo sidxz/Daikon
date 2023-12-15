@@ -23,5 +23,11 @@ namespace Target.Application.Features.Queries.GetTarget
         public object Progressibility { get; set; }
         public object Safety { get; set; }
 
+        public object Background { get; set; }
+        public object Enablement { get; set; }
+        public object Strategy { get; set; }
+        public object Challenges { get; set; }
+        
+
     }
 }
