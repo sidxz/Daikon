@@ -17,5 +17,31 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneProteinProductionUpdatedEvent @event);
         Task OnEvent(GeneProteinProductionDeletedEvent @event);
         
+        Task OnEvent(GeneProteinActivityAssayAddedEvent @event);
+        Task OnEvent(GeneProteinActivityAssayUpdatedEvent @event);
+        Task OnEvent(GeneProteinActivityAssayDeletedEvent @event);
+
+        Task OnEvent(GeneHypomorphAddedEvent @event);
+        Task OnEvent(GeneHypomorphUpdatedEvent @event);
+        Task OnEvent(GeneHypomorphDeletedEvent @event);
+
+        Task OnEvent(GeneCrispriStrainAddedEvent @event);
+        Task OnEvent(GeneCrispriStrainUpdatedEvent @event);
+        Task OnEvent(GeneCrispriStrainDeletedEvent @event);
+        
+        Task OnEvent(GeneResistanceMutationAddedEvent @event);
+        Task OnEvent(GeneResistanceMutationUpdatedEvent @event);
+        Task OnEvent(GeneResistanceMutationDeletedEvent @event);
+
+        Task OnEvent(GeneVulnerabilityAddedEvent @event);
+        Task OnEvent(GeneVulnerabilityUpdatedEvent @event);
+        Task OnEvent(GeneVulnerabilityDeletedEvent @event);
+
+        Task OnEvent(GeneUnpublishedStructuralInformationAddedEvent @event);
+        Task OnEvent(GeneUnpublishedStructuralInformationUpdatedEvent @event);
+        Task OnEvent(GeneUnpublishedStructuralInformationDeletedEvent @event);
+        
+        
+        
     }
 }

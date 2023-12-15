@@ -62,12 +62,12 @@ namespace Gene.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _proteinProductionCollection.Find(essential => true).ToListAsync();
+                return await _proteinProductionCollection.Find(proteinProduction => true).ToListAsync();
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while getting the essential list");
-                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error getting essential list", ex);
+                _logger.LogError(ex, "An error occurred while getting the proteinProduction list");
+                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error getting proteinProduction list", ex);
             }
 
         }

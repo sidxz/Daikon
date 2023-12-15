@@ -39,7 +39,7 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneEssentialityUpdatedEvent: {EssentialityId}", @event.EssentialityId);
 
-            var essentiality = _geneEssentialityRepository.Read(@event.EssentialityId).Result;
+            var essentiality = await _geneEssentialityRepository.Read(@event.EssentialityId);
 
             essentiality.Classification = @event.Classification;
             essentiality.Condition = @event.Condition;

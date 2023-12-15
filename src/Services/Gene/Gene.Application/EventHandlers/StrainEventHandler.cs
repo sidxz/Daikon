@@ -38,7 +38,7 @@ namespace Gene.Application.Query.EventHandlers
 
         public async Task OnEvent(StrainUpdatedEvent @event)
         {
-            var strain = _strainRepository.ReadStrainById(@event.Id).Result;
+            var strain = await _strainRepository.ReadStrainById(@event.Id);
 
             strain.Name = @event.Name;
             strain.Organism = @event.Organism;
@@ -58,7 +58,7 @@ namespace Gene.Application.Query.EventHandlers
 
         public async Task OnEvent(StrainDeletedEvent @event)
         {
-            var strain = _strainRepository.ReadStrainById(@event.Id).Result;
+            var strain = await _strainRepository.ReadStrainById(@event.Id);
 
             try
             {

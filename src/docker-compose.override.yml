@@ -20,12 +20,24 @@ services:
       - "GeneMongoDbSettings:StrainCollectionName=Strains"
       - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
       - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
-
+      - "GeneMongoDbSettings:GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
+      - "GeneMongoDbSettings:GeneHypomorphCollectionName=Hypomorphs"
+      - "GeneMongoDbSettings:GeneCrispriStrainCollectionName=CrispriStrains"
+      - "GeneMongoDbSettings:GeneResistanceMutationCollectionName=ResistanceMutations"
+      - "GeneMongoDbSettings:GeneVulnerabilityCollectionName=Vulnerabilities"
+      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
+      
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
       - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
       - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
-
+      - "GeneMongoDbSettings:GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
+      - "GeneMongoDbSettings:GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
+      - "GeneMongoDbSettings:GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
+      - "GeneMongoDbSettings:GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
+      - "GeneMongoDbSettings:GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
+      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
+      
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       - "KafkaConsumerSettings:Topic=genes"
       - "KafkaConsumerSettings:GroupId=gene-consumer-group"

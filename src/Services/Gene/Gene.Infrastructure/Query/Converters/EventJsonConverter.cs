@@ -51,6 +51,32 @@ namespace Gene.Infrastructure.Query.Converters
                 "GeneProteinProductionAddedEvent" => JsonSerializer.Deserialize<GeneProteinProductionAddedEvent>(json, options),
                 "GeneProteinProductionUpdatedEvent" => JsonSerializer.Deserialize<GeneProteinProductionUpdatedEvent>(json, options),
                 "GeneProteinProductionDeletedEvent" => JsonSerializer.Deserialize<GeneProteinProductionDeletedEvent>(json, options),
+
+                "GeneProteinActivityAssayAddedEvent" => JsonSerializer.Deserialize<GeneProteinActivityAssayAddedEvent>(json, options),
+                "GeneProteinActivityAssayUpdatedEvent" => JsonSerializer.Deserialize<GeneProteinActivityAssayUpdatedEvent>(json, options),
+                "GeneProteinActivityAssayDeletedEvent" => JsonSerializer.Deserialize<GeneProteinActivityAssayDeletedEvent>(json, options),
+
+                "GeneHypomorphAddedEvent" => JsonSerializer.Deserialize<GeneHypomorphAddedEvent>(json, options),
+                "GeneHypomorphUpdatedEvent" => JsonSerializer.Deserialize<GeneHypomorphUpdatedEvent>(json, options),
+                "GeneHypomorphDeletedEvent" => JsonSerializer.Deserialize<GeneHypomorphDeletedEvent>(json, options),
+
+                "GeneCrispriStrainAddedEvent" => JsonSerializer.Deserialize<GeneCrispriStrainAddedEvent>(json, options),
+                "GeneCrispriStrainUpdatedEvent" => JsonSerializer.Deserialize<GeneCrispriStrainUpdatedEvent>(json, options),
+                "GeneCrispriStrainDeletedEvent" => JsonSerializer.Deserialize<GeneCrispriStrainDeletedEvent>(json, options),
+
+                "GeneResistanceMutationAddedEvent" => JsonSerializer.Deserialize<GeneResistanceMutationAddedEvent>(json, options),
+                "GeneResistanceMutationUpdatedEvent" => JsonSerializer.Deserialize<GeneResistanceMutationUpdatedEvent>(json, options),
+                "GeneResistanceMutationDeletedEvent" => JsonSerializer.Deserialize<GeneResistanceMutationDeletedEvent>(json, options),
+
+                "GeneVulnerabilityAddedEvent" => JsonSerializer.Deserialize<GeneVulnerabilityAddedEvent>(json, options),
+                "GeneVulnerabilityUpdatedEvent" => JsonSerializer.Deserialize<GeneVulnerabilityUpdatedEvent>(json, options),
+                "GeneVulnerabilityDeletedEvent" => JsonSerializer.Deserialize<GeneVulnerabilityDeletedEvent>(json, options),
+
+                "GeneUnpublishedStructuralInformationAddedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationAddedEvent>(json, options),
+                "GeneUnpublishedStructuralInformationUpdatedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationUpdatedEvent>(json, options),
+                "GeneUnpublishedStructuralInformationDeletedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationDeletedEvent>(json, options),
+
+
                 
                 _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
             };
