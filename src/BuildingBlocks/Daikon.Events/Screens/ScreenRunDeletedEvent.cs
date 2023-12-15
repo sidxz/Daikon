@@ -9,5 +9,7 @@ namespace Daikon.Events.Screens
         {
 
         }
+
+        public string Library { get; set; }
     }
 }

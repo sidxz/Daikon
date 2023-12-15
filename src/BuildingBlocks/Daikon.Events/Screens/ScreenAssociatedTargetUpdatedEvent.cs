@@ -9,5 +9,9 @@ namespace Daikon.Events.Screens
         {
             
         }
+
+
+        public required string Name { get; set; }
+        public Dictionary<string, string>? AssociatedTargets { get; set; }
     }
 }
