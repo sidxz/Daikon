@@ -3,15 +3,16 @@ using CQRS.Core.Event;
 
 namespace Daikon.Events.Screens
 {
-    public class HitCreatedEvent : BaseEvent
+    public class HitCollectionCreatedEvent : BaseEvent
     {
-        public HitCreatedEvent() : base(nameof(HitCreatedEvent))
+        public HitCollectionCreatedEvent() : base(nameof(HitCollectionCreatedEvent))
         {
             
         }
+        public Guid HitCollectionId { get; set; }
         public Guid ScreenId { get; set; }
-        public string? Name { get; set; }
-        public required string Type { get; set; }
+        public required string Name { get; set; }
+        public required string HitCollectionType { get; set; }
         public DVariable<string>? Notes { get; set; }
         public DVariable<string>? Owner { get; set; }
     }

@@ -9,6 +9,8 @@ namespace Daikon.Events.Screens
         {
 
         }
-        public string Type { get; set; }
+        public Guid ScreenId { get; set; }
+        public Guid HitCollectionId { get; set; }
+        public string Name { get; set; }
     }
 }

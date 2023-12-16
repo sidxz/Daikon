@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Screen.Application.Contracts.Persistence
 {
-    public class IScreenRepository
+    public interface IScreenRepository
     {
-        
+        Task<Domain.Entities.Screen> ReadScreenByName(string name);
+        Task<Domain.Entities.Screen> ReadScreenById(Guid id);
     }
 }
