@@ -8,7 +8,7 @@ namespace Screen.Application.Contracts.Persistence
         Task<Domain.Entities.HitCollection> ReadHitCollectionById(Guid id);
 
         Task<List<Domain.Entities.HitCollection>> GetHitCollectionsList();
-        Task<List<Domain.Entities.HitCollection>> GetHitCollectionsListByStrainId(Guid strainId);
+        Task<List<Domain.Entities.HitCollection>> GetHitCollectionsListByScreenId(Guid screenId);
         Task UpdateHitCollection(Domain.Entities.HitCollection screen);
         Task DeleteHitCollection(Domain.Entities.HitCollection screen);
         Task<Domain.EntityRevisions.HitCollectionRevision> GetHitCollectionRevisions(Guid Id);
