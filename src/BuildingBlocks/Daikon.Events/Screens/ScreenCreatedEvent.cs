@@ -3,9 +3,9 @@ using CQRS.Core.Event;
 
 namespace Daikon.Events.Screens
 {
-    public class ScreenRunCreatedEvent : BaseEvent
+    public class ScreenCreatedEvent : BaseEvent
     {
-        public ScreenRunCreatedEvent() : base(nameof(ScreenRunCreatedEvent))
+        public ScreenCreatedEvent() : base(nameof(ScreenCreatedEvent))
         {
             
         }

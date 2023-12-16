@@ -6,6 +6,7 @@ namespace Screen.Domain.Entities
     public class ScreenRun : BaseEntity
     {
         public Guid ScreenId { get; set; }
+        public Guid ScreenRunId { get; set; }
         
         public DVariable<string> Library { get; set; }
         public DVariable<string>? Protocol { get; set; }

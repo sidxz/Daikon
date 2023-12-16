@@ -12,7 +12,8 @@ namespace Daikon.Events.Screens
         }
 
         public Guid HitCollectionId { get; set; }
-        public DVariable<string>? Library { get; set; }
+        public Guid HitId { get; set; }
+        public DVariable<string>? LibrarySource { get; set; }
         public DVariable<string>? Source { get; set; }
         public DVariable<string>? Method { get; set; }
         public DVariable<string>? MIC { get; set; }

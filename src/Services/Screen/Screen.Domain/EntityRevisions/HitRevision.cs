@@ -6,7 +6,7 @@ namespace Screen.Domain.EntityRevisions
     public class HitRevision : BaseVersionEntity
     {
         public DVariableHistory<string>? Library { get; set; }
-        public DVariableHistory<string>? Source { get; set; }
+        public DVariableHistory<string>? LibrarySource { get; set; }
         public DVariableHistory<string>? Method { get; set; }
         public DVariableHistory<string>? MIC { get; set; }
         public DVariableHistory<string>? MICUnit { get; set; }

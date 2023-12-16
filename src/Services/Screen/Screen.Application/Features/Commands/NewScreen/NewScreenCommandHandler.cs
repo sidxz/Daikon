@@ -1,12 +1,54 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using AutoMapper;
+using CQRS.Core.Handlers;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using Screen.Application.Contracts.Persistence;
+using Screen.Domain.Aggregates;
 
 namespace Screen.Application.Features.Commands.NewScreen
 {
-    public class NewScreenCommandHandler
+    public class NewScreenCommandHandler : IRequestHandler<NewScreenCommand, Unit>
     {
-        
+
+        private readonly IMapper _mapper;
+        private readonly ILogger<NewScreenCommandHandler> _logger;
+        private readonly IScreenRepository _screenRepository;
+
+        private readonly IEventSourcingHandler<ScreenAggregate> _screenEventSourcingHandler;
+
+
+        public NewScreenCommandHandler(ILogger<NewScreenCommandHandler> logger, 
+            IEventSourcingHandler<ScreenAggregate> screenEventSourcingHandler,
+            IScreenRepository screenRepository,
+            IMapper mapper)
+        {
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _screenRepository = screenRepository ?? throw new ArgumentNullException(nameof(screenRepository));
+            _screenEventSourcingHandler = screenEventSourcingHandler ?? throw new ArgumentNullException(nameof(screenEventSourcingHandler));
+          
+        }
+
+
+        public async Task<Unit> Handle(NewScreenCommand request, CancellationToken cancellationToken)
+        {
+           
+            // check if name exists
+            var existingScreen = await _screenRepository.ReadScreenByName(request.Name);
+            if (existingScreen != null)
+            {
+                throw new InvalidOperationException("Screen name already exists");
+            }
+            
+
+            var newScreen = _mapper.Map<Domain.Entities.Screen>(request);
+            var aggregate = new ScreenAggregate(newScreen, _mapper);
+            await _screenEventSourcingHandler.SaveAsync(aggregate);
+
+            return Unit.Value;
+
+        }
     }
+
 }
