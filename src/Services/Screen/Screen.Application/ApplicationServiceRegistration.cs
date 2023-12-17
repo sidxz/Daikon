@@ -2,6 +2,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Screen.Application.EventHandlers;
 using Screen.Application.Features.Commands.NewScreen;
 using Screen.Application.Mappings;
 
@@ -20,7 +21,7 @@ namespace Screen.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-            //services.AddScoped<IGeneEventHandler, GeneEventHandler>();
+            services.AddScoped<IScreenEventHandler, ScreenEventHandler>();
             //services.AddScoped<IStrainEventHandler, StrainEventHandler>();
 
             return services;

@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CQRS.Core.Event;
+using CQRS.Core.Exceptions;
 using Daikon.Events.Targets;
 
 namespace Target.Infrastructure.Query.Converters
@@ -38,7 +39,7 @@ namespace Target.Infrastructure.Query.Converters
                 "TargetAssociatedGenesUpdatedEvent" => JsonSerializer.Deserialize<TargetAssociatedGenesUpdatedEvent>(json, options),
 
                 
-                _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
+                _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };
         }
 

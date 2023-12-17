@@ -2,11 +2,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CQRS.Core.Event;
+using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
 
 namespace Screen.Infrastructure.Query.Converters
 {
-        public class EventJSONConverter : JsonConverter<BaseEvent>
+    public class EventJSONConverter : JsonConverter<BaseEvent>
     {
         public override bool CanConvert(Type typeToConvert)
         {
@@ -35,10 +36,20 @@ namespace Screen.Infrastructure.Query.Converters
                 "ScreenCreatedEvent" => JsonSerializer.Deserialize<ScreenCreatedEvent>(json, options),
                 "ScreenUpdatedEvent" => JsonSerializer.Deserialize<ScreenUpdatedEvent>(json, options),
                 "ScreenDeletedEvent" => JsonSerializer.Deserialize<ScreenDeletedEvent>(json, options),
-               
+                "ScreenRunCreatedEvent" => JsonSerializer.Deserialize<ScreenRunCreatedEvent>(json, options),
+                "ScreenRunUpdatedEvent" => JsonSerializer.Deserialize<ScreenRunUpdatedEvent>(json, options),
+                "ScreenRunDeletedEvent" => JsonSerializer.Deserialize<ScreenRunDeletedEvent>(json, options),
+                "HitCollectionCreatedEvent" => JsonSerializer.Deserialize<HitCollectionCreatedEvent>(json, options),
+                "HitCollectionUpdatedEvent" => JsonSerializer.Deserialize<HitCollectionUpdatedEvent>(json, options),
+                "HitCollectionDeletedEvent" => JsonSerializer.Deserialize<HitCollectionDeletedEvent>(json, options),
+                "HitAddedEvent" => JsonSerializer.Deserialize<HitAddedEvent>(json, options),
+                "HitUpdatedEvent" => JsonSerializer.Deserialize<HitUpdatedEvent>(json, options),
+                "HitDeletedEvent" => JsonSerializer.Deserialize<HitDeletedEvent>(json, options),
 
-                
-                _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
+
+
+
+                _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };
         }
 

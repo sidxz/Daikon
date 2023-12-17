@@ -1,12 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using FluentValidation;
 
 namespace Screen.Application.Features.Commands.UpdateHit
 {
-    public class UpdateHitCommandValidator
+    public class UpdateHitCommandValidator : AbstractValidator<UpdateHitCommand>
     {
-        
+        public UpdateHitCommandValidator()
+        {
+            RuleFor(t => t.HitCollectionId)
+                .NotEmpty().WithMessage("{HitCollectionId} is required")
+                .NotNull();
+
+            RuleFor(t => t.HitId)
+                .NotEmpty().WithMessage("{HitId} is required")
+                .NotNull();
+        }
+
     }
 }
