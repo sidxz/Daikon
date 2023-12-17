@@ -30,13 +30,9 @@ using Microsoft.Extensions.Logging;
  * This class is automatically instantiated and managed by the .NET Core host if registered in the service collection. 
  * It should be configured in the application's startup class, typically in ConfigureServices, to be part of the application's hosted services.
  * 
- * Note:
- * -----
- * The ConsumerHostedService is part of the Horizon.Infrastructure.Query.Consumers namespace and is a critical component 
- * in the infrastructure layer of the application, particularly in handling asynchronous data processing tasks.
  */
 
-namespace Target.Infrastructure.Query.Consumers
+namespace Screen.Infrastructure.Query.Consumers
 {
     public class ConsumerHostedService : IHostedService
     {
@@ -49,12 +45,12 @@ namespace Target.Infrastructure.Query.Consumers
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(_serviceProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-            _topic = configuration.GetValue<string>("KafkaConsumerSettings:Topic") ?? throw new ArgumentNullException(nameof(_topic));
+            _topic = configuration.GetValue<string>("KafkaConsumerSettings:Topics") ?? throw new ArgumentNullException(nameof(_topic));
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("[Starting] target consumer hosted service for topic: {@topic}", _topic);
+            _logger.LogInformation("[Starting] screen consumer hosted service for topic: {@topic}", _topic);
 
             var scope = _serviceProvider.CreateScope(); // Store scope to dispose of later
             var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
@@ -81,7 +77,7 @@ namespace Target.Infrastructure.Query.Consumers
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("[Stopping] target consumer hosted service");
+            _logger.LogInformation("[Stopping] screen consumer hosted service");
             return Task.CompletedTask;
         }
     }

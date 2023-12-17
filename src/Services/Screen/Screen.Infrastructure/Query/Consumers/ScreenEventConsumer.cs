@@ -34,9 +34,9 @@ namespace Screen.Infrastructure.Query.Consumers
     public class ScreenEventConsumer : IEventConsumer
     {
         private readonly ConsumerConfig _config;
-        private readonly IScreenEventHandler _targetEventHandler;
+        private readonly IScreenEventHandler _screenEventHandler;
         private readonly ILogger<ScreenEventConsumer> _logger;
-        public ScreenEventConsumer(IConfiguration configuration, IScreenEventHandler targetEventHandler,
+        public ScreenEventConsumer(IConfiguration configuration, IScreenEventHandler screenEventHandler,
                                     ILogger<ScreenEventConsumer> logger)
         {
             _config = new ConsumerConfig
@@ -48,7 +48,7 @@ namespace Screen.Infrastructure.Query.Consumers
                 AllowAutoCreateTopics = configuration.GetValue<bool>("KafkaConsumerSettings:AllowAutoCreateTopics")
             };
 
-            _targetEventHandler = targetEventHandler;
+            _screenEventHandler = screenEventHandler;
             _logger = logger;
         }
 
@@ -86,21 +86,35 @@ namespace Screen.Infrastructure.Query.Consumers
                             Converters = { new EventJSONConverter() }
                         };
 
-                        var @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
+                        BaseEvent @event;
+                        try
+                        {
+                            @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
+                        }
+                        catch (UnknownEventDiscriminatorException ex)
+                        {
+                            _logger.LogInformation("ScreenEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
+                            continue;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error deserializing event: {message}", consumeResult.Message.Value);
+                            throw new EventConsumeException(nameof(ScreenEventConsumer), $"Error deserializing event: {consumeResult.Message.Value}", ex);
+                        }
 
                         // 1st check if the event is a Screen event
-                        var targetHandlerMethod = _targetEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
-                        if (targetHandlerMethod != null)
+                        var screenHandlerMethod = _screenEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (screenHandlerMethod != null)
                         {
                             try
                             {
-                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", targetHandlerMethod.Name, @event.ToJson());
-                                targetHandlerMethod.Invoke(_targetEventHandler, new object[] { @event });
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", screenHandlerMethod.Name, @event.ToJson());
+                                screenHandlerMethod.Invoke(_screenEventHandler, new object[] { @event });
                             }
                             catch (EventHandlerException ex)
                             {
-                                _logger.LogError("Handler method not found {name}", nameof(targetHandlerMethod));
+                                _logger.LogError("Handler method not found {name}", nameof(screenHandlerMethod));
                                 throw new EventConsumeException(nameof(ScreenEventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
                             consumer.Commit(consumeResult);
@@ -108,7 +122,7 @@ namespace Screen.Infrastructure.Query.Consumers
                         }
 
                         // 3rd check if no handler method was found, throw an exception
-                        if (targetHandlerMethod == null)
+                        if (screenHandlerMethod == null)
                         {
                             _logger.LogError("Handler method not found {name}", nameof(ScreenEventConsumer));
                             throw new ArgumentNullException(nameof(ScreenEventConsumer), "Handler method not found");

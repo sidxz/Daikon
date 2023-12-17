@@ -39,7 +39,7 @@ services:
       - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
       
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
-      - "KafkaConsumerSettings:Topic=daikon-core-events"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
       - "KafkaConsumerSettings:GroupId=gene-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"
@@ -68,7 +68,7 @@ services:
       - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
-      - "KafkaConsumerSettings:Topic=daikon-core-events"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
       - "KafkaConsumerSettings:GroupId=target-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"

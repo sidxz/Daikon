@@ -107,19 +107,19 @@ namespace Screen.Infrastructure.Query.Repositories
             }
         }
 
-        public async Task DeleteScreen(Domain.Entities.Screen screen)
+        public async Task DeleteScreen(Guid id)
         {
-            ArgumentNullException.ThrowIfNull(screen);
+            ArgumentNullException.ThrowIfNull(id);
 
             try
             {
-                _logger.LogInformation("DeleteScreen: Deleting screen {ScreenId}, {Screen}", screen.Id, screen.ToJson());
-                await _screenCollection.DeleteOneAsync(t => t.Id == screen.Id);
-                await _versionHub.ArchiveEntity(screen.Id);
+                _logger.LogInformation("DeleteScreen: Deleting screen {ScreenId}", id);
+                await _screenCollection.DeleteOneAsync(t => t.Id == id);
+                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the screen with ID {ScreenId}", screen.Id);
+                _logger.LogError(ex, "An error occurred while deleting the screen with ID {ScreenId}", id);
                 throw new RepositoryException(nameof(ScreenRepository), "Error deleting screen", ex);
             }
         }

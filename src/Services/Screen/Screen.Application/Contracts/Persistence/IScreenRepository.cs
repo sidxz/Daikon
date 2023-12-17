@@ -10,7 +10,7 @@ namespace Screen.Application.Contracts.Persistence
         Task<List<Domain.Entities.Screen>> GetScreensList();
         Task<List<Domain.Entities.Screen>> GetScreensListByStrainId(Guid strainId);
         Task UpdateScreen(Domain.Entities.Screen screen);
-        Task DeleteScreen(Domain.Entities.Screen screen);
+        Task DeleteScreen(Guid id);
         Task<Domain.EntityRevisions.ScreenRevision> GetScreenRevisions(Guid Id);
     }
 }

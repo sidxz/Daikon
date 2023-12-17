@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using Daikon.Events.Screens;
 
 namespace Screen.Application.EventHandlers
 {
-    public class IScreenEventHandler
+    public interface IScreenEventHandler
     {
+        Task OnEvent(ScreenCreatedEvent @event);
+        Task OnEvent(ScreenUpdatedEvent @event);
+        Task OnEvent(ScreenDeletedEvent @event);
         
     }
 }

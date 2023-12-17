@@ -7,6 +7,7 @@ using Daikon.Events.Targets;
 using Target.Application.Features.Command.NewTarget;
 using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Queries.GetTarget;
+using Target.Application.Features.Queries.GetTargetsList;
 
 namespace Target.Application.Mappings
 {
@@ -40,6 +41,8 @@ namespace Target.Application.Mappings
             .ForMember(dest => dest.Safety, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<double>, double>(src => src.Safety)))
 
             .ReverseMap();
+
+            CreateMap<Domain.Entities.Target, TargetsListVM>();
 
 
             

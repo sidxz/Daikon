@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CQRS.Core.Event;
+using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Daikon.Events.Strains;
 
@@ -78,7 +79,7 @@ namespace Gene.Infrastructure.Query.Converters
 
 
                 
-                _ => throw new JsonException($"Unknown discriminator value {typeDiscriminator}"),
+                _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };
         }
 

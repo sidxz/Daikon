@@ -10,6 +10,7 @@ using Screen.API.Helper;
 using Screen.Application.Features.Commands.NewScreen;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Screen.Application;
+using Screen.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,7 +51,7 @@ builder.Services.AddSwaggerGen();
 /* ------------------------------------------------- */
 /* Add Application and Infrastructure services. */
 builder.Services.AddApplicationServices();
-//builder.Services.AddInfrastructureService(builder.Configuration);
+builder.Services.AddInfrastructureService(builder.Configuration);
 //builder.Services.AddDomainServices();
 
 var app = builder.Build();
