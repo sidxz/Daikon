@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using CQRS.Core.Event;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
+using Daikon.Events.Screens;
 using Daikon.Events.Strains;
 using Daikon.Events.Targets;
 
@@ -44,6 +45,10 @@ namespace Horizon.Infrastructure.Query.Converters
                 "TargetUpdatedEvent" => JsonSerializer.Deserialize<TargetUpdatedEvent>(json, options),
                 "TargetDeletedEvent" => JsonSerializer.Deserialize<TargetDeletedEvent>(json, options),
                 "TargetAssociatedGenesUpdatedEvent" => JsonSerializer.Deserialize<TargetAssociatedGenesUpdatedEvent>(json, options),
+                "ScreenCreatedEvent" => JsonSerializer.Deserialize<ScreenCreatedEvent>(json, options),
+                "ScreenUpdatedEvent" => JsonSerializer.Deserialize<ScreenUpdatedEvent>(json, options),
+                "ScreenDeletedEvent" => JsonSerializer.Deserialize<ScreenDeletedEvent>(json, options),
+                "ScreenAssociatedTargetsUpdatedEvent" => JsonSerializer.Deserialize<ScreenAssociatedTargetsUpdatedEvent>(json, options),
                 
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };

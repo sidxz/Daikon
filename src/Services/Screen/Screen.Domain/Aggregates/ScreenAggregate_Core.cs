@@ -63,13 +63,13 @@ namespace Screen.Domain.Aggregates
                 throw new InvalidOperationException("This screen is deleted.");
             }
 
-            var screenAssociatedTargetUpdatedEvent = new ScreenAssociatedTargetUpdatedEvent()
+            var screenAssociatedTargetsUpdatedEvent = new ScreenAssociatedTargetsUpdatedEvent()
             {
                 Id = _id,
                 Name = _Name,
                 AssociatedTargets = associatedTargets
             };
-            RaiseEvent(screenAssociatedTargetUpdatedEvent);
+            RaiseEvent(screenAssociatedTargetsUpdatedEvent);
         }
 
         /* Delete Screen */

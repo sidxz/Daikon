@@ -2,6 +2,7 @@
 using FluentValidation;
 using Horizon.Application.Contracts.Persistance;
 using Horizon.Application.Features.Command.Gene.AddGeneToGraph;
+using Horizon.Application.Handlers;
 using Horizon.Application.Query.Handlers;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,7 @@ namespace Horizon.Application
 
             services.AddScoped<IGeneEventHandler, GeneEventHandler>();
             services.AddScoped<ITargetEventHandler, TargetEventHandler>();
+            services.AddScoped<IScreenEventHandler, ScreenEventHandler>();
 
             return services;
         }
