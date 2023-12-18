@@ -1,12 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
+using CQRS.Core.Command;
+using CQRS.Core.Converters;
+using CQRS.Core.Domain;
+using MediatR;
 
 namespace Screen.Application.Features.Commands.UpdateHitCollection
 {
-    public class UpdateHitCollectionCommand
+    public class UpdateHitCollectionCommand : BaseCommand, IRequest<Unit>
     {
+
+        public Guid HitCollectionId { get; set; }
+
+        public Guid ScreenId { get; set; }
+
+        public required string Name { get; set; }
+
+        public required string HitCollectionType { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Notes { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Owner { get; set; }
         
     }
 }
