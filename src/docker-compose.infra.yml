@@ -68,6 +68,8 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - MolDb_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   Neo4j:
     image: neo4j:latest
