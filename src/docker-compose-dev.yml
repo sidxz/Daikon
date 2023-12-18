@@ -1,0 +1,10 @@
+version: "3.4"
+
+services:
+  MolDb.API:
+    image: ${DOCKER_REGISTRY-}moldb
+    build:
+      context: .
+      dockerfile: Services/Chem/MolDb.API/Dockerfile
+    ports:
+      - "8101:80"
