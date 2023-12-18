@@ -43,6 +43,7 @@ namespace Horizon.Application.Handlers
 
         public Task OnEvent(ScreenUpdatedEvent @event)
         {
+            _logger.LogInformation($"Horizon: ScreenUpdatedEvent: {@event.Id} {@event.Name}");
             throw new NotImplementedException();
         }
 
