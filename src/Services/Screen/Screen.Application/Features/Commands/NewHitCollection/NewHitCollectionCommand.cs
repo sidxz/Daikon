@@ -16,10 +16,10 @@ namespace Screen.Application.Features.Commands.NewHitCollection
         public required string HitCollectionType { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> Notes { get; set; }
+        public DVariable<string>? Notes { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> Owner { get; set; }
+        public DVariable<string>? Owner { get; set; }
 
 
     }
