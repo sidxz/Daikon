@@ -6,12 +6,13 @@ from app.Infrastructure.DatabaseInitialization import InitializeDb
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(levelname)s - %(asctime)s - [%(name)s] - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
 )
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
-app = FastAPI()
+app = FastAPI(title="Daikon Core Molecule.API", version="2.0")
+
 
 
 @app.on_event("startup")
