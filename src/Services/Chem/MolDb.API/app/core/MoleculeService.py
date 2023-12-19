@@ -24,7 +24,7 @@ class MoleculeService:
         smiles = smiles.upper()
 
         # Calculate Canonical SMILES
-        smilesCanonical = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), True)
+        smiles_canonical = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), True)
 
         # Calculate molecular weight and Topological polar surface area (TPSA)
         molecular_properties = CalculateMolecularProperties(smiles)
@@ -33,7 +33,7 @@ class MoleculeService:
         return await self.molecule_repository.add_molecule(
             name,
             smiles,
-            smilesCanonical,
+            smiles_canonical,
             molecular_properties["molecular_weight"],
             molecular_properties["tpsa"],
         )
