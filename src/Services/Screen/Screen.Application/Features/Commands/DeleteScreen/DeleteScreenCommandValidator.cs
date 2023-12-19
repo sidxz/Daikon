@@ -11,9 +11,6 @@ namespace Screen.Application.Features.Commands.DeleteScreen
                 .NotEmpty().WithMessage("{StrainId} is required")
                 .NotNull();
 
-            RuleFor(t => t.Name)
-                .NotEmpty().WithMessage("{Name} is required")
-                .NotNull();
             
         }
     }

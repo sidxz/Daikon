@@ -32,16 +32,24 @@ namespace Screen.Application.Features.Commands.UpdateHitCollection
         }
         public async Task<Unit> Handle(UpdateHitCollectionCommand request, CancellationToken cancellationToken)
         {
+            var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionById(request.HitCollectionId);
 
-            if (request.HitCollectionId == Guid.Empty)
+            if (existingHitCollection.Name != request.Name)
             {
-                throw new ArgumentNullException(nameof(request.HitCollectionId));
+                throw new InvalidOperationException("Name cannot be modified");
             }
+            if (existingHitCollection.ScreenId != request.ScreenId)
+            {
+                throw new InvalidOperationException("ScreenId cannot be modified");
+            }
+
 
             var updatedHitCollection = _mapper.Map<HitCollection>(request);
             updatedHitCollection.HitCollectionId = request.HitCollectionId;
             updatedHitCollection.Id = request.HitCollectionId;
-
+            updatedHitCollection.Name = existingHitCollection.Name;
+            updatedHitCollection.ScreenId = existingHitCollection.ScreenId;
+            
             try
             {
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.HitCollectionId);

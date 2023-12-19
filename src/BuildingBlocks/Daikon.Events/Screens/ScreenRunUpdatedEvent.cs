@@ -7,11 +7,12 @@ namespace Daikon.Events.Screens
     {
         public ScreenRunUpdatedEvent() : base(nameof(ScreenRunUpdatedEvent))
         {
-            
+
         }
 
         public Guid ScreenId { get; set; }
-        
+        public Guid ScreenRunId { get; set; }
+
         public DVariable<string> Library { get; set; }
         public DVariable<string>? Protocol { get; set; }
         public DVariable<int>? LibrarySize { get; set; }

@@ -3,15 +3,15 @@ using CQRS.Core.Event;
 
 namespace Daikon.Events.Screens
 {
-    public class ScreenRunCreatedEvent : BaseEvent
+    public class ScreenRunAddedEvent : BaseEvent
     {
-        public ScreenRunCreatedEvent() : base(nameof(ScreenRunCreatedEvent))
+        public ScreenRunAddedEvent() : base(nameof(ScreenRunAddedEvent))
         {
             
         }
 
         public Guid ScreenId { get; set; }
-        
+        public Guid ScreenRunId { get; set; }
         public DVariable<string> Library { get; set; }
         public DVariable<string>? Protocol { get; set; }
         public DVariable<int>? LibrarySize { get; set; }
