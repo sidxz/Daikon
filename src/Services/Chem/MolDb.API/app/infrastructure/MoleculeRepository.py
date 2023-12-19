@@ -1,8 +1,9 @@
 from app.Infrastructure.Database import GetDbPool
 from app.DTO.Molecule import Molecule
+from app.Core.Contracts.IMoleculeRepository import IMoleculeRepository
 
+class MoleculeRepository(IMoleculeRepository):
 
-class MoleculeRepository:
     async def add_molecule(
         self,
         name: str,

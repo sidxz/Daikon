@@ -2,9 +2,10 @@ from rdkit import Chem
 
 from app.Core.MoleculeServices.MolecularProperties import CalculateMolecularProperties
 from app.Core.MoleculeServices.SmilesValidation import ValidateSmiles
+from app.Core.Contracts.IMoleculeRepository import IMoleculeRepository
 
 class MoleculeService:
-    def __init__(self, molecule_repository):
+    def __init__(self, molecule_repository: IMoleculeRepository):
         self.molecule_repository = molecule_repository
         
     async def createMolecule(self, name: str, smiles: str):
