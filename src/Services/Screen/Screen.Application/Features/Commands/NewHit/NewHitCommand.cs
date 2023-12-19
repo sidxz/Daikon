@@ -10,6 +10,8 @@ namespace Screen.Application.Features.Commands.NewHit
     {
         public Guid HitCollectionId { get; set; }
 
+        public Guid HitId { get; set; }
+
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Library { get; set; }
 
