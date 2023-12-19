@@ -1,5 +1,5 @@
 from rdkit import Chem
-
+import logging
 from app.Core.MoleculeServices.MolecularProperties import CalculateMolecularProperties
 from app.Core.MoleculeServices.SmilesValidation import ValidateSmiles
 from app.Core.Contracts.IMoleculeRepository import IMoleculeRepository
@@ -7,6 +7,7 @@ from app.Core.Contracts.IMoleculeRepository import IMoleculeRepository
 class MoleculeService:
     def __init__(self, molecule_repository: IMoleculeRepository):
         self.molecule_repository = molecule_repository
+        self.logger = logging.getLogger(__name__)
         
     async def createMolecule(self, name: str, smiles: str):
         """
@@ -20,7 +21,13 @@ class MoleculeService:
             dict: A dictionary containing the details of the created molecule.
         """
         # Validate molecule data
-        await ValidateSmiles(smiles)
+        try:
+            await ValidateSmiles(smiles)
+        except ValueError as e:
+            self.logger.error(f"Invalid SMILES string: {e}", exc_info=True)
+            raise
+            
+        
         smiles = smiles.upper()
 
         # Calculate Canonical SMILES
