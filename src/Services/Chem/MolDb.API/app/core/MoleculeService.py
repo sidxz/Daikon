@@ -1,14 +1,13 @@
 from rdkit import Chem
-from app.infrastructure.repositories import MoleculeRepository
-from app.core.molecule_services.molecular_properties import (
-    calculate_molecular_properties,
-)
-from app.core.molecule_services.smiles_validation import validate_smiles
 
+from app.Core.MoleculeServices.MolecularProperties import CalculateMolecularProperties
+from app.Core.MoleculeServices.SmilesValidation import ValidateSmiles
 
 class MoleculeService:
-    @staticmethod
-    async def create_molecule(name: str, smiles: str):
+    def __init__(self, molecule_repository):
+        self.molecule_repository = molecule_repository
+        
+    async def createMolecule(self, name: str, smiles: str):
         """
         Create a molecule with the given name and SMILES representation.
 
@@ -20,17 +19,17 @@ class MoleculeService:
             dict: A dictionary containing the details of the created molecule.
         """
         # Validate molecule data
-        await validate_smiles(smiles)
+        await ValidateSmiles(smiles)
         smiles = smiles.upper()
 
         # Calculate Canonical SMILES
         smilesCanonical = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), True)
 
         # Calculate molecular weight and Topological polar surface area (TPSA)
-        molecular_properties = calculate_molecular_properties(smiles)
+        molecular_properties = CalculateMolecularProperties(smiles)
 
         # Add molecule to database
-        return await MoleculeRepository.add_molecule(
+        return await self.molecule_repository.add_molecule(
             name,
             smiles,
             smilesCanonical,

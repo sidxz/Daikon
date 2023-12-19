@@ -2,7 +2,7 @@ from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors, Descriptors
 
 
-def calculate_molecular_properties(smiles_string):
+def CalculateMolecularProperties(smiles_string):
     """
     Calculate the molecular weight and TPSA (Topological Polar Surface Area) of a molecule.
 
