@@ -1,6 +1,6 @@
 from rdkit import Chem
 
-async def validate_smiles(smiles: str):
+async def ValidateSmiles(smiles: str):
     """
     Validates a SMILES string.
 

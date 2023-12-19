@@ -7,9 +7,10 @@ HOST="MolDb_Postgres"
 PORT="5432"
 DATABASE="chemdb"
 
-async def get_db():
+
+async def GetDbPool():
     try:
-        conn = await asyncpg.connect(user=USER, password=PASSWORD, host=HOST, port=PORT, database=DATABASE)
-        return conn
+        return await asyncpg.create_pool(user=USER, password=PASSWORD, host=HOST, port=PORT, database=DATABASE)
     except Exception as e:
-        print(f"Error connecting to the database: {e}")
+        print(f"Error creating database pool: {e}")
+        raise

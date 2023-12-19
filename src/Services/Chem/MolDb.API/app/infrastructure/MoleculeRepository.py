@@ -1,5 +1,5 @@
-from app.infrastructure.database import get_db
-from app.dto.Molecule import Molecule
+from app.Infrastructure.Database import GetDbPool
+from app.DTO.Molecule import Molecule
 
 
 class MoleculeRepository:
@@ -18,7 +18,8 @@ class MoleculeRepository:
         # Make smiles string uppercase
         smiles = smiles.upper()
 
-        async with get_db() as conn:
+        db_pool = await GetDbPool()
+        async with db_pool.acquire() as conn:
             # Execute the insert query
             result = await conn.fetchrow(
                 """

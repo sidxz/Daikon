@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.infrastructure.repositories import MoleculeRepository
+
 
 router = APIRouter()
 

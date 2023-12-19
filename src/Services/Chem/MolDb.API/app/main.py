@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from app.api import query_handlers, command_handlers
-from app.infrastructure.database_setup import setup_database
+from app.API import QueryController, CommandController
+from app.Infrastructure.DatabaseInitialization import InitializeDb
 
 
 # Initialize FastAPI app
@@ -11,7 +11,7 @@ app = FastAPI()
 async def startup():
     print("Starting up")
     try :
-        await setup_database()
+        await InitializeDb()
     except Exception as e:
         print(f"Error setting up database: {e}")
         raise
@@ -22,7 +22,7 @@ async def shutdown():
     print("Shutting down")
     
 # Include API routers
-app.include_router(query_handlers.router)
-app.include_router(command_handlers.router)
+app.include_router(QueryController.router)
+app.include_router(CommandController.router)
 
 # Optional: Add more route registrations or middleware here
