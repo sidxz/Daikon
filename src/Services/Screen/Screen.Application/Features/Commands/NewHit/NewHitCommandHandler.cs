@@ -41,6 +41,7 @@ namespace Screen.Application.Features.Commands.NewHit
       }
 
       var newHit = _mapper.Map<Hit>(request);
+      newHit.HitId = request.Id;
       newHit.HitCollectionId = request.Id;
 
       try

@@ -96,13 +96,13 @@ services:
       - "ScreenMongoDbSettings:ScreenCollectionName=Screens"
       - "ScreenMongoDbSettings:ScreenRunCollectionName=ScreenRuns"
       - "ScreenMongoDbSettings:HitCollectionCollectionName=HitCollections"
-      - "ScreenMongoDbSettings:HitsCollectionName=Hits"
+      - "ScreenMongoDbSettings:HitCollectionName=Hits"
 
 
       - "ScreenMongoDbSettings:ScreenRevisionCollectionName=ScreensRevisions"
       - "ScreenMongoDbSettings:ScreenRunRevisionCollectionName=ScreenRunsRevisions"
       - "ScreenMongoDbSettings:HitCollectionRevisionCollectionName=HitCollectionsRevisions"
-      - "ScreenMongoDbSettings:HitsRevisionCollectionName=HitsRevisions"
+      - "ScreenMongoDbSettings:HitRevisionCollectionName=HitRevisions"
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       - "KafkaConsumerSettings:Topics=daikon-core-events"

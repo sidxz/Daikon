@@ -35,8 +35,9 @@ namespace Screen.Infrastructure.Query.Consumers
     {
         private readonly ConsumerConfig _config;
         private readonly IScreenEventHandler _screenEventHandler;
+        private readonly IHitCollectionEventHandler _hitCollectionEventHandler;
         private readonly ILogger<ScreenEventConsumer> _logger;
-        public ScreenEventConsumer(IConfiguration configuration, IScreenEventHandler screenEventHandler,
+        public ScreenEventConsumer(IConfiguration configuration, IScreenEventHandler screenEventHandler, IHitCollectionEventHandler hitCollectionEventHandler,
                                     ILogger<ScreenEventConsumer> logger)
         {
             _config = new ConsumerConfig
@@ -49,6 +50,7 @@ namespace Screen.Infrastructure.Query.Consumers
             };
 
             _screenEventHandler = screenEventHandler;
+            _hitCollectionEventHandler = hitCollectionEventHandler;
             _logger = logger;
         }
 
@@ -120,6 +122,25 @@ namespace Screen.Infrastructure.Query.Consumers
                             consumer.Commit(consumeResult);
                             continue;
                         }
+
+                        // 2nd check if the event is a HitCollection event
+                        var hitCollectionHandlerMethod = _hitCollectionEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (hitCollectionHandlerMethod != null)
+                        {
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", hitCollectionHandlerMethod.Name, @event.ToJson());
+                                hitCollectionHandlerMethod.Invoke(_hitCollectionEventHandler, new object[] { @event });
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(hitCollectionHandlerMethod));
+                                throw new EventConsumeException(nameof(ScreenEventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            consumer.Commit(consumeResult);
+                            continue;
+                        }
+
 
                         // 3rd check if no handler method was found, throw an exception
                         if (screenHandlerMethod == null)

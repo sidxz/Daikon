@@ -22,7 +22,7 @@ namespace Screen.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
             services.AddScoped<IScreenEventHandler, ScreenEventHandler>();
-            //services.AddScoped<IStrainEventHandler, StrainEventHandler>();
+            services.AddScoped<IHitCollectionEventHandler, HitCollectionEventHandler>();
 
             return services;
         }

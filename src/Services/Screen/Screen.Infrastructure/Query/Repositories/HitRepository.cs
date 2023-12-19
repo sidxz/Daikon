@@ -55,7 +55,7 @@ namespace Screen.Infrastructure.Query.Repositories
             return await _hit.Find(hit => hit.Id == id).FirstOrDefaultAsync();
         }
 
-        
+
 
         public async Task<List<Hit>> GetHitsList()
         {
@@ -102,19 +102,19 @@ namespace Screen.Infrastructure.Query.Repositories
             }
         }
 
-        public async Task DeleteHit(Hit hit)
+        public async Task DeleteHit(Guid hitId)
         {
-            ArgumentNullException.ThrowIfNull(hit);
+            ArgumentNullException.ThrowIfNull(hitId);
 
             try
             {
-                _logger.LogInformation("DeleteHit: Deleting hit {HitId}, {Hit}", hit.Id, hit.ToJson());
-                await _hit.DeleteOneAsync(t => t.Id == hit.Id);
-                await _versionHub.ArchiveEntity(hit.Id);
+                _logger.LogInformation("DeleteHit: Deleting hit {HitId}", hitId);
+                await _hit.DeleteOneAsync(t => t.Id == hitId);
+                await _versionHub.ArchiveEntity(hitId);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the hit with ID {HitId}", hit.Id);
+                _logger.LogError(ex, "An error occurred while deleting the hit with ID {HitId}", hitId);
                 throw new RepositoryException(nameof(HitRepository), "Error deleting hit", ex);
             }
         }
@@ -166,6 +166,5 @@ namespace Screen.Infrastructure.Query.Repositories
             var hitRevision = await _versionHub.GetVersions(Id);
             return hitRevision;
         }
-
     }
 }

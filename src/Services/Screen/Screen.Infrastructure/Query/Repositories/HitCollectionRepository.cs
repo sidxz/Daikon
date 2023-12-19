@@ -108,19 +108,19 @@ namespace Screen.Infrastructure.Query.Repositories
             }
         }
 
-        public async Task DeleteHitCollection(HitCollection hitCollection)
+        public async Task DeleteHitCollection(Guid id)
         {
-            ArgumentNullException.ThrowIfNull(hitCollection);
+            ArgumentNullException.ThrowIfNull(id);
 
             try
             {
-                _logger.LogInformation("DeleteHitCollection: Deleting hitCollection {HitCollectionId}, {HitCollection}", hitCollection.Id, hitCollection.ToJson());
-                await _hitCollectionCollection.DeleteOneAsync(t => t.Id == hitCollection.Id);
-                await _versionHub.ArchiveEntity(hitCollection.Id);
+                _logger.LogInformation("DeleteHitCollection: Deleting hitCollection {HitCollectionId}", id);
+                await _hitCollectionCollection.DeleteOneAsync(t => t.Id == id);
+                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the hitCollection with ID {HitCollectionId}", hitCollection.Id);
+                _logger.LogError(ex, "An error occurred while deleting the hitCollection with ID {HitCollectionId}", id);
                 throw new RepositoryException(nameof(HitCollectionRepository), "Error deleting hitCollection", ex);
             }
         }
