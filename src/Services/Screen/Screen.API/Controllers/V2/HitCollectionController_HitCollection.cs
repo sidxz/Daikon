@@ -34,6 +34,8 @@ namespace Screen.API.Controllers.V2
             try
             { 
                 command.Id = id;
+                command.HitCollectionId = id;
+                
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status201Created, new AddResponse

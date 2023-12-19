@@ -11,12 +11,15 @@ namespace Screen.Application.EventHandlers
     {
 
         private readonly IScreenRepository _screenRepository;
+        private readonly IScreenRunRepository _screenRunRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<ScreenEventHandler> _logger;
 
-        public ScreenEventHandler(IScreenRepository screenRepository, IMapper mapper, ILogger<ScreenEventHandler> logger)
+        public ScreenEventHandler(IScreenRepository screenRepository, IScreenRunRepository screenRunRepository,
+                                    IMapper mapper, ILogger<ScreenEventHandler> logger)
         {
             _screenRepository = screenRepository;
+            _screenRunRepository = screenRunRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -74,7 +77,7 @@ namespace Screen.Application.EventHandlers
             {
                 throw new EventHandlerException(nameof(EventHandler), $"ScreenDeletedEvent Error deleting screen {@event.Id}", ex);
             }
-            
+
         }
     }
 }

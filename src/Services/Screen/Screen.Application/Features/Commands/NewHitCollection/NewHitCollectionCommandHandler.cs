@@ -39,6 +39,8 @@ namespace Screen.Application.Features.Commands.NewHitCollection
             
 
             var newHitCollection = _mapper.Map<Domain.Entities.HitCollection>(request);
+            newHitCollection.HitCollectionId = request.Id;
+            
             var aggregate = new HitCollectionAggregate(newHitCollection, _mapper);
             await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
 
