@@ -8,8 +8,8 @@ namespace Screen.Application.Features.Commands.DeleteHitCollection
         public Guid HitCollectionId { get; set; }
         public Guid ScreenId { get; set; }
 
-        public required string Name { get; set; }
+        public  string Name { get; set; }
 
-        public required string HitCollectionType { get; set; }
+        public  string HitCollectionType { get; set; }
     }
 }

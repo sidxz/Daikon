@@ -11,6 +11,8 @@ namespace Screen.Application.Features.Commands.UpdateHitCollection
 
         public Guid HitCollectionId { get; set; }
 
+        public Guid HitId { get; set; }
+
         public Guid ScreenId { get; set; }
 
         public required string Name { get; set; }
