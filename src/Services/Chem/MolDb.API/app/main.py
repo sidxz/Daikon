@@ -1,28 +1,46 @@
+import logging
+import uvicorn
 from fastapi import FastAPI
 from app.API import QueryController, CommandController
 from app.Infrastructure.DatabaseInitialization import InitializeDb
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI()
 
-# Database initialization
+
 @app.on_event("startup")
 async def startup():
-    print("Starting up")
-    try :
+    """
+    Perform startup activities, including database initialization.
+    """
+    logger.info("Starting up the application")
+    try:
         await InitializeDb()
+        logger.info("Database initialized successfully")
     except Exception as e:
-        print(f"Error setting up database: {e}")
+        logger.error(f"Error setting up database: {e}", exc_info=True)
         raise
-    
+
 
 @app.on_event("shutdown")
 async def shutdown():
-    print("Shutting down")
-    
+    """
+    Perform shutdown activities, such as closing database connections.
+    """
+    logger.info("Shutting down the application")
+    # Close any resources if necessary
+
+
 # Include API routers
 app.include_router(QueryController.router)
 app.include_router(CommandController.router)
 
-# Optional: Add more route registrations or middleware here
+# Run the application
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

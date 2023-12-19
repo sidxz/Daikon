@@ -12,4 +12,17 @@ class IMoleculeRepository(ABC):
         molecular_weight: float,
         tpsa: float,
     ) -> Dict:
+        """
+        Adds a molecule to the repository.
+
+        Args:
+            name (str): The name of the molecule.
+            smiles (str): The SMILES representation of the molecule.
+            smiles_canonical (str): The canonical SMILES representation of the molecule.
+            molecular_weight (float): The molecular weight of the molecule.
+            tpsa (float): The topological polar surface area of the molecule.
+
+        Returns:
+            Dict: A dictionary containing the details of the added molecule.
+        """
         pass
