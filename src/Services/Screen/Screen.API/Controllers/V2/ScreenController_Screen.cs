@@ -14,7 +14,7 @@ namespace Screen.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class ScreenController : ControllerBase
+    public partial class ScreenController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly ILogger<ScreenController> _logger;

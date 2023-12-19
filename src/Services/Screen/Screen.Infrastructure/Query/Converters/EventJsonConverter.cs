@@ -36,7 +36,7 @@ namespace Screen.Infrastructure.Query.Converters
                 "ScreenCreatedEvent" => JsonSerializer.Deserialize<ScreenCreatedEvent>(json, options),
                 "ScreenUpdatedEvent" => JsonSerializer.Deserialize<ScreenUpdatedEvent>(json, options),
                 "ScreenDeletedEvent" => JsonSerializer.Deserialize<ScreenDeletedEvent>(json, options),
-                "ScreenRunCreatedEvent" => JsonSerializer.Deserialize<ScreenRunCreatedEvent>(json, options),
+                "ScreenRunAddedEvent" => JsonSerializer.Deserialize<ScreenRunAddedEvent>(json, options),
                 "ScreenRunUpdatedEvent" => JsonSerializer.Deserialize<ScreenRunUpdatedEvent>(json, options),
                 "ScreenRunDeletedEvent" => JsonSerializer.Deserialize<ScreenRunDeletedEvent>(json, options),
                 "HitCollectionCreatedEvent" => JsonSerializer.Deserialize<HitCollectionCreatedEvent>(json, options),

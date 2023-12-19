@@ -35,7 +35,7 @@ namespace Screen.Infrastructure
             BsonClassMap.RegisterClassMap<ScreenUpdatedEvent>();
             BsonClassMap.RegisterClassMap<ScreenDeletedEvent>();
 
-            BsonClassMap.RegisterClassMap<ScreenRunCreatedEvent>();
+            BsonClassMap.RegisterClassMap<ScreenRunAddedEvent>();
             BsonClassMap.RegisterClassMap<ScreenRunUpdatedEvent>();
             BsonClassMap.RegisterClassMap<ScreenRunDeletedEvent>();
             
@@ -79,6 +79,7 @@ namespace Screen.Infrastructure
 
             /* Query */
             services.AddScoped<IScreenRepository, ScreenRepository>();
+            services.AddScoped<IScreenRunRepository, ScreenRunRepository>();
             services.AddScoped<IHitCollectionRepository, HitCollectionRepository>();
             services.AddScoped<IHitRepository, HitRepository>();
 

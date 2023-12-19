@@ -16,17 +16,17 @@ namespace Screen.Application.Features.Commands.DeleteScreenRun
         private readonly ILogger<DeleteScreenRunCommandHandler> _logger;
         private readonly IScreenRunRepository _screenRunRepository;
 
-        private readonly IEventSourcingHandler<ScreenAggregate> _screenRunEventSourcingHandler;
+        private readonly IEventSourcingHandler<ScreenAggregate> _screenEventSourcingHandler;
 
         public DeleteScreenRunCommandHandler(ILogger<DeleteScreenRunCommandHandler> logger,
-            IEventSourcingHandler<ScreenAggregate> screenRunEventSourcingHandler,
+            IEventSourcingHandler<ScreenAggregate> screenEventSourcingHandler,
             IScreenRunRepository screenRunRepository,
             IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _screenRunRepository = screenRunRepository ?? throw new ArgumentNullException(nameof(screenRunRepository));
-            _screenRunEventSourcingHandler = screenRunEventSourcingHandler ?? throw new ArgumentNullException(nameof(screenRunEventSourcingHandler));
+            _screenEventSourcingHandler = screenEventSourcingHandler ?? throw new ArgumentNullException(nameof(screenEventSourcingHandler));
 
         }
 
@@ -37,10 +37,21 @@ namespace Screen.Application.Features.Commands.DeleteScreenRun
             {
                 throw new ArgumentNullException(nameof(request.Id));
             }
-
             request.ScreenRunId = request.Id;
 
-            
+            try
+            {
+                var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.ScreenId);
+                aggregate.DeleteScreenRun(request.ScreenRunId);
+                await _screenEventSourcingHandler.SaveAsync(aggregate);
+            }
+            catch (AggregateNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Aggregate not found");
+                throw new ResourceNotFoundException(nameof(ScreenAggregate), request.Id);
+            }
+
+
             return Unit.Value;
         }
     }
