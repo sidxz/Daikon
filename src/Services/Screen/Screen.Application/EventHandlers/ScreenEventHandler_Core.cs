@@ -54,6 +54,7 @@ namespace Screen.Application.EventHandlers
 
             var screen = _mapper.Map<Domain.Entities.Screen>(@event);
             screen.DateCreated = existingScreen.DateCreated;
+            screen.DateModified = DateTime.UtcNow;
             screen.IsModified = true;
 
             try

@@ -6,6 +6,7 @@ namespace CQRS.Core.Domain
     {
         public Guid Id { get; set; }
         public DateTime DateCreated { get; set; }
+        public DateTime DateModified { get; set; }
         public bool IsModified { get; set; }
         public bool IsArchived { get; set; }
         public bool IsDeleted { get; set; }

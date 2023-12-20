@@ -40,6 +40,14 @@ namespace Screen.Application.Mappings
             CreateMap<Domain.Entities.Hit, HitAddedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Hit, HitUpdatedEvent>().ReverseMap();
 
+            /* Queries */
+
+            CreateMap<Domain.Entities.Screen, Features.Queries.ViewModels.ScreensListVM>().ReverseMap();
+            CreateMap<Domain.Entities.Screen, Features.Queries.ViewModels.ScreenVM>().ReverseMap();
+            CreateMap<Domain.Entities.ScreenRun, Features.Queries.ViewModels.ScreenRunVM>().ReverseMap();
+            CreateMap<Domain.Entities.HitCollection, Features.Queries.ViewModels.HitCollectionVM>().ReverseMap();
+            CreateMap<Domain.Entities.Hit, Features.Queries.ViewModels.HitVM>().ReverseMap();
+
         }
 
     }

@@ -43,7 +43,7 @@ namespace Screen.Application.Features.Commands.UpdateScreen
             // check if associated targets have been modified; reject if they have, perform a deep comparison
             if (!existingScreen.AssociatedTargets.DictionaryEqual(request.AssociatedTargets))
             {
-                throw new InvalidOperationException("Associated targets cannot be modified using this command. Please use the UpdateScreenAssociatedTargetsCommand");
+                throw new InvalidOperationException("Associated targets cannot be modified using this command.");
             }
 
             var modScreen = _mapper.Map<Domain.Entities.Screen>(request);
