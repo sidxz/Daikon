@@ -61,9 +61,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task AddStrainToGraph(Strain strain)
+        public async Task AddStrain(Strain strain)
         {
-            _logger.LogInformation("AddStrainToGraph(): Adding strain with name {Name} and id {StrainId}", strain.Name, strain.StrainId);
+            _logger.LogInformation("AddStrain(): Adding strain with name {Name} and id {StrainId}", strain.Name, strain.StrainId);
             var session = _driver.AsyncSession();
             try
             {
@@ -89,7 +89,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in AddStrainToGraph");
+                _logger.LogError(ex, "Error in AddStrain");
                 _logger.LogError(ex, "All retry attempts failed for adding strain with Name {Name}", strain.Name);
                 throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Adding Strain To Graph", ex);
             }
@@ -99,9 +99,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateStrainOfGraph(Strain strain)
+        public async Task UpdateStrain(Strain strain)
         {
-            _logger.LogInformation("UpdateStrainOfGraph(): Updating strain with name {Name} and id {StrainId}", strain.Name, strain.StrainId);
+            _logger.LogInformation("UpdateStrain(): Updating strain with name {Name} and id {StrainId}", strain.Name, strain.StrainId);
             var session = _driver.AsyncSession();
             try
             {
@@ -126,7 +126,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in UpdateStrainOfGraph");
+                _logger.LogError(ex, "Error in UpdateStrain");
                 _logger.LogError(ex, "All retry attempts failed for updating strain with Name {Name}", strain.Name);
                 throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Updating Strain Of Graph", ex);
             }
@@ -137,9 +137,9 @@ namespace Horizon.Infrastructure.Repositories
 
         }
 
-        public async Task AddGeneToGraph(Gene gene)
+        public async Task AddGene(Gene gene)
         {
-            _logger.LogInformation("AddGeneToGraph(): Adding gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
+            _logger.LogInformation("AddGene(): Adding gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
             var session = _driver.AsyncSession();
             try
             {
@@ -179,7 +179,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in AddGeneToGraph");
+                _logger.LogError(ex, "Error in AddGene");
                 _logger.LogError(ex, "All retry attempts failed for adding gene with accession number {AccessionNumber}", gene.AccessionNumber);
                 throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Adding Gene To Graph", ex);
             }
@@ -189,9 +189,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateGeneOfGraph(Gene gene)
+        public async Task UpdateGene(Gene gene)
         {
-            _logger.LogInformation("UpdateGeneOfGraph(): Updating gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
+            _logger.LogInformation("UpdateGene(): Updating gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
             var session = _driver.AsyncSession();
             try
             {
@@ -241,7 +241,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in UpdateGeneOfGraph");
+                _logger.LogError(ex, "Error in UpdateGene");
                 _logger.LogError(ex, "All retry attempts failed for updating gene with accession number {AccessionNumber}", gene.AccessionNumber);
                 throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Updating Gene Of Graph", ex);
             }
@@ -253,9 +253,9 @@ namespace Horizon.Infrastructure.Repositories
         }
 
         // Delete a gene from the graph database
-        public async Task DeleteGeneFromGraph(string geneId)
+        public async Task DeleteGene(string geneId)
         {
-            _logger.LogInformation("DeleteGeneFromGraph(): Deleting gene with accession number {geneId}", geneId);
+            _logger.LogInformation("DeleteGene(): Deleting gene with accession number {geneId}", geneId);
             var session = _driver.AsyncSession();
             try
             {
@@ -279,7 +279,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in DeleteGeneFromGraph");
+                _logger.LogError(ex, "Error in DeleteGene");
                 _logger.LogError(ex, "All retry attempts failed for deleting gene with accession number {geneId}", geneId);
                 throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Deleting Gene From Graph", ex);
             }

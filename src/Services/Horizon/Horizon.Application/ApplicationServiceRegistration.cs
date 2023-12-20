@@ -1,7 +1,7 @@
 
 using FluentValidation;
 using Horizon.Application.Contracts.Persistance;
-using Horizon.Application.Features.Command.Gene.AddGeneToGraph;
+using Horizon.Application.Features.Command.Gene.AddGene;
 using Horizon.Application.Handlers;
 using Horizon.Application.Query.Handlers;
 using MediatR;
@@ -16,8 +16,8 @@ namespace Horizon.Application
         {
 
            
-            services.AddMediatR(typeof(AddGeneToGraphCommand).Assembly);
-            services.AddValidatorsFromAssembly(typeof(AddGeneToGraphCommandValidator).Assembly);
+            services.AddMediatR(typeof(AddGeneCommand).Assembly);
+            services.AddValidatorsFromAssembly(typeof(AddGeneCommandValidator).Assembly);
 
             
 

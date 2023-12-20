@@ -4,20 +4,20 @@ using Horizon.Application.Contracts.Persistance;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Horizon.Application.Features.Command.Gene.AddGeneToGraph
+namespace Horizon.Application.Features.Command.Gene.AddGene
 {
-    public class AddGeneToGraphCommandHandler : IRequestHandler<AddGeneToGraphCommand, Unit>
+    public class AddGeneCommandHandler : IRequestHandler<AddGeneCommand, Unit>
     {
-        private readonly ILogger<AddGeneToGraphCommandHandler> _logger;
+        private readonly ILogger<AddGeneCommandHandler> _logger;
         private readonly IGraphRepositoryForGene _graphRepositoryForGene;
 
-        public AddGeneToGraphCommandHandler(ILogger<AddGeneToGraphCommandHandler> logger, IGraphRepositoryForGene graphRepositoryForGene)
+        public AddGeneCommandHandler(ILogger<AddGeneCommandHandler> logger, IGraphRepositoryForGene graphRepositoryForGene)
         {
             _logger = logger;
             _graphRepositoryForGene = graphRepositoryForGene;
         }
 
-        public Task<Unit> Handle(AddGeneToGraphCommand request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(AddGeneCommand request, CancellationToken cancellationToken)
         {
             var gene = new Domain.Genes.Gene
             {
@@ -35,12 +35,12 @@ namespace Horizon.Application.Features.Command.Gene.AddGeneToGraph
             try
             {   
                 //(string geneId, string strainId, string accessionNumber, string name, string function, string product, string functionalCategory
-                _graphRepositoryForGene.AddGeneToGraph(gene);
+                _graphRepositoryForGene.AddGene(gene);
                 return Task.FromResult(Unit.Value);
             }
             catch (RepositoryException ex)
             {
-                _logger.LogError(ex, "Error in AddGeneToGraphCommandHandler");
+                _logger.LogError(ex, "Error in AddGeneCommandHandler");
                 throw new Exception("Error in Graph Repository", ex);
             }
         }

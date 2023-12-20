@@ -9,6 +9,7 @@ namespace Horizon.Application.Query.Handlers
         Task OnEvent(ScreenUpdatedEvent @event);
         Task OnEvent(ScreenAssociatedTargetsUpdatedEvent @event);
         Task OnEvent(ScreenDeletedEvent @event);
+        Task OnEvent(ScreenRenamedEvent @event);
         
     }
 }

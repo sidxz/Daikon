@@ -6,9 +6,10 @@ namespace Horizon.Application.Contracts.Persistance
     public interface IGraphRepositoryForScreen
     {
         Task CreateIndexesAsync();
-        Task AddScreenToGraph(Screen screen);
-        Task UpdateScreenOfGraph(Screen screen);
+        Task AddScreen(Screen screen);
+        Task UpdateScreen(Screen screen);
         Task UpdateAssociatedTargetsOfScreen(Screen screen);
-        Task DeleteScreenFromGraph(string screenId);
+        Task DeleteScreen(string screenId);
+        Task RenameScreen(string screenId, string newName);
     }
 }
