@@ -55,22 +55,7 @@ namespace Screen.Domain.Aggregates
             _id = @event.Id;
         }
 
-        /* Update Screen Associated Genes */
-        public void UpdateScreenAssociatedGenes(Dictionary<string, string> associatedTargets)
-        {
-            if (!_active)
-            {
-                throw new InvalidOperationException("This screen is deleted.");
-            }
-
-            var screenAssociatedTargetsUpdatedEvent = new ScreenAssociatedTargetsUpdatedEvent()
-            {
-                Id = _id,
-                Name = _Name,
-                AssociatedTargets = associatedTargets
-            };
-            RaiseEvent(screenAssociatedTargetsUpdatedEvent);
-        }
+        
 
         /* Delete Screen */
         public void DeleteScreen(Entities.Screen screen)
@@ -94,6 +79,58 @@ namespace Screen.Domain.Aggregates
             _id = @event.Id;
             _Name = @event.Name;
             _active = false;
+        }
+
+
+
+
+        /* Update Screen Associated Targets */
+        public void UpdateScreenAssociatedTargets(Dictionary<string, string> associatedTargets)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This screen is deleted.");
+            }
+
+            var screenAssociatedTargetsUpdatedEvent = new ScreenAssociatedTargetsUpdatedEvent()
+            {
+                Id = _id,
+                Name = _Name,
+                AssociatedTargets = associatedTargets
+            };
+            RaiseEvent(screenAssociatedTargetsUpdatedEvent);
+        }
+
+        public void Apply(ScreenAssociatedTargetsUpdatedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
+        }
+
+
+
+
+        /* Screen Rename Event */
+        public void RenameScreen(string name)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This screen is deleted.");
+            }
+
+            var screenRenamedEvent = new ScreenRenamedEvent
+            {
+                Id = _id,
+                ScreenId = _id,
+                Name = name
+            };
+            RaiseEvent(screenRenamedEvent);
+        }
+
+        public void Apply(ScreenRenamedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
         }
     }
 }

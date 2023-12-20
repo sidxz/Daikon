@@ -34,6 +34,8 @@ namespace Screen.Infrastructure
             BsonClassMap.RegisterClassMap<ScreenCreatedEvent>();
             BsonClassMap.RegisterClassMap<ScreenUpdatedEvent>();
             BsonClassMap.RegisterClassMap<ScreenDeletedEvent>();
+            BsonClassMap.RegisterClassMap<ScreenRenamedEvent>();
+            BsonClassMap.RegisterClassMap<ScreenAssociatedTargetsUpdatedEvent>();
 
             BsonClassMap.RegisterClassMap<ScreenRunAddedEvent>();
             BsonClassMap.RegisterClassMap<ScreenRunUpdatedEvent>();
@@ -42,6 +44,8 @@ namespace Screen.Infrastructure
             BsonClassMap.RegisterClassMap<HitCollectionCreatedEvent>();
             BsonClassMap.RegisterClassMap<HitCollectionUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HitCollectionDeletedEvent>();
+            BsonClassMap.RegisterClassMap<HitCollectionRenamedEvent>();
+            BsonClassMap.RegisterClassMap<HitCollectionAssociatedScreenUpdatedEvent>();
 
             BsonClassMap.RegisterClassMap<HitAddedEvent>();
             BsonClassMap.RegisterClassMap<HitUpdatedEvent>();

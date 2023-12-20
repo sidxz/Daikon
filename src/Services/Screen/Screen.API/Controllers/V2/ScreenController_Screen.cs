@@ -6,8 +6,12 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Screen.Application.Features.Commands.DeleteScreen;
 using Screen.Application.Features.Commands.NewScreen;
+using Screen.Application.Features.Commands.RenameScreen;
 using Screen.Application.Features.Commands.UpdateScreen;
+using Screen.Application.Features.Commands.UpdateScreenAssociatedTargets;
 using Screen.Application.Features.Queries.GetScreen.ById;
+using Screen.Application.Features.Queries.GetScreen.ByName;
+using Screen.Application.Features.Queries.ViewModels;
 
 namespace Screen.API.Controllers.V2
 {
@@ -26,48 +30,86 @@ namespace Screen.API.Controllers.V2
         }
 
 
-        // [HttpGet("{id}", Name = "GetScreenDefault")]
-        // [HttpGet("by-id/{id}", Name = "GetScreenById")]
-        // [MapToApiVersion("2.0")]
-        // [ProducesResponseType(typeof(ScreenVM), (int)HttpStatusCode.OK)]
-        // [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // public async Task<ActionResult<ScreenVM>> GetScreenById(Guid id, [FromQuery] bool WithMeta = false)
-        // {
-        //     try
-        //     {
-        //         var screen = await _mediator.Send(new GetScreenByIdQuery { Id = id, WithMeta = WithMeta });
-        //         return Ok(screen);
-        //     }
-        //     catch (ResourceNotFoundException ex)
-        //     {
-        //         _logger.LogInformation("GetScreenById: Requested Resource Not Found {Id}", id);
-        //         return NotFound(new BaseResponse
-        //         {
-        //             Message = ex.Message
-        //         });
-        //     }
+        [HttpGet("{id}", Name = "GetScreenDefault")]
+        [HttpGet("by-id/{id}", Name = "GetScreenById")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(ScreenVM), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ScreenVM>> GetScreenById(Guid id, [FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var screen = await _mediator.Send(new GetScreenByIdQuery { Id = id, WithMeta = WithMeta });
+                return Ok(screen);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetScreenById: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
-        //     catch (InvalidOperationException ex)
-        //     {
-        //         _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-        //         return BadRequest(new BaseResponse
-        //         {
-        //             Message = ex.Message
-        //         });
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
-        //         _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
-        //         return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-        //         {
-        //             Message = SAFE_ERROR_MESSAGE
-        //         });
-        //     }
-        // }
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
 
+        [HttpGet("by-name/{name}", Name = "GetScreenByName")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(ScreenVM), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ScreenVM>> GetScreenByName(string name, [FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var screen = await _mediator.Send(new GetScreenByNameQuery { Name = name, WithMeta = WithMeta });
+                return Ok(screen);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetScreenById: Requested Resource Not Found {name}", name);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
 
 
         [HttpPost(Name = "AddScreen")]
@@ -187,61 +229,117 @@ namespace Screen.API.Controllers.V2
         }
 
 
-        // [HttpPut("{id}/update-associated-targets", Name = "UpdateScreenAssociatedTargets")]
-        // [MapToApiVersion("2.0")]
-        // [ProducesResponseType((int)HttpStatusCode.OK)]
-        // [ProducesResponseType(StatusCodes.Status204NoContent)]
-        // [ProducesResponseType(StatusCodes.Status404NotFound)]
-        // public async Task<ActionResult> UpdateScreenAssociatedTargets(Guid id, UpdateScreenAssociatedTargetsCommand command)
-        // {
-        //     try
-        //     {
-        //         command.Id = id;
-        //         await _mediator.Send(command);
+        [HttpPut("{id}/update-associated-targets", Name = "UpdateScreenAssociatedTargets")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> UpdateScreenAssociatedTargets(Guid id, UpdateScreenAssociatedTargetsCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                await _mediator.Send(command);
 
-        //         return StatusCode(StatusCodes.Status200OK, new BaseResponse
-        //         {
-        //             Message = "Screen updated successfully",
-        //         });
-        //     }
-        //     catch (ArgumentNullException ex)
-        //     {
-        //         _logger.LogInformation("UpdateScreen: ArgumentNullException {Id}", id);
-        //         return BadRequest(new BaseResponse
-        //         {
-        //             Message = ex.Message
-        //         });
-        //     }
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Screen updated successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("UpdateScreen: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
-        //     catch (ResourceNotFoundException ex)
-        //     {
-        //         _logger.LogInformation("UpdateScreen: Requested Resource Not Found {Id}", id);
-        //         return NotFound(new BaseResponse
-        //         {
-        //             Message = ex.Message
-        //         });
-        //     }
-        //     catch (InvalidOperationException ex)
-        //     {
-        //         _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-        //         return BadRequest(new BaseResponse
-        //         {
-        //             Message = ex.Message
-        //         });
-        //     }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("UpdateScreen: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
-        //     catch (Exception ex)
-        //     {
-        //         const string SAFE_ERROR_MESSAGE = "An error occurred while updating the screen";
-        //         _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the screen";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
-        //         return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-        //         {
-        //             Message = SAFE_ERROR_MESSAGE
-        //         });
-        //     }
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
 
-        // }
+        }
+
+        [HttpPut("{id}/rename", Name = "RenameScreen")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> RenameScreen(Guid id, RenameScreenCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Screen renamed successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("RenameScreen: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("RenameScreen: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while renaming the screen";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+
+        }
 
         [HttpDelete("{id}", Name = "DeleteScreen")]
         [MapToApiVersion("2.0")]

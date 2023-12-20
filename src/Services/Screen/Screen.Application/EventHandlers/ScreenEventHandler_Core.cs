@@ -80,5 +80,55 @@ namespace Screen.Application.EventHandlers
             }
 
         }
+
+        public async Task OnEvent(ScreenRenamedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: ScreenRenamedEvent: {Id}", @event.Id);
+            var screen = await _screenRepository.ReadScreenById(@event.Id);
+
+            if (screen == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ScreenRenamedEvent Error renaming screen {@event.Id}", new Exception("Screen not found"));
+            }
+
+            screen.Name = @event.Name;
+            screen.DateModified = DateTime.UtcNow;
+            screen.IsModified = true;
+
+            try
+            {
+                await _screenRepository.UpdateScreen(screen);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ScreenRenamedEvent Error renaming screen {@event.Id}", ex);
+            }
+        }
+
+
+        public async Task OnEvent(ScreenAssociatedTargetsUpdatedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: ScreenAssociatedTargetsUpdatedEvent: {Id}", @event.Id);
+            var screen = await _screenRepository.ReadScreenById(@event.Id);
+
+            if (screen == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ScreenAssociatedTargetsUpdatedEvent Error updating screen {@event.Id}", new Exception("Screen not found"));
+            }
+
+            screen.AssociatedTargets = @event.AssociatedTargets;
+            screen.DateModified = DateTime.UtcNow;
+            screen.IsModified = true;
+
+            try
+            {
+                await _screenRepository.UpdateScreen(screen);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ScreenAssociatedTargetsUpdatedEvent Error updating screen {@event.Id}", ex);
+            }
+        }
+
     }
 }
