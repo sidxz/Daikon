@@ -229,12 +229,12 @@ namespace Screen.API.Controllers.V2
         }
 
 
-        [HttpPut("{id}/update-associated-targets", Name = "UpdateScreenAssociatedTargets")]
+        [HttpPut("{id}/update-associated-targets", Name = "UpdateAssociatedTargets")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> UpdateScreenAssociatedTargets(Guid id, UpdateScreenAssociatedTargetsCommand command)
+        public async Task<ActionResult> UpdateAssociatedTargets(Guid id, UpdateScreenAssociatedTargetsCommand command)
         {
             try
             {

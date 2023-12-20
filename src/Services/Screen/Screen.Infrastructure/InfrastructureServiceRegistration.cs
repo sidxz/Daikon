@@ -67,6 +67,7 @@ namespace Screen.Infrastructure
 
 
 
+
             /* Kafka Producer */
             var kafkaProducerSettings = new KafkaProducerSettings
             {
@@ -97,6 +98,18 @@ namespace Screen.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<ScreenRevision>>(screenVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<ScreenRevision>, VersionStoreRepository<ScreenRevision>>();
             services.AddScoped<IVersionHub<ScreenRevision>, VersionHub<ScreenRevision>>();
+
+
+            var screenRunVersionStoreSettings = new VersionDatabaseSettings<ScreenRunRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ScreenRunRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ScreenRunRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("ScreenMongoDbSettings:ScreenRunRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ScreenRunRevision>.CollectionName))
+            };
+
+            services.AddSingleton<IVersionDatabaseSettings<ScreenRunRevision>>(screenRunVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<ScreenRunRevision>, VersionStoreRepository<ScreenRunRevision>>();
+            services.AddScoped<IVersionHub<ScreenRunRevision>, VersionHub<ScreenRunRevision>>();
 
             var hitCollectionVersionStoreSettings = new VersionDatabaseSettings<HitCollectionRevision>
             {
