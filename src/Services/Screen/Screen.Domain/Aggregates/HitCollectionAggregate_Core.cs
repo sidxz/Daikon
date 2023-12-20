@@ -20,7 +20,7 @@ namespace Screen.Domain.Aggregates
         }
 
         /* Add HitCollection */
-        public  HitCollectionAggregate(HitCollection hitCollection, IMapper mapper)
+        public HitCollectionAggregate(HitCollection hitCollection, IMapper mapper)
         {
             _active = true;
             _id = hitCollection.Id;
@@ -87,6 +87,54 @@ namespace Screen.Domain.Aggregates
         public void Apply(HitCollectionDeletedEvent @event)
         {
             _active = false;
+        }
+
+        /* Rename HitCollection */
+        public void RenameHitCollection(string name)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This hitCollection is deleted.");
+            }
+
+            var hitCollectionRenamedEvent = new HitCollectionRenamedEvent()
+            {
+                Id = _id,
+                HitCollectionId = _id,
+                Name = name,
+            };
+            RaiseEvent(hitCollectionRenamedEvent);
+        }
+
+        public void Apply(HitCollectionRenamedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
+        }
+
+        /* Update HitCollection Associated Screen */
+        public void UpdateHitCollectionAssociatedScreen(Guid screenId)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This hitCollection is deleted.");
+            }
+
+            var hitCollectionAssociatedScreenUpdatedEvent = new HitCollectionAssociatedScreenUpdatedEvent()
+            {
+                Id = _id,
+                HitCollectionId = _id,
+                Name = _Name,
+                ScreenId = screenId
+            };
+            RaiseEvent(hitCollectionAssociatedScreenUpdatedEvent);
+        }
+
+        public void Apply(HitCollectionAssociatedScreenUpdatedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
+            _ScreenId = @event.ScreenId;
         }
     }
 }

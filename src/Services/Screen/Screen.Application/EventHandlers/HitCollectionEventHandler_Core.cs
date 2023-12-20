@@ -73,7 +73,8 @@ namespace Screen.Application.EventHandlers
             }
 
             // Delete all hits in the hit collection
-            try {
+            try
+            {
                 await _hitRepository.DeleteHitsByHitCollectionId(@existingHitCollection.Id);
             }
             catch (RepositoryException ex)
@@ -91,6 +92,53 @@ namespace Screen.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"HitCollectionDeletedEvent Error deleting hit collection {@event.Id}", ex);
             }
 
+        }
+
+        public async Task OnEvent(HitCollectionRenamedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: HitCollectionRenamedEvent: {Id}", @event.Id);
+            var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(@event.Id);
+
+            if (hitCollection == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"HitCollectionRenamedEvent Error renaming hit collection {@event.Id}", new Exception("Hit collection not found"));
+            }
+            hitCollection.Name = @event.Name;
+            hitCollection.DateModified = DateTime.UtcNow;
+            hitCollection.IsModified = true;
+
+            try
+            {
+                await _hitCollectionRepository.UpdateHitCollection(hitCollection);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"HitCollectionRenamedEvent Error renaming hit collection {@event.Id}", ex);
+            }
+        }
+
+
+        public async Task OnEvent(HitCollectionAssociatedScreenUpdatedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: HitCollectionAssociatedScreenUpdatedEvent: {Id}", @event.Id);
+            var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(@event.Id);
+
+            if (hitCollection == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"HitCollectionAssociatedScreenUpdatedEvent Error updating hit collection {@event.Id}", new Exception("Hit collection not found"));
+            }
+            hitCollection.ScreenId = @event.ScreenId;
+            hitCollection.DateModified = DateTime.UtcNow;
+            hitCollection.IsModified = true;
+
+            try
+            {
+                await _hitCollectionRepository.UpdateHitCollection(hitCollection);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"HitCollectionAssociatedScreenUpdatedEvent Error updating hit collection {@event.Id}", ex);
+            }
         }
 
     }

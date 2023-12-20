@@ -7,11 +7,14 @@ namespace Daikon.Events.Screens
     {
         public HitCollectionAssociatedScreenUpdatedEvent() : base(nameof(HitCollectionAssociatedScreenUpdatedEvent))
         {
-            
+
         }
 
 
-        public required string Name { get; set; }
-        public Dictionary<string, string>? AssociatedTargets { get; set; }
+        public string Name { get; set; }
+        public Guid HitCollectionId { get; set; }
+        public Guid ScreenId { get; set; }
+
+
     }
 }
