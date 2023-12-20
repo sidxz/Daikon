@@ -9,5 +9,11 @@ namespace Horizon.Application.Handlers
         Task OnEvent(HitCollectionCreatedEvent @event);
         Task OnEvent(HitCollectionUpdatedEvent @event);
         Task OnEvent(HitCollectionDeletedEvent @event);
+        Task OnEvent(HitCollectionRenamedEvent @event);
+        Task OnEvent(HitCollectionAssociatedScreenUpdatedEvent @event);
+        Task OnEvent(HitAddedEvent @event);
+        Task OnEvent(HitUpdatedEvent @event);
+        Task OnEvent(HitDeletedEvent @event);
+
     }
 }

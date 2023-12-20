@@ -42,9 +42,9 @@ namespace Horizon.Infrastructure.Repositories
 
 
 
-        public async Task AddTargetToGraph(Target target)
+        public async Task AddTarget(Target target)
         {
-            _logger.LogInformation("AddTargetToGraph(): Adding target with id {TargetId} and name {Name} and genes {genes}", target.TargetId, target.Name, target.GeneAccessionNumbers.ToString());
+            _logger.LogInformation("AddTarget(): Adding target with id {TargetId} and name {Name} and genes {genes}", target.TargetId, target.Name, target.GeneAccessionNumbers.ToString());
             var session = _driver.AsyncSession();
             try
             {
@@ -87,7 +87,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in AddTargetToGraph");
+                _logger.LogError(ex, "Error in AddTarget");
                 throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Adding Target To Graph", ex);
             }
             finally
@@ -96,9 +96,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateTargetOfGraph(Target target)
+        public async Task UpdateTarget(Target target)
         {
-            _logger.LogInformation("UpdateTargetOfGraph(): Updating target with id {TargetId}", target.TargetId);
+            _logger.LogInformation("UpdateTarget(): Updating target with id {TargetId}", target.TargetId);
             var session = _driver.AsyncSession();
             try
             {
@@ -123,7 +123,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in UpdateTargetOfGraph");
+                _logger.LogError(ex, "Error in UpdateTarget");
                 throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Updating Target In Graph", ex);
             }
             finally
@@ -193,7 +193,7 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public Task DeleteTargetFromGraph(string targetId)
+        public Task DeleteTarget(string targetId)
         {
             throw new NotImplementedException();
         }

@@ -35,26 +35,58 @@ namespace Horizon.Application.Handlers
 
                 DateCreated = DateTime.UtcNow,
                 IsModified = false,
-                IsDraft = false
             };
 
-            await _graphRepository.AddScreenToGraph(screen);
+            await _graphRepository.AddScreen(screen);
         }
 
-        public Task OnEvent(ScreenUpdatedEvent @event)
+        public async Task OnEvent(ScreenUpdatedEvent @event)
         {
             _logger.LogInformation($"Horizon: ScreenUpdatedEvent: {@event.Id} {@event.Name}");
-            throw new NotImplementedException();
+            var screen = new Screen
+            {
+                ScreenId = @event.Id.ToString(),
+                StrainId = @event.StrainId.ToString(),
+
+                Name = @event.Name,
+                AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
+                ScreenType = @event.ScreenType,
+                Method = @event.Method,
+                Status = @event.Status,
+                PrimaryOrgName = @event.PrimaryOrgName,
+
+                DateCreated = DateTime.UtcNow,
+                IsModified = true,
+            };
+
+            await _graphRepository.UpdateScreen(screen);
         }
 
-        public Task OnEvent(ScreenAssociatedTargetsUpdatedEvent @event)
+        public async Task OnEvent(ScreenAssociatedTargetsUpdatedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation($"Horizon: ScreenAssociatedTargetsUpdatedEvent: {@event.Id} {@event.Name}");
+            var screen = new Screen
+            {
+                ScreenId = @event.Id.ToString(),
+                Name = @event.Name,
+                AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
+                DateCreated = DateTime.UtcNow,
+                IsModified = true,
+            };
+
+            await _graphRepository.UpdateScreen(screen);
         }
 
         public Task OnEvent(ScreenDeletedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation($"Horizon: ScreenDeletedEvent: {@event.Id}");
+            return _graphRepository.DeleteScreen(@event.Id.ToString());
+        }
+
+        public Task OnEvent(ScreenRenamedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: ScreenRenamedEvent: {@event.Id} {@event.Name}");
+            return _graphRepository.RenameScreen(@event.Id.ToString(), @event.Name);
         }
     }
 }

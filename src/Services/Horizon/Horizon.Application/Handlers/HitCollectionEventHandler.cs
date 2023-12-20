@@ -36,7 +36,7 @@ namespace Horizon.Application.Handlers
 
             };
 
-            await _graphRepository.AddHitCollectionToGraph(hitCollection);
+            await _graphRepository.AddHitCollection(hitCollection);
         }
 
         public async Task OnEvent(HitCollectionUpdatedEvent @event)
@@ -52,12 +52,65 @@ namespace Horizon.Application.Handlers
                 IsModified = true,
 
             };
-            await _graphRepository.UpdateHitCollectionOfGraph(hitCollection);
+            await _graphRepository.UpdateHitCollection(hitCollection);
         }
 
         public Task OnEvent(HitCollectionDeletedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation($"Horizon: HitCollectionDeletedEvent: {@event.Id}");
+            return _graphRepository.DeleteHitCollection(@event.Id.ToString());
+        }
+
+        public Task OnEvent(HitCollectionRenamedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: HitCollectionRenamedEvent: {@event.Id} {@event.Name}");
+            return _graphRepository.RenameHitCollection(@event.Id.ToString(), @event.Name);
+        }
+
+        public async Task OnEvent(HitAddedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: HitAddedEvent: {@event.Id} {@event.HitId}");
+            var hit = new Hit
+            {
+                HitId = @event.Id.ToString(),
+                HitCollectionId = @event.HitCollectionId.ToString(),
+                InitialStructureSMILES = @event.InitialCompoundStructure,
+                DateCreated = DateTime.UtcNow,
+                IsModified = false,
+            };
+            await _graphRepository.AddHit(hit);
+        }
+
+        public async Task OnEvent(HitUpdatedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: HitUpdatedEvent: {@event.Id} {@event.HitId}");
+            var hit = new Hit
+            {
+                HitId = @event.Id.ToString(),
+                HitCollectionId = @event.HitCollectionId.ToString(),
+                DateCreated = DateTime.UtcNow,
+                IsModified = true,
+            };
+            await _graphRepository.UpdateHit(hit);
+        }
+
+        public Task OnEvent(HitDeletedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: HitDeletedEvent: {@event.Id}");
+            return _graphRepository.DeleteHit(@event.Id.ToString());
+        }
+
+        public Task OnEvent(HitCollectionAssociatedScreenUpdatedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: HitCollectionAssociatedScreenUpdatedEvent: {@event.Id} {@event.ScreenId}");
+            return _graphRepository.UpdateAssociatedScreenOfHitCollection(new HitCollection
+            {
+                HitCollectionId = @event.Id.ToString(),
+                ScreenId = @event.ScreenId.ToString(),
+                Name = @event.Name,
+                DateCreated = DateTime.UtcNow,
+                IsModified = true,
+            });
         }
     }
 }

@@ -48,9 +48,17 @@ namespace Horizon.Infrastructure.Query.Converters
                 "ScreenCreatedEvent" => JsonSerializer.Deserialize<ScreenCreatedEvent>(json, options),
                 "ScreenUpdatedEvent" => JsonSerializer.Deserialize<ScreenUpdatedEvent>(json, options),
                 "ScreenDeletedEvent" => JsonSerializer.Deserialize<ScreenDeletedEvent>(json, options),
+                "ScreenRenamedEvent" => JsonSerializer.Deserialize<ScreenRenamedEvent>(json, options),
                 "ScreenAssociatedTargetsUpdatedEvent" => JsonSerializer.Deserialize<ScreenAssociatedTargetsUpdatedEvent>(json, options),
                 "HitCollectionCreatedEvent" => JsonSerializer.Deserialize<HitCollectionCreatedEvent>(json, options),
                 "HitCollectionUpdatedEvent" => JsonSerializer.Deserialize<HitCollectionUpdatedEvent>(json, options),
+                "HitCollectionDeletedEvent" => JsonSerializer.Deserialize<HitCollectionDeletedEvent>(json, options),
+                "HitCollectionRenamedEvent" => JsonSerializer.Deserialize<HitCollectionRenamedEvent>(json, options),
+                "HitCollectionAssociatedScreenUpdatedEvent" => JsonSerializer.Deserialize<HitCollectionAssociatedScreenUpdatedEvent>(json, options),
+                "HitAddedEvent" => JsonSerializer.Deserialize<HitAddedEvent>(json, options),
+                "HitUpdatedEvent" => JsonSerializer.Deserialize<HitUpdatedEvent>(json, options),
+                "HitDeletedEvent" => JsonSerializer.Deserialize<HitDeletedEvent>(json, options),
+                
                 
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };

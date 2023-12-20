@@ -45,9 +45,9 @@ namespace Horizon.Infrastructure.Repositories
 
 
 
-        public async Task AddHitCollectionToGraph(HitCollection hitCollection)
+        public async Task AddHitCollection(HitCollection hitCollection)
         {
-            _logger.LogInformation("AddHitCollectionToGraph(): Adding hitCollection with id {HitCollectionId} and name {Name} and screenId {screenId}", hitCollection.HitCollectionId, hitCollection.Name, hitCollection.ScreenId);
+            _logger.LogInformation("AddHitCollection(): Adding hitCollection with id {HitCollectionId} and name {Name} and screenId {screenId}", hitCollection.HitCollectionId, hitCollection.Name, hitCollection.ScreenId);
             var session = _driver.AsyncSession();
             try
             {
@@ -91,7 +91,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in AddHitCollectionToGraph");
+                _logger.LogError(ex, "Error in AddHitCollection");
                 throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Adding HitCollection To Graph", ex);
             }
             finally
@@ -100,9 +100,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateHitCollectionOfGraph(HitCollection hitCollection)
+        public async Task UpdateHitCollection(HitCollection hitCollection)
         {
-            _logger.LogInformation("AddHitCollectionToGraph(): Adding hitCollection with id {HitCollectionId} and name {Name} and screenId {screenId}", hitCollection.HitCollectionId, hitCollection.Name, hitCollection.ScreenId);
+            _logger.LogInformation("AddHitCollection(): Adding hitCollection with id {HitCollectionId} and name {Name} and screenId {screenId}", hitCollection.HitCollectionId, hitCollection.Name, hitCollection.ScreenId);
             var session = _driver.AsyncSession();
             try
             {
@@ -129,7 +129,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in UpdateHitCollectionOfGraph");
+                _logger.LogError(ex, "Error in UpdateHitCollection");
                 throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Updating HitCollection In Graph", ex);
             }
             finally
@@ -186,9 +186,173 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public Task DeleteHitCollectionFromGraph(string hitCollectionId)
+        public Task DeleteHitCollection(string hitCollectionId)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("DeleteHitCollection(): Deleting hitCollection with id {HitCollectionId}", hitCollectionId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var deleteHitCollectionQuery = @"
+                            MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
+                            DETACH DELETE h
+                        ";
+                        await tx.RunAsync(deleteHitCollectionQuery, new
+                        {
+                            hitCollectionId = hitCollectionId
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in DeleteHitCollection");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Deleting HitCollection From Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
+        }
+
+        public Task RenameHitCollection(string hitCollectionId, string newName)
+        {
+            _logger.LogInformation("RenameHitCollection(): Renaming hitCollection with id {HitCollectionId} to {NewName}", hitCollectionId, newName);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var renameHitCollectionQuery = @"
+                            MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
+                            SET h.name = $newName
+                        ";
+                        await tx.RunAsync(renameHitCollectionQuery, new
+                        {
+                            hitCollectionId = hitCollectionId,
+                            newName = newName
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in RenameHitCollection");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Renaming HitCollection In Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
+        }
+
+        public Task AddHit(Hit hit)
+        {
+            _logger.LogInformation("AddHit(): Adding hit with id {HitId} and compoundId {CompoundId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.CompoundId, hit.HitCollectionId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var createHitQuery = @"
+                            MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
+                            CREATE (h)-[:HIT]->(hit:Hit {hitId: $hitId, initialStructureSMILES: $initialStructureSMILES})
+                        ";
+                        await tx.RunAsync(createHitQuery, new
+                        {
+                            hitCollectionId = hit.HitCollectionId,
+                            hitId = hit.HitId
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in AddHit");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Adding Hit To Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
+        }
+
+        public Task UpdateHit(Hit hit)
+        {
+            _logger.LogInformation("UpdateHit(): Updating hit with id {HitId} and compoundId {CompoundId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.CompoundId, hit.HitCollectionId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var updateHitQuery = @"
+                            MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})-[:HIT]->(hit:Hit {hitId: $hitId})
+                            SET hit.initialStructureSMILES = $initialStructureSMILES
+                        ";
+                        await tx.RunAsync(updateHitQuery, new
+                        {
+                            hitCollectionId = hit.HitCollectionId,
+                            hitId = hit.HitId,
+                            compoundId = hit.CompoundId
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in UpdateHit");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Updating Hit In Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
+        }
+
+        public Task DeleteHit(string hitId)
+        {
+            _logger.LogInformation("DeleteHit(): Deleting hit with id {HitId}", hitId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var deleteHitQuery = @"
+                            MATCH (h:HitCollection)-[:HIT]->(hit:Hit {hitId: $hitId})
+                            DETACH DELETE hit
+                        ";
+                        await tx.RunAsync(deleteHitQuery, new
+                        {
+                            hitId = hitId
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in DeleteHit");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Deleting Hit From Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
         }
 
 

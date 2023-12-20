@@ -1,11 +1,11 @@
 
 using FluentValidation;
 
-namespace Horizon.Application.Features.Command.Gene.AddGeneToGraph
+namespace Horizon.Application.Features.Command.Gene.AddGene
 {
-    public class AddGeneToGraphCommandValidator : AbstractValidator<AddGeneToGraphCommand>
+    public class AddGeneCommandValidator : AbstractValidator<AddGeneCommand>
     {
-        public AddGeneToGraphCommandValidator()
+        public AddGeneCommandValidator()
         {
             RuleFor(x => x.AccessionNumber).NotEmpty();
             RuleFor(x => x.GeneId).NotEmpty();

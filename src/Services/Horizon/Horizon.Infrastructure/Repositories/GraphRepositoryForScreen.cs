@@ -46,9 +46,9 @@ namespace Horizon.Infrastructure.Repositories
 
 
 
-        public async Task AddScreenToGraph(Screen screen)
+        public async Task AddScreen(Screen screen)
         {
-            _logger.LogInformation("AddScreenToGraph(): Adding screen with id {ScreenId} and name {Name} and targets {targets}", screen.ScreenId, screen.Name, screen.AssociatedTargetsId.ToString());
+            _logger.LogInformation("AddScreen(): Adding screen with id {ScreenId} and name {Name} and targets {targets}", screen.ScreenId, screen.Name, screen.AssociatedTargetsId.ToString());
             var session = _driver.AsyncSession();
             try
             {
@@ -91,7 +91,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in AddScreenToGraph");
+                _logger.LogError(ex, "Error in AddScreen");
                 throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Adding Screen To Graph", ex);
             }
             finally
@@ -100,9 +100,9 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public async Task UpdateScreenOfGraph(Screen screen)
+        public async Task UpdateScreen(Screen screen)
         {
-            _logger.LogInformation("UpdateScreenOfGraph(): Updating screen with id {ScreenId} and name {Name} and targets {targets}", screen.ScreenId, screen.Name, screen.AssociatedTargetsId.ToString());
+            _logger.LogInformation("UpdateScreen(): Updating screen with id {ScreenId} and name {Name} and targets {targets}", screen.ScreenId, screen.Name, screen.AssociatedTargetsId.ToString());
             var session = _driver.AsyncSession();
             try
             {
@@ -129,7 +129,7 @@ namespace Horizon.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in UpdateScreenOfGraph");
+                _logger.LogError(ex, "Error in UpdateScreen");
                 throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Updating Screen In Graph", ex);
             }
             finally
@@ -189,9 +189,71 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public Task DeleteScreenFromGraph(string screenId)
+        public Task DeleteScreen(string screenId)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("DeleteScreen(): Deleting screen with id {ScreenId}", screenId);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var deleteScreenQuery = @"
+                            MATCH (s:Screen {screenId: $screenId})
+                            DETACH DELETE s
+                        ";
+                        await tx.RunAsync(deleteScreenQuery, new
+                        {
+                            screenId = screenId
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in DeleteScreen");
+                throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Deleting Screen From Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
+        }
+
+        public Task RenameScreen(string screenId, string newName)
+        {
+            _logger.LogInformation("RenameScreen(): Renaming screen with id {ScreenId} to {NewName}", screenId, newName);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var renameScreenQuery = @"
+                            MATCH (s:Screen {screenId: $screenId})
+                            SET s.name = $newName
+                        ";
+                        await tx.RunAsync(renameScreenQuery, new
+                        {
+                            screenId = screenId,
+                            newName = newName
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in RenameScreen");
+                throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Renaming Screen In Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
         }
 
 

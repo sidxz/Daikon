@@ -6,10 +6,15 @@ namespace Horizon.Application.Contracts.Persistance
     public interface IGraphRepositoryForHitCollection
     {
         Task CreateIndexesAsync();
-        Task AddHitCollectionToGraph(HitCollection hitCollection);
-        Task UpdateHitCollectionOfGraph(HitCollection hitCollection);
+        Task AddHitCollection(HitCollection hitCollection);
+        Task UpdateHitCollection(HitCollection hitCollection);
         Task UpdateAssociatedScreenOfHitCollection(HitCollection hitCollection);
-        Task DeleteHitCollectionFromGraph(string hitCollectionId);
+        Task DeleteHitCollection(string hitCollectionId);
+        Task RenameHitCollection(string hitCollectionId, string newName);
+
+        Task AddHit(Hit hit);
+        Task UpdateHit(Hit hit);
+        Task DeleteHit(string hitId);
         
     }
 }
