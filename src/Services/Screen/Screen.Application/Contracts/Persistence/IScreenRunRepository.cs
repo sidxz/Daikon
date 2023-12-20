@@ -7,7 +7,7 @@ namespace Screen.Application.Contracts.Persistence
 
         Task<Domain.Entities.ScreenRun> ReadScreenRunById(Guid id);
         Task<List<Domain.Entities.ScreenRun>> GetScreenRunList();
-        Task<List<Domain.Entities.ScreenRun>> GetScreenRunListByScreenId(Guid screenId);
+        Task<List<Domain.Entities.ScreenRun>> GetScreenRunsListByScreenId(Guid screenId);
         Task UpdateScreenRun(Domain.Entities.ScreenRun screenRun);
         Task DeleteScreenRun(Guid id);
         Task DeleteScreenRunsByScreenId(Guid screenId);

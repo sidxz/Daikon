@@ -3,6 +3,7 @@ using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Screen.Application.Features.Commands.DeleteHit;
 using Screen.Application.Features.Commands.NewHit;
 using Screen.Application.Features.Commands.UpdateHitCollection;
 
@@ -122,6 +123,50 @@ namespace Screen.API.Controllers.V2
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
                     Id = hitId,
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        [HttpDelete("{hitCollectionId}/delete-hit/{hitId}", Name = "DeleteHit")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> DeleteHit(Guid hitCollectionId, Guid hitId)
+        {
+            try
+            {
+                await _mediator.Send(new DeleteHitCommand { Id = hitCollectionId, HitCollectionId = hitCollectionId, HitId = hitId });
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Hit deleted successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("DeleteHit: ArgumentNullException {Id}", hitId);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the hit";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
                     Message = SAFE_ERROR_MESSAGE
                 });
             }
