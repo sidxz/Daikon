@@ -11,7 +11,6 @@ namespace Screen.Domain.Aggregates
         private bool _active;
         private string _Name;
         private Guid _ScreenId;
-
         private IMapper _mapper;
 
 
@@ -28,7 +27,7 @@ namespace Screen.Domain.Aggregates
             _ScreenId = hitCollection.ScreenId;
             _mapper = mapper;
 
-            var hitCollectionCreatedEvent = mapper.Map<HitCollectionCreatedEvent>(hitCollection);
+            var hitCollectionCreatedEvent = _mapper.Map<HitCollectionCreatedEvent>(hitCollection);
 
             RaiseEvent(hitCollectionCreatedEvent);
         }
@@ -42,12 +41,13 @@ namespace Screen.Domain.Aggregates
         }
 
         /* Update HitCollection */
-        public void UpdateHitCollection(HitCollection hitCollection)
+        public void UpdateHitCollection(HitCollection hitCollection, IMapper mapper)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This hitCollection is deleted.");
             }
+            _mapper = mapper;
 
             var hitCollectionUpdatedEvent = _mapper.Map<HitCollectionUpdatedEvent>(hitCollection);
             hitCollectionUpdatedEvent.Id = _id;

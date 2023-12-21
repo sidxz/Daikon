@@ -266,12 +266,14 @@ namespace Horizon.Infrastructure.Repositories
                     {
                         var createHitQuery = @"
                             MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
-                            CREATE (h)-[:HIT]->(hit:Hit {hitId: $hitId, initialStructureSMILES: $initialStructureSMILES})
+                            CREATE (h)-[:HIT]->(hit:Hit {hitId: $hitId, library: $library, initialStructureSMILES: $initialStructureSMILES})
                         ";
                         await tx.RunAsync(createHitQuery, new
                         {
                             hitCollectionId = hit.HitCollectionId,
-                            hitId = hit.HitId
+                            hitId = hit.HitId,
+                            library = hit.Library,
+                            initialStructureSMILES = hit.InitialStructureSMILES
                         });
                     });
                 });

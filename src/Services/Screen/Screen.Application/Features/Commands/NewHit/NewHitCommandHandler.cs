@@ -47,7 +47,7 @@ namespace Screen.Application.Features.Commands.NewHit
       try
       {
         var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.HitCollectionId);
-        aggregate.AddHit(newHit);
+        aggregate.AddHit(newHit, _mapper);
         await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
       }
       catch (AggregateNotFoundException ex)

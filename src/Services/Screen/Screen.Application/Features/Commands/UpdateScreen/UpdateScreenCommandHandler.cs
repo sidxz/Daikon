@@ -51,7 +51,7 @@ namespace Screen.Application.Features.Commands.UpdateScreen
 
             try {
                 var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateScreen(modScreen);
+                aggregate.UpdateScreen(modScreen, _mapper);
 
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }

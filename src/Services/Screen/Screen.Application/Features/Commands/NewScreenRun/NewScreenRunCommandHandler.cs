@@ -46,7 +46,7 @@ namespace Screen.Application.Features.Commands.NewScreenRun
             try
             {
                 var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.ScreenId);
-                aggregate.AddScreenRun(newScreenRun);
+                aggregate.AddScreenRun(newScreenRun, _mapper);
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using CQRS.Core.Domain;
 using Daikon.Events.Screens;
 using Screen.Domain.Entities;
@@ -11,7 +12,7 @@ namespace Screen.Domain.Aggregates
 
 
         /* Add Screen Run */
-        public void AddScreenRun(ScreenRun screenRun)
+        public void AddScreenRun(ScreenRun screenRun, IMapper mapper)
         {
             if (!_active)
             {
@@ -22,7 +23,7 @@ namespace Screen.Domain.Aggregates
             {
                 throw new Exception("Screen Run already exists");
             }
-
+            _mapper = mapper;
             var screenRunAddedEvent = _mapper.Map<ScreenRunAddedEvent>(screenRun);
             screenRunAddedEvent.Id = _id;
             screenRunAddedEvent.ScreenId = _id;
@@ -37,7 +38,7 @@ namespace Screen.Domain.Aggregates
         }
 
         /* Update Screen Run */
-        public void UpdateScreenRun(ScreenRun screenRun)
+        public void UpdateScreenRun(ScreenRun screenRun, IMapper mapper)
         {
             if (!_active)
             {
@@ -48,6 +49,7 @@ namespace Screen.Domain.Aggregates
             {
                 throw new Exception("Screen Run does not exist");
             }
+            _mapper = mapper;
 
             var screenRunUpdatedEvent = _mapper.Map<ScreenRunUpdatedEvent>(screenRun);
             screenRunUpdatedEvent.Id = _id;

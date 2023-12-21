@@ -72,8 +72,9 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitAddedEvent: {@event.Id} {@event.HitId}");
             var hit = new Hit
             {
-                HitId = @event.Id.ToString(),
+                HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.HitCollectionId.ToString(),
+                Library = @event.Library,
                 InitialStructureSMILES = @event.InitialCompoundStructure,
                 DateCreated = DateTime.UtcNow,
                 IsModified = false,
@@ -88,6 +89,7 @@ namespace Horizon.Application.Handlers
             {
                 HitId = @event.Id.ToString(),
                 HitCollectionId = @event.HitCollectionId.ToString(),
+                
                 DateCreated = DateTime.UtcNow,
                 IsModified = true,
             };
