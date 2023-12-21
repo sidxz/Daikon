@@ -53,7 +53,7 @@ namespace Screen.Application.Features.Commands.UpdateHitCollection
             try
             {
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.HitCollectionId);
-                aggregate.UpdateHitCollection(updatedHitCollection);
+                aggregate.UpdateHitCollection(updatedHitCollection, _mapper);
                 await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

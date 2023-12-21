@@ -10,7 +10,7 @@ namespace Screen.Domain.Aggregates
         private readonly Dictionary<Guid, Hit> _hits = [];
 
         /* Add Hit */
-        public void AddHit(Hit hit)
+        public void AddHit(Hit hit, IMapper mapper)
         {
             if (!_active)
             {
@@ -21,8 +21,8 @@ namespace Screen.Domain.Aggregates
             {
                 throw new Exception("Hit already exists");
             }
-
-            var hitAddedEvent = _mapper.Map<HitAddedEvent>(hit);
+            _mapper = mapper;
+            var hitAddedEvent = mapper.Map<HitAddedEvent>(hit);
             hitAddedEvent.Id = _id;
             hitAddedEvent.HitCollectionId = _id;
             hitAddedEvent.HitId = hit.HitId;
@@ -35,7 +35,7 @@ namespace Screen.Domain.Aggregates
         }
 
         /* Update Hit */
-        public void UpdateHit(Hit hit)
+        public void UpdateHit(Hit hit, IMapper mapper)
         {
             if (!_active)
             {
@@ -46,6 +46,7 @@ namespace Screen.Domain.Aggregates
             {
                 throw new Exception("Hit does not exist");
             }
+            _mapper = mapper;
 
             var hitUpdatedEvent = _mapper.Map<HitUpdatedEvent>(hit);
             hitUpdatedEvent.Id = _id;
@@ -84,9 +85,6 @@ namespace Screen.Domain.Aggregates
         public void Apply(HitDeletedEvent @event)
         {
             _hits.Remove(@event.HitId);
-        }
-
-
-        
+        }        
     }
 }
