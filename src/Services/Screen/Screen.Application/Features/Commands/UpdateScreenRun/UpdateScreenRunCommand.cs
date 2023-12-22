@@ -9,7 +9,6 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
     public class UpdateScreenRunCommand : BaseCommand, IRequest<Unit>
     {
 
-        public Guid ScreenId { get; set; }
         public Guid ScreenRunId { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]

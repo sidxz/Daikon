@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 using CQRS.Core.Exceptions;
+using Daikon.Events.Screens;
 
 namespace Screen.Application.Features.Commands.RenameScreen
 {
@@ -42,11 +43,14 @@ namespace Screen.Application.Features.Commands.RenameScreen
                 throw new DuplicateEntityRequestException(nameof(ScreenAggregate), request.Name);
             }
 
+            var screenRenamedEvent = _mapper.Map<ScreenRenamedEvent>(request);
+
             try
             {
                 var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.RenameScreen(request.Name);
 
+                aggregate.RenameScreen(screenRenamedEvent);
+                
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

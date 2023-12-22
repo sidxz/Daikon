@@ -5,6 +5,7 @@ using Screen.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using Daikon.Events.Screens;
 
 namespace Screen.Application.Features.Commands.DeleteScreen
 {
@@ -14,7 +15,7 @@ namespace Screen.Application.Features.Commands.DeleteScreen
     private readonly IEventSourcingHandler<ScreenAggregate> _screenEventSourcingHandler;
     private readonly IMapper _mapper;
 
-    public DeleteScreenCommandHandler(ILogger<DeleteScreenCommandHandler> logger, 
+    public DeleteScreenCommandHandler(ILogger<DeleteScreenCommandHandler> logger,
     IEventSourcingHandler<ScreenAggregate> screenEventSourcingHandler, IMapper mapper)
     {
       _logger = logger;
@@ -30,13 +31,10 @@ namespace Screen.Application.Features.Commands.DeleteScreen
       {
         var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
 
-        var screenToBeDeleted = new Domain.Entities.Screen
-        {
-          Id = request.Id,
-          Name = "",
-        };
+        var screenDeletedEvent = _mapper.Map<ScreenDeletedEvent>(request);
 
-        aggregate.DeleteScreen(screenToBeDeleted);
+        aggregate.DeleteScreen(screenDeletedEvent);
+
         await _screenEventSourcingHandler.SaveAsync(aggregate);
       }
       catch (AggregateNotFoundException ex)

@@ -10,11 +10,19 @@ namespace Screen.Application.EventHandlers
 
         public async Task OnEvent(ScreenRunAddedEvent @event)
         {
-            _logger.LogInformation("OnEvent: ScreenRunAddedEvent: {Id}", @event.Id);
+            _logger.LogInformation("OnEvent: ScreenRunAddedEvent: ScreenId {Id}, ScreenRunId {ScreenRunId}", @event.Id, @event.ScreenRunId);
+
             var screenRun = _mapper.Map<Domain.Entities.ScreenRun>(@event);
+
+            // @override screenRun.Id to be the same as screenRun.ScreenRunId 
+            // as @event.Id refers to ScreenId (Aggregate Id) which is auto mapped by mapper
+            // In MongoDb, we want to use ScreenRunId as the Id of the entity
             screenRun.Id = @event.ScreenRunId;
-            screenRun.ScreenId = @event.ScreenId;
-            screenRun.ScreenRunId = @event.ScreenRunId;
+
+            // Set the ScreenId to be the same as the Aggregate Id to maintain a 
+            // relationship between Screen and ScreenRun
+            screenRun.ScreenId = @event.Id;
+
             screenRun.DateCreated = DateTime.UtcNow;
             screenRun.IsModified = false;
 
@@ -30,7 +38,7 @@ namespace Screen.Application.EventHandlers
 
         public async Task OnEvent(ScreenRunUpdatedEvent @event)
         {
-            _logger.LogInformation("OnEvent: ScreenRunUpdatedEvent: {Id}", @event.Id);
+            _logger.LogInformation("OnEvent: ScreenRunUpdatedEvent: ScreenId {Id}, ScreenRunId {ScreenRunId}", @event.Id, @event.ScreenRunId);
             var existingScreenRun = await _screenRunRepository.ReadScreenRunById(@event.ScreenRunId);
 
             if (existingScreenRun == null)
@@ -40,8 +48,7 @@ namespace Screen.Application.EventHandlers
 
             var screenRun = _mapper.Map<Domain.Entities.ScreenRun>(@event);
             screenRun.Id = @event.ScreenRunId;
-            screenRun.ScreenId = @event.ScreenId;
-            screenRun.ScreenRunId = @event.ScreenRunId;
+            screenRun.ScreenId = @event.Id;
 
             screenRun.DateCreated = existingScreenRun.DateCreated;
             screenRun.IsModified = true;

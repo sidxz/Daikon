@@ -16,27 +16,17 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddScreenRun(Guid screenId, NewScreenRunCommand command)
         {
-            var screenRunId = Guid.NewGuid();
-            command.Id = screenId;
-            command.ScreenId = screenId;
-
+            command.Id = screenId;    
+            command.ScreenRunId = Guid.NewGuid();
             try
             {
-                command.ScreenRunId = screenRunId;
+                
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status201Created, new AddResponse
                 {
-                    Id = screenRunId,
+                    Id = command.ScreenRunId,
                     Message = "Screen Run added successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("AddScreenRun: ArgumentNullException {Id}", screenRunId);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
                 });
             }
 
@@ -64,7 +54,7 @@ namespace Screen.API.Controllers.V2
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
-                    Id = screenRunId,
+                    Id = command.ScreenRunId,
                     Message = SAFE_ERROR_MESSAGE
                 });
             }
@@ -79,7 +69,6 @@ namespace Screen.API.Controllers.V2
         public async Task<ActionResult> UpdateScreenRun(Guid screenId, Guid screenRunId, UpdateScreenRunCommand command)
         {
             command.Id = screenId;
-            command.ScreenId = screenId;
             command.ScreenRunId = screenRunId;
 
             try
@@ -137,7 +126,7 @@ namespace Screen.API.Controllers.V2
         {
             try
             {
-                await _mediator.Send(new DeleteScreenRunCommand { Id = screenId, ScreenId = screenId, ScreenRunId = screenRunId });
+                await _mediator.Send(new DeleteScreenRunCommand { Id = screenId, ScreenRunId = screenRunId });
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {

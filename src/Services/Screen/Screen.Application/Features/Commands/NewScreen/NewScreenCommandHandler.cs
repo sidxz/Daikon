@@ -1,6 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Handlers;
+using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -33,17 +34,21 @@ namespace Screen.Application.Features.Commands.NewScreen
 
         public async Task<Unit> Handle(NewScreenCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling NewScreenCommand: {request}");
            
             // check if name exists
             var existingScreen = await _screenRepository.ReadScreenByName(request.Name);
             if (existingScreen != null)
             {
+                _logger.LogError("Screen name already exists: {Name}", request.Name);
                 throw new InvalidOperationException("Screen name already exists");
             }
             
 
-            var newScreen = _mapper.Map<Domain.Entities.Screen>(request);
-            var aggregate = new ScreenAggregate(newScreen, _mapper);
+            var newScreenCreatedEvent = _mapper.Map<ScreenCreatedEvent>(request);
+
+            var aggregate = new ScreenAggregate(newScreenCreatedEvent);
+
             await _screenEventSourcingHandler.SaveAsync(aggregate);
 
             return Unit.Value;

@@ -23,7 +23,6 @@ namespace Screen.Infrastructure.Query.Repositories
             var database = client.GetDatabase(configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName"));
             _screenRun = database.GetCollection<ScreenRun>(configuration.GetValue<string>("ScreenMongoDbSettings:ScreenRunCollectionName"));
             _screenRun.Indexes.CreateOne(new CreateIndexModel<ScreenRun>(Builders<ScreenRun>.IndexKeys.Ascending(t => t.ScreenId), new CreateIndexOptions { Unique = false }));
-            _screenRun.Indexes.CreateOne(new CreateIndexModel<ScreenRun>(Builders<ScreenRun>.IndexKeys.Ascending(t => t.ScreenRunId), new CreateIndexOptions { Unique = false }));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 

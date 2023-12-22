@@ -5,8 +5,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
-using CQRS.Core.Comparators;
 using CQRS.Core.Exceptions;
+using Daikon.Events.Screens;
 
 namespace Screen.Application.Features.Commands.UpdateScreenAssociatedTargets
 {
@@ -30,22 +30,13 @@ namespace Screen.Application.Features.Commands.UpdateScreenAssociatedTargets
         }
         public async Task<Unit> Handle(UpdateScreenAssociatedTargetsCommand request, CancellationToken cancellationToken)
         {
-            // check if name is modified; reject if it is
-            var screen = await _screenRepository.ReadScreenById(request.Id);
 
-
-            // check if associated targets have been modified; reject if not, perform a deep comparison
-            if (screen.AssociatedTargets.DictionaryEqual(request.AssociatedTargets))
-            {
-                throw new InvalidOperationException("Associated targets are not modified");
-            }
-
-            screen.AssociatedTargets = request.AssociatedTargets;
-
+            var screenAssociatedTargetsUpdatedEvent = _mapper.Map<ScreenAssociatedTargetsUpdatedEvent>(request);
+            
             try
             {
                 var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateScreenAssociatedTargets(request.AssociatedTargets);
+                aggregate.UpdateScreenAssociatedTargets(screenAssociatedTargetsUpdatedEvent);
 
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }
