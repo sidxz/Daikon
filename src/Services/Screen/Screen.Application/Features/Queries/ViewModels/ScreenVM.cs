@@ -1,8 +1,11 @@
 
+using CQRS.Core.Domain;
+
 namespace Screen.Application.Features.Queries.ViewModels
 {
-    public class ScreenVM
+    public class ScreenVM : DocMetadata
     {
+        public Guid Id { get; set; }
         public Guid StrainId { get; set; }
         public string Name { get; set; }
         public Dictionary<string, string> AssociatedTargets { get; set; }

@@ -12,7 +12,7 @@ namespace Screen.Domain.Entities
         public DVariable<int>? LibrarySize { get; set; }
         public DVariable<string>? Scientist { get; set; }
         public DVariable<DateTime>? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public DVariable<DateTime>? EndDate { get; set; }
         public DVariable<int>? UnverifiedHitCount { get; set; }
         public DVariable<double>? HitRate { get; set; }
         public DVariable<int>? PrimaryHitCount { get; set; }

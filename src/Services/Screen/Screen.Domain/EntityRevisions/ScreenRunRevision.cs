@@ -12,6 +12,7 @@ namespace Screen.Domain.EntityRevisions
         public DVariableHistory<string>? LibrarySize { get; set; }
         public DVariableHistory<Guid>? Scientist { get; set; }
         public DVariableHistory<DateTime>? StartDate { get; set; }
+        public DVariableHistory<DateTime>? EndDate { get; set; }
         public DVariableHistory<int>? UnverifiedHitCount { get; set; }
         public DVariableHistory<double>? HitRate { get; set; }
         public DVariableHistory<int>? PrimaryHitCount { get; set; }
