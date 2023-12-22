@@ -233,7 +233,6 @@ class MoleculeRepository(IMoleculeRepository):
             logging.error(f"Error deleting molecule from the database: {e}")
             raise
 
-
     async def find_similar_molecule(
         self, smiles: str, threshold: float = 0.8, num_results: int = 10
     ) -> list:
@@ -247,6 +246,18 @@ class MoleculeRepository(IMoleculeRepository):
 
         Returns:
             List of dict: A list of dictionaries containing the details of the similar molecule and their similarity scores.
+
+        Purpose: 
+            The query identifies molecules from the 'molecules' table that are structurally similar 
+            to a query molecule, based on Tanimoto similarity.
+
+        Process:
+            Fingerprint Generation: For both the query molecule and each molecule in the database, 
+                Morgan fingerprints (specifically, binary vector fingerprints with a radius of 2, denoted as mfp2) are generated.
+                
+            Similarity Calculation: The Tanimoto similarity between the query molecule's fingerprint 
+                and each database molecule's fingerprint is calculated.
+            
         """
         if not smiles:
             raise ValueError("SMILES string is required.")
@@ -277,7 +288,7 @@ class MoleculeRepository(IMoleculeRepository):
                             "smilesCanonical": mol["smiles_canonical"],
                             "molecularWeight": mol["molecular_weight"],
                             "tpsa": mol["tpsa"],
-                            "similarity": mol["similarity"],
+                            "similarity": round(mol["similarity"], 2),
                         }
                     )
                     for mol in result
@@ -286,7 +297,6 @@ class MoleculeRepository(IMoleculeRepository):
         except Exception as e:
             logging.error(f"Error finding similar molecule in the database: {e}")
             raise
-
 
     async def list_molecules(self) -> dict:
         """
