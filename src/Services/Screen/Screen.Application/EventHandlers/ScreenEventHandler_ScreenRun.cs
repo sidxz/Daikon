@@ -1,4 +1,3 @@
-
 using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
 using Microsoft.Extensions.Logging;
@@ -14,8 +13,8 @@ namespace Screen.Application.EventHandlers
 
             var screenRun = _mapper.Map<Domain.Entities.ScreenRun>(@event);
 
-            // @override screenRun.Id to be the same as screenRun.ScreenRunId 
-            // as @event.Id refers to ScreenId (Aggregate Id) which is auto mapped by mapper
+            // Override screenRun.Id to be the same as screenRun.ScreenRunId 
+            // as @event.Id refers to ScreenId (Aggregate Id) which is auto-mapped by the mapper
             // In MongoDb, we want to use ScreenRunId as the Id of the entity
             screenRun.Id = @event.ScreenRunId;
 
@@ -32,7 +31,7 @@ namespace Screen.Application.EventHandlers
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), "ScreenRunAddedEvent Error creating screen run", ex);
+                throw new EventHandlerException(nameof(EventHandler), "Error occurred while creating screen run for ScreenRunAddedEvent", ex);
             }
         }
 
@@ -43,7 +42,7 @@ namespace Screen.Application.EventHandlers
 
             if (existingScreenRun == null)
             {
-                throw new EventHandlerException(nameof(EventHandler), $"ScreenRunUpdatedEvent Error updating screen run {@event.ScreenRunId}", new Exception("Screen run not found"));
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating screen run {@event.ScreenRunId} for ScreenRunUpdatedEvent", new Exception("Screen run not found"));
             }
 
             var screenRun = _mapper.Map<Domain.Entities.ScreenRun>(@event);
@@ -59,7 +58,7 @@ namespace Screen.Application.EventHandlers
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), $"ScreenRunUpdatedEvent Error updating screen run {@event.ScreenRunId}", ex);
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating screen run {@event.ScreenRunId} for ScreenRunUpdatedEvent", ex);
             }
         }
 
@@ -70,7 +69,7 @@ namespace Screen.Application.EventHandlers
 
             if (existingScreenRun == null)
             {
-                throw new EventHandlerException(nameof(EventHandler), $"ScreenRunDeletedEvent Error deleting screen run {@event.ScreenRunId}", new Exception("Screen run not found"));
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting screen run {@event.ScreenRunId} for ScreenRunDeletedEvent", new Exception("Screen run not found"));
             }
 
             try
@@ -79,7 +78,7 @@ namespace Screen.Application.EventHandlers
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), $"ScreenRunDeletedEvent Error deleting screen run {@event.ScreenRunId}", ex);
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting screen run {@event.ScreenRunId} for ScreenRunDeletedEvent", ex);
             }
         }
 

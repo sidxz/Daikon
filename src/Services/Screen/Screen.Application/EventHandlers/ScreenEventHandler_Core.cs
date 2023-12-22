@@ -67,12 +67,12 @@ namespace Screen.Application.EventHandlers
             }
         }
 
-        public Task OnEvent(ScreenDeletedEvent @event)
+        public async Task OnEvent(ScreenDeletedEvent @event)
         {
             _logger.LogInformation("OnEvent: ScreenDeletedEvent: {Id}", @event.Id);
             try
             {
-                return _screenRepository.DeleteScreen(@event.Id);
+                await _screenRepository.DeleteScreen(@event.Id);
             }
             catch (RepositoryException ex)
             {

@@ -9,7 +9,6 @@ namespace Screen.Application.Features.Commands.UpdateHit
     public class UpdateHitCommand : BaseCommand, IRequest<Unit>
     {
         public Guid HitId { get; set; }
-        public Guid HitCollectionId { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Library { get; set; }

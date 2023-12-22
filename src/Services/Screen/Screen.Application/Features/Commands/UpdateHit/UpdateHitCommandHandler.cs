@@ -1,11 +1,11 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
-using Screen.Domain.Entities;
 
 
 namespace Screen.Application.Features.Commands.UpdateHit
@@ -35,18 +35,14 @@ namespace Screen.Application.Features.Commands.UpdateHit
         public async Task<Unit> Handle(UpdateHitCommand request, CancellationToken cancellationToken)
         {
            
-           if (request.HitCollectionId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(request.HitCollectionId));
-            }
-            
-            var updatedHit = _mapper.Map<Hit>(request);
-            updatedHit.HitCollectionId = request.Id;
-            
             try
             {
+                var hitUpdatedEvent = _mapper.Map<HitUpdatedEvent>(request);
+
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateHit(updatedHit, _mapper);
+
+                aggregate.UpdateHit(hitUpdatedEvent);
+
                 await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

@@ -5,7 +5,7 @@ using CQRS.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Screen.Application.Features.Commands.DeleteHit;
 using Screen.Application.Features.Commands.NewHit;
-using Screen.Application.Features.Commands.UpdateHitCollection;
+using Screen.Application.Features.Commands.UpdateHit;
 
 namespace Screen.API.Controllers.V2
 {
@@ -17,24 +17,22 @@ namespace Screen.API.Controllers.V2
 
         public async Task<ActionResult> AddHit(Guid hitCollectionId, NewHitCommand command)
         {
-            var hitId = Guid.NewGuid();
             command.Id = hitCollectionId;
-            command.HitCollectionId = hitCollectionId;
 
             try
             {
-                command.HitId = hitId;
+                command.HitId = Guid.NewGuid();
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status201Created, new AddResponse
                 {
-                    Id = hitId,
+                    Id = command.HitId,
                     Message = "Hit added successfully",
                 });
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogInformation("AddHit: ArgumentNullException {Id}", hitId);
+                _logger.LogInformation("AddHit: ArgumentNullException {Id}", command.HitId);
                 return BadRequest(new BaseResponse
                 {
                     Message = ex.Message
@@ -65,7 +63,7 @@ namespace Screen.API.Controllers.V2
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
-                    Id = hitId,
+                    Id = command.HitId,
                     Message = SAFE_ERROR_MESSAGE
                 });
             }
@@ -75,12 +73,11 @@ namespace Screen.API.Controllers.V2
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
 
-        public async Task<ActionResult> UpdateHit (Guid hitCollectionId, Guid hitId, UpdateHitCollectionCommand command)
+        public async Task<ActionResult> UpdateHit(Guid hitCollectionId, Guid hitId, UpdateHitCommand command)
         {
             command.Id = hitCollectionId;
-            command.HitCollectionId = hitCollectionId;
             command.HitId = hitId;
-        
+
             try
             {
                 await _mediator.Send(command);
@@ -135,7 +132,7 @@ namespace Screen.API.Controllers.V2
         {
             try
             {
-                await _mediator.Send(new DeleteHitCommand { Id = hitCollectionId, HitCollectionId = hitCollectionId, HitId = hitId });
+                await _mediator.Send(new DeleteHitCommand { Id = hitCollectionId, HitId = hitId });
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {

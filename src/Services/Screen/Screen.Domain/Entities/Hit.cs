@@ -5,7 +5,6 @@ namespace Screen.Domain.Entities
 {
     public class Hit : BaseEntity
     {
-        public Guid HitId { get; set; }
         public Guid HitCollectionId { get; set; }
         public DVariable<string>? Library { get; set; }
         public DVariable<string>? LibrarySource { get; set; }

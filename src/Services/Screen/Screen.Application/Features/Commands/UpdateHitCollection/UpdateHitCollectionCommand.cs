@@ -8,15 +8,6 @@ namespace Screen.Application.Features.Commands.UpdateHitCollection
 {
     public class UpdateHitCollectionCommand : BaseCommand, IRequest<Unit>
     {
-
-        public Guid HitCollectionId { get; set; }
-
-        public Guid HitId { get; set; }
-
-        public Guid ScreenId { get; set; }
-
-        public required string Name { get; set; }
-
         public required string HitCollectionType { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]

@@ -32,17 +32,14 @@ namespace Screen.API.Controllers.V2
 
         public async Task<IActionResult> AddHitCollection(NewHitCollectionCommand command)
         {
-            var id = Guid.NewGuid();
             try
             {
-                command.Id = id;
-                command.HitCollectionId = id;
-
+                command.Id = Guid.NewGuid();;
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status201Created, new AddResponse
                 {
-                    Id = id,
+                    Id = command.Id,
                     Message = "Hit collection created successfully",
 
                 });
@@ -50,7 +47,7 @@ namespace Screen.API.Controllers.V2
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogInformation("AddHitCollection: ArgumentNullException {Id}", id);
+                _logger.LogInformation("AddHitCollection: ArgumentNullException {Id}", command.Id);
                 return BadRequest(new BaseResponse
                 {
                     Message = ex.Message
@@ -79,7 +76,7 @@ namespace Screen.API.Controllers.V2
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
-                    Id = id,
+                    Id = command.Id,
                     Message = SAFE_ERROR_MESSAGE
                 });
             }

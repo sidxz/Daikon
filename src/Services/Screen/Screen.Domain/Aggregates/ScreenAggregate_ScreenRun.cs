@@ -1,4 +1,3 @@
-
 using CQRS.Core.Domain;
 using Daikon.Events.Screens;
 using Screen.Domain.Entities;
@@ -15,12 +14,12 @@ namespace Screen.Domain.Aggregates
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This screen is deleted.");
+                throw new InvalidOperationException("This screen has been deleted.");
             }
 
             if (_screenRuns.ContainsKey(screenRunAddedEvent.ScreenRunId))
             {
-                throw new Exception("Screen Run already exists");
+                throw new Exception("Screen Run already exists.");
             }
             RaiseEvent(screenRunAddedEvent);
         }
@@ -28,7 +27,7 @@ namespace Screen.Domain.Aggregates
 
         public void Apply(ScreenRunAddedEvent @event)
         {
-            // Just storing important params that is necessary for the screen aggregate to run
+            // Store important parameters necessary for the screen aggregate to run
             _screenRuns.Add(@event.ScreenRunId, new ScreenRun()
             {
                 ScreenId = @event.Id,
@@ -41,12 +40,12 @@ namespace Screen.Domain.Aggregates
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This screen is deleted.");
+                throw new InvalidOperationException("This screen has been deleted.");
             }
 
             if (!_screenRuns.ContainsKey(screenRunUpdatedEvent.ScreenRunId))
             {
-                throw new Exception("Screen Run does not exist");
+                throw new Exception("Screen Run does not exist.");
             }
 
             RaiseEvent(screenRunUpdatedEvent);
@@ -55,8 +54,8 @@ namespace Screen.Domain.Aggregates
         public void Apply(ScreenRunUpdatedEvent @event)
         {
 
-            // Get @event.ScreenRunId from _screenRuns Dictionary and update it without creating new ScreenRun
-            // Just storing important params that is necessary for the screen aggregate to run
+            // Update the existing ScreenRun identified by @event.ScreenRunId without creating a new one
+            // Store important parameters necessary for the screen aggregate to run
             _screenRuns[@event.ScreenRunId].Library = @event.Library;
 
         }
@@ -66,12 +65,12 @@ namespace Screen.Domain.Aggregates
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This screen is deleted.");
+                throw new InvalidOperationException("This screen has been deleted.");
             }
 
             if (!_screenRuns.ContainsKey(screenRunDeletedEvent.ScreenRunId))
             {
-                throw new Exception("Screen Run does not exist");
+                throw new Exception("Screen Run does not exist.");
             }
 
             RaiseEvent(screenRunDeletedEvent);

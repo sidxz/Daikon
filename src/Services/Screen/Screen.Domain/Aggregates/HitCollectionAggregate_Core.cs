@@ -11,7 +11,6 @@ namespace Screen.Domain.Aggregates
         private bool _active;
         private string _Name;
         private Guid _ScreenId;
-        private IMapper _mapper;
 
 
         public HitCollectionAggregate()
@@ -19,15 +18,12 @@ namespace Screen.Domain.Aggregates
         }
 
         /* Add HitCollection */
-        public HitCollectionAggregate(HitCollection hitCollection, IMapper mapper)
+        public HitCollectionAggregate(HitCollectionCreatedEvent hitCollectionCreatedEvent)
         {
             _active = true;
-            _id = hitCollection.Id;
-            _Name = hitCollection.Name;
-            _ScreenId = hitCollection.ScreenId;
-            _mapper = mapper;
-
-            var hitCollectionCreatedEvent = _mapper.Map<HitCollectionCreatedEvent>(hitCollection);
+            _id = hitCollectionCreatedEvent.Id;
+            _Name = hitCollectionCreatedEvent.Name;
+            _ScreenId = hitCollectionCreatedEvent.ScreenId;
 
             RaiseEvent(hitCollectionCreatedEvent);
         }
@@ -41,19 +37,16 @@ namespace Screen.Domain.Aggregates
         }
 
         /* Update HitCollection */
-        public void UpdateHitCollection(HitCollection hitCollection, IMapper mapper)
+        public void UpdateHitCollection(HitCollectionUpdatedEvent hitCollectionUpdatedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This hitCollection is deleted.");
             }
-            _mapper = mapper;
-
-            var hitCollectionUpdatedEvent = _mapper.Map<HitCollectionUpdatedEvent>(hitCollection);
+            // HitCollectionUpdatedEvent doesn't allow name or associated screen to be changed.
             hitCollectionUpdatedEvent.Id = _id;
-            hitCollectionUpdatedEvent.HitCollectionId = _id;
             hitCollectionUpdatedEvent.ScreenId = _ScreenId;
-            hitCollectionUpdatedEvent.Name = hitCollection.Name;
+            hitCollectionUpdatedEvent.Name = _Name;
 
             RaiseEvent(hitCollectionUpdatedEvent);
         }
@@ -61,48 +54,38 @@ namespace Screen.Domain.Aggregates
         public void Apply(HitCollectionUpdatedEvent @event)
         {
             _id = @event.Id;
-            _Name = @event.Name;
         }
 
         /* Delete HitCollection */
-        public void DeleteHitCollection(Guid id)
+        public void DeleteHitCollection(HitCollectionDeletedEvent hitCollectionDeletedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This hitCollection is already deleted.");
             }
 
-            var hitCollectionDeletedEvent = new HitCollectionDeletedEvent()
-            {
-                Id = _id,
-                HitCollectionId = _id,
-                Name = _Name,
-                ScreenId = _ScreenId
-            };
-            hitCollectionDeletedEvent.Id = id;
-
             RaiseEvent(hitCollectionDeletedEvent);
         }
 
         public void Apply(HitCollectionDeletedEvent @event)
         {
+            _id = @event.Id;
             _active = false;
         }
 
         /* Rename HitCollection */
-        public void RenameHitCollection(string name)
+
+        public void RenameHitCollection(HitCollectionRenamedEvent hitCollectionRenamedEvent)
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This hitCollection is deleted.");
+                throw new InvalidOperationException("Unable to rename the hit collection as it has been deleted.");
+            }
+            if (hitCollectionRenamedEvent.Name == _Name)
+            {
+                throw new InvalidOperationException("Unable to rename the hit collection as it already has the specified name.");
             }
 
-            var hitCollectionRenamedEvent = new HitCollectionRenamedEvent()
-            {
-                Id = _id,
-                HitCollectionId = _id,
-                Name = name,
-            };
             RaiseEvent(hitCollectionRenamedEvent);
         }
 
@@ -113,27 +96,23 @@ namespace Screen.Domain.Aggregates
         }
 
         /* Update HitCollection Associated Screen */
-        public void UpdateHitCollectionAssociatedScreen(Guid screenId)
+        public void UpdateHitCollectionAssociatedScreen(HitCollectionAssociatedScreenUpdatedEvent hitCollectionAssociatedScreenUpdatedEvent)
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This hitCollection is deleted.");
+                throw new InvalidOperationException("This hitCollection has already been deleted.");
             }
 
-            var hitCollectionAssociatedScreenUpdatedEvent = new HitCollectionAssociatedScreenUpdatedEvent()
+            if (_ScreenId == hitCollectionAssociatedScreenUpdatedEvent.ScreenId)
             {
-                Id = _id,
-                HitCollectionId = _id,
-                Name = _Name,
-                ScreenId = screenId
-            };
+                throw new InvalidOperationException("The associated screen already belongs to the specified screen.");
+            }
             RaiseEvent(hitCollectionAssociatedScreenUpdatedEvent);
         }
 
         public void Apply(HitCollectionAssociatedScreenUpdatedEvent @event)
         {
             _id = @event.Id;
-            _Name = @event.Name;
             _ScreenId = @event.ScreenId;
         }
     }

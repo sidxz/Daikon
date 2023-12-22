@@ -7,7 +7,7 @@ namespace Screen.Application.Features.Commands.DeleteHit
     {
         public DeleteHitCommandValidator()
         {
-            RuleFor(t => t.HitCollectionId)
+            RuleFor(t => t.Id)
                 .NotEmpty().WithMessage("{HitCollectionId} is required")
                 .NotNull();
 
