@@ -1,5 +1,4 @@
 
-using AutoMapper;
 using CQRS.Core.Domain;
 using Daikon.Events.Screens;
 using Screen.Domain.Entities;
@@ -12,76 +11,69 @@ namespace Screen.Domain.Aggregates
 
 
         /* Add Screen Run */
-        public void AddScreenRun(ScreenRun screenRun, IMapper mapper)
+        public void AddScreenRun(ScreenRunAddedEvent screenRunAddedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This screen is deleted.");
             }
 
-            if (_screenRuns.ContainsKey(screenRun.ScreenRunId))
+            if (_screenRuns.ContainsKey(screenRunAddedEvent.ScreenRunId))
             {
                 throw new Exception("Screen Run already exists");
             }
-            _mapper = mapper;
-            var screenRunAddedEvent = _mapper.Map<ScreenRunAddedEvent>(screenRun);
-            screenRunAddedEvent.Id = _id;
-            screenRunAddedEvent.ScreenId = _id;
-            screenRunAddedEvent.ScreenRunId = screenRun.ScreenRunId;
             RaiseEvent(screenRunAddedEvent);
         }
 
 
         public void Apply(ScreenRunAddedEvent @event)
         {
-            _screenRuns.Add(@event.ScreenRunId, _mapper.Map<ScreenRun>(@event));
+            // Just storing important params that is necessary for the screen aggregate to run
+            _screenRuns.Add(@event.ScreenRunId, new ScreenRun()
+            {
+                ScreenId = @event.Id,
+                Library = @event.Library,
+            });
         }
 
         /* Update Screen Run */
-        public void UpdateScreenRun(ScreenRun screenRun, IMapper mapper)
+        public void UpdateScreenRun(ScreenRunUpdatedEvent screenRunUpdatedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This screen is deleted.");
             }
 
-            if (!_screenRuns.ContainsKey(screenRun.ScreenRunId))
+            if (!_screenRuns.ContainsKey(screenRunUpdatedEvent.ScreenRunId))
             {
                 throw new Exception("Screen Run does not exist");
             }
-            _mapper = mapper;
 
-            var screenRunUpdatedEvent = _mapper.Map<ScreenRunUpdatedEvent>(screenRun);
-            screenRunUpdatedEvent.Id = _id;
-            screenRunUpdatedEvent.ScreenId = _id;
-            screenRunUpdatedEvent.ScreenRunId = screenRun.ScreenRunId;
             RaiseEvent(screenRunUpdatedEvent);
         }
 
         public void Apply(ScreenRunUpdatedEvent @event)
         {
-            _screenRuns[@event.ScreenRunId] = _mapper.Map<ScreenRun>(@event);
+
+            // Get @event.ScreenRunId from _screenRuns Dictionary and update it without creating new ScreenRun
+            // Just storing important params that is necessary for the screen aggregate to run
+            _screenRuns[@event.ScreenRunId].Library = @event.Library;
+
         }
 
         /* Delete Screen Run */
-        public void DeleteScreenRun(Guid screenRunId)
+        public void DeleteScreenRun(ScreenRunDeletedEvent screenRunDeletedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This screen is deleted.");
             }
 
-            if (!_screenRuns.ContainsKey(screenRunId))
+            if (!_screenRuns.ContainsKey(screenRunDeletedEvent.ScreenRunId))
             {
                 throw new Exception("Screen Run does not exist");
             }
 
-            var screenRunDeletedEvent = new ScreenRunDeletedEvent()
-            {
-                Id = _id,
-                ScreenId = _id,
-                ScreenRunId = screenRunId
-            };
             RaiseEvent(screenRunDeletedEvent);
         }
 

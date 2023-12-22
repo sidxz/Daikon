@@ -6,7 +6,7 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
     {
         public UpdateScreenRunCommandValidator()
         {
-            RuleFor(t => t.ScreenId)
+            RuleFor(t => t.Id)
                 .NotEmpty().WithMessage("{ScreenId} is required")
                 .NotNull();
 

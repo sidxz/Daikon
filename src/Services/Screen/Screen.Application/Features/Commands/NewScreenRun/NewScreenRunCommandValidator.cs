@@ -11,8 +11,8 @@ namespace Screen.Application.Features.Commands.NewScreenRun
             .NotEmpty().WithMessage("{ScreenRunId} is required")
             .NotNull();
 
-            RuleFor(t => t.ScreenId)
-            .NotEmpty().WithMessage("{ScreenId} is required");
+            RuleFor(t => t.Id)
+            .NotEmpty().WithMessage("{Id} is required");
 
         }
     }

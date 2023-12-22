@@ -10,8 +10,6 @@ namespace Screen.Application.Features.Commands.UpdateScreen
     public class UpdateScreenCommand : BaseCommand, IRequest<Unit>
     {
         public Guid StrainId { get; set; }
-        public required string Name { get; set; }
-        public Dictionary<string, string>? AssociatedTargets { get; set; }
         public string? ScreenType { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]

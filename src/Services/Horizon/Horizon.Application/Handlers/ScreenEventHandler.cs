@@ -20,24 +20,33 @@ namespace Horizon.Application.Handlers
 
         public async Task OnEvent(ScreenCreatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: ScreenCreatedEvent: {@event.Id} {@event.Name}");
-            var screen = new Screen
+            try
             {
-                ScreenId = @event.Id.ToString(),
-                StrainId = @event.StrainId.ToString(),
+                _logger.LogInformation($"Horizon: Start-> ScreenCreatedEvent: {@event.Id} {@event.Name}");
+                var screen = new Screen
+                {
+                    ScreenId = @event.Id.ToString(),
+                    StrainId = @event.StrainId.ToString(),
 
-                Name = @event.Name,
-                AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
-                ScreenType = @event.ScreenType,
-                Method = @event.Method,
-                Status = @event.Status,
-                PrimaryOrgName = @event.PrimaryOrgName,
+                    Name = @event.Name,
+                    AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
+                    ScreenType = @event.ScreenType,
+                    Method = @event.Method,
+                    Status = @event.Status,
+                    PrimaryOrgName = @event.PrimaryOrgName,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-            };
+                    DateCreated = DateTime.UtcNow,
+                    IsModified = false,
+                };
+                _logger.LogInformation($"Horizon: Send to repo ->ScreenCreatedEvent: {@event.Id} {@event.Name} {screen.DateCreated}");
 
-            await _graphRepository.AddScreen(screen);
+                await _graphRepository.AddScreen(screen);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding screen");
+                throw;
+            }
         }
 
         public async Task OnEvent(ScreenUpdatedEvent @event)

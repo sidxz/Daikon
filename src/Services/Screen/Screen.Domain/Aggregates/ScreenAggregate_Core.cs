@@ -1,6 +1,7 @@
 
-using AutoMapper;
+
 using CQRS.Core.Domain;
+using CQRS.Core.Comparators;
 using Daikon.Events.Screens;
 
 namespace Screen.Domain.Aggregates
@@ -8,44 +9,45 @@ namespace Screen.Domain.Aggregates
     public partial class ScreenAggregate : AggregateRoot
     {
         private bool _active;
-        private string _Name;
-        private IMapper _mapper;
+        private string _name;
+        public Dictionary<string, string> _associatedTargets { get; set; }
         public ScreenAggregate()
         {
-            
+
         }
 
         /* New Screen */
-        public ScreenAggregate(Entities.Screen screen, IMapper mapper)
+        public ScreenAggregate(ScreenCreatedEvent screenCreatedEvent)
         {
             _active = true;
-            _id = screen.Id;
-            _Name = screen.Name;
-            _mapper = mapper;
-
-            var screenCreatedEvent = mapper.Map<ScreenCreatedEvent>(screen);
+            _id = screenCreatedEvent.Id;
+            _name = screenCreatedEvent.Name;
+            _associatedTargets = screenCreatedEvent.AssociatedTargets;
 
             RaiseEvent(screenCreatedEvent);
         }
 
         public void Apply(ScreenCreatedEvent @event)
         {
-            _id = @event.Id;
             _active = true;
-            _Name = @event.Name;
+            _id = @event.Id;
+            _name = @event.Name;
+            _associatedTargets = @event.AssociatedTargets;
         }
 
+
+
         /* Update Screen */
-        public void UpdateScreen(Entities.Screen screen)
+        public void UpdateScreen(ScreenUpdatedEvent screenUpdatedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This screen is deleted.");
             }
 
-            var screenUpdatedEvent = _mapper.Map<ScreenUpdatedEvent>(screen);
-            screenUpdatedEvent.Id = screen.Id;
-            screenUpdatedEvent.Name = screen.Name;
+            // ScreenUpdatedEvent doesn't allow name or associated targets to be changed.
+            screenUpdatedEvent.Name = _name;
+            screenUpdatedEvent.AssociatedTargets = _associatedTargets;
 
             RaiseEvent(screenUpdatedEvent);
         }
@@ -55,21 +57,15 @@ namespace Screen.Domain.Aggregates
             _id = @event.Id;
         }
 
-        
+
 
         /* Delete Screen */
-        public void DeleteScreen(Entities.Screen screen)
+        public void DeleteScreen(ScreenDeletedEvent screenDeletedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This screen is already deleted.");
             }
-
-            var screenDeletedEvent = new ScreenDeletedEvent
-            {
-                Id = screen.Id,
-                Name = _Name
-            };
 
             RaiseEvent(screenDeletedEvent);
         }
@@ -77,7 +73,6 @@ namespace Screen.Domain.Aggregates
         public void Apply(ScreenDeletedEvent @event)
         {
             _id = @event.Id;
-            _Name = @event.Name;
             _active = false;
         }
 
@@ -85,52 +80,50 @@ namespace Screen.Domain.Aggregates
 
 
         /* Update Screen Associated Targets */
-        public void UpdateScreenAssociatedTargets(Dictionary<string, string> associatedTargets)
+        public void UpdateScreenAssociatedTargets(ScreenAssociatedTargetsUpdatedEvent screenAssociatedTargetsUpdatedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This screen is deleted.");
             }
 
-            var screenAssociatedTargetsUpdatedEvent = new ScreenAssociatedTargetsUpdatedEvent()
+            if (_associatedTargets.DictionaryEqual(screenAssociatedTargetsUpdatedEvent.AssociatedTargets))
             {
-                Id = _id,
-                Name = _Name,
-                AssociatedTargets = associatedTargets
-            };
+                throw new InvalidOperationException("Associated targets are not modified");
+            }
+
+            screenAssociatedTargetsUpdatedEvent.Name = _name;
             RaiseEvent(screenAssociatedTargetsUpdatedEvent);
         }
 
         public void Apply(ScreenAssociatedTargetsUpdatedEvent @event)
         {
             _id = @event.Id;
-            _Name = @event.Name;
+            _associatedTargets = @event.AssociatedTargets;
         }
 
 
 
 
         /* Screen Rename Event */
-        public void RenameScreen(string name)
+        public void RenameScreen(ScreenRenamedEvent screenRenamedEvent)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This screen is deleted.");
             }
-
-            var screenRenamedEvent = new ScreenRenamedEvent
+            if (_name == screenRenamedEvent.Name)
             {
-                Id = _id,
-                ScreenId = _id,
-                Name = name
-            };
+                throw new InvalidOperationException("Screen name is not modified");
+            }
+
             RaiseEvent(screenRenamedEvent);
         }
 
         public void Apply(ScreenRenamedEvent @event)
         {
             _id = @event.Id;
-            _Name = @event.Name;
+            _name = @event.Name;
         }
     }
 }

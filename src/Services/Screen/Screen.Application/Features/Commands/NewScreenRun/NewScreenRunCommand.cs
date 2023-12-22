@@ -9,7 +9,7 @@ namespace Screen.Application.Features.Commands.NewScreenRun
 {
     public class NewScreenRunCommand : BaseCommand, IRequest<Unit>
     {
-        public Guid ScreenId { get; set; }
+        
         public Guid ScreenRunId { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]

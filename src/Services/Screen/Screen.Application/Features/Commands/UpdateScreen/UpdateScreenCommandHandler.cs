@@ -7,6 +7,7 @@ using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 using CQRS.Core.Comparators;
 using CQRS.Core.Exceptions;
+using Daikon.Events.Screens;
 
 namespace Screen.Application.Features.Commands.UpdateScreen
 {
@@ -33,25 +34,13 @@ namespace Screen.Application.Features.Commands.UpdateScreen
 
         public async Task<Unit> Handle(UpdateScreenCommand request, CancellationToken cancellationToken)
         {
-            // check if name is modified; reject if it is
-            var existingScreen = await _screenRepository.ReadScreenById(request.Id);
-            if (existingScreen.Name != request.Name)
-            {
-                throw new InvalidOperationException("Name cannot be modified");
-            }
-
-            // check if associated targets have been modified; reject if they have, perform a deep comparison
-            if (!existingScreen.AssociatedTargets.DictionaryEqual(request.AssociatedTargets))
-            {
-                throw new InvalidOperationException("Associated targets cannot be modified using this command.");
-            }
-
-            var modScreen = _mapper.Map<Domain.Entities.Screen>(request);
-            modScreen.Name = existingScreen.Name;
+            
+            var screenUpdatedEvent = _mapper.Map<ScreenUpdatedEvent>(request);
 
             try {
                 var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateScreen(modScreen, _mapper);
+                
+                aggregate.UpdateScreen(screenUpdatedEvent);
 
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }

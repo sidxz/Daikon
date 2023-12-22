@@ -1,6 +1,14 @@
 
 using AutoMapper;
 using Daikon.Events.Screens;
+using Screen.Application.Features.Commands.DeleteScreen;
+using Screen.Application.Features.Commands.DeleteScreenRun;
+using Screen.Application.Features.Commands.NewScreen;
+using Screen.Application.Features.Commands.NewScreenRun;
+using Screen.Application.Features.Commands.RenameScreen;
+using Screen.Application.Features.Commands.UpdateScreen;
+using Screen.Application.Features.Commands.UpdateScreenAssociatedTargets;
+using Screen.Application.Features.Commands.UpdateScreenRun;
 
 namespace Screen.Application.Mappings
 {
@@ -10,13 +18,16 @@ namespace Screen.Application.Mappings
         {
 
             /* Commands */
-            CreateMap<Domain.Entities.Screen, Features.Commands.NewScreen.NewScreenCommand>().ReverseMap();
-            CreateMap<Domain.Entities.Screen, Features.Commands.UpdateScreen.UpdateScreenCommand>().ReverseMap();
-            CreateMap<Domain.Entities.Screen, Features.Commands.DeleteScreen.DeleteScreenCommand>().ReverseMap();
+            CreateMap<ScreenCreatedEvent, NewScreenCommand>().ReverseMap();
+            CreateMap<ScreenUpdatedEvent, UpdateScreenCommand>().ReverseMap();
+            CreateMap<ScreenDeletedEvent, DeleteScreenCommand>().ReverseMap();
+            CreateMap<ScreenAssociatedTargetsUpdatedEvent, UpdateScreenAssociatedTargetsCommand>().ReverseMap();
+            CreateMap<ScreenRenamedEvent, RenameScreenCommand>().ReverseMap();
 
-            CreateMap<Domain.Entities.ScreenRun, Features.Commands.NewScreenRun.NewScreenRunCommand>().ReverseMap();
-            CreateMap<Domain.Entities.ScreenRun, Features.Commands.UpdateScreenRun.UpdateScreenRunCommand>().ReverseMap();
-            CreateMap<Domain.Entities.ScreenRun, Features.Commands.DeleteScreenRun.DeleteScreenRunCommand>().ReverseMap();
+            CreateMap<ScreenRunAddedEvent, NewScreenRunCommand>().ReverseMap();
+            CreateMap<ScreenRunUpdatedEvent, UpdateScreenRunCommand>().ReverseMap();
+            CreateMap<ScreenRunDeletedEvent, DeleteScreenRunCommand>().ReverseMap();
+            
 
             CreateMap<Domain.Entities.HitCollection, Features.Commands.NewHitCollection.NewHitCollectionCommand>().ReverseMap();
             CreateMap<Domain.Entities.HitCollection, Features.Commands.UpdateHitCollection.UpdateHitCollectionCommand>().ReverseMap();
@@ -30,6 +41,7 @@ namespace Screen.Application.Mappings
             /* Events */
             CreateMap<Domain.Entities.Screen, ScreenCreatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Screen, ScreenUpdatedEvent>().ReverseMap();
+            CreateMap<Domain.Entities.Screen, ScreenDeletedEvent>().ReverseMap();
 
             CreateMap<Domain.Entities.ScreenRun, ScreenRunAddedEvent>().ReverseMap();
             CreateMap<Domain.Entities.ScreenRun, ScreenRunUpdatedEvent>().ReverseMap();

@@ -1,11 +1,11 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
-using Screen.Domain.Entities;
 
 
 namespace Screen.Application.Features.Commands.DeleteScreenRun
@@ -33,16 +33,14 @@ namespace Screen.Application.Features.Commands.DeleteScreenRun
         public async Task<Unit> Handle(DeleteScreenRunCommand request, CancellationToken cancellationToken)
         {
 
-            if (request.Id == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(request.Id));
-            }
-            request.ScreenRunId = request.Id;
+            var screenRunDeletedEvent = _mapper.Map<ScreenRunDeletedEvent>(request);
 
             try
             {
-                var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.ScreenId);
-                aggregate.DeleteScreenRun(request.ScreenRunId);
+                var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
+
+                aggregate.DeleteScreenRun(screenRunDeletedEvent);
+
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

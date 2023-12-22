@@ -1,6 +1,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -30,19 +31,15 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
 
         public async Task<Unit> Handle(UpdateScreenRunCommand request, CancellationToken cancellationToken)
         {
-            if (request.Id == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(request.Id));
-            }
 
-        
-            var modScreenRun = _mapper.Map<Domain.Entities.ScreenRun>(request);
-            modScreenRun.ScreenRunId = request.Id;
+           var screenRunUpdatedEvent = _mapper.Map<ScreenRunUpdatedEvent>(request);
 
             try
             {
                 var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateScreenRun(modScreenRun, _mapper);
+
+                aggregate.UpdateScreenRun(screenRunUpdatedEvent);
+                
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

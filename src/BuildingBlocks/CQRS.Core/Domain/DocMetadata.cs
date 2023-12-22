@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace CQRS.Core.Domain
 {
@@ -36,7 +33,11 @@ namespace CQRS.Core.Domain
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? Author { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public DateTime? Date { get; set; }
+        public DateTime? DateCreated { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public DateTime? DateModified { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool? IsModified { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? Comment { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -72,6 +73,12 @@ namespace CQRS.Core.Domain
         public DateTime? VerifiedDate { get; set; }
 
 
+        /* Draft Properties */
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool? IsDraft { get; set; }
+
+
+
         /* Data Quality Properties */
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? DataQualityIndicator { get; set; }
@@ -81,7 +88,9 @@ namespace CQRS.Core.Domain
         public DocMetadata()
         {
             Author = default!;
-            Date = default!;
+            DateCreated = default!;
+            DateModified = default!;
+            IsModified = default!;
             Comment = default!;
             Provenance = default!;
             Source = default!;
@@ -95,13 +104,16 @@ namespace CQRS.Core.Domain
             VerifiedBy = default!;
             VerifiedComment = default!;
             VerifiedDate = default!;
+            IsDraft = default!;
             DataQualityIndicator = default!;
         }
         /* Copy Constructor */
         public DocMetadata(DocMetadata docMetadata)
         {
             Author = docMetadata.Author;
-            Date = docMetadata.Date;
+            DateCreated = docMetadata.DateCreated;
+            DateModified = docMetadata.DateModified;
+            IsModified = docMetadata.IsModified;
             Comment = docMetadata.Comment;
             Provenance = docMetadata.Provenance;
             Source = docMetadata.Source;
@@ -115,6 +127,7 @@ namespace CQRS.Core.Domain
             VerifiedBy = docMetadata.VerifiedBy;
             VerifiedComment = docMetadata.VerifiedComment;
             VerifiedDate = docMetadata.VerifiedDate;
+            IsDraft = docMetadata.IsDraft;
             DataQualityIndicator = docMetadata.DataQualityIndicator;
         }
 
