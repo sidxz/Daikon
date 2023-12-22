@@ -1,6 +1,7 @@
 from uuid import UUID
 from app.Infrastructure.Database import GetDbPool
 from app.DTO.Molecule import Molecule
+from app.DTO.SimilarMolecule import SimilarMolecule
 from app.Core.Contracts.IMoleculeRepository import IMoleculeRepository
 import logging
 
@@ -232,6 +233,7 @@ class MoleculeRepository(IMoleculeRepository):
             logging.error(f"Error deleting molecule from the database: {e}")
             raise
 
+
     async def find_similar_molecule(
         self, smiles: str, threshold: float = 0.8, num_results: int = 10
     ) -> list:
@@ -244,7 +246,7 @@ class MoleculeRepository(IMoleculeRepository):
             num_results (int, optional): Number of results to return. Defaults to 10.
 
         Returns:
-            List of dict: A list of dictionary containing the details of the similar molecule.
+            List of dict: A list of dictionaries containing the details of the similar molecule and their similarity scores.
         """
         if not smiles:
             raise ValueError("SMILES string is required.")
@@ -253,19 +255,19 @@ class MoleculeRepository(IMoleculeRepository):
             async with self.db_pool.acquire() as conn:
                 result = await conn.fetch(
                     """
-                    SELECT id, name, smiles, smiles_canonical, molecular_weight, tpsa
+                    SELECT id, name, smiles, smiles_canonical, molecular_weight, tpsa,
+                        tanimoto_sml(morganbv_fp(mol_from_smiles($1::cstring)), mfp2) AS similarity
                     FROM molecules 
                     WHERE tanimoto_sml(morganbv_fp(mol_from_smiles($1::cstring)), mfp2) >= $2
-                    ORDER BY tanimoto_sml(morganbv_fp(mol_from_smiles($3::cstring)), mfp2) DESC
-                    LIMIT $4;
+                    ORDER BY similarity DESC
+                    LIMIT $3;
                     """,
                     smiles,
                     threshold,
-                    smiles,
                     num_results,
                 )
 
-                molecule = Molecule()
+                molecule = SimilarMolecule()
                 return [
                     molecule.dump(
                         {
@@ -275,6 +277,7 @@ class MoleculeRepository(IMoleculeRepository):
                             "smilesCanonical": mol["smiles_canonical"],
                             "molecularWeight": mol["molecular_weight"],
                             "tpsa": mol["tpsa"],
+                            "similarity": mol["similarity"],
                         }
                     )
                     for mol in result
@@ -283,6 +286,7 @@ class MoleculeRepository(IMoleculeRepository):
         except Exception as e:
             logging.error(f"Error finding similar molecule in the database: {e}")
             raise
+
 
     async def list_molecules(self) -> dict:
         """
