@@ -32,6 +32,7 @@ namespace Screen.Application.Features.Queries.GetScreen.ById
 
             var screen = await _screenRepository.ReadScreenById(request.Id);
             var screenVm = _mapper.Map<ScreenVM>(screen, opts => opts.Items["WithMeta"] = request.WithMeta);
+            
 
             var hitCollections = await _hitCollectionRepository.GetHitCollectionsListByScreenId(screen.Id);
             screenVm.HitCollections = hitCollections.Select(async hc =>

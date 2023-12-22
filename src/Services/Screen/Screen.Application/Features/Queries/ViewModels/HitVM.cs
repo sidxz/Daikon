@@ -1,9 +1,11 @@
 
+using CQRS.Core.Domain;
+
 namespace Screen.Application.Features.Queries.ViewModels
 {
-    public class HitVM
+    public class HitVM : DocMetadata
     {
-        public Guid HitId { get; set; }
+        public Guid Id { get; set; }
         public Guid HitCollectionId { get; set; }
         public object Library { get; set; }
         public object LibrarySource { get; set; }
