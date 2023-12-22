@@ -1,6 +1,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -33,17 +34,12 @@ namespace Screen.Application.Features.Commands.DeleteHitCollection
         public async Task<Unit> Handle(DeleteHitCollectionCommand request, CancellationToken cancellationToken)
         {
 
-            if (request.Id == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(request.Id));
-            }
-
-            request.HitCollectionId = request.Id;
-
             try
             {
+                var hitCollectionDeletedEvent = _mapper.Map<HitCollectionDeletedEvent>(request);
+
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.HitCollectionId);
-                aggregate.DeleteHitCollection(request.HitCollectionId);
+                aggregate.DeleteHitCollection(hitCollectionDeletedEvent);
                 await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)
@@ -53,7 +49,7 @@ namespace Screen.Application.Features.Commands.DeleteHitCollection
             }
             return Unit.Value;
         }
-    
+
     }
-    
+
 }

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Daikon.Events.Screens;
 using Horizon.Application.Contracts.Persistance;
 using Horizon.Domain.Screens;
@@ -29,7 +26,6 @@ namespace Horizon.Application.Handlers
                 ScreenId = @event.ScreenId.ToString(),
                 Name = @event.Name,
                 HitCollectionType = @event.HitCollectionType,
-                
 
                 DateCreated = DateTime.UtcNow,
                 IsModified = false,
@@ -48,7 +44,7 @@ namespace Horizon.Application.Handlers
                 ScreenId = @event.ScreenId.ToString(),
                 Name = @event.Name,
                 HitCollectionType = @event.HitCollectionType,
-                
+
                 IsModified = true,
 
             };
@@ -73,7 +69,7 @@ namespace Horizon.Application.Handlers
             var hit = new Hit
             {
                 HitId = @event.HitId.ToString(),
-                HitCollectionId = @event.HitCollectionId.ToString(),
+                HitCollectionId = @event.Id.ToString(),
                 Library = @event.Library,
                 InitialStructureSMILES = @event.InitialCompoundStructure,
                 DateCreated = DateTime.UtcNow,
@@ -87,10 +83,8 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitUpdatedEvent: {@event.Id} {@event.HitId}");
             var hit = new Hit
             {
-                HitId = @event.Id.ToString(),
-                HitCollectionId = @event.HitCollectionId.ToString(),
-                
-                DateCreated = DateTime.UtcNow,
+                HitId = @event.HitId.ToString(),
+                HitCollectionId = @event.Id.ToString(),
                 IsModified = true,
             };
             await _graphRepository.UpdateHit(hit);
@@ -109,8 +103,6 @@ namespace Horizon.Application.Handlers
             {
                 HitCollectionId = @event.Id.ToString(),
                 ScreenId = @event.ScreenId.ToString(),
-                Name = @event.Name,
-                DateCreated = DateTime.UtcNow,
                 IsModified = true,
             });
         }
