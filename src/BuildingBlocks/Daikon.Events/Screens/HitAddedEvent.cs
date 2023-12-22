@@ -9,8 +9,6 @@ namespace Daikon.Events.Screens
         {
             
         }
-
-        public Guid HitCollectionId { get; set; }
         public Guid HitId { get; set; }
         public DVariable<string>? Library { get; set; }
         public DVariable<string>? LibrarySource { get; set; }
@@ -27,8 +25,7 @@ namespace Daikon.Events.Screens
         public DVariable<int>? Neutral { get; set; }
         public DVariable<int>? Negative { get; set; }
         public DVariable<bool>? IsVotingAllowed { get; set; }
-
-
+        
         public DVariable<string>? InitialCompoundStructure { get; set; }
         public DVariable<string>? CompoundRegistrationStatus { get; set; }
     }

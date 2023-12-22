@@ -1,11 +1,19 @@
 
 using AutoMapper;
 using Daikon.Events.Screens;
+using Screen.Application.Features.Commands.DeleteHit;
+using Screen.Application.Features.Commands.DeleteHitCollection;
 using Screen.Application.Features.Commands.DeleteScreen;
 using Screen.Application.Features.Commands.DeleteScreenRun;
+using Screen.Application.Features.Commands.NewHit;
+using Screen.Application.Features.Commands.NewHitCollection;
 using Screen.Application.Features.Commands.NewScreen;
 using Screen.Application.Features.Commands.NewScreenRun;
+using Screen.Application.Features.Commands.RenameHitCollection;
 using Screen.Application.Features.Commands.RenameScreen;
+using Screen.Application.Features.Commands.UpdateHit;
+using Screen.Application.Features.Commands.UpdateHitCollection;
+using Screen.Application.Features.Commands.UpdateHitCollectionAssociatedScreen;
 using Screen.Application.Features.Commands.UpdateScreen;
 using Screen.Application.Features.Commands.UpdateScreenAssociatedTargets;
 using Screen.Application.Features.Commands.UpdateScreenRun;
@@ -27,15 +35,16 @@ namespace Screen.Application.Mappings
             CreateMap<ScreenRunAddedEvent, NewScreenRunCommand>().ReverseMap();
             CreateMap<ScreenRunUpdatedEvent, UpdateScreenRunCommand>().ReverseMap();
             CreateMap<ScreenRunDeletedEvent, DeleteScreenRunCommand>().ReverseMap();
-            
 
-            CreateMap<Domain.Entities.HitCollection, Features.Commands.NewHitCollection.NewHitCollectionCommand>().ReverseMap();
-            CreateMap<Domain.Entities.HitCollection, Features.Commands.UpdateHitCollection.UpdateHitCollectionCommand>().ReverseMap();
-            CreateMap<Domain.Entities.HitCollection, Features.Commands.DeleteHitCollection.DeleteHitCollectionCommand>().ReverseMap();
+            CreateMap<HitCollectionCreatedEvent, NewHitCollectionCommand>().ReverseMap();
+            CreateMap<HitCollectionUpdatedEvent, UpdateHitCollectionCommand>().ReverseMap();
+            CreateMap<HitCollectionDeletedEvent, DeleteHitCollectionCommand>().ReverseMap();
+            CreateMap<HitCollectionAssociatedScreenUpdatedEvent, UpdateHitCollectionAssociatedScreenCommand>().ReverseMap();
+            CreateMap<HitCollectionRenamedEvent, RenameHitCollectionCommand>().ReverseMap();
 
-            CreateMap<Domain.Entities.Hit, Features.Commands.NewHit.NewHitCommand>().ReverseMap();
-            CreateMap<Domain.Entities.Hit, Features.Commands.UpdateHit.UpdateHitCommand>().ReverseMap();
-            CreateMap<Domain.Entities.Hit, Features.Commands.DeleteHit.DeleteHitCommand>().ReverseMap();
+            CreateMap<HitAddedEvent, NewHitCommand>().ReverseMap();
+            CreateMap<HitUpdatedEvent, UpdateHitCommand>().ReverseMap();
+            CreateMap<HitDeletedEvent, DeleteHitCommand>().ReverseMap();
 
 
             /* Events */

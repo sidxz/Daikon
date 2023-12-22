@@ -1,6 +1,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -31,17 +32,22 @@ namespace Screen.Application.Features.Commands.RenameHitCollection
         }
         public async Task<Unit> Handle(RenameHitCollectionCommand request, CancellationToken cancellationToken)
         {
-            var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionById(request.Id);
-
-            if (existingHitCollection.Name == request.Name)
+            // check if name is available
+            var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionByName(request.Name);
+            if (existingHitCollection != null)
             {
-                throw new InvalidOperationException("Name is the same as the existing name");
+                _logger.LogWarning("The specified hit collection name already exists.");
+                throw new InvalidOperationException("The specified hit collection name already exists.");
             }
 
             try
             {
+                var hitCollectionRenamedEvent = _mapper.Map<HitCollectionRenamedEvent>(request);
+
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.RenameHitCollection(request.Name);
+
+                aggregate.RenameHitCollection(hitCollectionRenamedEvent);
+
                 await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

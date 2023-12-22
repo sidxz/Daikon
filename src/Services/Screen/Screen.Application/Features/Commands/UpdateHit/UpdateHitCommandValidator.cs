@@ -7,7 +7,7 @@ namespace Screen.Application.Features.Commands.UpdateHit
     {
         public UpdateHitCommandValidator()
         {
-            RuleFor(t => t.HitCollectionId)
+            RuleFor(t => t.Id)
                 .NotEmpty().WithMessage("{HitCollectionId} is required")
                 .NotNull();
 

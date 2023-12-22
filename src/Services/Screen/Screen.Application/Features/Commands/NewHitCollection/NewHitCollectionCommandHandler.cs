@@ -1,5 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Handlers;
+using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -29,23 +30,29 @@ namespace Screen.Application.Features.Commands.NewHitCollection
 
         public async Task<Unit> Handle(NewHitCollectionCommand request, CancellationToken cancellationToken)
         {
-           
-            // check if name exists
-            var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionByName(request.Name);
-            if (existingHitCollection != null)
+            try
             {
-                throw new InvalidOperationException("HitCollection name already exists");
+                // Check if the name already exists in the hit collection repository
+                var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionByName(request.Name);
+                if (existingHitCollection != null)
+                {
+                    throw new InvalidOperationException("The specified hit collection name already exists.");
+                }
+
+                var hitCollectionCreatedEvent = _mapper.Map<HitCollectionCreatedEvent>(request);
+
+                // Create a new hit collection aggregate and save it using the event sourcing handler
+                
+                var aggregate = new HitCollectionAggregate(hitCollectionCreatedEvent);
+                await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
+
+                return Unit.Value;
             }
-            
-
-            var newHitCollection = _mapper.Map<Domain.Entities.HitCollection>(request);
-            newHitCollection.HitCollectionId = request.Id;
-            
-            var aggregate = new HitCollectionAggregate(newHitCollection, _mapper);
-            await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
-
-            return Unit.Value;
-
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while handling the NewHitCollectionCommand.");
+                throw;
+            }
         }
     }
 }

@@ -8,11 +8,8 @@ namespace Screen.Application.Features.Commands.NewHitCollection
 {
     public class NewHitCollectionCommand : BaseCommand, IRequest<Unit>
     {
-        public Guid HitCollectionId { get; set; }
         public Guid ScreenId { get; set; }
-
         public required string Name { get; set; }
-
         public required string HitCollectionType { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
@@ -20,7 +17,6 @@ namespace Screen.Application.Features.Commands.NewHitCollection
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Owner { get; set; }
-
 
     }
 }
