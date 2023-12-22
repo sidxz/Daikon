@@ -8,7 +8,7 @@ namespace Screen.Application.Features.Commands.NewHit
         public NewHitCommandValidator()
         {
             RuleFor(t => t.Id)
-                .NotEmpty().WithMessage("{HitCollectionId} is required")
+                .NotEmpty().WithMessage("{Id} is required")
                 .NotNull();
 
         }
