@@ -1,4 +1,3 @@
-
 using Daikon.Events.Screens;
 using Horizon.Application.Contracts.Persistance;
 using Horizon.Application.Query.Handlers;
@@ -38,7 +37,6 @@ namespace Horizon.Application.Handlers
                     DateCreated = DateTime.UtcNow,
                     IsModified = false,
                 };
-                _logger.LogInformation($"Horizon: Send to repo ->ScreenCreatedEvent: {@event.Id} {@event.Name} {screen.DateCreated}");
 
                 await _graphRepository.AddScreen(screen);
             }
@@ -51,51 +49,83 @@ namespace Horizon.Application.Handlers
 
         public async Task OnEvent(ScreenUpdatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: ScreenUpdatedEvent: {@event.Id} {@event.Name}");
-            var screen = new Screen
+            try
             {
-                ScreenId = @event.Id.ToString(),
-                StrainId = @event.StrainId.ToString(),
+                _logger.LogInformation($"Horizon: ScreenUpdatedEvent: {@event.Id} {@event.Name}");
+                var screen = new Screen
+                {
+                    ScreenId = @event.Id.ToString(),
+                    StrainId = @event.StrainId.ToString(),
 
-                Name = @event.Name,
-                AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
-                ScreenType = @event.ScreenType,
-                Method = @event.Method,
-                Status = @event.Status,
-                PrimaryOrgName = @event.PrimaryOrgName,
+                    Name = @event.Name,
+                    AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
+                    ScreenType = @event.ScreenType,
+                    Method = @event.Method,
+                    Status = @event.Status,
+                    PrimaryOrgName = @event.PrimaryOrgName,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = true,
-            };
+                    DateCreated = DateTime.UtcNow,
+                    IsModified = true,
+                };
 
-            await _graphRepository.UpdateScreen(screen);
+                await _graphRepository.UpdateScreen(screen);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating screen");
+                throw;
+            }
         }
 
         public async Task OnEvent(ScreenAssociatedTargetsUpdatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: ScreenAssociatedTargetsUpdatedEvent: {@event.Id} {@event.Name}");
-            var screen = new Screen
+            try
             {
-                ScreenId = @event.Id.ToString(),
-                Name = @event.Name,
-                AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
-                DateCreated = DateTime.UtcNow,
-                IsModified = true,
-            };
+                _logger.LogInformation($"Horizon: ScreenAssociatedTargetsUpdatedEvent: {@event.Id} {@event.Name}");
+                var screen = new Screen
+                {
+                    ScreenId = @event.Id.ToString(),
+                    Name = @event.Name,
+                    AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
+                    DateCreated = DateTime.UtcNow,
+                    IsModified = true,
+                };
 
-            await _graphRepository.UpdateScreen(screen);
+                await _graphRepository.UpdateScreen(screen);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating associated targets for screen");
+                throw;
+            }
         }
 
-        public Task OnEvent(ScreenDeletedEvent @event)
+        public async Task OnEvent(ScreenDeletedEvent @event)
         {
-            _logger.LogInformation($"Horizon: ScreenDeletedEvent: {@event.Id}");
-            return _graphRepository.DeleteScreen(@event.Id.ToString());
+            try
+            {
+                _logger.LogInformation($"Horizon: ScreenDeletedEvent: {@event.Id}");
+                await _graphRepository.DeleteScreen(@event.Id.ToString());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting screen");
+                throw;
+            }
         }
 
-        public Task OnEvent(ScreenRenamedEvent @event)
+        public async Task OnEvent(ScreenRenamedEvent @event)
         {
-            _logger.LogInformation($"Horizon: ScreenRenamedEvent: {@event.Id} {@event.Name}");
-            return _graphRepository.RenameScreen(@event.Id.ToString(), @event.Name);
+            try
+            {
+                _logger.LogInformation($"Horizon: ScreenRenamedEvent: {@event.Id} {@event.Name}");
+                await _graphRepository.RenameScreen(@event.Id.ToString(), @event.Name);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error renaming screen");
+                throw;
+            }
         }
     }
 }
