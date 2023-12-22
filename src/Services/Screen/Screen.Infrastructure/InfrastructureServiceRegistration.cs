@@ -30,6 +30,7 @@ namespace Screen.Infrastructure
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
             /* Command */
+            BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<ScreenCreatedEvent>();
             BsonClassMap.RegisterClassMap<ScreenUpdatedEvent>();
