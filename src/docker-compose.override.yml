@@ -133,13 +133,13 @@ services:
     ports:
       - "8006:80"
 
-  MolDb.API:
-    environment:
-      - "KafkaConsumerSettings_BootstrapServers=Kafka:9092"
-      - "KafkaConsumerSettings_Topics=daikon-core-events"
-      - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
-      - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings_EnableAutoCommit=true"
-      - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
-    ports:
-      - "8101:80"
+  # MolDb.API:
+  #   environment:
+  #     - "KafkaConsumerSettings_BootstrapServers=Kafka:9092"
+  #     - "KafkaConsumerSettings_Topics=daikon-core-events"
+  #     - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
+  #     - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
+  #     - "KafkaConsumerSettings_EnableAutoCommit=true"
+  #     - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
+  #   ports:
+  #     - "8101:80"
