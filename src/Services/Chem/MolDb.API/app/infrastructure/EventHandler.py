@@ -11,8 +11,9 @@ class EventHandler:
             # Add more mappings for other event types
         }
 
-    def handle(self, event_data):
+    async def handle(self, event_data):
         try:
+            logger.info(f"Handling event: {event_data}")
             # Get the event type from the event data
             event_type = event_data.get("Type")
 
@@ -25,7 +26,10 @@ class EventHandler:
             handler = self.event_handlers.get(event_type)
 
             if handler:
-                handler(event_data)
+                logger.info(f"Found handler for event type: {event_type}")
+                # Call the handler method
+                
+                await handler(event_data)
             else:
                 logger.info(f"No registered handler found for event type: {event_type}. Acknowledging and skipping.")
         except Exception as e:

@@ -4,8 +4,10 @@ import json
 import logging
 import threading
 from app.config.KafkaConfig import KAFKA_CONFIG
+from app.Infrastructure.EventHandler import EventHandler
 
 logger = logging.getLogger(__name__)
+event_handler = EventHandler();
 class EventConsumer:
     def __init__(self, topics):
         
@@ -19,6 +21,7 @@ class EventConsumer:
 
         self.consumer = Consumer(KAFKA_CONFIG)
         self.topics = topics
+        
 
     def start(self):
         self.thread = threading.Thread(target=self.run, daemon=True)
@@ -49,6 +52,10 @@ class EventConsumer:
         try:
             event_data = json.loads(message.value().decode("utf-8"))
             logger.info(f"Received event: {event_data}")
+            logger.info(f"Event type: {event_data.get('Type')}")
+            logger.info(f"Will call event handler")
+            
+            await event_handler.handle(event_data)
         except json.JSONDecodeError as e:
             logger.error(f"Error decoding message: {e}")
 

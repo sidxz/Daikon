@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from app.API import QueryController, CommandController
 from app.Infrastructure.DatabaseInitialization import InitializeDb
-from app.Infrastructure.KafkaManager import EventConsumer
+from app.Infrastructure.EventConsumer import EventConsumer
 
 # Configure logging
 logging.basicConfig(

@@ -37,7 +37,7 @@ services:
     depends_on:
       - Zookeeper
     ports:
-      - " :9092"
+      - "9092:9092"
     restart: always
     volumes:
       - "kafka_data:/bitnami"
