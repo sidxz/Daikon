@@ -99,3 +99,43 @@ async def delete_molecule(
     except Exception as e:
         logger.error(f"Failed to delete molecule: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail=str(e))
+    
+    
+@router.post("/molecule/register", tags=["Commands"])
+async def register_molecule(
+    request: MoleculeCreateRequest,
+    molecule_service: MoleculeService = Depends(get_molecule_service),
+) -> dict:
+    """
+    Create a new molecule based on smile or return an existing.
+
+    Args:
+        request (MoleculeCreateRequest): The request model containing the name and SMILES of the molecule.
+
+    Returns:
+        dict: The created molecule.
+
+    Raises:
+        HTTPException: If there is an error creating the molecule.
+    """
+    logger.info(f"Registering molecule: {request}")
+    # Extract SMILES
+    if not request.smiles:
+        logger.warning("No SMILES data found in the request.")
+        raise HTTPException(status_code=400, detail="No SMILES data found in the request.")
+    # Check if SMILES matches any existing molecule using MoleculeService
+    existing_molecule = await molecule_service.findExactMatch(request.smiles)
+    
+    if existing_molecule:
+        logger.info(f"Molecule matched to existing: {existing_molecule['id']}")
+        return existing_molecule
+    # Handle MoleculeMatchedEvent...
+    else:
+    # If no match, add the molecule (additional details like name should be handled)
+        try:
+            new_molecule = await molecule_service.createMolecule(request.name, request.smiles)
+            logger.info(f"New molecule added: {new_molecule['id']}")
+            return new_molecule
+        except Exception as e:
+            logger.error(f"Failed to create molecule: {e}", exc_info=True)
+            raise HTTPException(status_code=400, detail=str(e))

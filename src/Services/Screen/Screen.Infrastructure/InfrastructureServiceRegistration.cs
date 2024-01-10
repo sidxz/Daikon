@@ -17,9 +17,11 @@ using Daikon.VersionStore.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 using Screen.Domain.EntityRevisions;
+using Screen.Infrastructure.MolDbAPI;
 using Screen.Infrastructure.Query.Consumers;
 using Screen.Infrastructure.Query.Repositories;
 
@@ -136,6 +138,9 @@ namespace Screen.Infrastructure
              /* Consumers */
             services.AddScoped<IEventConsumer, ScreenEventConsumer>();
             services.AddHostedService<ConsumerHostedService>();
+
+            /* MolDb API */
+            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
 
             return services;
         }

@@ -15,16 +15,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Initialize Kafka consumer
-# Get the topics from environment variable
-topics = os.getenv("KafkaConsumerSettings_Topics").split(",")
-logger.info(f"Kafka topic: {topics}")
-if not topics[0]:
-    logger.error("KAFKA_TOPIC is not set")
-    raise Exception("KAFKA_TOPIC is not set")
+# # Initialize Kafka consumer
+# # Get the topics from environment variable
+# topics = os.getenv("KafkaConsumerSettings_Topics").split(",")
+# logger.info(f"Kafka topic: {topics}")
+# if not topics[0]:
+#     logger.error("KAFKA_TOPIC is not set")
+#     raise Exception("KAFKA_TOPIC is not set")
 
-logger.info("Initializing Kafka consumer")
-consumer = EventConsumer(topics)
+# logger.info("Initializing Kafka consumer")
+# consumer = EventConsumer(topics)
 
 
 # Initialize FastAPI app
@@ -46,13 +46,13 @@ async def startup():
     except Exception as e:
         logger.error(f"Error setting up database: {e}", exc_info=True)
         raise
-    try:
-        logger.info("Starting Kafka consumer")
-        consumer.start()
-        logger.info("Kafka consumer started successfully")
-    except Exception as e:
-        logger.error(f"Error starting Kafka consumer: {e}", exc_info=True)
-        raise
+    # try:
+    #     logger.info("Starting Kafka consumer")
+    #     consumer.start()
+    #     logger.info("Kafka consumer started successfully")
+    # except Exception as e:
+    #     logger.error(f"Error starting Kafka consumer: {e}", exc_info=True)
+    #     raise
 
 
 @app.on_event("shutdown")
@@ -62,13 +62,13 @@ async def shutdown():
     - Shutdown Kafka consumer
     """
     logger.info("Shutting down the application")
-    try:
-        logger.info("Shutting down Kafka consumer")
-        consumer.stop()
-        logger.info("Kafka consumer shut down successfully")
-    except Exception as e:
-        logger.error(f"Error shutting down Kafka consumer: {e}", exc_info=True)
-        raise
+    # try:
+    #     logger.info("Shutting down Kafka consumer")
+    #     consumer.stop()
+    #     logger.info("Kafka consumer shut down successfully")
+    # except Exception as e:
+    #     logger.error(f"Error shutting down Kafka consumer: {e}", exc_info=True)
+    #     raise
 
 # Include API routers
 app.include_router(QueryController.router)
