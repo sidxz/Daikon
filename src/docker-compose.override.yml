@@ -116,6 +116,37 @@ services:
     ports:
       - "8003:80"
 
+  
+  HitAssessment.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "HAMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "HAMongoDbSettings:DatabaseName=HitAssessment"
+
+      - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
+
+      - "HAMongoDbSettings:HitAssessmentRevisionCollectionName=HitAssessmentsRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=hitassessment-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+
+    ports:
+      - "8004:80"
+
   Horizon.API:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
