@@ -20,7 +20,7 @@ async def HandleHitAddedEvent(event_data):
         return
 
     # Instantiate the repository and molecule service
-    repository = MoleculeRepository()  # replace with your actual repository class
+    repository = MoleculeRepository()
     await repository.initialize()  # Initialize if needed
     molecule_service = MoleculeService(repository)
 
