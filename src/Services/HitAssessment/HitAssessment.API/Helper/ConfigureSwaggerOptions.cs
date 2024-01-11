@@ -38,7 +38,7 @@ namespace HitAssessment.API.Helper
         {
             var info = new OpenApiInfo()
             {
-                Title = "Daikon Core Screen.API",
+                Title = "Daikon Core HitAssessment.API",
                 Version = desc.ApiVersion.ToString()
             };
 

@@ -53,7 +53,7 @@ namespace CQRS.Core.Domain
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? MLGeneratedBy { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        public DateTime MLGeneratedDate { get; set; }
+        public DateTime? MLGeneratedDate { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? MLGeneratedComment { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

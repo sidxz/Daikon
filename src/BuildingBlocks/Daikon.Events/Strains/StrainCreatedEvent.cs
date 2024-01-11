@@ -13,7 +13,6 @@ namespace Daikon.Events.Strains
 
         public string Name { get; set; }
         public string Organism { get; set; }
-        public DateTime DateCreated { get; set; }
 
     }
 }

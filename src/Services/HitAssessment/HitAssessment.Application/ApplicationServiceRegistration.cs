@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using HitAssessment.Application.Features.Commands.NewHitAssessment;
 using HitAssessment.Application.Mappings;
+using HitAssessment.Application.EventHandlers;
 
 namespace HitAssessment.Application
 {
@@ -20,7 +21,7 @@ namespace HitAssessment.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-            // services.AddScoped<IHitAssessmentEventHandler, HitAssessmentEventHandler>();
+            services.AddScoped<IHitAssessmentEventHandler, HitAssessmentEventHandler>();
 
             return services;
         }
