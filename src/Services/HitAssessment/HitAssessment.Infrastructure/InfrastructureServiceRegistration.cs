@@ -1,4 +1,5 @@
 
+using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
 using CQRS.Core.Event;
 using CQRS.Core.Handlers;
@@ -13,8 +14,11 @@ using Daikon.EventStore.Stores;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
+using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
 using HitAssessment.Domain.EntityRevisions;
+using HitAssessment.Infrastructure.Query.Consumers;
+using HitAssessment.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
@@ -68,6 +72,13 @@ namespace HitAssessment.Infrastructure
             services.AddScoped<IVersionStoreRepository<HitAssessmentRevision>, VersionStoreRepository<HitAssessmentRevision>>();
             services.AddScoped<IVersionHub<HitAssessmentRevision>, VersionHub<HitAssessmentRevision>>();
 
+            /* Query */
+            services.AddScoped<IHitAssessmentRepository, HitAssessmentRepository>();
+
+
+            /* Consumers */
+            services.AddScoped<IEventConsumer, HitAssessmentEventConsumer>();
+            services.AddHostedService<ConsumerHostedService>();
 
             return services;
         }
