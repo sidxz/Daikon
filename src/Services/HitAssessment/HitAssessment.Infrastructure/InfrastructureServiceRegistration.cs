@@ -35,6 +35,11 @@ namespace HitAssessment.Infrastructure
             BsonClassMap.RegisterClassMap<HaUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HaDeletedEvent>();
 
+            BsonClassMap.RegisterClassMap<HaCompoundEvolutionAddedEvent>();
+            BsonClassMap.RegisterClassMap<HaCompoundEvolutionUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<HaCompoundEvolutionDeletedEvent>();
+
+
             /* Event Database */
             var eventDatabaseSettings = new EventDatabaseSettings
             {
@@ -72,8 +77,20 @@ namespace HitAssessment.Infrastructure
             services.AddScoped<IVersionStoreRepository<HitAssessmentRevision>, VersionStoreRepository<HitAssessmentRevision>>();
             services.AddScoped<IVersionHub<HitAssessmentRevision>, VersionHub<HitAssessmentRevision>>();
 
+            var haCompoundEvolutionVersionStoreSettings = new VersionDatabaseSettings<HaCompoundEvolutionRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("HAMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HaCompoundEvolutionRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("HAMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HaCompoundEvolutionRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HaCompoundEvolutionRevision>.CollectionName))
+            };
+            services.AddSingleton<IVersionDatabaseSettings<HaCompoundEvolutionRevision>>(haCompoundEvolutionVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<HaCompoundEvolutionRevision>, VersionStoreRepository<HaCompoundEvolutionRevision>>();
+            services.AddScoped<IVersionHub<HaCompoundEvolutionRevision>, VersionHub<HaCompoundEvolutionRevision>>();
+
+
             /* Query */
             services.AddScoped<IHitAssessmentRepository, HitAssessmentRepository>();
+            services.AddScoped<IHaCompoundEvolutionRepository, HaCompoundEvolutionRepository>();
 
 
             /* Consumers */

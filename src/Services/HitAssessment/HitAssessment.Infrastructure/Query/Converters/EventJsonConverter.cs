@@ -36,6 +36,9 @@ namespace HitAssessment.Infrastructure.Query.Converters
                 "HaCreatedEvent" => JsonSerializer.Deserialize<HaCreatedEvent>(json, options),
                 "HaUpdatedEvent" => JsonSerializer.Deserialize<HaUpdatedEvent>(json, options),
                 "HaDeletedEvent" => JsonSerializer.Deserialize<HaDeletedEvent>(json, options),
+                "HaCompoundEvolutionAddedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionAddedEvent>(json, options),
+                "HaCompoundEvolutionUpdatedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionUpdatedEvent>(json, options),
+                "HaCompoundEvolutionDeletedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionDeletedEvent>(json, options),
 
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };

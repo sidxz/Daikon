@@ -133,8 +133,10 @@ services:
       - "HAMongoDbSettings:DatabaseName=HitAssessment"
 
       - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
+      - "HAMongoDbSettings:HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
 
       - "HAMongoDbSettings:HitAssessmentRevisionCollectionName=HitAssessmentsRevisions"
+      - "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       - "KafkaConsumerSettings:Topics=daikon-core-events"
