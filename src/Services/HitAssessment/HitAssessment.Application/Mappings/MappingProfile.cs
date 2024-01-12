@@ -3,8 +3,11 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.HitAssessment;
+using HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.DeleteHitAssessment;
+using HitAssessment.Application.Features.Commands.NewHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.NewHitAssessment;
+using HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.UpdateHitAssessment;
 using HitAssessment.Application.Features.Queries.GetHitAssessment;
 using HitAssessment.Application.Features.Queries.GetHitAssessmentList;
@@ -20,10 +23,19 @@ namespace HitAssessment.Application.Mappings
             CreateMap<HaUpdatedEvent, UpdateHitAssessmentCommand>().ReverseMap();
             CreateMap<HaDeletedEvent, DeleteHitAssessmentCommand>().ReverseMap();
 
+            CreateMap<HaCompoundEvolutionAddedEvent, NewHaCompoundEvolutionCommand>().ReverseMap();
+            CreateMap<HaCompoundEvolutionUpdatedEvent, UpdateHaCompoundEvolutionCommand>().ReverseMap();
+            CreateMap<HaCompoundEvolutionDeletedEvent, DeleteHaCompoundEvolutionCommand>().ReverseMap();
+
+
             /* Events */
             CreateMap<Domain.Entities.HitAssessment, HaCreatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.HitAssessment, HaUpdatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.HitAssessment, HaDeletedEvent>().ReverseMap();
+
+            CreateMap<Domain.Entities.HaCompoundEvolution, HaCompoundEvolutionAddedEvent>().ReverseMap();
+            CreateMap<Domain.Entities.HaCompoundEvolution, HaCompoundEvolutionUpdatedEvent>().ReverseMap();
+            CreateMap<Domain.Entities.HaCompoundEvolution, HaCompoundEvolutionDeletedEvent>().ReverseMap();
 
             /* Queries */
             CreateMap<Domain.Entities.HitAssessment, HitAssessmentListVM>().ReverseMap();

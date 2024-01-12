@@ -6,6 +6,6 @@ namespace HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution
 {
     public class DeleteHaCompoundEvolutionCommand : BaseCommand, IRequest<Unit>
     {
-
+        public Guid CompoundEvolutionId { get; set; }
     }
 }

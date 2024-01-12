@@ -15,7 +15,6 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         public string? LegacyId { get; set; }
         public Guid? HitId { get; set; }
         public Guid? CompoundId { get; set; }
-
         public Dictionary<string, string>? AssociatedHitIds { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]

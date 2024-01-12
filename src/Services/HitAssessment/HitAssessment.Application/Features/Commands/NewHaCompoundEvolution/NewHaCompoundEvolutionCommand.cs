@@ -10,7 +10,7 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
     public class NewHaCompoundEvolutionCommand : BaseCommand, IRequest<Unit>
     {
 
-        public Guid HitAssessmentId { get; set; }
+        public Guid CompoundEvolutionId { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? CompoundStructureSMILES { get; set; }
