@@ -9,6 +9,10 @@ namespace HitAssessment.Application.EventHandlers
         Task OnEvent(HaUpdatedEvent @event);
         Task OnEvent(HaDeletedEvent @event);
 
+        Task OnEvent(HaCompoundEvolutionAddedEvent @event);
+        Task OnEvent(HaCompoundEvolutionUpdatedEvent @event);
+        Task OnEvent(HaCompoundEvolutionDeletedEvent @event);
+
 
     }
 }

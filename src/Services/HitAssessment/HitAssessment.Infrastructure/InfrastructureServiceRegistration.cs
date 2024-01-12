@@ -14,9 +14,11 @@ using Daikon.EventStore.Stores;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
+using HitAssessment.Application.Contracts.Infrastructure;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
 using HitAssessment.Domain.EntityRevisions;
+using HitAssessment.Infrastructure.MolDbAPI;
 using HitAssessment.Infrastructure.Query.Consumers;
 using HitAssessment.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -96,6 +98,9 @@ namespace HitAssessment.Infrastructure
             /* Consumers */
             services.AddScoped<IEventConsumer, HitAssessmentEventConsumer>();
             services.AddHostedService<ConsumerHostedService>();
+
+            /* MolDb API */
+            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
 
             return services;
         }
