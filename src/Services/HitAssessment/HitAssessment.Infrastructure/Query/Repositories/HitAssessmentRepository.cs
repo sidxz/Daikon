@@ -11,7 +11,7 @@ namespace HitAssessment.Infrastructure.Query.Repositories
 {
     public class HitAssessmentRepository : IHitAssessmentRepository
     {
-        private readonly IMongoCollection<Domain.Entities.HitAssessment> _screenCollection;
+        private readonly IMongoCollection<Domain.Entities.HitAssessment> _haCollection;
         private readonly ILogger<HitAssessmentRepository> _logger;
         private readonly IVersionHub<HitAssessmentRevision> _versionHub;
 
@@ -19,9 +19,9 @@ namespace HitAssessment.Infrastructure.Query.Repositories
         {
             var client = new MongoClient(configuration.GetValue<string>("HAMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("HAMongoDbSettings:DatabaseName"));
-            _screenCollection = database.GetCollection<Domain.Entities.HitAssessment>(configuration.GetValue<string>("HAMongoDbSettings:HitAssessmentCollectionName"));
-            _screenCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
-            _screenCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
+            _haCollection = database.GetCollection<Domain.Entities.HitAssessment>(configuration.GetValue<string>("HAMongoDbSettings:HitAssessmentCollectionName"));
+            _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
+            _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
@@ -38,7 +38,7 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("CreateHitAssessment: Creating screen {HitAssessmentId}, {HitAssessment}", screen.Id, screen.ToJson());
-                await _screenCollection.InsertOneAsync(screen);
+                await _haCollection.InsertOneAsync(screen);
                 await _versionHub.CommitVersion(screen);
             }
             catch (MongoException ex)
@@ -51,12 +51,12 @@ namespace HitAssessment.Infrastructure.Query.Repositories
 
         public async Task<Domain.Entities.HitAssessment> ReadHaById(Guid id)
         {
-            return await _screenCollection.Find(screen => screen.Id == id).FirstOrDefaultAsync();
+            return await _haCollection.Find(screen => screen.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<Domain.Entities.HitAssessment> ReadHaByName(string name)
         {
-            return await _screenCollection.Find(screen => screen.Name == name).FirstOrDefaultAsync();
+            return await _haCollection.Find(screen => screen.Name == name).FirstOrDefaultAsync();
         }
 
 
@@ -64,7 +64,7 @@ namespace HitAssessment.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _screenCollection.Find(screen => true).ToListAsync();
+                return await _haCollection.Find(screen => true).ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -78,7 +78,7 @@ namespace HitAssessment.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _screenCollection.Find(screen => screen.StrainId == strainId).ToListAsync();
+                return await _haCollection.Find(screen => screen.StrainId == strainId).ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -97,7 +97,7 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("UpdateHitAssessment: Updating screen {HitAssessmentId}, {HitAssessment}", screen.Id, screen.ToJson());
-                await _screenCollection.ReplaceOneAsync(t => t.Id == screen.Id, screen);
+                await _haCollection.ReplaceOneAsync(t => t.Id == screen.Id, screen);
                 await _versionHub.CommitVersion(screen);
             }
             catch (MongoException ex)
@@ -114,7 +114,7 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("DeleteHitAssessment: Deleting screen {HitAssessmentId}", id);
-                await _screenCollection.DeleteOneAsync(t => t.Id == id);
+                await _haCollection.DeleteOneAsync(t => t.Id == id);
                 await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
