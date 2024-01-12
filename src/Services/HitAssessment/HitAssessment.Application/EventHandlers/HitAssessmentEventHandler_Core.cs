@@ -13,11 +13,13 @@ namespace HitAssessment.Application.EventHandlers
         private readonly IHitAssessmentRepository _haRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<HitAssessmentEventHandler> _logger;
+        private readonly IHaCompoundEvolutionRepository _haCompoundEvolutionRepository;
 
-        public HitAssessmentEventHandler(IHitAssessmentRepository haRepository,
+        public HitAssessmentEventHandler(IHitAssessmentRepository haRepository, IHaCompoundEvolutionRepository haCompoundEvolutionRepository,
                                     IMapper mapper, ILogger<HitAssessmentEventHandler> logger)
         {
             _haRepository = haRepository;
+            _haCompoundEvolutionRepository = haCompoundEvolutionRepository;
             _mapper = mapper;
             _logger = logger;
         }
