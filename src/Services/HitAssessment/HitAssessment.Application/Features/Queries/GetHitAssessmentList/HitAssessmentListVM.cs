@@ -3,6 +3,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
 {
     public class HitAssessmentListVM
     {
+        public Guid Id { get; set; }
         public Guid? StrainId { get; set; }
         public string Name { get; set; }
         public string? HaType { get; set; }

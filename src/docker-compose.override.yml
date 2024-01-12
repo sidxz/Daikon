@@ -145,6 +145,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
+      - "MolDbAPI:Url=http://MolDb.API/api/v2"
 
     ports:
       - "8004:80"

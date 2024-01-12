@@ -9,6 +9,8 @@ using HitAssessment.Application.Features.Commands.NewHitAssessment;
 using HitAssessment.Application.Features.Commands.UpdateHitAssessment;
 using HitAssessment.Application.Features.Queries.GetHitAssessment.ById;
 using HitAssessment.Application.Features.Queries.GetHitAssessment;
+using HitAssessment.Application.Features.Queries.GetHitAssessmentList;
+using HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAssessmentList;
 
 namespace HitAssessment.API.Controllers.V2
 {
@@ -24,6 +26,28 @@ namespace HitAssessment.API.Controllers.V2
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpGet(Name = "GetHitAssessmentList")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(IEnumerable<HitAssessmentListVM>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<HitAssessmentListVM>>> GetHitAssessmentList([FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var screens = await _mediator.Send(new GetHitAssessmentListQuery { WithMeta = WithMeta });
+                return Ok(screens);
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen list";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
 
