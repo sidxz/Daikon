@@ -1,7 +1,7 @@
 
 using System.Net;
 using Horizon.API.DTOs;
-using Horizon.Application.Features.Command.Gene.AddGeneToGraph;
+using Horizon.Application.Features.Command.Gene.AddGene;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +27,7 @@ namespace Horizon.API.Controllers.V2
         [HttpPost(Name = "AddGene")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> AddGene(AddGeneToGraphCommand command)
+        public async Task<ActionResult> AddGene(AddGeneCommand command)
         {
             var id = Guid.NewGuid();
             try
@@ -35,7 +35,7 @@ namespace Horizon.API.Controllers.V2
                 command.Id = id;
                 await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddGeneToGraphResponse
+                return StatusCode(StatusCodes.Status201Created, new AddGeneResponse
                 {
                     Id = id,
                     Message = "Gene added successfully",
@@ -55,7 +55,7 @@ namespace Horizon.API.Controllers.V2
                 const string SAFE_ERROR_MESSAGE = "An error occurred while adding the gene";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddGeneToGraphResponse
+                return StatusCode(StatusCodes.Status500InternalServerError, new AddGeneResponse
                 {
                     Id = id,
                     Message = SAFE_ERROR_MESSAGE

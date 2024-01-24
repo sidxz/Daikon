@@ -21,6 +21,5 @@ namespace Daikon.Events.Gene
         public DVariable<string>? PMID { get; set; }
         public DVariable<string>? Notes { get; set; }
         public DVariable<string>? URL { get; set; }
-        public DateTime DateCreated { get; set; }
     }
 }

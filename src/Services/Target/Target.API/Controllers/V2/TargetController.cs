@@ -10,6 +10,8 @@ using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Command.UpdateTargetAssociatedGenes;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTarget.ById;
+using Target.Application.Features.Queries.GetTarget.GetTargetsList;
+using Target.Application.Features.Queries.GetTargetsList;
 
 namespace Target.API.Controllers.V2
 {
@@ -25,6 +27,45 @@ namespace Target.API.Controllers.V2
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpGet(Name = "GetTargets")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(TargetsListVM), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<TargetsListVM>> GetTargets([FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var targets = await _mediator.Send(new GetTargetsListQuery { WithMeta = WithMeta });
+                return Ok(targets);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetTargets: Requested Resource Not Found");
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the targets";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
 

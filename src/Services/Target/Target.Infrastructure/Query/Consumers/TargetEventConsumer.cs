@@ -86,8 +86,22 @@ namespace Target.Infrastructure.Query.Consumers
                             Converters = { new EventJSONConverter() }
                         };
 
-                        var @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
-
+                        BaseEvent @event;
+                        try 
+                        {
+                            @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
+                        }
+                        catch (UnknownEventDiscriminatorException ex)
+                        {
+                            _logger.LogInformation("TargetEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                           
+                            continue;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error deserializing event: {message}", consumeResult.Message.Value);
+                            throw new EventConsumeException(nameof(TargetEventConsumer), $"Error deserializing event: {consumeResult.Message.Value}", ex);
+                        }
 
                         // 1st check if the event is a Target event
                         var targetHandlerMethod = _targetEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });

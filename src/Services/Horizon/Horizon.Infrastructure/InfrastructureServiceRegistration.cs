@@ -18,6 +18,8 @@ namespace Horizon.Infrastructure
 
             services.AddScoped<IGraphRepositoryForGene, GraphRepositoryForGene>();
             services.AddScoped<IGraphRepositoryForTarget, GraphRepositoryForTarget>();
+            services.AddScoped<IGraphRepositoryForScreen, GraphRepositoryForScreen>();
+            services.AddScoped<IGraphRepositoryForHitCollection, GraphRepositoryForHitCollection>();
 
             string neo4jUri = configuration.GetValue<string>("HorizonNeo4jSettings:Uri") ?? throw new ArgumentNullException(nameof(neo4jUri));
             string neo4jUser = configuration.GetValue<string>("HorizonNeo4jSettings:User") ?? throw new ArgumentNullException(nameof(neo4jUser));

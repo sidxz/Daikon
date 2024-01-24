@@ -12,6 +12,18 @@ services:
     build:
       context: .
       dockerfile: Services/Target/Target.API/Dockerfile
+
+  Screen.API:
+    image: ${DOCKER_REGISTRY-}screen
+    build:
+      context: .
+      dockerfile: Services/Screen/Screen.API/Dockerfile
+
+  HitAssessment.API:
+    image: ${DOCKER_REGISTRY-}hitassessment
+    build:
+      context: .
+      dockerfile: Services/HitAssessment/HitAssessment.API/Dockerfile
   
   Horizon.API:
     image: ${DOCKER_REGISTRY-}horizon

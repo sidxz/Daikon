@@ -15,9 +15,6 @@ namespace Daikon.Events.Targets
         public required string Name { get; set; }
         public Dictionary<string, string> AssociatedGenes { get; set; }
         public string TargetType { get; set; }
-
-        public DateTime DateCreated { get; set; }
-
         public DVariable<string> Bucket { get; set; }
 
         public DVariable<double> ImpactScore { get; set; }

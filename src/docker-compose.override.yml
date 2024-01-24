@@ -11,7 +11,7 @@ services:
       - "EventDatabaseSettings:CollectionName=Events"
 
       - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
-      - "KafkaProducerSettings:Topic=genes"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
 
       - "GeneMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
       - "GeneMongoDbSettings:DatabaseName=Gene"
@@ -39,7 +39,7 @@ services:
       - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
       
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
-      - "KafkaConsumerSettings:Topic=genes"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
       - "KafkaConsumerSettings:GroupId=gene-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"
@@ -58,7 +58,7 @@ services:
       - "EventDatabaseSettings:CollectionName=Events"
 
       - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
-      - "KafkaProducerSettings:Topic=targets"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
 
       - "TargetMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
       - "TargetMongoDbSettings:DatabaseName=Target"
@@ -68,7 +68,7 @@ services:
       - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
-      - "KafkaConsumerSettings:Topic=targets"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
       - "KafkaConsumerSettings:GroupId=target-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"
@@ -76,6 +76,79 @@ services:
 
     ports:
       - "8002:80"
+
+
+  Screen.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "ScreenMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "ScreenMongoDbSettings:DatabaseName=Screen"
+
+      - "ScreenMongoDbSettings:ScreenCollectionName=Screens"
+      - "ScreenMongoDbSettings:ScreenRunCollectionName=ScreenRuns"
+      - "ScreenMongoDbSettings:HitCollectionCollectionName=HitCollections"
+      - "ScreenMongoDbSettings:HitCollectionName=Hits"
+
+
+      - "ScreenMongoDbSettings:ScreenRevisionCollectionName=ScreensRevisions"
+      - "ScreenMongoDbSettings:ScreenRunRevisionCollectionName=ScreenRunsRevisions"
+      - "ScreenMongoDbSettings:HitCollectionRevisionCollectionName=HitCollectionsRevisions"
+      - "ScreenMongoDbSettings:HitRevisionCollectionName=HitRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=screen-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+
+    ports:
+      - "8003:80"
+
+  
+  HitAssessment.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "HAMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "HAMongoDbSettings:DatabaseName=HitAssessment"
+
+      - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
+      - "HAMongoDbSettings:HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
+
+      - "HAMongoDbSettings:HitAssessmentRevisionCollectionName=HitAssessmentsRevisions"
+      - "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=hitassessment-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+
+    ports:
+      - "8004:80"
 
   Horizon.API:
     environment:
@@ -87,7 +160,7 @@ services:
       - "HorizonNeo4jSettings:Password=1k5SPVHJ4FZ9"
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
-      - "KafkaConsumerSettings:Topics=genes,targets"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
       - "KafkaConsumerSettings:GroupId=horizon-gene-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"
@@ -97,5 +170,12 @@ services:
       - "8006:80"
 
   MolDb.API:
+    environment:
+      - "KafkaConsumerSettings_BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings_Topics=daikon-core-events"
+      - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
+      - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings_EnableAutoCommit=true"
+      - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
     ports:
       - "8101:80"

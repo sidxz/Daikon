@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using CQRS.Core.Command;
 using MediatR;
 
-namespace Horizon.Application.Features.Command.Gene.AddGeneToGraph
+namespace Horizon.Application.Features.Command.Gene.AddGene
 {
-    public class AddGeneToGraphCommand : BaseCommand, IRequest<Unit>
+    public class AddGeneCommand : BaseCommand, IRequest<Unit>
     {
         public string GeneId { get; set; }
         public string StrainId { get; set; }
