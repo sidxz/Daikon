@@ -34,9 +34,9 @@ namespace Project.Infrastructure.Query.Consumers
     public class ProjectEventConsumer : IEventConsumer
     {
         private readonly ConsumerConfig _config;
-        private readonly IProjectEventHandler _haEventHandler;
+        private readonly IProjectEventHandler _projectEventHandler;
         private readonly ILogger<ProjectEventConsumer> _logger;
-        public ProjectEventConsumer(IConfiguration configuration, IProjectEventHandler haEventHandler,
+        public ProjectEventConsumer(IConfiguration configuration, IProjectEventHandler projectEventHandler,
                                     ILogger<ProjectEventConsumer> logger)
         {
             _config = new ConsumerConfig
@@ -48,7 +48,7 @@ namespace Project.Infrastructure.Query.Consumers
                 AllowAutoCreateTopics = configuration.GetValue<bool>("KafkaConsumerSettings:AllowAutoCreateTopics")
             };
 
-            _haEventHandler = haEventHandler;
+            _projectEventHandler = projectEventHandler;
             _logger = logger;
         }
 
@@ -104,17 +104,17 @@ namespace Project.Infrastructure.Query.Consumers
                         }
 
                         // 1st check if the event is a Project event
-                        var haHandlerMethod = _haEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
-                        if (haHandlerMethod != null)
+                        var projectHandlerMethod = _projectEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (projectHandlerMethod != null)
                         {
                             try
                             {
-                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", haHandlerMethod.Name, @event.ToJson());
-                                haHandlerMethod.Invoke(_haEventHandler, new object[] { @event });
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", projectHandlerMethod.Name, @event.ToJson());
+                                projectHandlerMethod.Invoke(_projectEventHandler, new object[] { @event });
                             }
                             catch (EventHandlerException ex)
                             {
-                                _logger.LogError("Handler method not found {name}", nameof(haHandlerMethod));
+                                _logger.LogError("Handler method not found {name}", nameof(projectHandlerMethod));
                                 throw new EventConsumeException(nameof(ProjectEventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
                             consumer.Commit(consumeResult);
@@ -123,7 +123,7 @@ namespace Project.Infrastructure.Query.Consumers
 
 
                         // 3rd check if no handler method was found, throw an exception
-                        if (haHandlerMethod == null)
+                        if (projectHandlerMethod == null)
                         {
                             _logger.LogError("Handler method not found {name}", nameof(ProjectEventConsumer));
                             throw new ArgumentNullException(nameof(ProjectEventConsumer), "Handler method not found");
