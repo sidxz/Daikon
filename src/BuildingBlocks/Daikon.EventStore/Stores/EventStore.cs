@@ -68,10 +68,10 @@ namespace Daikon.EventStore.Stores
         {
             var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
 
-            Console.WriteLine($"EventStream count: {eventStream.Count}");
+            //Console.WriteLine($"EventStream count: {eventStream.Count}");
             // print event stream in json format using dotnet json serializer
             var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            Console.WriteLine($"EventStream: {eventStream.ToJson(jsonWriterSettings)}");
+            //Console.WriteLine($"EventStream: {eventStream.ToJson(jsonWriterSettings)}");
             
             
 

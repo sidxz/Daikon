@@ -49,7 +49,7 @@ namespace Gene.Infrastructure.Query.Consumers
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(_serviceProvider));
             _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
-            _topic = configuration.GetValue<string>("KafkaConsumerSettings:Topic") ?? throw new ArgumentNullException(nameof(_topic));
+            _topic = configuration.GetValue<string>("KafkaConsumerSettings:Topics") ?? throw new ArgumentNullException(nameof(_topic));
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

@@ -38,7 +38,7 @@ namespace Horizon.Application.Query.Handlers
 
             try
             {
-                await _graphRepository.AddTargetToGraph(target);
+                await _graphRepository.AddTarget(target);
             }
             catch (RepositoryException ex)
             {
@@ -66,7 +66,7 @@ namespace Horizon.Application.Query.Handlers
 
             try
             {
-                await _graphRepository.UpdateTargetOfGraph(target);
+                await _graphRepository.UpdateTarget(target);
             }
             catch (RepositoryException ex)
             {
@@ -107,7 +107,7 @@ namespace Horizon.Application.Query.Handlers
         // {
         //     _logger.LogInformation($"Horizon: GeneDeletedEvent: {@event.Id} {@event.AccessionNumber}");
         //     try {
-        //          await _graphRepository.DeleteGeneFromGraph(@event.Id.ToString());
+        //          await _graphRepository.DeleteGene(@event.Id.ToString());
         //     }
         //     catch (RepositoryException ex)
         //     {

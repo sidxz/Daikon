@@ -21,9 +21,9 @@ ENV PATH /opt/conda/envs/myenv/bin:$PATH
 
 # Install RDKit and other Python packages using Conda
 RUN conda install -c conda-forge -n myenv rdkit
-RUN conda run -n myenv pip install fastapi[all] uvicorn psycopg2-binary sqlalchemy
+RUN conda run -n myenv pip install fastapi[all] uvicorn psycopg2-binary asyncpg marshmallow confluent_kafka
 
-COPY ["Services/Chem/MolDb.API/", "./"]
+COPY ["Services/Chem/MolDb.API/", "/app/"]
 
 # CMD should use the binaries from the Conda environment
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

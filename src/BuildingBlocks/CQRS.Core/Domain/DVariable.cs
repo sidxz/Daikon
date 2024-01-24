@@ -62,6 +62,10 @@ namespace CQRS.Core.Domain
 
         public static implicit operator TDataType(DVariable<TDataType> dVariable)
         {
+            if (dVariable == null)
+            {
+                return default!;
+            }
             return dVariable.Value;
         }
 

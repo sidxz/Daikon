@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Horizon.Domain.Genes;
 using Horizon.Domain.Strains;
 
@@ -11,10 +8,10 @@ namespace Horizon.Application.Contracts.Persistance
     {
         Task CreateIndexesAsync();
         Task CreateConstraintsAsync();
-        Task AddGeneToGraph(Gene gene);
-        Task UpdateGeneOfGraph(Gene gene);
-        Task DeleteGeneFromGraph(string geneId);
-        Task AddStrainToGraph(Strain strain);
-        Task UpdateStrainOfGraph(Strain strain);
+        Task AddGene(Gene gene);
+        Task UpdateGene(Gene gene);
+        Task DeleteGene(string geneId);
+        Task AddStrain(Strain strain);
+        Task UpdateStrain(Strain strain);
     }
 }
