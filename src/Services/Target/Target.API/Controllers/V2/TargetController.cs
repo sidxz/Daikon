@@ -10,7 +10,6 @@ using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Command.UpdateTargetAssociatedGenes;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTarget.ById;
-using Target.Application.Features.Queries.GetTarget.GetTargetsList;
 using Target.Application.Features.Queries.GetTargetsList;
 
 namespace Target.API.Controllers.V2

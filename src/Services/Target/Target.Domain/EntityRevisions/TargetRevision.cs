@@ -35,5 +35,13 @@ namespace Target.Domain.EntityRevisions
         public DVariableHistory<double> Progressibility { get; set; }
 
         public DVariableHistory<double> Safety { get; set; }
+
+        public DVariableHistory<string> Background { get; set; }
+
+        public DVariableHistory<string> Enablement { get; set; }
+
+        public DVariableHistory<string> Strategy { get; set; }
+
+        public DVariableHistory<string> Challenges { get; set; }
     }
 }
