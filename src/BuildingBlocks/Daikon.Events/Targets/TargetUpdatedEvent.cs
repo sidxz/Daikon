@@ -45,6 +45,14 @@ namespace Daikon.Events.Targets
         public DVariable<double> Progressibility { get; set; }
 
         public DVariable<double> Safety { get; set; }
+
+        public DVariable<string> Background { get; set; }
+
+        public DVariable<string> Enablement { get; set; }
+
+        public DVariable<string> Strategy { get; set; }
+
+        public DVariable<string> Challenges { get; set; }
         
     }
 }

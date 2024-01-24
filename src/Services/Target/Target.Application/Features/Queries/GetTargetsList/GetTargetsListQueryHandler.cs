@@ -2,10 +2,9 @@
 using AutoMapper;
 using Target.Application.Contracts.Persistence;
 using MediatR;
-using Target.Application.Features.Queries.GetTargetsList;
 using CQRS.Core.Exceptions;
 
-namespace Target.Application.Features.Queries.GetTarget.GetTargetsList
+namespace Target.Application.Features.Queries.GetTargetsList
 {
     public class GetTargetsListQueryHandler : IRequestHandler<GetTargetsListQuery, List<TargetsListVM>>
     {
