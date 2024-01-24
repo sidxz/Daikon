@@ -1,3 +1,4 @@
+
 namespace Target.Application.Features.Queries.GetTargetsList
 {
     public class TargetsListVM
@@ -7,13 +8,10 @@ namespace Target.Application.Features.Queries.GetTargetsList
         public string Name { get; set; }
         public Dictionary<string, string> AssociatedGenes { get; set; }
         public string TargetType { get; set; }
-        public string Bucket { get; set; }
-        public string ImpactScore { get; set; }
-        public string LikeScore { get; set; }
-        
-        
-
-
-
+        public object Bucket { get; set; }
+        public object ImpactScore { get; set; }
+        public object ImpactComplete { get; set; }
+        public object LikeScore { get; set; }
+        public object LikeComplete { get; set; }
     }
 }

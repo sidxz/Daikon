@@ -28,19 +28,36 @@ namespace Target.API.Controllers.V2
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet(Name = "GetTargetsList")]
+        [HttpGet(Name = "GetTargets")]
         [MapToApiVersion("2.0")]
-        [ProducesResponseType(typeof(List<TargetsListVM>), (int)HttpStatusCode.OK)]
-        public async Task<ActionResult<List<TargetsListVM>>> GetTargetsList()
+        [ProducesResponseType(typeof(TargetsListVM), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<TargetsListVM>> GetTargets([FromQuery] bool WithMeta = false)
         {
             try
             {
-                var targetsList = await _mediator.Send(new GetTargetsListQuery());
-                return Ok(targetsList);
+                var targets = await _mediator.Send(new GetTargetsListQuery { WithMeta = WithMeta });
+                return Ok(targets);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetTargets: Requested Resource Not Found");
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the target list";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the targets";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -48,7 +65,6 @@ namespace Target.API.Controllers.V2
                     Message = SAFE_ERROR_MESSAGE
                 });
             }
-            
         }
 
 

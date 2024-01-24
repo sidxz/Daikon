@@ -19,7 +19,6 @@ namespace Daikon.Events.Gene
         public DVariable<string> Product { get; set; }
         public DVariable<string> FunctionalCategory { get; set; }
         
-        public DateTime DateCreated { get; set; }
 
     }
 }

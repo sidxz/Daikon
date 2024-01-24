@@ -85,8 +85,22 @@ namespace Gene.Infrastructure.Query.Consumers
                             Converters = { new EventJSONConverter() }
                         };
 
-                        var @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
+                        BaseEvent @event;
+                        try
+                        {
+                            @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
+                        }
+                        catch (UnknownEventDiscriminatorException ex)
+                        {
+                            _logger.LogInformation("GeneEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
+                            continue;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error deserializing event: {message}", consumeResult.Message.Value);
+                            throw new EventConsumeException(nameof(GeneEventConsumer), $"Error deserializing event: {consumeResult.Message.Value}", ex);
+                        }
 
                         // 1st check if the event is a Gene event
                         var geneHandlerMethod = _geneEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });

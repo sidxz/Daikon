@@ -6,9 +6,9 @@ namespace Horizon.Application.Contracts.Persistance
     public interface IGraphRepositoryForTarget
     {
         Task CreateIndexesAsync();
-        Task AddTargetToGraph(Target target);
-        Task UpdateTargetOfGraph(Target target);
+        Task AddTarget(Target target);
+        Task UpdateTarget(Target target);
         Task UpdateAssociatedGenesOfTarget(Target target);
-        Task DeleteTargetFromGraph(string targetId);
+        Task DeleteTarget(string targetId);
     }
 }

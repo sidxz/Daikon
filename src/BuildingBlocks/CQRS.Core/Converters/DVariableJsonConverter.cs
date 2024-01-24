@@ -42,9 +42,19 @@ namespace CQRS.Core.Converters
             }
             else
             {
-                // Otherwise, deserialize the value directly
-                var value = JsonSerializer.Deserialize<T>(ref reader, options);
-                return new DVariable<T> { Value = value };
+                // Check if T is a nullable type and handle accordingly
+                Type underlyingType = Nullable.GetUnderlyingType(typeof(T));
+                if (underlyingType != null)
+                {
+                    var nullableValue = JsonSerializer.Deserialize<T>(ref reader, options);
+                    return new DVariable<T> { Value = nullableValue };
+                }
+                else
+                {
+                    // Otherwise, deserialize the value directly
+                    var value = JsonSerializer.Deserialize<T>(ref reader, options);
+                    return new DVariable<T> { Value = value };
+                }
             }
         }
 

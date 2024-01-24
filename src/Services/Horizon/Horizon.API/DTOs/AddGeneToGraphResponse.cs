@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Horizon.API.DTOs
 {
-    public class AddGeneToGraphResponse : BaseResponse
+    public class AddGeneResponse : BaseResponse
     {
         public Guid Id { get; set; }
     }

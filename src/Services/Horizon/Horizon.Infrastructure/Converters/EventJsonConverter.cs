@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using CQRS.Core.Event;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
+using Daikon.Events.Screens;
 using Daikon.Events.Strains;
 using Daikon.Events.Targets;
 
@@ -44,6 +45,20 @@ namespace Horizon.Infrastructure.Query.Converters
                 "TargetUpdatedEvent" => JsonSerializer.Deserialize<TargetUpdatedEvent>(json, options),
                 "TargetDeletedEvent" => JsonSerializer.Deserialize<TargetDeletedEvent>(json, options),
                 "TargetAssociatedGenesUpdatedEvent" => JsonSerializer.Deserialize<TargetAssociatedGenesUpdatedEvent>(json, options),
+                "ScreenCreatedEvent" => JsonSerializer.Deserialize<ScreenCreatedEvent>(json, options),
+                "ScreenUpdatedEvent" => JsonSerializer.Deserialize<ScreenUpdatedEvent>(json, options),
+                "ScreenDeletedEvent" => JsonSerializer.Deserialize<ScreenDeletedEvent>(json, options),
+                "ScreenRenamedEvent" => JsonSerializer.Deserialize<ScreenRenamedEvent>(json, options),
+                "ScreenAssociatedTargetsUpdatedEvent" => JsonSerializer.Deserialize<ScreenAssociatedTargetsUpdatedEvent>(json, options),
+                "HitCollectionCreatedEvent" => JsonSerializer.Deserialize<HitCollectionCreatedEvent>(json, options),
+                "HitCollectionUpdatedEvent" => JsonSerializer.Deserialize<HitCollectionUpdatedEvent>(json, options),
+                "HitCollectionDeletedEvent" => JsonSerializer.Deserialize<HitCollectionDeletedEvent>(json, options),
+                "HitCollectionRenamedEvent" => JsonSerializer.Deserialize<HitCollectionRenamedEvent>(json, options),
+                "HitCollectionAssociatedScreenUpdatedEvent" => JsonSerializer.Deserialize<HitCollectionAssociatedScreenUpdatedEvent>(json, options),
+                "HitAddedEvent" => JsonSerializer.Deserialize<HitAddedEvent>(json, options),
+                "HitUpdatedEvent" => JsonSerializer.Deserialize<HitUpdatedEvent>(json, options),
+                "HitDeletedEvent" => JsonSerializer.Deserialize<HitDeletedEvent>(json, options),
+                
                 
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };
