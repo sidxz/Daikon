@@ -24,6 +24,12 @@ services:
     build:
       context: .
       dockerfile: Services/HitAssessment/HitAssessment.API/Dockerfile
+
+  Project.API:
+    image: ${DOCKER_REGISTRY-}project
+    build:
+      context: .
+      dockerfile: Services/Project/Project.API/Dockerfile
   
   Horizon.API:
     image: ${DOCKER_REGISTRY-}horizon
