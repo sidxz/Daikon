@@ -4,6 +4,7 @@ using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Event;
 using CQRS.Core.Exceptions;
+using Horizon.Application.Handlers;
 using Horizon.Application.Query.Handlers;
 using Horizon.Infrastructure.Query.Converters;
 using Microsoft.Extensions.Configuration;
@@ -47,9 +48,12 @@ namespace Horizon.Infrastructure.Query.Consumers
         private readonly ConsumerConfig _config;
         private readonly IGeneEventHandler _geneEventHandler;
         private readonly ITargetEventHandler _targetEventHandler;
+        private readonly IScreenEventHandler _screenEventHandler;
+        private readonly IHitCollectionEventHandler _hitCollectionEventHandler;
         private readonly ILogger<EventConsumer> _logger;
 
-        public EventConsumer(IConfiguration configuration, IGeneEventHandler eventHandler, ITargetEventHandler targetEventHandler,
+        public EventConsumer(IConfiguration configuration, IGeneEventHandler eventHandler,
+                 ITargetEventHandler targetEventHandler, IScreenEventHandler screenEventHandler, IHitCollectionEventHandler hitCollectionEventHandler,
                      ILogger<EventConsumer> logger)
         {
             _config = new ConsumerConfig
@@ -63,6 +67,8 @@ namespace Horizon.Infrastructure.Query.Consumers
 
             _geneEventHandler = eventHandler;
             _targetEventHandler = targetEventHandler;
+            _screenEventHandler = screenEventHandler;
+            _hitCollectionEventHandler = hitCollectionEventHandler;
             _logger = logger;
         }
 
@@ -145,6 +151,42 @@ namespace Horizon.Infrastructure.Query.Consumers
                             catch (EventHandlerException ex)
                             {
                                 _logger.LogError("Handler method not found {name}", nameof(targetHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            consumer.Commit(consumeResult);
+                            continue;
+                        }
+
+                        // 3rd check if the event is a Screen event
+                        var screenHandlerMethod = _screenEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (screenHandlerMethod != null)
+                        {
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", screenHandlerMethod.Name, @event.ToJson());
+                                screenHandlerMethod.Invoke(_screenEventHandler, new object[] { @event });
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(screenHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            consumer.Commit(consumeResult);
+                            continue;
+                        }
+
+                        // 4th check if the event is a HitCollection event
+                        var hitCollectionHandlerMethod = _hitCollectionEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (hitCollectionHandlerMethod != null)
+                        {
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", hitCollectionHandlerMethod.Name, @event.ToJson());
+                                hitCollectionHandlerMethod.Invoke(_hitCollectionEventHandler, new object[] { @event });
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(hitCollectionHandlerMethod));
                                 throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
                             consumer.Commit(consumeResult);
