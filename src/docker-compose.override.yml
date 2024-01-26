@@ -179,3 +179,11 @@ services:
       - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
     ports:
       - "8101:80"
+
+  ocelotapigw:
+    container_name: ocelotapigw
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "8010:80"
