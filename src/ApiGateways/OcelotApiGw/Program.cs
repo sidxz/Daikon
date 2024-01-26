@@ -4,7 +4,9 @@ using Ocelot.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+// Configure app configuration
+builder.Configuration.AddJsonFile
+  ($"ocelot.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
