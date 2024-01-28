@@ -6,9 +6,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Configure app configuration
 builder.Configuration.AddJsonFile
-  ($"ocelot.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-  .AddJsonFile("Gateways/ocelot.genes.json", optional: false, reloadOnChange: true)
-  .AddJsonFile("Gateways/ocelot.targets.json", optional: false, reloadOnChange: true);
+  ($"OcelotGlobalConfig.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+  .AddJsonFile($"Gateways/{builder.Environment.EnvironmentName}/gw.genes.json", optional: false, reloadOnChange: true)
+  .AddJsonFile($"Gateways/{builder.Environment.EnvironmentName}/gw.targets.json", optional: false, reloadOnChange: true);
 
   
 // Configure logging

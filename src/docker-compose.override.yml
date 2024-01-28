@@ -183,7 +183,7 @@ services:
   # Ocelotapigw:
   #   container_name: ocelotapigw
   #   environment:
-  #     - "ASPNETCORE_ENVIRONMENT=Development"
+  #     - "ASPNETCORE_ENVIRONMENT=Cluster"
   #     - ASPNETCORE_URLS=http://+:80
   #   ports:
   #     - "8010:80"
