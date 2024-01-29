@@ -1,5 +1,7 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using OcelotApiGw.AuthFlowMiddlewares;
+using OcelotApiGw.OAuth2Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,14 +19,37 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
+OAuth2Providers.ConfigureEntraIDAuthenticationServices(builder.Services, builder.Configuration);
+
 // Add Ocelot services
+
 builder.Services.AddOcelot();
+
+builder.Services.AddScoped<OAuth2UserAccessHandler>();
 
 
 
 var app = builder.Build();
 
+app.UseAuthentication(); 
+app.UseAuthorization();
+
+var oAuth2UserAccessHandler = app.Services.GetRequiredService<OAuth2UserAccessHandler>();
+
+var ocelotPipelineConfig = new OcelotPipelineConfiguration
+{
+    AuthorizationMiddleware = async (ctx, next) =>
+    {
+        // Invoke custom middleware logic here
+        await oAuth2UserAccessHandler.ValidateUser(ctx, next);
+    }
+};
+
+
+
+
 app.MapGet("/", () => "Hello World!");
 
-await app.UseOcelot();
+app.UseOcelot(ocelotPipelineConfig).Wait();
+//app.UseMiddleware<LogAuthHeadersMiddleware>();
 app.Run();

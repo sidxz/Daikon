@@ -8,6 +8,7 @@ namespace UserStore.Domain.Entities
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string OIDCSub { get; set; }
+        public Guid EntraObjectId { get; set; } // Used by Microsoft Entra as Unique Identifier
         public bool IsSystemAccount { get; set; }
         public AppOrg Org { get; set; }
         public List<AppRole> UserRoles { get; set; }
