@@ -15,20 +15,22 @@ namespace UserStore.Application.Features.Commands.Users.AddUser
         private readonly IAppRoleRepository _appRoleRepository;
         private readonly IAppOrgRepository _appOrgRepository;
 
-        public AddUserHandler(IMapper mapper, ILogger<AddUserHandler> logger, IAppUserRepository appUserRepository)
+        public AddUserHandler(IMapper mapper, ILogger<AddUserHandler> logger, IAppUserRepository appUserRepository, IAppRoleRepository appRoleRepository, IAppOrgRepository appOrgRepository)
         {
             _mapper = mapper;
             _logger = logger;
             _appUserRepository = appUserRepository;
+            _appRoleRepository = appRoleRepository;
+            _appOrgRepository = appOrgRepository;
         }
 
         public async Task<AppUser> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
-            // if both email and oidcsub are null, reject
-            if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.OIDCSub))
+            // if email and oidcsub and EntraObjectId are null, reject
+            if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.OIDCSub) && request.EntraObjectId == Guid.Empty)
             {
-                _logger.LogWarning("Either Email or OIDCSub must be provided.");
-                throw new InvalidOperationException("Either Email or OIDCSub must be provided.");
+                _logger.LogWarning("Either Email or OIDCSub/EntraObjectId must be provided.");
+                throw new InvalidOperationException("Either Email or OIDCSub/EntraObjectId must be provided.");
             }
 
             // check if user email exists (If it is set)

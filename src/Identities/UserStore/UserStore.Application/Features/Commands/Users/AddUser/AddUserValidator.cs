@@ -10,8 +10,8 @@ namespace UserStore.Application.Features.Commands.Users.AddUser
         {
             
             RuleFor(command => command)
-                 .Must(command => !(string.IsNullOrEmpty(command.Email) && string.IsNullOrEmpty(command.OIDCSub)))
-                 .WithMessage("Either Email or OIDCSub must be provided.");
+                 .Must(command => !(string.IsNullOrEmpty(command.Email) && string.IsNullOrEmpty(command.OIDCSub) && command.EntraObjectId == Guid.Empty))
+                 .WithMessage("Either Email or OIDCSub/EntraObjectId must be provided.");
             
             RuleFor(command => command.Email)
                 .Must(email => string.IsNullOrEmpty(email) || email.Contains("@"))

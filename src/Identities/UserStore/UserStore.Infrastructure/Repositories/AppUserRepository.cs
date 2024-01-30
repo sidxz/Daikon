@@ -96,6 +96,20 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
+        public Task<AppUser> GetUserByEntraObjectId(Guid EntraObjectId)
+        {
+            ArgumentNullException.ThrowIfNull(EntraObjectId);
+            try
+            {
+                return _appUserCollection.Find(user => user.EntraObjectId == EntraObjectId).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the user with EntraObjectId {EntraObjectId}", EntraObjectId);
+                throw new RepositoryException(nameof(AppUserRepository), "Error getting user", ex);
+            }
+        }
+
         public Task<List<AppUser>> GetUsersList()
         {
             try
