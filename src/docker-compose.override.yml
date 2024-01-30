@@ -150,6 +150,39 @@ services:
     ports:
       - "8004:80"
 
+  Project.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "ProjectMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "ProjectMongoDbSettings:DatabaseName=Project"
+
+      - "ProjectMongoDbSettings:ProjectCollectionName=Projects"
+      - "ProjectMongoDbSettings:ProjectCompoundEvolutionCollectionName=ProjectCompoundEvolutions"
+
+      - "ProjectMongoDbSettings:ProjectRevisionCollectionName=ProjectsRevisions"
+      - "ProjectMongoDbSettings:ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=project-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+
+    ports:
+      - "8005:80"
+
   Horizon.API:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
