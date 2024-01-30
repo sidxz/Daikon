@@ -1,0 +1,20 @@
+{
+  "Routes" : [
+    {
+      "DownstreamPathTemplate" : "/api/v2/gene",
+      "DownstreamScheme" : "http",
+      "DownstreamHostAndPorts" : [
+        {
+          "Host" : "localhost",
+          "Port" : "8001"
+        }
+      ],
+      "UpstreamPathTemplate" : "/v2/gene",
+      "UpstreamHttpMethod" : [ "Get", "Post", "Put", "Delete", "Options" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    }
+  ]
+}
