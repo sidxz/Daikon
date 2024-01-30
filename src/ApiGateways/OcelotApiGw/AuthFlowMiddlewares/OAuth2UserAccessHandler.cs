@@ -27,13 +27,9 @@ namespace OcelotApiGw.AuthFlowMiddlewares
             }
 
             context.Items.SetError(new UnauthorizedError("your custom message"));
-
-            //await ResponseUtil.WriteUnauthorizedResponseAsync(context, "Access denied by User Service");
-            //throw new HttpRequestException("Access denied due to custom validation logic.");
-
-
             return;
-            Console.WriteLine(" XXXXX Should have returned by now XXXXX");
+
+            
             await next.Invoke();
         }
     }
