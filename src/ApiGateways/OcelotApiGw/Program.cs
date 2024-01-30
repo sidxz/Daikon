@@ -1,6 +1,7 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using OcelotApiGw.AuthFlowMiddlewares;
+using OcelotApiGw.Contracts.Infrastructure;
 using OcelotApiGw.OAuth2Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,9 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 OAuth2Providers.ConfigureEntraIDAuthenticationServices(builder.Services, builder.Configuration);
+
+// Add UserStoreAPIService
+builder.Services.AddScoped<IUserStoreAPIService, UserStoreAPIService>();
 
 // Add Ocelot services
 
