@@ -3,14 +3,14 @@ using FluentValidation;
 
 namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
 {
-    public class Oauth2ConnectValidator : AbstractValidator<Oauth2ConnectCommand>
+    public class OAuth2ConnectValidator : AbstractValidator<OAuth2ConnectCommand>
     {
 
-        public Oauth2ConnectValidator()
+        public OAuth2ConnectValidator()
         {
 
             RuleFor(command => command)
-                 .Must(command => !(string.IsNullOrEmpty(command.OIDCSub) && command.EntraObjectId == Guid.Empty))
+                 .Must(command => !(string.IsNullOrEmpty(command.OIDCSub) && string.IsNullOrEmpty(command.EntraObjectId)))
                  .WithMessage("Either OIDCSub or EntraObjectId must be provided.");
 
             RuleFor(command => command.Email)

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\CQRS.Core\CQRS.Core.csproj" />
     <ProjectReference Include="..\UserStore.Application\UserStore.Application.csproj" />
     <ProjectReference Include="..\UserStore.Infrastructure\UserStore.Infrastructure.csproj" />
   </ItemGroup>

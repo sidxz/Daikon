@@ -10,7 +10,7 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
         {
 
             RuleFor(command => command)
-                 .Must(command => !(string.IsNullOrEmpty(command.Email) && string.IsNullOrEmpty(command.OIDCSub) && command.EntraObjectId == Guid.Empty))
+                 .Must(command => !(string.IsNullOrEmpty(command.Email) && string.IsNullOrEmpty(command.OIDCSub) && string.IsNullOrEmpty(command.EntraObjectId)))
                  .WithMessage("Either Email, OIDCSub or EntraObjectId must be provided.");
 
         }

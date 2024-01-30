@@ -96,7 +96,7 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppUser> GetUserByEntraObjectId(Guid EntraObjectId)
+        public Task<AppUser> GetUserByEntraObjectId(string EntraObjectId)
         {
             ArgumentNullException.ThrowIfNull(EntraObjectId);
             try

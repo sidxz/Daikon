@@ -11,6 +11,8 @@ using UserStore.API.Helper;
 using UserStore.API.Conventions;
 using UserStore.Application.Features.Commands.Users.AddUser;
 using FluentValidation;
+using UserStore.Application;
+using UserStore.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,9 +52,8 @@ builder.Services.AddSwaggerGen();
 
 /* ------------------------------------------------- */
 /* Add Application and Infrastructure services. */
-//builder.Services.AddApplicationServices();
-//builder.Services.AddInfrastructureService(builder.Configuration);
-//builder.Services.AddDomainServices();
+builder.Services.AddApplicationService(builder.Configuration);
+builder.Services.AddInfrastructureService(builder.Configuration);
 
 var app = builder.Build();
 

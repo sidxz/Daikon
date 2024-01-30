@@ -12,20 +12,20 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
     /// Depending on the request, the user's EntraObjectId and/or OIDCSub will be updated
     /// If duplicate EntraObjectId or OIDCSub is detected, i.e. another user already has the same EntraObjectId or OIDCSub, the request will be rejected
     /// </summary>
-    public class Oauth2ConnectHandler : IRequestHandler<Oauth2ConnectCommand, Unit>
+    public class OAuth2ConnectHandler : IRequestHandler<OAuth2ConnectCommand, Unit>
     {
         private readonly IMapper _mapper;
-        private readonly ILogger<Oauth2ConnectHandler> _logger;
+        private readonly ILogger<OAuth2ConnectHandler> _logger;
         private readonly IAppUserRepository _appUserRepository;
 
-        public Oauth2ConnectHandler(IMapper mapper, ILogger<Oauth2ConnectHandler> logger, IAppUserRepository appUserRepository)
+        public OAuth2ConnectHandler(IMapper mapper, ILogger<OAuth2ConnectHandler> logger, IAppUserRepository appUserRepository)
         {
             _mapper = mapper;
             _logger = logger;
             _appUserRepository = appUserRepository;
         }
 
-        public async Task<Unit> Handle(Oauth2ConnectCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(OAuth2ConnectCommand request, CancellationToken cancellationToken)
         {
             ValidateEmail(request.Email);
             var user = await GetUserByEmail(request.Email);
@@ -64,9 +64,9 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
         /// </summary>
         /// <param name="request">The OAuth2 connect command containing the EntraObjectId.</param>
         /// <param name="user">The user to update.</param>
-        private async Task HandleEntraObjectId(Oauth2ConnectCommand request, AppUser user)
+        private async Task HandleEntraObjectId(OAuth2ConnectCommand request, AppUser user)
         {
-            if (request.EntraObjectId != Guid.Empty)
+            if (!string.IsNullOrEmpty(request.EntraObjectId))
             {
                 await UpdateUserAttribute(
                     user.EntraObjectId,
@@ -83,7 +83,7 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
         /// <param name="request">The OAuth2 connect command containing the OIDCSub.</param>
         /// <param name="user">The user to update.</param>
 
-        private async Task HandleOIDCSub(Oauth2ConnectCommand request, AppUser user)
+        private async Task HandleOIDCSub(OAuth2ConnectCommand request, AppUser user)
         {
             if (!string.IsNullOrEmpty(request.OIDCSub))
             {
@@ -122,6 +122,9 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
             }
 
             typeof(AppUser).GetProperty(attributeName).SetValue(user, newUserAttributeValue);
+            // update user IsOIDCConnected flag and OIDCConnectionDate
+            user.IsOIDCConnected = true;
+            user.OIDCConnectionDate = DateTime.UtcNow;
         }
     }
 }

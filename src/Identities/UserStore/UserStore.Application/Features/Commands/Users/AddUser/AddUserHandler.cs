@@ -1,5 +1,5 @@
-
 using AutoMapper;
+using CQRS.Core.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using UserStore.Application.Contracts.Persistence;
@@ -26,72 +26,100 @@ namespace UserStore.Application.Features.Commands.Users.AddUser
 
         public async Task<AppUser> Handle(AddUserCommand request, CancellationToken cancellationToken)
         {
-            // if email and oidcsub and EntraObjectId are null, reject
-            if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.OIDCSub) && request.EntraObjectId == Guid.Empty)
+            ValidateRequest(request);
+
+            await CheckForExistingUserAttributes(request);
+            await CheckOrgExists(request.AppOrgId);
+
+            // check only if roles are provided
+            if (request.RoleIds != null && request.RoleIds.Any())
             {
-                _logger.LogWarning("Either Email or OIDCSub/EntraObjectId must be provided.");
-                throw new InvalidOperationException("Either Email or OIDCSub/EntraObjectId must be provided.");
+                await CheckRolesExist(request.RoleIds);
+            }
+            
+
+            var newUser = _mapper.Map<AppUser>(request);
+
+            InitializeNewUserProperties(newUser);
+
+            try
+            {
+                await _appUserRepository.AddUser(newUser);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding user.");
+                throw new InvalidOperationException("An error occurred while adding user.", ex);
             }
 
-            // check if user email exists (If it is set)
+            return newUser;
+        }
+
+        private void ValidateRequest(AddUserCommand request)
+        {
+            if (string.IsNullOrEmpty(request.Email) && string.IsNullOrEmpty(request.OIDCSub) && string.IsNullOrEmpty(request.EntraObjectId))
+            {
+                throw new ArgumentNullException("One of Email, OIDCSub, or EntraObjectId must be provided.");
+            }
+        }
+
+        private async Task CheckForExistingUserAttributes(AddUserCommand request)
+        {
             if (!string.IsNullOrEmpty(request.Email))
             {
-                var existingUser = await _appUserRepository.GetUserByEmail(request.Email);
-                if (existingUser != null)
-                {
-                    _logger.LogWarning("User email already exists: {Email}", request.Email);
-                    throw new InvalidOperationException("User email already exists");
-                }
+                await CheckAttributeUniqueness(() => _appUserRepository.GetUserByEmail(request.Email), "User email already exists");
             }
 
-            // check if user OIDCSub exists (If it is set)
             if (!string.IsNullOrEmpty(request.OIDCSub))
             {
-                var existingUser = await _appUserRepository.GetUserByOIDCSub(request.OIDCSub);
-                if (existingUser != null)
-                {
-                    _logger.LogWarning("User OIDCSub already exists: {OIDCSub}", request.OIDCSub);
-                    throw new InvalidOperationException("User OIDCSub already exists");
-                }
+                await CheckAttributeUniqueness(() => _appUserRepository.GetUserByOIDCSub(request.OIDCSub), "User OIDCSub already exists");
             }
 
-            // check if org exists
-            var org = await _appOrgRepository.GetOrgById(request.OrgId);
+            if (!string.IsNullOrEmpty(request.EntraObjectId))
+            {
+                await CheckAttributeUniqueness(() => _appUserRepository.GetUserByEntraObjectId(request.EntraObjectId), "User EntraObjectId already exists");
+            }
+        }
+
+        private async Task CheckAttributeUniqueness(Func<Task<AppUser>> getUserMethod, string errorMessage)
+        {
+            var existingUser = await getUserMethod();
+            if (existingUser != null)
+            {
+                throw new DuplicateEntityRequestException(nameof(AddUserCommand), errorMessage);
+            }
+        }
+
+        private async Task CheckOrgExists(Guid orgId)
+        {
+            var org = await _appOrgRepository.GetOrgById(orgId);
             if (org == null)
             {
-                _logger.LogWarning("Org does not exist: {OrgId}", request.OrgId);
                 throw new InvalidOperationException("Org does not exist");
             }
+        }
 
-            // loop through roles and check if they exist
-            foreach (var roleId in request.RoleIds)
+        private async Task CheckRolesExist(IEnumerable<Guid> roleIds)
+        {
+            foreach (var roleId in roleIds)
             {
                 var role = await _appRoleRepository.GetRoleById(roleId);
                 if (role == null)
                 {
-                    _logger.LogWarning("Role does not exist: {RoleId}", roleId);
-                    throw new InvalidOperationException("Role does not exist");
+                    throw new InvalidOperationException($"Role does not exist: {roleId}");
                 }
             }
+        }
 
-            var newUser = _mapper.Map<AppUser>(request);
-
+        private void InitializeNewUserProperties(AppUser newUser)
+        {
             newUser.CreatedAt = DateTime.UtcNow;
             newUser.CreatedBy = "System";
             newUser.IsUserLocked = false;
             newUser.IsUserArchived = false;
-            newUser.HasFirstLogin = false;
-            newUser.NormalizedEmail = newUser.Email.ToUpper();
-            try
-            {
-                await _appUserRepository.AddUser(newUser);
-                return newUser;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while adding user");
-                throw;
-            }
+            newUser.IsOIDCConnected = false;
+            newUser.Email = newUser.Email;
+            newUser.NormalizedEmail = newUser.Email.ToUpperInvariant();
         }
     }
 }

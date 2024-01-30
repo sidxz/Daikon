@@ -8,6 +8,7 @@ namespace UserStore.Application.Contracts.Persistence
         Task AddOrg(AppOrg org);
         Task<AppOrg> GetOrgById(Guid id);
         Task<AppOrg> GetOrgByName(string name);
+        Task<AppOrg> GetOrgByAlias(string alias);
         Task<List<AppOrg>> GetOrgsList();
         Task UpdateOrg(AppOrg org);
         Task DeleteOrg(Guid id);

@@ -1,6 +1,13 @@
 version: "3.4"
 
 services:
+
+  UserStore.API:
+    image: ${DOCKER_REGISTRY-}userstore
+    build:
+      context: .
+      dockerfile: Identities/UserStore/UserStore.API/Dockerfile
+
   Gene.API:
     image: ${DOCKER_REGISTRY-}gene
     build:
