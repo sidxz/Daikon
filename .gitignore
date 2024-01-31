@@ -398,3 +398,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 src/ApiGateways/OcelotApiGw/appsettings.Development.json
+src/ApiGateways/OcelotApiGw/appsettings.json
