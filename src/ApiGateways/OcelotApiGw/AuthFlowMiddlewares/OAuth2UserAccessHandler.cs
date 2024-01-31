@@ -7,6 +7,16 @@ using Ocelot.Errors;
 using Ocelot.Middleware;
 using OcelotApiGw.Contracts.Infrastructure;
 
+/*
+    == Overview
+    OAuth2UserAccessHandler is a middleware component in the Ocelot API Gateway designed to 
+    validate user access based on OAuth2 claims. It interacts with an external User Store API 
+    through the IUserStoreAPIService to confirm if a user is authorized.
+
+    == Dependencies
+    IUserStoreAPIService: The service responsible for validating the user's access by 
+    communicating with an external User Store API.
+*/
 namespace OcelotApiGw.AuthFlowMiddlewares
 {
     public class OAuth2UserAccessHandler
@@ -52,6 +62,8 @@ namespace OcelotApiGw.AuthFlowMiddlewares
                 context.Items.SetError(new UnauthorizedError("User access validation failed. The user might not be registered in the UserStore."));
                 return;
             }
+
+            // More OAuth2 providers can be added here
 
             _logger.LogError("User access validation failed. No More OAuth2 Providers are registered.");
             context.Items.SetError(new UnauthorizedError("User access validation failed. No More OAuth2 Providers are registered."));

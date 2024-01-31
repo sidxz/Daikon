@@ -22,6 +22,9 @@ builder.Logging.AddDebug();
 
 OAuth2Providers.ConfigureEntraIDAuthenticationServices(builder.Services, builder.Configuration);
 
+// Register a http client for the User Store API
+
+builder.Services.AddHttpClient<IUserStoreAPIService, UserStoreAPIService>();
 // Add UserStoreAPIService
 builder.Services.AddScoped<IUserStoreAPIService, UserStoreAPIService>();
 

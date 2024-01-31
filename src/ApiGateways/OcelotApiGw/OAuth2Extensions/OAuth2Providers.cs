@@ -1,5 +1,4 @@
 
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace OcelotApiGw.OAuth2Extensions
