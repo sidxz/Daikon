@@ -1,33 +1,36 @@
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace OcelotApiGw.OAuth2Extensions
+namespace OcelotApiGw.OIDCProviders
 {
-    public static class OAuth2Providers
+    public static class KeyCloak
     {
-        public static void ConfigureEntraIDAuthenticationServices(IServiceCollection services, IConfiguration configuration)
+        public static void Configure(IServiceCollection services, IConfiguration configuration)
         {
             // Microsoft Entra ID Configuration
-            var entraIdConfig = configuration.GetSection("EntraID");
+            var keyCloakConfig = configuration.GetSection("KeyCloak");
+
+            if (!keyCloakConfig.Exists()) return;
+
+            
             // dump configuration to console
-            // Console.WriteLine($"EntraID Instance: {entraIdConfig["Instance"]}");
-            // Console.WriteLine($"EntraID Domain: {entraIdConfig["Domain"]}");
-            // Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
-            // Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
-            // Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
+            // Console.WriteLine($"KeyCloak Instance: {keyCloakConfig["Instance"]}");
+            // Console.WriteLine($"KeyCloak Domain: {keyCloakConfig["Domain"]}");
+            // Console.WriteLine($"KeyCloak TenantId: {keyCloakConfig["TenantId"]}");
+            // Console.WriteLine($"KeyCloak Audience: {keyCloakConfig["Audience"]}");
+            // Console.WriteLine($"KeyCloak ClientId: {keyCloakConfig["ClientId"]}");
 
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer("EntraID", options =>
+            .AddJwtBearer("KeyCloak", options =>
             {
-                configuration.Bind("EntraID", options);
-                options.Authority = $"{entraIdConfig["Instance"]}{entraIdConfig["TenantId"]}";
-                options.Audience = entraIdConfig["Audience"];
+                configuration.Bind("KeyCloak", options);
+                options.Authority = keyCloakConfig["Authority"];
+                options.Audience = keyCloakConfig["Audience"];
                 options.TokenValidationParameters.ValidateIssuer = false;
-
                 options.Events = new JwtBearerEvents
                 {
                     OnAuthenticationFailed = context =>

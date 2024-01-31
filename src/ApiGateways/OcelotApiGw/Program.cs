@@ -2,7 +2,7 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using OcelotApiGw.AuthFlowMiddlewares;
 using OcelotApiGw.Contracts.Infrastructure;
-using OcelotApiGw.OAuth2Extensions;
+using OcelotApiGw.OIDCProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +20,7 @@ builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-OAuth2Providers.ConfigureEntraIDAuthenticationServices(builder.Services, builder.Configuration);
+MicrosoftEntraID.Configure(builder.Services, builder.Configuration);
 
 // Register a http client for the User Store API
 
