@@ -51,16 +51,10 @@ namespace OcelotApiGw.Contracts.Infrastructure
             {
                 HttpResponseMessage response = await _httpClient.PostAsync(_userStoreApiBaseUrl + _userStoreAPIValidateUrl, content);
 
-                // dump response to console
-                Console.WriteLine("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
-                Console.WriteLine($"UserStoreAPI Response: {response}");
-
                 if (response.IsSuccessStatusCode)
                 {
                     string result = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"UserStoreAPI Response Content: {result}");
                     var resultUserAccess = JsonSerializer.Deserialize<ValidateUserAccessResponse>(result, jsonOptions);
-                    Console.WriteLine($"UserStoreAPI Response Content: {resultUserAccess}");
                     _logger.LogInformation("User access validated with email: {email}", resultUserAccess?.Email);
                     return resultUserAccess;
                 }

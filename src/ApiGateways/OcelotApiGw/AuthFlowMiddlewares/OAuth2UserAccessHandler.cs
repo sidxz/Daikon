@@ -1,12 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Ocelot.Authorization;
 using Ocelot.Errors;
 using Ocelot.Middleware;
 using OcelotApiGw.Contracts.Infrastructure;
-
 
 namespace OcelotApiGw.AuthFlowMiddlewares
 {
@@ -23,36 +22,41 @@ namespace OcelotApiGw.AuthFlowMiddlewares
 
         public async Task ValidateUser(HttpContext context, Func<Task> next)
         {
-            _logger.LogInformation(" ***************** Middleware - OAuth2UserAccessHandler");
+            _logger.LogInformation("Validating user access in OAuth2UserAccessHandler middleware.");
 
-            var objectIdentifierClaim = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier");
+            var entraObjectIdentifierClaim = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier");
             var emailClaim = context.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
 
-            // log objectIdentifierClaim and emailClaim
-            _logger.LogInformation($"Middleware - Claim type: objectIdentifierClaim, value: {objectIdentifierClaim.Value}");
-            _logger.LogInformation($"Middleware - Claim type: emailClaim, value: {emailClaim.Value}");
-
-            if (objectIdentifierClaim.Value == null)
+            if (entraObjectIdentifierClaim?.Value != null)
             {
-                context.Items.SetError(new UnauthorizedError("User is not authenticated"));
+                // entraObjectIdentifierClaim hints that the OAuth2 provider is Microsoft Entra ID
+                _logger.LogInformation("User will be validated with entraObjectId: {entraObjectId}", entraObjectIdentifierClaim.Value);
+                var email = emailClaim?.Value;
+
+                var validateUserAccessResponse = await _userStoreAPIService.Validate(oidcSub: null, entraObjectId: entraObjectIdentifierClaim.Value, email: email);
+                if (validateUserAccessResponse == null)
+                {
+                    _logger.LogError("UserStoreAPI response is null, indicating a potential issue with the UserStore service.");
+                    context.Items.SetError(new UnauthorizedError("UserStoreAPI response is null, indicating a potential issue with the UserStore service."));
+                    return;
+                }
+
+                if (validateUserAccessResponse.IsValid)
+                {
+                    _logger.LogInformation("User access successfully validated for email using EntraId: {email}. Proceeding to next middleware.", validateUserAccessResponse.Email);
+                    await next.Invoke();
+                    return;
+                }
+
+                _logger.LogError("User access validation failed for entraObjectId: {entraObjectId}. The user might not be registered in the UserStore.", entraObjectIdentifierClaim.Value);
+                context.Items.SetError(new UnauthorizedError("User access validation failed. The user might not be registered in the UserStore."));
                 return;
             }
 
-            var validateUserAccessResponse = await _userStoreAPIService.Validate(null, objectIdentifierClaim.Value, emailClaim.Value);
-            if (validateUserAccessResponse == null)
-            {
-                context.Items.SetError(new UnauthorizedError("User is not authorized"));
-                return;
-            }
-            // see if validateUserAccessResponse is valid is true then succeed
-            if (validateUserAccessResponse.IsValid)
-            {
-                await next.Invoke();
-                return;
-            }
-
-            context.Items.SetError(new UnauthorizedError("your custom message"));
+            _logger.LogError("User access validation failed. No More OAuth2 Providers are registered.");
+            context.Items.SetError(new UnauthorizedError("User access validation failed. No More OAuth2 Providers are registered."));
             return;
+
         }
     }
 }

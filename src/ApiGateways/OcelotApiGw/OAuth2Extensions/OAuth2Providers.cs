@@ -11,11 +11,11 @@ namespace OcelotApiGw.OAuth2Extensions
             // Microsoft Entra ID Configuration
             var entraIdConfig = configuration.GetSection("EntraID");
             // dump configuration to console
-            Console.WriteLine($"EntraID Instance: {entraIdConfig["Instance"]}");
-            Console.WriteLine($"EntraID Domain: {entraIdConfig["Domain"]}");
-            Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
-            Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
-            Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
+            // Console.WriteLine($"EntraID Instance: {entraIdConfig["Instance"]}");
+            // Console.WriteLine($"EntraID Domain: {entraIdConfig["Domain"]}");
+            // Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
+            // Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
+            // Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
 
             services.AddAuthentication(options =>
             {
