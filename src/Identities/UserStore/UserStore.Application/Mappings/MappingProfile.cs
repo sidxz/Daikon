@@ -2,6 +2,8 @@
 using AutoMapper;
 using UserStore.Application.Features.Commands.Orgs.AddOrg;
 using UserStore.Application.Features.Commands.Users.AddUser;
+using UserStore.Application.Features.Queries.Users.GetUser.VMs;
+using UserStore.Domain.Entities;
 
 namespace UserStore.Application.Mappings
 {
@@ -9,8 +11,9 @@ namespace UserStore.Application.Mappings
     {
         public MappingProfile()
         {
-            CreateMap<Domain.Entities.AppOrg, AddOrgCommand>().ReverseMap();
-            CreateMap<Domain.Entities.AppUser, AddUserCommand>().ReverseMap();
+            CreateMap<AppOrg, AddOrgCommand>().ReverseMap();
+            CreateMap<AppUser, AddUserCommand>().ReverseMap();
+            CreateMap<AppUser, AppUserVM>().ReverseMap();
         }
         
     }

@@ -71,5 +71,4 @@ app.MapGet("/", () => "Hello World!");
 
 app.UseOcelot(ocelotPipelineConfig).Wait();
 
-
 app.Run();
