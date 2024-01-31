@@ -9,9 +9,8 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
         public string NormalizedEmail { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        
-        // public Guid OrgId { get; set; }
-        // public List<Guid> RoleIds { get; set; }
+        public Guid AppOrgId { get; set; }
+        public List<Guid> RoleIds { get; set; }
         public bool IsSystemAccount { get; set; }
 
 

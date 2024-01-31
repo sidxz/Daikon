@@ -108,6 +108,8 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
             response.NormalizedEmail = user.NormalizedEmail;
             response.FirstName = user.FirstName;
             response.LastName = user.LastName;
+            response.AppOrgId = user.AppOrgId;
+            response.RoleIds = user.UserRolesId;
             response.IsSystemAccount = user.IsSystemAccount;
             return true;
         }

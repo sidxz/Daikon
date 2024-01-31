@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
-    
+
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
@@ -38,6 +38,10 @@ namespace Gene.API.Controllers.V2
         [ProducesResponseType(typeof(List<GenesListVM>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<List<GenesListVM>>> GetGenesList()
         {
+            foreach (var header in Request.Headers)
+            {
+                _logger.LogInformation("{HeaderName}: {HeaderValue}", header.Key, header.Value);
+            }
             try
             {
                 var genesList = await _mediator.Send(new GetGenesListQuery());

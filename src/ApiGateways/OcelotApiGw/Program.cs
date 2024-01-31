@@ -36,7 +36,7 @@ switch (authProvider)
     MicrosoftEntraID.Configure(builder.Services, builder.Configuration);
     break;
 }
-
+builder.Services.AddHttpContextAccessor();
 
 // Register a http client for the User Store API
 builder.Services.AddHttpClient<IUserStoreAPIService, UserStoreAPIService>();
