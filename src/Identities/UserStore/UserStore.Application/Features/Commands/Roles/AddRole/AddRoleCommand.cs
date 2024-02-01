@@ -2,9 +2,9 @@
 using MediatR;
 using UserStore.Domain.Entities;
 
-namespace UserStore.Application.Features.Commands.Roles.UpdateRole
+namespace UserStore.Application.Features.Commands.Roles.AddRole
 {
-    public class UpdateRoleCommand : IRequest<AppRole>
+    public class AddRoleCommand : IRequest<AppRole>
     {
         public Guid Id { get; set; }
         public required string Name { get; set; }
@@ -12,5 +12,6 @@ namespace UserStore.Application.Features.Commands.Roles.UpdateRole
         public int SelfAccessLevel { get; set; }
         public int OrganizationAccessLevel { get; set; }
         public int AllAccessLevel { get; set; }
+
     }
 }

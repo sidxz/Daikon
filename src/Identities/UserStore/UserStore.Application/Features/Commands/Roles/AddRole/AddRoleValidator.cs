@@ -1,11 +1,14 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using FluentValidation;
 
-namespace UserStore.Application.Features.Commands.Roles.UpdateRole
+namespace UserStore.Application.Features.Commands.Roles.AddRole
 {
-    public class UpdateRoleValidator : AbstractValidator<UpdateRoleCommand>
+    public class AddRoleValidator : AbstractValidator<AddRoleCommand>
     {
-        public UpdateRoleValidator()
+        public AddRoleValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name is required")
@@ -20,5 +23,6 @@ namespace UserStore.Application.Features.Commands.Roles.UpdateRole
             RuleFor(x => x.AllAccessLevel)
                 .InclusiveBetween(0, 7).WithMessage("All Access Level must be between 0 and 7");
         }
+        
     }
 }

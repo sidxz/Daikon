@@ -221,6 +221,7 @@ services:
       - "UserStoreMongoDbSettings:AppOrgCollectionName=AppOrgs"
       - "UserStoreMongoDbSettings:AppUserCollectionName=AppUsers"
       - "UserStoreMongoDbSettings:AppRoleCollectionName=AppRoles"
+      - "UserStoreMongoDbSettings:APIResourceCollectionName=AppAPIResources"
     ports:
       - "8011:80"
 

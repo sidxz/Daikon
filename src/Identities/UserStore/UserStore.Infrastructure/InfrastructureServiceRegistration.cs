@@ -12,6 +12,7 @@ namespace UserStore.Infrastructure
             services.AddScoped<IAppUserRepository, AppUserRepository>();
             services.AddScoped<IAppOrgRepository, AppOrgRepository>();
             services.AddScoped<IAppRoleRepository, AppRoleRepository>();
+            services.AddScoped<IAPIResourceRepository, APIResourceRepository>();
             
             return services;
         }

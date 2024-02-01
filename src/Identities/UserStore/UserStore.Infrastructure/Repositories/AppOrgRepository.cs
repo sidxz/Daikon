@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using CQRS.Core.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -27,13 +24,13 @@ namespace UserStore.Infrastructure.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task AddOrg(AppOrg org)
+        public async Task AddOrg(AppOrg org)
         {
             ArgumentNullException.ThrowIfNull(org);
             try
             {
                 _logger.LogInformation("AddOrg: Creating org {OrgId}, {Org}", org.Id, org.ToJson());
-                return _appOrgCollection.InsertOneAsync(org);
+                await _appOrgCollection.InsertOneAsync(org);
             }
             catch (MongoException ex)
             {
@@ -42,13 +39,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task DeleteOrg(Guid id)
+        public async Task DeleteOrg(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);
             try
             {
                 _logger.LogInformation("DeleteOrg: Deleting org {OrgId}", id);
-                return _appOrgCollection.DeleteOneAsync(org => org.Id == id);
+                await _appOrgCollection.DeleteOneAsync(org => org.Id == id);
             }
             catch (MongoException ex)
             {
@@ -57,13 +54,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppOrg> GetOrgById(Guid id)
+        public async Task<AppOrg> GetOrgById(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);
             try
             {
                 _logger.LogInformation("GetOrgById: Getting org by ID {OrgId}", id);
-                return _appOrgCollection.Find(org => org.Id == id).FirstOrDefaultAsync();
+                return await _appOrgCollection.Find(org => org.Id == id).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {
@@ -72,13 +69,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppOrg> GetOrgByAlias(string alias)
+        public async Task<AppOrg> GetOrgByAlias(string alias)
         {
             ArgumentNullException.ThrowIfNull(alias);
             try
             {
                 _logger.LogInformation("GetOrgByAlias: Getting org by alias {Alias}", alias);
-                return _appOrgCollection.Find(org => org.Alias == alias).FirstOrDefaultAsync();
+                return await _appOrgCollection.Find(org => org.Alias == alias).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {
@@ -87,13 +84,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppOrg> GetOrgByName(string name)
+        public async Task<AppOrg> GetOrgByName(string name)
         {
             ArgumentNullException.ThrowIfNull(name);
             try
             {
                 _logger.LogInformation("GetOrgByName: Getting org by name {Name}", name);
-                return _appOrgCollection.Find(org => org.Name == name).FirstOrDefaultAsync();
+                return await _appOrgCollection.Find(org => org.Name == name).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {
@@ -102,12 +99,12 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<List<AppOrg>> GetOrgsList()
+        public async Task<List<AppOrg>> GetOrgsList()
         {
             try
             {
                 _logger.LogInformation("GetOrgsList: Getting orgs list");
-                return _appOrgCollection.Find(new BsonDocument()).ToListAsync();
+                return await _appOrgCollection.Find(new BsonDocument()).ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -116,13 +113,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task UpdateOrg(AppOrg org)
+        public async Task UpdateOrg(AppOrg org)
         {
             ArgumentNullException.ThrowIfNull(org);
             try
             {
                 _logger.LogInformation("UpdateOrg: Updating org {OrgId}, {Org}", org.Id, org.ToJson());
-                return _appOrgCollection.ReplaceOneAsync(o => o.Id == org.Id, org);
+                await _appOrgCollection.ReplaceOneAsync(o => o.Id == org.Id, org);
             }
             catch (MongoException ex)
             {
@@ -130,6 +127,5 @@ namespace UserStore.Infrastructure.Repositories
                 throw new RepositoryException(nameof(AppOrgRepository), "Error updating org", ex);
             }
         }
-
     }
 }

@@ -24,13 +24,13 @@ namespace UserStore.Infrastructure.Repositories
         }
 
 
-        public Task AddUser(AppUser user)
+        public async Task AddUser(AppUser user)
         {
             ArgumentNullException.ThrowIfNull(user);
             try
             {
                 _logger.LogInformation("AddUser: Creating user {UserId}, {User}", user.Id, user.ToJson());
-                return _appUserCollection.InsertOneAsync(user);
+                await _appUserCollection.InsertOneAsync(user);
             }
             catch (MongoException ex)
             {
@@ -39,13 +39,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task DeleteUser(Guid id)
+        public async Task DeleteUser(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);
             try
             {
                 _logger.LogInformation("DeleteUser: Deleting user {UserId}", id);
-                return _appUserCollection.DeleteOneAsync(user => user.Id == id);
+                await _appUserCollection.DeleteOneAsync(user => user.Id == id);
             }
             catch (MongoException ex)
             {
@@ -54,12 +54,12 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppUser> GetUserByEmail(string email)
+        public async Task<AppUser> GetUserByEmail(string email)
         {
             ArgumentNullException.ThrowIfNull(email);
             try
             {
-                return _appUserCollection.Find(user => user.NormalizedEmail == email.ToUpper()).FirstOrDefaultAsync();
+                return await _appUserCollection.Find(user => user.NormalizedEmail == email.ToUpper()).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {
@@ -68,12 +68,12 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppUser> GetUserById(Guid id)
+        public async Task<AppUser> GetUserById(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);
             try
             {
-                return _appUserCollection.Find(user => user.Id == id).FirstOrDefaultAsync();
+                return await _appUserCollection.Find(user => user.Id == id).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {
@@ -82,12 +82,12 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppUser> GetUserByOIDCSub(string OIDCSub)
+        public async Task<AppUser> GetUserByOIDCSub(string OIDCSub)
         {
             ArgumentNullException.ThrowIfNull(OIDCSub);
             try
             {
-                return _appUserCollection.Find(user => user.OIDCSub == OIDCSub).FirstOrDefaultAsync();
+                return await _appUserCollection.Find(user => user.OIDCSub == OIDCSub).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {
@@ -96,12 +96,12 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<AppUser> GetUserByEntraObjectId(string EntraObjectId)
+        public async Task<AppUser> GetUserByEntraObjectId(string EntraObjectId)
         {
             ArgumentNullException.ThrowIfNull(EntraObjectId);
             try
             {
-                return _appUserCollection.Find(user => user.EntraObjectId == EntraObjectId).FirstOrDefaultAsync();
+                return await _appUserCollection.Find(user => user.EntraObjectId == EntraObjectId).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {
@@ -110,11 +110,11 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task<List<AppUser>> GetUsersList()
+        public async Task<List<AppUser>> GetUsersList()
         {
             try
             {
-                return _appUserCollection.Find(user => true).ToListAsync();
+                return await _appUserCollection.Find(user => true).ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -123,13 +123,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public Task UpdateUser(AppUser user)
+        public async Task UpdateUser(AppUser user)
         {
             ArgumentNullException.ThrowIfNull(user);
             try
             {
                 _logger.LogInformation("UpdateUser: Updating user {UserId}, {User}", user.Id, user.ToJson());
-                return _appUserCollection.ReplaceOneAsync(u => u.Id == user.Id, user);
+                await _appUserCollection.ReplaceOneAsync(u => u.Id == user.Id, user);
             }
             catch (MongoException ex)
             {

@@ -7,6 +7,7 @@ namespace UserStore.Application.Contracts.Persistence
     {
         Task AddRole(AppRole role);
         Task<AppRole> GetRoleById(Guid id);
+        Task<List<AppRole>> GetRolesByIds(List<Guid> ids);
         Task<AppRole> GetRoleByName(string name);
         Task<List<AppRole>> GetRolesList();
         Task UpdateRole(AppRole role);
