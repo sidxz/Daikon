@@ -42,12 +42,12 @@ namespace UserStore.Application.Features.Commands.APIResources.UpdateAPIResource
             }
 
             // if endpoint is being updated, check if it already exists
-            if (existingApi.Endpoint != request.Endpoint)
+            if (existingApi.Endpoint != request.Endpoint || existingApi.Method != request.Method)
             {
-                var existingApiWithNewEndpoint = await _apiResourceRepository.GetAPIResourceByEndPoint(request.Endpoint);
+                var existingApiWithNewEndpoint = await _apiResourceRepository.GetAPIResourceByEndPoint(request.Method, request.Endpoint);
                 if (existingApiWithNewEndpoint != null)
                 {
-                    throw new DuplicateEntityRequestException(nameof(UpdateAPIResourceHandler), $"API with endpoint {request.Endpoint} already exists.");
+                    throw new DuplicateEntityRequestException(nameof(UpdateAPIResourceHandler), $"API with endpoint {request.Method} : {request.Endpoint} already exists.");
                 }
             }
 

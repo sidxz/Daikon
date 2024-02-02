@@ -15,7 +15,7 @@ namespace UserStore.Application.Features.Queries.Users.GetUser.VMs
         public bool IsSystemAccount { get; set; }
         public Guid AppOrgId { get; set; }
         public AppOrg AppOrg { get; set; }
-        public List<Guid> UserRolesId { get; set; }
+        public List<Guid> AppRoleIds { get; set; }
         public bool IsUserLocked { get; set; }
         public bool IsUserArchived { get; set; }
         public DateTime? ArchivedDate { get; set; }

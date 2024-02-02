@@ -7,7 +7,7 @@ namespace UserStore.Application.Contracts.Persistence
     {
         Task AddAPIResource(APIResource resource);
         Task<APIResource> GetAPIResourceById(Guid id);
-        Task<APIResource> GetAPIResourceByEndPoint(string endpoint);
+        Task<APIResource> GetAPIResourceByEndPoint(string method, string endpoint);
         Task<List<APIResource>> GetAPIResourcesByService(string service);
         Task<List<APIResource>> GetAPIResourcesList();
         Task UpdateAPIResource(APIResource resource);

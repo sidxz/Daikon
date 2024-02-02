@@ -32,7 +32,7 @@ namespace UserStore.Application.Features.Queries.APIResources.ListAPIResources
                 foreach (var apiResource in apiResources)
                 {
                     var apiResourceVM = _mapper.Map<APIResourceVM>(apiResource);
-                    apiResourceVM.AttachedAppRoles = await _appRoleRepository.GetRolesByIds(apiResource.AttachedAppRoles);
+                    apiResourceVM.AttachedAppRolesExpanded = await _appRoleRepository.GetRolesByIds(apiResource.AttachedAppRoles);
                     apiResourceList.Add(apiResourceVM);
                 }
 

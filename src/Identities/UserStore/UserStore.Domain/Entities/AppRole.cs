@@ -21,10 +21,9 @@ namespace UserStore.Domain.Entities
         public int OrganizationAccessLevel { get; set; }
         public int AllAccessLevel { get; set; }
 
-        // Method to return a string representation of the access levels '777' etc
-        public string GetAccessLevels()
-        {
-            return $"{SelfAccessLevel}{OrganizationAccessLevel}{AllAccessLevel}";
-        }
+        
+
+        
+
     }
 }

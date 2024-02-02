@@ -18,7 +18,8 @@ namespace UserStore.Infrastructure.Repositories
             var client = new MongoClient(configuration.GetValue<string>("UserStoreMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("UserStoreMongoDbSettings:DatabaseName"));
             _appUserCollection = database.GetCollection<APIResource>(configuration.GetValue<string>("UserStoreMongoDbSettings:APIResourceCollectionName"));
-            _appUserCollection.Indexes.CreateOne(new CreateIndexModel<APIResource>(Builders<APIResource>.IndexKeys.Ascending(r => r.Endpoint), new CreateIndexOptions { Unique = true }));
+            _appUserCollection.Indexes.CreateOne(new CreateIndexModel<APIResource>(Builders<APIResource>.IndexKeys.Ascending(r => r.Endpoint), new CreateIndexOptions { Unique = false }));
+            _appUserCollection.Indexes.CreateOne(new CreateIndexModel<APIResource>(Builders<APIResource>.IndexKeys.Ascending(r => r.Method), new CreateIndexOptions { Unique = false }));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -52,13 +53,13 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
-        public async Task<APIResource> GetAPIResourceByEndPoint(string endpoint)
+        public async Task<APIResource> GetAPIResourceByEndPoint(string method, string endpoint)
         {
             ArgumentNullException.ThrowIfNull(endpoint);
             try
             {
-                _logger.LogInformation("GetAPIResourceByEndPoint: Getting resource {Endpoint}", endpoint);
-                return await _appUserCollection.Find(resource => resource.Endpoint == endpoint).FirstOrDefaultAsync();
+                _logger.LogInformation("GetAPIResourceByEndPoint: Getting resource {Method} : {Endpoint}", method, endpoint);
+                return await _appUserCollection.Find(resource => resource.Method == method && resource.Endpoint == endpoint).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {

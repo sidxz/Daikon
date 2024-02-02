@@ -26,10 +26,10 @@ namespace UserStore.Application.Features.Commands.APIResources.AddAPIResource
         public async Task<APIResource> Handle(AddAPIResourceCommand request, CancellationToken cancellationToken)
         {
             // check if api already exists
-            var existingApi = await _apiResourceRepository.GetAPIResourceByEndPoint(request.Endpoint);
+            var existingApi = await _apiResourceRepository.GetAPIResourceByEndPoint(request.Method, request.Endpoint);
             if (existingApi != null)
             {
-                throw new DuplicateEntityRequestException(nameof(AddAPIResourceHandler), $"API with endpoint {request.Endpoint} already exists.");
+                throw new DuplicateEntityRequestException(nameof(AddAPIResourceHandler), $"API with endpoint {request.Method}: {request.Endpoint} already exists.");
             }
 
             // loop through attached app roles and check if they exist
