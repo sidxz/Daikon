@@ -37,10 +37,23 @@ namespace OcelotApiGw.AuthFlowMiddlewares
                     return;
                 }
 
+                // find out the AppUserId from the context Items
+                var appUserId = context.Items["AppUserId"] as string;
+                _logger.LogInformation($"AppUserId is : {appUserId}");
+                if (appUserId == null)
+                {
+                    _logger.LogError("AppUserId is null, indicating a potential issue with the user context.");
+                    context.Items.SetError(new UnauthorizedError("AppUserId is null, indicating a potential issue with the user context."));
+                    return;
+                }
 
+                // ALL SUCCESS
+                return;
             }
 
-            //await next.Invoke();
+
+            // Fail Safe to prevent unauthorized access
+            context.Items.SetError(new UnauthorizedError("Downstream route path is null, indicating a potential issue with the downstream route."));
             return;
         }
     }
