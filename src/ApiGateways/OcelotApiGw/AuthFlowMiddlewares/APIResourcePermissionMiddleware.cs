@@ -1,10 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using Ocelot.Authorization;
 using Ocelot.Configuration;
+using Ocelot.Infrastructure;
 using Ocelot.Middleware;
+using Ocelot.Responses;
 using OcelotApiGw.Contracts.Infrastructure;
 
 namespace OcelotApiGw.AuthFlowMiddlewares
@@ -13,11 +12,12 @@ namespace OcelotApiGw.AuthFlowMiddlewares
     {
         private readonly ILogger<APIResourcePermissionMiddleware> _logger;
         private readonly IUserStoreAPIService _userStoreAPIService;
-
-        public APIResourcePermissionMiddleware(ILogger<APIResourcePermissionMiddleware> logger, IUserStoreAPIService userStoreAPIService)
+        private readonly IPlaceholders _placeholders;
+        public APIResourcePermissionMiddleware(ILogger<APIResourcePermissionMiddleware> logger, IUserStoreAPIService userStoreAPIService, IPlaceholders placeholders)
         {
             _logger = logger;
             _userStoreAPIService = userStoreAPIService;
+            _placeholders = placeholders;
         }
 
         public async Task FetchUserPermissionsForAPI(HttpContext context)
@@ -44,6 +44,18 @@ namespace OcelotApiGw.AuthFlowMiddlewares
                 {
                     _logger.LogError("AppUserId is null, indicating a potential issue with the user context.");
                     context.Items.SetError(new UnauthorizedError("AppUserId is null, indicating a potential issue with the user context."));
+                    return;
+                }
+                try
+                {
+                    var resolvePermissionsResponse = await _userStoreAPIService.ResolvePermission(appUserId: appUserId, method: context.Request.Method, endpoint: downstreamRouteTemplate);
+                    _logger.LogInformation($"User permissions for API are : {resolvePermissionsResponse.AccessLevel}");
+                    _placeholders.Add("{AppUserAccessLevel}", () => new OkResponse<string>(resolvePermissionsResponse.AccessLevel));
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error occurred while fetching user permissions for API in APIResourcePermissionMiddleware middleware.");
+                    context.Items.SetError(new UnauthorizedError("Error occurred while fetching user permissions for API in APIResourcePermissionMiddleware middleware."));
                     return;
                 }
 

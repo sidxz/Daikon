@@ -42,13 +42,15 @@
         "AppUser-Id": "{AppUserId}",
         "AppUser-Email": "{AppUserEmail}",
         "AppUser-FullName": "{AppUserFullName}",
-        "AppUser-OrgId": "{AppOrgId}"
+        "AppUser-OrgId": "{AppOrgId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
       "UpstreamHeaderTransform": {
         "AppUser-Id": "{AppUserId}",
         "AppUser-Email": "{AppUserEmail}",
         "AppUser-FullName": "{AppUserFullName}",
-        "AppUser-OrgId": "{AppOrgId}"
+        "AppUser-OrgId": "{AppOrgId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
       
       "UpstreamPathTemplate" : "/v2/gene/by-id/{id}",

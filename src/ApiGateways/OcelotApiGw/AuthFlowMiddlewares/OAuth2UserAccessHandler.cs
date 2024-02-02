@@ -1,15 +1,7 @@
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+
 using Ocelot.Authorization;
-using Ocelot.Configuration;
-using Ocelot.DownstreamRouteFinder;
-using Ocelot.DownstreamRouteFinder.Finder;
-using Ocelot.Errors;
 using Ocelot.Infrastructure;
 using Ocelot.Middleware;
-using Ocelot.Request.Middleware;
 using Ocelot.Responses;
 using OcelotApiGw.Contracts.Infrastructure;
 
