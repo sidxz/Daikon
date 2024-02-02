@@ -28,6 +28,35 @@
         "AuthenticationProviderKey": "EntraID",
         "AllowedScopes": []
       }
+    },
+    {
+      "DownstreamPathTemplate" : "/api/v2/gene/by-id/{id}",
+      "DownstreamScheme" : "http",
+      "DownstreamHostAndPorts" : [
+        {
+          "Host" : "localhost",
+          "Port" : "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-Email": "{AppUserEmail}",
+        "AppUser-FullName": "{AppUserFullName}",
+        "AppUser-OrgId": "{AppOrgId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-Email": "{AppUserEmail}",
+        "AppUser-FullName": "{AppUserFullName}",
+        "AppUser-OrgId": "{AppOrgId}"
+      },
+      
+      "UpstreamPathTemplate" : "/v2/gene/by-id/{id}",
+      "UpstreamHttpMethod" : [ "Get", "Post", "Put", "Delete", "Options" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
     }
   ]
 }

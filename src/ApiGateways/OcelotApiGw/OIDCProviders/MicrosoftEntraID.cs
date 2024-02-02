@@ -1,4 +1,5 @@
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace OcelotApiGw.OIDCProviders
@@ -41,15 +42,15 @@ namespace OcelotApiGw.OIDCProviders
                     OnTokenValidated = context =>
                     {
                         Console.WriteLine(" ------ Token validated. -----");
-                        // var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
-                        // if (claimsIdentity != null)
-                        // {
-                        //     Console.WriteLine($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
-                        //     foreach (var claim in claimsIdentity.Claims)
-                        //     {
-                        //         Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
-                        //     }
-                        // }
+                        var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
+                        if (claimsIdentity != null)
+                        {
+                            Console.WriteLine($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
+                            foreach (var claim in claimsIdentity.Claims)
+                            {
+                                Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
+                            }
+                        }
                         return Task.CompletedTask;
                     },
                     // Other events...

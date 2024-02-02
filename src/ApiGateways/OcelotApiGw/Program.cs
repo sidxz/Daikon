@@ -49,6 +49,7 @@ builder.Services.AddOcelot();
 
 // Middlewares
 builder.Services.AddScoped<OAuth2UserAccessHandler>();
+builder.Services.AddScoped<APIResourcePermissionMiddleware>();
 
 var app = builder.Build();
 
@@ -58,17 +59,21 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 var oAuth2UserAccessHandler = app.Services.GetRequiredService<OAuth2UserAccessHandler>();
+var apiResourcePermissionMiddleware = app.Services.GetRequiredService<APIResourcePermissionMiddleware>();
 
 var ocelotPipelineConfig = new OcelotPipelineConfiguration
 {
   AuthorizationMiddleware = async (ctx, next) =>
   {
-    await oAuth2UserAccessHandler.ValidateUser(ctx, next);
+    await oAuth2UserAccessHandler.ValidateUser(ctx);
+    await apiResourcePermissionMiddleware.FetchUserPermissionsForAPI(ctx);
+
+    await next.Invoke();
   }
 };
 
 app.MapGet("/", () => "Hello World!");
 
-app.UseOcelot(ocelotPipelineConfig).Wait();
+await app.UseOcelot(ocelotPipelineConfig);
 
 app.Run();

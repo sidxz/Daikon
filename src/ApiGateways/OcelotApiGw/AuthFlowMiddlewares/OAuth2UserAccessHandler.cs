@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Ocelot.Authorization;
+using Ocelot.Configuration;
+using Ocelot.DownstreamRouteFinder;
+using Ocelot.DownstreamRouteFinder.Finder;
 using Ocelot.Errors;
 using Ocelot.Infrastructure;
 using Ocelot.Middleware;
@@ -35,7 +38,7 @@ namespace OcelotApiGw.AuthFlowMiddlewares
             _placeholders = placeholders ?? throw new ArgumentNullException(nameof(placeholders));
         }
 
-        public async Task ValidateUser(HttpContext context, Func<Task> next)
+        public async Task ValidateUser(HttpContext context)
         {
             _logger.LogInformation("Validating user access in OAuth2UserAccessHandler middleware.");
 
@@ -67,8 +70,11 @@ namespace OcelotApiGw.AuthFlowMiddlewares
                     _placeholders.Add("{AppUserFullName}", () => new OkResponse<string>(validateUserAccessResponse?.FirstName + " " + validateUserAccessResponse?.LastName));
                     _placeholders.Add("{AppOrgId}", () => new OkResponse<string>(validateUserAccessResponse.AppOrgId.ToString()));
 
+                    // Add this to context so that it can be used in the next middleware
+                    context.Items.Add("AppUserId", validateUserAccessResponse.AppUserId.ToString());
                     _logger.LogInformation("User access successfully validated for email using EntraId: {email}. Proceeding to next middleware.", validateUserAccessResponse.Email);
-                    await next.Invoke();
+
+                    //await next.Invoke();
                     return;
                 }
 

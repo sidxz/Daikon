@@ -10,12 +10,13 @@ namespace UserStore.Application.Features.Commands.APIResources.UpdateAPIResource
     {
         public UpdateAPIResourceValidator()
         {
-            RuleFor(p => p.Id)
-                .NotEmpty().WithMessage("{PropertyName} is required.")
-                .NotEqual(Guid.Empty).WithMessage("{PropertyName} is required.");
 
-            RuleFor(p => p.Endpoint)
-                .NotEmpty().WithMessage("{PropertyName} is required.");
+            RuleFor(x => x.Endpoint).NotEmpty()
+            .WithMessage("Endpoint is required");
+            
+            RuleFor(x => x.Method).NotEmpty()
+            .Must(x => x == "GET" || x == "POST" || x == "PUT" || x == "DELETE")
+            .WithMessage("Method must be one of the following: GET, POST, PUT, DELETE");
 
         }
         
