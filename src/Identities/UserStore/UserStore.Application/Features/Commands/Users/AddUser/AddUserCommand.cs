@@ -14,7 +14,7 @@ namespace UserStore.Application.Features.Commands.Users.AddUser
         public string? LastName { get; set; }
         public bool? IsSystemAccount { get; set; }
         public Guid AppOrgId { get; set; }
-        public List<Guid>? RoleIds { get; set; }
+        public List<Guid>? AppRoleIds { get; set; }
 
     }
 }

@@ -109,7 +109,7 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
             response.FirstName = user.FirstName;
             response.LastName = user.LastName;
             response.AppOrgId = user.AppOrgId;
-            response.RoleIds = user.UserRolesId;
+            response.AppRoleIds = user.AppRoleIds;
             response.IsSystemAccount = user.IsSystemAccount;
             return true;
         }

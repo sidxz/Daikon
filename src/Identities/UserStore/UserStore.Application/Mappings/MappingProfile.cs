@@ -6,6 +6,7 @@ using UserStore.Application.Features.Commands.Orgs.AddOrg;
 using UserStore.Application.Features.Commands.Roles.AddRole;
 using UserStore.Application.Features.Commands.Roles.UpdateRole;
 using UserStore.Application.Features.Commands.Users.AddUser;
+using UserStore.Application.Features.Commands.Users.UpdateUser;
 using UserStore.Application.Features.Queries.APIResources.ListAPIResources;
 using UserStore.Application.Features.Queries.Users.GetUser.VMs;
 using UserStore.Domain.Entities;
@@ -19,7 +20,9 @@ namespace UserStore.Application.Mappings
             CreateMap<AppOrg, AddOrgCommand>().ReverseMap();
 
             CreateMap<AppUser, AddUserCommand>().ReverseMap();
+            CreateMap<AppUser, UpdateUserCommand>().ReverseMap();
             CreateMap<AppUser, AppUserVM>().ReverseMap();
+
 
             CreateMap<APIResource, AddAPIResourceCommand>().ReverseMap();
             CreateMap<APIResource, UpdateAPIResourceCommand>().ReverseMap();

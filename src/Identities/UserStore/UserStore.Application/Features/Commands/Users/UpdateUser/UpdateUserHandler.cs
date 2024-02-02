@@ -77,12 +77,14 @@ namespace UserStore.Application.Features.Commands.Users.UpdateUser
             }
 
             // if roles are provided, check if they exist
-            if (request.RoleIds != null && request.RoleIds.Any())
+            if (request.AppRoleIds != null && request.AppRoleIds.Any())
             {
-                await CheckRolesExist(request.RoleIds);
+                await CheckRolesExist(request.AppRoleIds);
             }
 
             _mapper.Map(request, user);
+
+
 
             try
             {

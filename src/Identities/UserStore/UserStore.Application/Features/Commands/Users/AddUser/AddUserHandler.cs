@@ -32,9 +32,9 @@ namespace UserStore.Application.Features.Commands.Users.AddUser
             await CheckOrgExists(request.AppOrgId);
 
             // check only if roles are provided
-            if (request.RoleIds != null && request.RoleIds.Any())
+            if (request.AppRoleIds != null && request.AppRoleIds.Any())
             {
-                await CheckRolesExist(request.RoleIds);
+                await CheckRolesExist(request.AppRoleIds);
             }
             
 

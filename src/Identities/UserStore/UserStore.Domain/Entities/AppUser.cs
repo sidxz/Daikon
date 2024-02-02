@@ -11,7 +11,7 @@ namespace UserStore.Domain.Entities
         public string EntraObjectId { get; set; } // Used by Microsoft Entra as Unique Identifier
         public bool IsSystemAccount { get; set; }
         public Guid AppOrgId { get; set; }
-        public List<Guid> UserRolesId { get; set; }
+        public List<Guid> AppRoleIds { get; set; }
         public bool IsUserLocked { get; set; }
         public bool IsUserArchived { get; set; }
         public DateTime? ArchivedDate { get; set; }

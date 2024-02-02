@@ -10,7 +10,7 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public Guid AppOrgId { get; set; }
-        public List<Guid> RoleIds { get; set; }
+        public List<Guid> AppRoleIds { get; set; }
         public bool IsSystemAccount { get; set; }
 
 
