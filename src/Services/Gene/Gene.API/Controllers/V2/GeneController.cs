@@ -21,7 +21,7 @@ namespace Gene.API.Controllers.V2
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
 
-    public class GeneController : ControllerBase
+    public partial class GeneController : ControllerBase
     {
 
         private readonly IMediator _mediator;

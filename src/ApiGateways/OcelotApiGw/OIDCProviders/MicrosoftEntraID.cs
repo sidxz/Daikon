@@ -30,13 +30,16 @@ namespace OcelotApiGw.OIDCProviders
                 configuration.Bind("EntraID", options);
                 options.Authority = $"{entraIdConfig["Instance"]}{entraIdConfig["TenantId"]}";
                 options.Audience = entraIdConfig["Audience"];
-                options.TokenValidationParameters.ValidateIssuer = false;
+                options.TokenValidationParameters.ValidateAudience = false;
+                
 
                 options.Events = new JwtBearerEvents
                 {
                     OnAuthenticationFailed = context =>
                     {
                         Console.WriteLine(" -------- Authentication failed.---------", context.Exception);
+                        Console.WriteLine($"Exception: {context.Exception.Message}");
+                        Console.WriteLine($"--------------------------End of Authentication Failed--------------------------");
                         return Task.CompletedTask;
                     },
                     OnTokenValidated = context =>

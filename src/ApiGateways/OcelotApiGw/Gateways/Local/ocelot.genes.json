@@ -1,43 +1,36 @@
 {
-  "Routes" : [
+  "Routes": [
     {
-      "DownstreamPathTemplate" : "/api/v2/gene",
-      "DownstreamScheme" : "http",
-      "DownstreamHostAndPorts" : [
+      "DownstreamPathTemplate": "/api/v2/gene",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
         {
-          "Host" : "localhost",
-          "Port" : "8001"
+          "Host": "localhost",
+          "Port": "8001"
         }
       ],
       "DownstreamHeaderTransform": {
         "AppUser-Id": "{AppUserId}",
-        "AppUser-Email": "{AppUserEmail}",
-        "AppUser-FullName": "{AppUserFullName}",
-        "AppUser-OrgId": "{AppOrgId}",
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
       "UpstreamHeaderTransform": {
         "AppUser-Id": "{AppUserId}",
-        "AppUser-Email": "{AppUserEmail}",
-        "AppUser-FullName": "{AppUserFullName}",
-        "AppUser-OrgId": "{AppOrgId}",
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
-      
-      "UpstreamPathTemplate" : "/v2/gene",
-      "UpstreamHttpMethod" : [ "Get", "Post", "Put", "Delete", "Options" ],
+      "UpstreamPathTemplate": "/v2/gene",
+      "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
         "AllowedScopes": []
       }
     },
     {
-      "DownstreamPathTemplate" : "/api/v2/gene/by-id/{id}",
-      "DownstreamScheme" : "http",
-      "DownstreamHostAndPorts" : [
+      "DownstreamPathTemplate": "/api/v2/gene/by-id/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
         {
-          "Host" : "localhost",
-          "Port" : "8001"
+          "Host": "localhost",
+          "Port": "8001"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -54,9 +47,9 @@
         "AppUser-OrgId": "{AppOrgId}",
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
-      
-      "UpstreamPathTemplate" : "/v2/gene/by-id/{id}",
-      "UpstreamHttpMethod" : [ "Get", "Post", "Put", "Delete", "Options" ],
+
+      "UpstreamPathTemplate": "/v2/gene/by-id/{id}",
+      "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
         "AllowedScopes": []

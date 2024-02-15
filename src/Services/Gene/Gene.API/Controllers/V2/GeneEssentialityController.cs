@@ -10,22 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
-    [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.0")]
-    public class GeneEssentialityController : ControllerBase
+
+    public partial class GeneController : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<GeneEssentialityController> _logger;
-
-        public GeneEssentialityController(IMediator mediator, ILogger<GeneEssentialityController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-
-        [HttpPost("{id}/add-essentiality", Name = "AddEssentiality")]
+        
+        [HttpPost("{id}/essentiality", Name = "AddEssentiality")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddEssentiality(Guid id, NewEssentialityCommand command)
@@ -78,10 +67,7 @@ namespace Gene.API.Controllers.V2
 
         }
 
-
-
-
-        [HttpPut("{id}/update-essentiality/{essentialityId}", Name = "UpdateEssentiality")]
+        [HttpPut("{id}/essentiality/{essentialityId}", Name = "UpdateEssentiality")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -139,7 +125,7 @@ namespace Gene.API.Controllers.V2
 
         }
 
-        [HttpDelete("{id}/delete-essentiality/{essentialityId}", Name = "DeleteEssentiality")]
+        [HttpDelete("{id}/essentiality/{essentialityId}", Name = "DeleteEssentiality")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

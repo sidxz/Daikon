@@ -61,6 +61,64 @@ namespace UserStore.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUserById(Guid id)
         {
+            foreach (var header in Request.Headers)
+            {
+                _logger.LogInformation("{HeaderName}: {HeaderValue}", header.Key, header.Value);
+            }
+
+            try
+            {
+                var response = await _mediator.Send(new GetUserByIdQuery { Id = id });
+                return Ok(response);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "Invalid request.");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the user";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        // Get User By Id in Header 'AppUser-Id'
+        [HttpGet("header")]
+        [ProducesResponseType(typeof(AppUserVM), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetUserByHeaderId()
+        {
+            var id = Guid.Empty;
+            if (Request.Headers.TryGetValue("AppUser-Id", out var headerValue))
+            {
+                if (Guid.TryParse(headerValue, out var headerId))
+                {
+                    id = headerId;
+                }
+            }
+
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    Message = "Invalid request. Header 'AppUser-Id' is missing or invalid"
+                });
+            }
+
             try
             {
                 var response = await _mediator.Send(new GetUserByIdQuery { Id = id });
