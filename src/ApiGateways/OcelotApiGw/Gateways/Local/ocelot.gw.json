@@ -1,0 +1,485 @@
+{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/v2/user/header",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8011"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/user/header",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamPathTemplate": "/v2/gene",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/by-id/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/by-id/{id}",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/essentiality",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/essentiality",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/essentiality/{essentialityId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/essentiality/{essentialityId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/crispri-strain",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/crispri-strain",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/crispri-strain/{crispriStrainId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/crispri-strain/{crispriStrainId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/hypomorph",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/hypomorph",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/hypomorph/{hypomorphId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/hypomorph/{hypomorphId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/protein-activity-assay",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/protein-activity-assay",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/protein-activity-assay/{proteinActivityAssayId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/protein-activity-assay/{proteinActivityAssayId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/protein-production",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/protein-production",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/protein-production/{proteinProductionId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/protein-production/{proteinProductionId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/resistance-mutation",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/resistance-mutation",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/resistance-mutation/{resistanceMutationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/resistance-mutation/{resistanceMutationId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/unpublished-structural-information",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/unpublished-structural-information",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/unpublished-structural-information/{unpublishedStructuralInformationId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/unpublished-structural-information/{unpublishedStructuralInformationId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/vulnerability",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/vulnerability",
+      "UpstreamHttpMethod": ["Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/gene/{geneId}/vulnerability/{vulnerabilityId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8001"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/gene/{geneId}/vulnerability/{vulnerabilityId}",
+      "UpstreamHttpMethod": ["Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    }
+  ]
+}

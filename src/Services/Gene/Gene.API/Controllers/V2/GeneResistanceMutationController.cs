@@ -10,22 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
-    [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.0")]
-    public class GeneResistanceMutationController : ControllerBase
+    
+    public partial class GeneController : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<GeneResistanceMutationController> _logger;
-
-        public GeneResistanceMutationController(IMediator mediator, ILogger<GeneResistanceMutationController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-
-        [HttpPost("{id}/add-resistance-mutation", Name = "AddResistanceMutation")]
+     
+        [HttpPost("{id}/resistance-mutation", Name = "AddResistanceMutation")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddResistanceMutation(Guid id, NewResistanceMutationCommand command)
@@ -81,7 +70,7 @@ namespace Gene.API.Controllers.V2
 
 
 
-        [HttpPut("{id}/update-resistance-mutation/{resistanceMutationId}", Name = "UpdateResistanceMutation")]
+        [HttpPut("{id}/resistance-mutation/{resistanceMutationId}", Name = "UpdateResistanceMutation")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -139,7 +128,7 @@ namespace Gene.API.Controllers.V2
 
         }
 
-        [HttpDelete("{id}/delete-resistance-mutation/{resistanceMutationId}", Name = "DeleteResistanceMutation")]
+        [HttpDelete("{id}/resistance-mutation/{resistanceMutationId}", Name = "DeleteResistanceMutation")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

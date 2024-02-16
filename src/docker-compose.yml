@@ -1,6 +1,13 @@
 version: "3.4"
 
 services:
+
+  UserStore.API:
+    image: ${DOCKER_REGISTRY-}userstore
+    build:
+      context: .
+      dockerfile: Identities/UserStore/UserStore.API/Dockerfile
+
   Gene.API:
     image: ${DOCKER_REGISTRY-}gene
     build:
@@ -24,6 +31,12 @@ services:
     build:
       context: .
       dockerfile: Services/HitAssessment/HitAssessment.API/Dockerfile
+
+  Project.API:
+    image: ${DOCKER_REGISTRY-}project
+    build:
+      context: .
+      dockerfile: Services/Project/Project.API/Dockerfile
   
   Horizon.API:
     image: ${DOCKER_REGISTRY-}horizon
@@ -36,3 +49,9 @@ services:
     build:
       context: .
       dockerfile: Services/Chem/MolDb.API/Dockerfile
+
+  Ocelotapigw:
+    image: ${DOCKER_REGISTRY-}ocelotapigw
+    build:
+      context: .
+      dockerfile: ApiGateways/OcelotApiGw/Dockerfile

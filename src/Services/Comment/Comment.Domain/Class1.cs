@@ -1,4 +1,4 @@
-﻿namespace Project.Domain;
+﻿namespace Comment.Domain;
 
 public class Class1
 {

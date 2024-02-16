@@ -10,22 +10,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
-    [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.0")]
-    public class GeneProteinProductionController : ControllerBase
+
+    public partial class GeneController : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<GeneProteinProductionController> _logger;
-
-        public GeneProteinProductionController(IMediator mediator, ILogger<GeneProteinProductionController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-
-        [HttpPost("{id}/add-protein-production", Name = "AddProteinProduction")]
+     
+        [HttpPost("{id}/protein-production", Name = "AddProteinProduction")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddProteinProduction(Guid id, NewProteinProductionCommand command)
@@ -81,7 +70,7 @@ namespace Gene.API.Controllers.V2
 
 
 
-        [HttpPut("{id}/update-protein-production/{proteinProductionId}", Name = "UpdateProteinProduction")]
+        [HttpPut("{id}/protein-production/{proteinProductionId}", Name = "UpdateProteinProduction")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -139,7 +128,7 @@ namespace Gene.API.Controllers.V2
 
         }
 
-        [HttpDelete("{id}/delete-protein-production/{proteinProductionId}", Name = "DeleteProteinProduction")]
+        [HttpDelete("{id}/protein-production/{proteinProductionId}", Name = "DeleteProteinProduction")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
