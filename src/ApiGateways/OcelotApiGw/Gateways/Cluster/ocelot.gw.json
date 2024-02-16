@@ -5,8 +5,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8011"
+          "Host": "UserStore.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -25,12 +25,36 @@
     },
 
     {
+      "DownstreamPathTemplate": "/api/v2/user/header",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/user/resolve-permission",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
       "DownstreamPathTemplate": "/api/v2/gene",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -54,8 +78,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -79,8 +103,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -104,8 +128,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -130,8 +154,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -155,8 +179,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -181,8 +205,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -206,8 +230,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -232,8 +256,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -257,8 +281,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -283,8 +307,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -308,8 +332,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -334,8 +358,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -359,8 +383,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -385,8 +409,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -410,8 +434,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -436,8 +460,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {
@@ -461,8 +485,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": "8001"
+          "Host": "Gene.API",
+          "Port": "80"
         }
       ],
       "DownstreamHeaderTransform": {

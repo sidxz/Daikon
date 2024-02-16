@@ -24,10 +24,11 @@ namespace OcelotApiGw.Contracts.Infrastructure
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _userStoreApiBaseUrl = configuration.GetSection("UserStoreAPI:BaseUrl")?.Value ?? throw new ArgumentNullException(nameof(_userStoreApiBaseUrl));
+            _userStoreApiBaseUrl = Environment.GetEnvironmentVariable("UserStoreAPI:BaseUrl") ?? throw new ArgumentNullException(nameof(_userStoreApiBaseUrl));
             _userStoreAPIValidateUrl = configuration.GetSection("UserStoreAPI:Validate")?.Value ?? throw new ArgumentNullException(nameof(_userStoreAPIValidateUrl));
             _userStoreAPIResolvePermissionUrl = configuration.GetSection("UserStoreAPI:ResolvePermission")?.Value ?? throw new ArgumentNullException(nameof(_userStoreAPIValidateUrl));
 
+            _logger.LogInformation($"UserStoreAPIService: BaseUrl: {_userStoreApiBaseUrl}");
         }
 
 
