@@ -22,31 +22,32 @@ services:
     volumes:
       - pgadmin_data:/root/.pgadmin
 
-  Zookeeper:
-    image: bitnami/zookeeper
-    restart: always
-    ports:
-      - "2181:2181"
-    # volumes:
-    #   - "zookeeper_data:/bitnami"
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+  # Zookeeper:
+  #   image: bitnami/zookeeper
+  #   restart: always
+  #   ports:
+  #     - "2181:2181"
+  #   volumes:
+  #     - "zookeeper_data:/bitnami"
+  #   environment:
+  #     - ALLOW_ANONYMOUS_LOGIN=yes
 
   Kafka:
     image: bitnami/kafka
-    depends_on:
-      - Zookeeper
+    # depends_on:
+    #   - Zookeeper
     ports:
       - "9092:9092"
     restart: always
     volumes:
       - "kafka_data:/bitnami"
     environment:
-      - KAFKA_ZOOKEEPER_CONNECT=Zookeeper:2181
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://Kafka:9092
-      # - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
 
   EventStoreDb:
@@ -99,6 +100,7 @@ volumes:
   pgadmin_data:
   eventdb_mongo_data:
   kafka_data:
+  zookeeper_data:
   neo4j_data:
   neo4j_import:
   neo4j_logs:
