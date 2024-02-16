@@ -50,8 +50,8 @@ services:
       context: .
       dockerfile: Services/Chem/MolDb.API/Dockerfile
 
-  # Ocelotapigw:
-  #   image: ${DOCKER_REGISTRY-}ocelotapigw
-  #   build:
-  #     context: .
-  #     dockerfile: ApiGateways/OcelotApiGw/Dockerfile
+  Ocelotapigw:
+    image: ${DOCKER_REGISTRY-}ocelotapigw
+    build:
+      context: .
+      dockerfile: ApiGateways/OcelotApiGw/Dockerfile

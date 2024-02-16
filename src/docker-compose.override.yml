@@ -225,10 +225,10 @@ services:
     ports:
       - "8011:80"
 
-  # Ocelotapigw:
-  #   container_name: ocelotapigw
-  #   environment:
-  #     - "ASPNETCORE_ENVIRONMENT=Cluster"
-  #     - ASPNETCORE_URLS=http://+:80
-  #   ports:
-  #     - "8010:80"
+  Ocelotapigw:
+    container_name: ocelotapigw
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Cluster"
+      - ASPNETCORE_URLS=http://+:80
+    ports:
+      - "8010:80"
