@@ -230,5 +230,6 @@ services:
     environment:
       - "ASPNETCORE_ENVIRONMENT=Cluster"
       - ASPNETCORE_URLS=http://+:80
+      - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
     ports:
       - "8010:80"
