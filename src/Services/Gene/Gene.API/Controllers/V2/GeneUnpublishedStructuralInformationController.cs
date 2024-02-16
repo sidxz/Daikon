@@ -10,22 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
-    [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.0")]
-    public class GeneUnpublishedStructuralInformationController : ControllerBase
+
+    public partial class GeneController : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<GeneUnpublishedStructuralInformationController> _logger;
+   
 
-        public GeneUnpublishedStructuralInformationController(IMediator mediator, ILogger<GeneUnpublishedStructuralInformationController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-
-        [HttpPost("{id}/add-unpublished-structural-information", Name = "AddUnpublishedStructuralInformation")]
+        [HttpPost("{id}/unpublished-structural-information", Name = "AddUnpublishedStructuralInformation")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddUnpublishedStructuralInformation(Guid id, NewUnpublishedStructuralInformationCommand command)
@@ -81,7 +71,7 @@ namespace Gene.API.Controllers.V2
 
 
 
-        [HttpPut("{id}/update-unpublished-structural-information/{unpublishedStructuralInformationId}", Name = "UpdateUnpublishedStructuralInformation")]
+        [HttpPut("{id}/unpublished-structural-information/{unpublishedStructuralInformationId}", Name = "UpdateUnpublishedStructuralInformation")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -139,7 +129,7 @@ namespace Gene.API.Controllers.V2
 
         }
 
-        [HttpDelete("{id}/delete-unpublished-structural-information/{unpublishedStructuralInformationId}", Name = "DeleteUnpublishedStructuralInformation")]
+        [HttpDelete("{id}/unpublished-structural-information/{unpublishedStructuralInformationId}", Name = "DeleteUnpublishedStructuralInformation")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

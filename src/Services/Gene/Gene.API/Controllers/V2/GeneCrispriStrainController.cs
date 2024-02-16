@@ -10,22 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
-    [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.0")]
-    public class GeneCrispriStrainController : ControllerBase
+
+    public partial class GeneController : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<GeneCrispriStrainController> _logger;
-
-        public GeneCrispriStrainController(IMediator mediator, ILogger<GeneCrispriStrainController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
 
 
-        [HttpPost("{id}/add-crispri-strain", Name = "AddCrispriStrain")]
+
+        [HttpPost("{id}/crispri-strain", Name = "AddCrispriStrain")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddCrispriStrain(Guid id, NewCrispriStrainCommand command)
@@ -81,7 +72,7 @@ namespace Gene.API.Controllers.V2
 
 
 
-        [HttpPut("{id}/update-crispri-strain/{crispriStrainId}", Name = "UpdateCrispriStrain")]
+        [HttpPut("{id}/crispri-strain/{crispriStrainId}", Name = "UpdateCrispriStrain")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -139,7 +130,7 @@ namespace Gene.API.Controllers.V2
 
         }
 
-        [HttpDelete("{id}/delete-crispri-strain/{crispriStrainId}", Name = "DeleteCrispriStrain")]
+        [HttpDelete("{id}/crispri-strain/{crispriStrainId}", Name = "DeleteCrispriStrain")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]

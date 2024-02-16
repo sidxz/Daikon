@@ -10,22 +10,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2
 {
-    [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
-    [ApiVersion("2.0")]
-    public class GeneProteinActivityAssayController : ControllerBase
+
+    public partial class GeneController : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<GeneProteinActivityAssayController> _logger;
-
-        public GeneProteinActivityAssayController(IMediator mediator, ILogger<GeneProteinActivityAssayController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
 
 
-        [HttpPost("{id}/add-protein-activity-assay", Name = "AddProteinActivityAssay")]
+        [HttpPost("{id}/protein-activity-assay", Name = "AddProteinActivityAssay")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddProteinActivityAssay(Guid id, NewProteinActivityAssayCommand command)
@@ -81,7 +71,7 @@ namespace Gene.API.Controllers.V2
 
 
 
-        [HttpPut("{id}/update-protein-activity-assay/{proteinActivityAssayId}", Name = "UpdateProteinActivityAssay")]
+        [HttpPut("{id}/protein-activity-assay/{proteinActivityAssayId}", Name = "UpdateProteinActivityAssay")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -139,7 +129,7 @@ namespace Gene.API.Controllers.V2
 
         }
 
-        [HttpDelete("{id}/delete-protein-activity-assay/{proteinActivityAssayId}", Name = "DeleteProteinActivityAssay")]
+        [HttpDelete("{id}/protein-activity-assay/{proteinActivityAssayId}", Name = "DeleteProteinActivityAssay")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
