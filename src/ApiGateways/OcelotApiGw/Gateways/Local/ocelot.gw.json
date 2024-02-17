@@ -504,6 +504,31 @@
         "AuthenticationProviderKey": "EntraID",
         "AllowedScopes": []
       }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/molecules/",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "8101"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/mol-db/molecules",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
     }
   ]
 }
