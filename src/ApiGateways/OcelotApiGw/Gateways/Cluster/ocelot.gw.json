@@ -530,6 +530,163 @@
         "AuthenticationProviderKey": "EntraID",
         "AllowedScopes": []
       }
+    },
+
+
+
+
+    {
+      "DownstreamPathTemplate": "/api/v2/screen",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamPathTemplate": "/v2/screen",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/screen/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/screen/{id}",
+      "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/screen/by-id/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/screen/by-id/{id}",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/screen/by-name/{name}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/screen/by-name/{name}",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/screen/{id}/rename",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/screen/{id}/rename",
+      "UpstreamHttpMethod": ["Put", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/screen/{id}/update-associated-targets",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/screen/{id}/update-associated-targets",
+      "UpstreamHttpMethod": ["Put","Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
     }
   ]
 }

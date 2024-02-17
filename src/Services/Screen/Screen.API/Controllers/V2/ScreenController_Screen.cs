@@ -11,6 +11,7 @@ using Screen.Application.Features.Commands.UpdateScreen;
 using Screen.Application.Features.Commands.UpdateScreenAssociatedTargets;
 using Screen.Application.Features.Queries.GetScreen.ById;
 using Screen.Application.Features.Queries.GetScreen.ByName;
+using Screen.Application.Features.Queries.GetScreensList;
 using Screen.Application.Features.Queries.ViewModels;
 
 namespace Screen.API.Controllers.V2
@@ -27,6 +28,45 @@ namespace Screen.API.Controllers.V2
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpGet(Name = "GetScreensList")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(List<ScreenVM>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<List<ScreenVM>>> GetScreensList([FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var screens = await _mediator.Send(new GetScreensListQuery { WithMeta = WithMeta });
+                return Ok(screens);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetScreensList: Requested Resource Not Found");
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screens";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
 
