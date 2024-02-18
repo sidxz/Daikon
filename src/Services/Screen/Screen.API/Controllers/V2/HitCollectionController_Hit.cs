@@ -11,13 +11,13 @@ namespace Screen.API.Controllers.V2
 {
     public partial class HitCollectionController : ControllerBase
     {
-        [HttpPost("{hitCollectionId}/add-hit", Name = "AddHit")]
+        [HttpPost("{id}/hit", Name = "AddHit")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
 
-        public async Task<ActionResult> AddHit(Guid hitCollectionId, NewHitCommand command)
+        public async Task<ActionResult> AddHit(Guid id, NewHitCommand command)
         {
-            command.Id = hitCollectionId;
+            command.Id = id;
 
             try
             {
@@ -69,13 +69,13 @@ namespace Screen.API.Controllers.V2
             }
         }
 
-        [HttpPost("{hitCollectionId}/update-hit/{hitId}", Name = "UpdateHit")]
+        [HttpPost("{id}/hit/{hitId}", Name = "UpdateHit")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
 
-        public async Task<ActionResult> UpdateHit(Guid hitCollectionId, Guid hitId, UpdateHitCommand command)
+        public async Task<ActionResult> UpdateHit(Guid id, Guid hitId, UpdateHitCommand command)
         {
-            command.Id = hitCollectionId;
+            command.Id = id;
             command.HitId = hitId;
 
             try
@@ -125,14 +125,14 @@ namespace Screen.API.Controllers.V2
             }
         }
 
-        [HttpDelete("{hitCollectionId}/delete-hit/{hitId}", Name = "DeleteHit")]
+        [HttpDelete("{id}/hit/{hitId}", Name = "DeleteHit")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> DeleteHit(Guid hitCollectionId, Guid hitId)
+        public async Task<ActionResult> DeleteHit(Guid id, Guid hitId)
         {
             try
             {
-                await _mediator.Send(new DeleteHitCommand { Id = hitCollectionId, HitId = hitId });
+                await _mediator.Send(new DeleteHitCommand { Id = id, HitId = hitId });
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {

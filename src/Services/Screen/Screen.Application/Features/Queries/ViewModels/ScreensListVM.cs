@@ -5,17 +5,18 @@ namespace Screen.Application.Features.Queries.ViewModels
 {
     public class ScreensListVM : DocMetadata
     {
+        public Guid Id { get; set; }
         public Guid StrainId { get; set; }
         public string Name { get; set; }
         public Dictionary<string, string> AssociatedTargets { get; set; }
         public string ScreenType { get; set; }
-        public object Method { get; set; }
-        public object Status { get; set; }
+        public string Method { get; set; }
+        public string Status { get; set; }
         public DateTime LastStatusChangedDate { get; set; }
-        public object PrimaryOrgId { get; set; }
-        public object PrimaryOrgName { get; set; }
+        public Guid PrimaryOrgId { get; set; }
+        public string PrimaryOrgName { get; set; }
         public string Owner { get; set; }
-        public object ExpectedCompleteDate { get; set; }
+        public DateTime ExpectedCompleteDate { get; set; }
         public Dictionary<string, string> ParticipatingOrgs { get; set; }
     }
 }
