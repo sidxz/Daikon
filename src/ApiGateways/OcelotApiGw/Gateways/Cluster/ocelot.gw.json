@@ -746,6 +746,33 @@
 
 
     {
+      "DownstreamPathTemplate": "/api/v2/hit-collection/by-screen/{screenId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/hit-collection/by-screen/{screenId}",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+
+    {
       "DownstreamPathTemplate": "/api/v2/hit-collection/{id}/rename",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [

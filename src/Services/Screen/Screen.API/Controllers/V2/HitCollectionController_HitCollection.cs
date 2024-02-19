@@ -9,6 +9,7 @@ using Screen.Application.Features.Commands.NewHitCollection;
 using Screen.Application.Features.Commands.RenameHitCollection;
 using Screen.Application.Features.Commands.UpdateHitCollection;
 using Screen.Application.Features.Commands.UpdateHitCollectionAssociatedScreen;
+using Screen.Application.Features.Queries.GetHitCollectionsOfScreen;
 
 namespace Screen.API.Controllers.V2
 {
@@ -24,6 +25,54 @@ namespace Screen.API.Controllers.V2
         {
             _mediator = mediator;
             _logger = logger;
+        }
+
+        [HttpGet("by-screen/{screenId}", Name = "GetHitCollectionByScreen")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetHitCollectionByScreen(Guid screenId, [FromQuery] bool withMeta = false)
+        {
+            try
+            {
+                var hitCollections = await _mediator.Send(new GetHitCollectionsOfScreenQuery { ScreenId = screenId, WithMeta = withMeta });
+
+                return Ok(hitCollections);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("GetHitCollectionByScreen: ArgumentNullException {ScreenId}", screenId);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetHitCollectionByScreen: Requested Resource Not Found {ScreenId}", screenId);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while getting the hit collection by screen";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
         [HttpPost(Name = "AddHitCollection")]

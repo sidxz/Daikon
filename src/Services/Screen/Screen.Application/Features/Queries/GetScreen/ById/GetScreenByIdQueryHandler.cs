@@ -34,12 +34,12 @@ namespace Screen.Application.Features.Queries.GetScreen.ById
             var screenVm = _mapper.Map<ScreenVM>(screen, opts => opts.Items["WithMeta"] = request.WithMeta);
             
 
-            var hitCollections = await _hitCollectionRepository.GetHitCollectionsListByScreenId(screen.Id);
-            screenVm.HitCollections = hitCollections.Select(async hc =>
-            {
-                var hitCollectionVm = await _mediator.Send(new GetHitCollection.ById.GetHitCollectionByIdQuery { Id = hc.Id, WithMeta = request.WithMeta });
-                return hitCollectionVm;
-            }).Select(t => t.Result).ToList();
+            // var hitCollections = await _hitCollectionRepository.GetHitCollectionsListByScreenId(screen.Id);
+            // screenVm.HitCollections = hitCollections.Select(async hc =>
+            // {
+            //     var hitCollectionVm = await _mediator.Send(new GetHitCollection.ById.GetHitCollectionByIdQuery { Id = hc.Id, WithMeta = request.WithMeta });
+            //     return hitCollectionVm;
+            // }).Select(t => t.Result).ToList();
 
             var screenRuns = await _screenRunRepository.GetScreenRunsListByScreenId(screen.Id);
             screenVm.ScreenRuns = _mapper.Map<List<ScreenRunVM>>(screenRuns, opts => opts.Items["WithMeta"] = request.WithMeta);
