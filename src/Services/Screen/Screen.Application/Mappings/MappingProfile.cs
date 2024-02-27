@@ -114,9 +114,8 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.Neutral, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<int>, int>(src => src.Neutral)))
                 .ForMember(dest => dest.Negative, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<int>, int>(src => src.Negative)))
                 .ForMember(dest => dest.IsVotingAllowed, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<bool>, bool>(src => src.IsVotingAllowed)))
-                .ForMember(dest => dest.InitialCompoundStructure, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<string>, string>(src => src.InitialCompoundStructure)))
-                .ForMember(dest => dest.CompoundRegistrationStatus, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<string>, string>(src => src.CompoundRegistrationStatus)))
-                .ForMember(dest => dest.CompoundId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<Guid>, Guid>(src => src.CompoundId)))
+                .ForMember(dest => dest.RequestedSMILES, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<string>, string>(src => src.RequestedSMILES)))
+                .ForMember(dest => dest.IsStructureDisclosed, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<bool>, bool>(src => src.IsStructureDisclosed)))
                 .ReverseMap();
 
         }

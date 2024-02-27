@@ -25,9 +25,10 @@ namespace Screen.Application.Features.Queries.ViewModels
         public object IsVotingAllowed { get; set; }
         
         
-        /* Compound */
-        public object InitialCompoundStructure { get; set; }
-        public object CompoundRegistrationStatus { get; set; }
-        public object CompoundId { get; set; }
+       /* Molecule */
+        public object RequestedSMILES { get; set; }
+        public object IsStructureDisclosed { get; set; }
+        public Guid MoleculeId { get; set; }
+        public Guid MoleculeRegistrationId { get; set; }
     }
 }

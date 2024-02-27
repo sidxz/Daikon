@@ -29,7 +29,7 @@ namespace Screen.Domain.Aggregates
             _hits.Add(@event.HitId, new Hit()
             {
                 HitCollectionId = @event.Id,
-                InitialCompoundStructure = @event.InitialCompoundStructure,
+                RequestedSMILES = @event.RequestedSMILES,
             });
         }
 

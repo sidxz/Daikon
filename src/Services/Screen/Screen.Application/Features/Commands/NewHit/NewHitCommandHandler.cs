@@ -19,13 +19,14 @@ namespace Screen.Application.Features.Commands.NewHit
         private readonly ILogger<NewHitCommandHandler> _logger;
         private readonly IHitRepository _hitRepository;
         private readonly IMLogixAPIService _mLogixAPIService;
+        private readonly IMolDbAPIService _molDbAPIService;
 
         private readonly IEventSourcingHandler<HitCollectionAggregate> _hitCollectionEventSourcingHandler;
 
 
         public NewHitCommandHandler(ILogger<NewHitCommandHandler> logger,
             IEventSourcingHandler<HitCollectionAggregate> hitCollectionEventSourcingHandler,
-            IHitRepository hitRepository, IMLogixAPIService mLogixAPIService,
+            IHitRepository hitRepository, IMLogixAPIService mLogixAPIService, IMolDbAPIService molDbAPIService,
             IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -33,7 +34,7 @@ namespace Screen.Application.Features.Commands.NewHit
             _hitRepository = hitRepository ?? throw new ArgumentNullException(nameof(hitRepository));
             _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
             _hitCollectionEventSourcingHandler = hitCollectionEventSourcingHandler ?? throw new ArgumentNullException(nameof(hitCollectionEventSourcingHandler));
-
+            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
         }
 
         public async Task<Unit> Handle(NewHitCommand request, CancellationToken cancellationToken)
@@ -44,27 +45,28 @@ namespace Screen.Application.Features.Commands.NewHit
                 var newHitAddedEvent = _mapper.Map<HitAddedEvent>(request);
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
-                Guid compoundId;
-                RegisterMoleculeResponseDTO moleculeRegistrationResponse;
-                try {
+
+                try
+                {
                     var moleculeRegistrationRequest = new RegisterMoleculeRequest
                     {
-                        Name = request.CompoundName,
-                        RequestedSMILES = request.InitialCompoundStructure
+                        Name = request.MoleculeName,
+                        RequestedSMILES = request.RequestedSMILES
                     };
-                    moleculeRegistrationResponse = await _mLogixAPIService.RegisterCompound(moleculeRegistrationRequest);
-                    
+                    var moleculeRegistrationResponse = await _mLogixAPIService.RegisterCompound(moleculeRegistrationRequest);
+                    newHitAddedEvent.MoleculeId = moleculeRegistrationResponse.Id;
+                    newHitAddedEvent.MoleculeRegistrationId = moleculeRegistrationResponse.RegistrationId;
+
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error while calling MolDbAPI");
+                    _logger.LogError(ex, "Error while calling MLogixAPIService");
                     _logger.LogError(ex.Message);
                     throw new Exception(nameof(HitCollectionAggregate));
                 }
-                
-                newHitAddedEvent.CompoundId = moleculeRegistrationResponse.Id;
-                newHitAddedEvent.CompoundRegistrationId = moleculeRegistrationResponse.RegistrationId;
-                
+
+
+
                 aggregate.AddHit(newHitAddedEvent);
 
                 await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);

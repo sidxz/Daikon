@@ -110,6 +110,7 @@ services:
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
       - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
       - "8003:80"

@@ -58,8 +58,8 @@ namespace Screen.Application.Features.Commands.NewHit
         /* Compound */
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? InitialCompoundStructure { get; set; }
-        public string? CompoundName { get; set; }
+        public DVariable<string>? RequestedSMILES { get; set; }
+        public string? MoleculeName { get; set; }
         
     }
 }

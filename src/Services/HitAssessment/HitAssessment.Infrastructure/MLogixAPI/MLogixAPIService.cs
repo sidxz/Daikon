@@ -35,7 +35,7 @@ namespace HitAssessment.Infrastructure.MLogixAPI
 
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsync(_MLogixApiUrl + "/molecule/register", content);
+                HttpResponseMessage response = await _httpClient.PostAsync(_MLogixApiUrl + "/molecule/", content);
 
 
                 if (response.IsSuccessStatusCode)

@@ -21,7 +21,7 @@ namespace Screen.Infrastructure.Query.Repositories
             var client = new MongoClient(configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName"));
             _hit = database.GetCollection<Hit>(configuration.GetValue<string>("ScreenMongoDbSettings:HitCollectionName"));
-            _hit.Indexes.CreateOne(new CreateIndexModel<Hit>(Builders<Hit>.IndexKeys.Ascending(t => t.CompoundId), new CreateIndexOptions { Unique = false }));
+            _hit.Indexes.CreateOne(new CreateIndexModel<Hit>(Builders<Hit>.IndexKeys.Ascending(t => t.MoleculeId), new CreateIndexOptions { Unique = false }));
             _hit.Indexes.CreateOne(new CreateIndexModel<Hit>(Builders<Hit>.IndexKeys.Ascending(t => t.HitCollectionId), new CreateIndexOptions { Unique = false }));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
