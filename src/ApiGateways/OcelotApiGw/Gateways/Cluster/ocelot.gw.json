@@ -611,11 +611,11 @@
     },
 
     {
-      "DownstreamPathTemplate": "/api/v2/molecule/register",
+      "DownstreamPathTemplate": "/api/v2/molecule/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "MolDb.API",
+          "Host": "MLogix.API",
           "Port": "80"
         }
       ],
@@ -628,7 +628,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/mol-db/molecule/register",
+      "UpstreamPathTemplate": "/v2/mlogix/molecule/",
       "UpstreamHttpMethod": ["POST", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",

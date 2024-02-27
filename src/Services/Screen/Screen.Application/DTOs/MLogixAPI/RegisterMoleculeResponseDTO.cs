@@ -1,12 +1,12 @@
 
-namespace MLogix.Application.Features.Commands.RegisterMolecule
+namespace Screen.Application.DTOs.MLogixAPI
 {
     public class RegisterMoleculeResponseDTO
     {
         public Guid Id { get; set; }
         public Guid RegistrationId { get; set; }
         public string? Name { get; set; }
-         public List<string>? Synonyms   { get; set; }
+        public List<string>? Synonyms { get; set; }
         public Dictionary<string, string>? Ids { get; set; }
         public bool WasAlreadyRegistered { get; set; }
         public float? Similarity { get; set; }
@@ -14,6 +14,5 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
         public string? SmilesCanonical { get; set; }
         public float? MolecularWeight { get; set; }
         public float? TPSA { get; set; }
-
     }
 }

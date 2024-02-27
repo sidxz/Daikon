@@ -50,10 +50,12 @@ namespace Horizon.Infrastructure.Query.Consumers
         private readonly ITargetEventHandler _targetEventHandler;
         private readonly IScreenEventHandler _screenEventHandler;
         private readonly IHitCollectionEventHandler _hitCollectionEventHandler;
+        private readonly IMLogixEventHandler _mLogixEventHandler;
         private readonly ILogger<EventConsumer> _logger;
 
         public EventConsumer(IConfiguration configuration, IGeneEventHandler eventHandler,
                  ITargetEventHandler targetEventHandler, IScreenEventHandler screenEventHandler, IHitCollectionEventHandler hitCollectionEventHandler,
+                    IMLogixEventHandler mLogixEventHandler,
                      ILogger<EventConsumer> logger)
         {
             _config = new ConsumerConfig
@@ -69,6 +71,7 @@ namespace Horizon.Infrastructure.Query.Consumers
             _targetEventHandler = targetEventHandler;
             _screenEventHandler = screenEventHandler;
             _hitCollectionEventHandler = hitCollectionEventHandler;
+            _mLogixEventHandler = mLogixEventHandler;
             _logger = logger;
         }
 
@@ -187,6 +190,24 @@ namespace Horizon.Infrastructure.Query.Consumers
                             catch (EventHandlerException ex)
                             {
                                 _logger.LogError("Handler method not found {name}", nameof(hitCollectionHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            consumer.Commit(consumeResult);
+                            continue;
+                        }
+
+                        // 5th check if the event is a MLogix event
+                        var mLogixHandlerMethod = _mLogixEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (mLogixHandlerMethod != null)
+                        {
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", mLogixHandlerMethod.Name, @event.ToJson());
+                                mLogixHandlerMethod.Invoke(_mLogixEventHandler, new object[] { @event });
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(mLogixHandlerMethod));
                                 throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
                             consumer.Commit(consumeResult);

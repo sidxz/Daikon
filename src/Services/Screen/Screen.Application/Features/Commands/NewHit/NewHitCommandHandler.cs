@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
+using Screen.Application.DTOs.MLogixAPI;
 using Screen.Domain.Aggregates;
 
 
@@ -17,20 +18,20 @@ namespace Screen.Application.Features.Commands.NewHit
         private readonly IMapper _mapper;
         private readonly ILogger<NewHitCommandHandler> _logger;
         private readonly IHitRepository _hitRepository;
-        private readonly IMolDbAPIService _molDbAPIService;
+        private readonly IMLogixAPIService _mLogixAPIService;
 
         private readonly IEventSourcingHandler<HitCollectionAggregate> _hitCollectionEventSourcingHandler;
 
 
         public NewHitCommandHandler(ILogger<NewHitCommandHandler> logger,
             IEventSourcingHandler<HitCollectionAggregate> hitCollectionEventSourcingHandler,
-            IHitRepository hitRepository, IMolDbAPIService molDbAPIService,
+            IHitRepository hitRepository, IMLogixAPIService mLogixAPIService,
             IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _hitRepository = hitRepository ?? throw new ArgumentNullException(nameof(hitRepository));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
+            _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
             _hitCollectionEventSourcingHandler = hitCollectionEventSourcingHandler ?? throw new ArgumentNullException(nameof(hitCollectionEventSourcingHandler));
 
         }
@@ -44,9 +45,15 @@ namespace Screen.Application.Features.Commands.NewHit
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
                 Guid compoundId;
+                RegisterMoleculeResponseDTO moleculeRegistrationResponse;
                 try {
-                    compoundId = await _molDbAPIService.RegisterCompound("Test", request.InitialCompoundStructure);
-                    newHitAddedEvent.CompoundId = compoundId;
+                    var moleculeRegistrationRequest = new RegisterMoleculeRequest
+                    {
+                        Name = request.CompoundName,
+                        RequestedSMILES = request.InitialCompoundStructure
+                    };
+                    moleculeRegistrationResponse = await _mLogixAPIService.RegisterCompound(moleculeRegistrationRequest);
+                    
                 }
                 catch (Exception ex)
                 {
@@ -55,7 +62,9 @@ namespace Screen.Application.Features.Commands.NewHit
                     throw new Exception(nameof(HitCollectionAggregate));
                 }
                 
-
+                newHitAddedEvent.CompoundId = moleculeRegistrationResponse.Id;
+                newHitAddedEvent.CompoundRegistrationId = moleculeRegistrationResponse.RegistrationId;
+                
                 aggregate.AddHit(newHitAddedEvent);
 
                 await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);

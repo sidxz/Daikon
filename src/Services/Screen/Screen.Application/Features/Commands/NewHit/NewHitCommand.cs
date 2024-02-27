@@ -59,12 +59,7 @@ namespace Screen.Application.Features.Commands.NewHit
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? InitialCompoundStructure { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? CompoundRegistrationStatus { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<Guid>))]
-        public DVariable<Guid>? CompoundId { get; set; }
+        public string? CompoundName { get; set; }
         
     }
 }

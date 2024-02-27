@@ -62,10 +62,18 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             if (molecule != null)
             {
                 _logger.LogInformation("Molecule already exists in our system, returning existing molecule");
-                registerMoleculeResponseDTO.RegistrationId = molecule.RegistrationId;
                 registerMoleculeResponseDTO.Id = molecule.Id;
+                registerMoleculeResponseDTO.RegistrationId = molecule.RegistrationId;
                 registerMoleculeResponseDTO.Name = molecule.Name;
-                registerMoleculeResponseDTO.Calculated = registrationReq;
+                registerMoleculeResponseDTO.Synonyms = molecule.Synonyms;
+                registerMoleculeResponseDTO.Ids = molecule.Ids;
+                registerMoleculeResponseDTO.WasAlreadyRegistered = true;
+                registerMoleculeResponseDTO.Similarity = registrationReq.Similarity;
+                registerMoleculeResponseDTO.Smiles = registrationReq.Smiles;
+                registerMoleculeResponseDTO.SmilesCanonical = registrationReq.SmilesCanonical;
+                registerMoleculeResponseDTO.MolecularWeight = registrationReq.MolecularWeight;
+                registerMoleculeResponseDTO.TPSA = registrationReq.TPSA;
+
 
                 return registerMoleculeResponseDTO;
             }
@@ -74,21 +82,30 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
 
             try
             {
-                var newMoleculeCreatedEvent = _mapper.Map<MoleculeCreatedEvent>(registrationReq);
+                var newMoleculeCreatedEvent = _mapper.Map<MoleculeCreatedEvent>(request);
                 newMoleculeCreatedEvent.RegistrationId = registrationReq.Id;
                 newMoleculeCreatedEvent.RequestedSMILES = request.RequestedSMILES;
                 newMoleculeCreatedEvent.Synonyms = request.Synonyms != null ? new List<string>(request.Synonyms) : [];
                 newMoleculeCreatedEvent.Ids = request.Ids != null ? new Dictionary<string, string>(request.Ids) : [];
+                newMoleculeCreatedEvent.SmilesCanonical = registrationReq.SmilesCanonical;
 
                 // create new molecule aggregate
                 var aggregate = new MoleculeAggregate(newMoleculeCreatedEvent);
                 await _moleculeEventSourcingHandler.SaveAsync(aggregate);
 
                 // return response
-                registerMoleculeResponseDTO.RegistrationId = registrationReq.Id;
                 registerMoleculeResponseDTO.Id = request.Id;
+                registerMoleculeResponseDTO.RegistrationId = registrationReq.Id;       
                 registerMoleculeResponseDTO.Name = request.Name;
-                registerMoleculeResponseDTO.Calculated = registrationReq;
+                registerMoleculeResponseDTO.Synonyms = request.Synonyms;
+                registerMoleculeResponseDTO.Ids = request.Ids;
+                registerMoleculeResponseDTO.WasAlreadyRegistered = false;
+
+                registerMoleculeResponseDTO.Similarity = registrationReq.Similarity;
+                registerMoleculeResponseDTO.Smiles = registrationReq.Smiles;
+                registerMoleculeResponseDTO.SmilesCanonical = registrationReq.SmilesCanonical;
+                registerMoleculeResponseDTO.MolecularWeight = registrationReq.MolecularWeight;
+                registerMoleculeResponseDTO.TPSA = registrationReq.TPSA;
 
                 return registerMoleculeResponseDTO;
             }

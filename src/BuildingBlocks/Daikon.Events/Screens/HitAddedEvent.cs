@@ -30,5 +30,6 @@ namespace Daikon.Events.Screens
         public DVariable<string>? CompoundRegistrationStatus { get; set; }
 
         public DVariable<Guid>? CompoundId { get; set; }
+        public DVariable<Guid>? CompoundRegistrationId { get; set; }
     }
 }

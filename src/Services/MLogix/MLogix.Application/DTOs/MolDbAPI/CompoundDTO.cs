@@ -12,6 +12,8 @@ namespace MLogix.Application.DTOs.MolDbAPI
         [JsonPropertyName("name")]
         public string? Name { get; set; }
 
+        [JsonPropertyName("similarity")]
+        public float? Similarity { get; set; }
 
         [JsonPropertyName("smiles")]
         public string Smiles { get; set; }

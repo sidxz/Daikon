@@ -21,6 +21,7 @@ using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 using Screen.Domain.EntityRevisions;
+using Screen.Infrastructure.MLogixAPI;
 using Screen.Infrastructure.MolDbAPI;
 using Screen.Infrastructure.Query.Consumers;
 using Screen.Infrastructure.Query.Repositories;
@@ -141,6 +142,7 @@ namespace Screen.Infrastructure
 
             /* MolDb API */
             services.AddScoped<IMolDbAPIService, MolDbAPIService>();
+            services.AddScoped<IMLogixAPIService, MLogixAPIService>();
 
             return services;
         }
