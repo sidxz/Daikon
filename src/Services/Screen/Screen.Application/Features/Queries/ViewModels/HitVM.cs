@@ -30,5 +30,12 @@ namespace Screen.Application.Features.Queries.ViewModels
         public object IsStructureDisclosed { get; set; }
         public Guid MoleculeId { get; set; }
         public Guid MoleculeRegistrationId { get; set; }
+
+        public MoleculeVM Molecule { get; set; }
+
+
+
+        
+
     }
 }

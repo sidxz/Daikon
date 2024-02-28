@@ -40,7 +40,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             }
 
             // register molecule in MolDB
-            CompoundDTO registrationReq;
+            MoleculeDTO registrationReq;
             try
             {
                 registrationReq = await _molDbAPIService.RegisterCompound(request.Name ?? "UnNamed", request.RequestedSMILES);

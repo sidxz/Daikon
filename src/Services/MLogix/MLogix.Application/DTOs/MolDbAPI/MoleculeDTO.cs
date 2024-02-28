@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace MLogix.Application.DTOs.MolDbAPI
 {
-    public class CompoundDTO
+    public class MoleculeDTO
     {
         [JsonPropertyName("id")]
         public Guid Id { get; set; }
