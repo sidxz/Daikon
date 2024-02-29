@@ -17,6 +17,7 @@ using Daikon.VersionStore.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
@@ -32,6 +33,12 @@ namespace Screen.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+
+            /* MongoDb */
+            var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+            ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
+
+            
             /* Command */
             BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
@@ -44,7 +51,7 @@ namespace Screen.Infrastructure
             BsonClassMap.RegisterClassMap<ScreenRunAddedEvent>();
             BsonClassMap.RegisterClassMap<ScreenRunUpdatedEvent>();
             BsonClassMap.RegisterClassMap<ScreenRunDeletedEvent>();
-            
+
             BsonClassMap.RegisterClassMap<HitCollectionCreatedEvent>();
             BsonClassMap.RegisterClassMap<HitCollectionUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HitCollectionDeletedEvent>();
@@ -119,7 +126,7 @@ namespace Screen.Infrastructure
             {
                 ConnectionString = configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HitCollectionRevision>.ConnectionString)),
                 DatabaseName = configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HitCollectionRevision>.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("ScreenMongoDbSettings:HitCollectionRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HitCollectionRevision>.CollectionName)) 
+                CollectionName = configuration.GetValue<string>("ScreenMongoDbSettings:HitCollectionRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HitCollectionRevision>.CollectionName))
             };
             services.AddSingleton<IVersionDatabaseSettings<HitCollectionRevision>>(hitCollectionVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<HitCollectionRevision>, VersionStoreRepository<HitCollectionRevision>>();
@@ -134,9 +141,9 @@ namespace Screen.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<HitRevision>>(hitVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<HitRevision>, VersionStoreRepository<HitRevision>>();
             services.AddScoped<IVersionHub<HitRevision>, VersionHub<HitRevision>>();
-            
 
-             /* Consumers */
+
+            /* Consumers */
             services.AddScoped<IEventConsumer, ScreenEventConsumer>();
             services.AddHostedService<ConsumerHostedService>();
 

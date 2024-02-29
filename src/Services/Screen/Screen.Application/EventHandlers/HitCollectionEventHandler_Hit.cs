@@ -50,6 +50,14 @@ namespace Screen.Application.EventHandlers
             hit.HitCollectionId = @event.Id;
             
             hit.DateCreated = existingHit.DateCreated;
+            hit.RequestedSMILES = existingHit.RequestedSMILES;
+            hit.IsStructureDisclosed = existingHit.IsStructureDisclosed;
+            hit.MoleculeId = existingHit.MoleculeId;
+            hit.MoleculeRegistrationId = existingHit.MoleculeRegistrationId;
+            hit.IsVotingAllowed = existingHit.IsVotingAllowed;
+            hit.Positive = existingHit.Positive;
+            hit.Neutral = existingHit.Neutral;
+            hit.Negative = existingHit.Negative;
             hit.IsModified = true;
 
             try
