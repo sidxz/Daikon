@@ -11,7 +11,7 @@ namespace Screen.API.Controllers.V2
 {
     public partial class ScreenController : ControllerBase
     {
-        [HttpPost("{screenId}/add-screen-run", Name = "AddScreenRun")]
+        [HttpPost("{screenId}/screen-run", Name = "AddScreenRun")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddScreenRun(Guid screenId, NewScreenRunCommand command)
@@ -63,7 +63,7 @@ namespace Screen.API.Controllers.V2
         }
 
 
-        [HttpPost("{screenId}/update-screen-run/{screenRunId}", Name = "UpdateScreenRun")]
+        [HttpPut("{screenId}/screen-run/{screenRunId}", Name = "UpdateScreenRun")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> UpdateScreenRun(Guid screenId, Guid screenRunId, UpdateScreenRunCommand command)
@@ -119,7 +119,7 @@ namespace Screen.API.Controllers.V2
         }
 
 
-        [HttpDelete("{screenId}/delete-screen-run/{screenRunId}", Name = "DeleteScreenRun")]
+        [HttpDelete("{screenId}/screen-run/{screenRunId}", Name = "DeleteScreenRun")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> DeleteScreenRun(Guid screenId, Guid screenRunId)
