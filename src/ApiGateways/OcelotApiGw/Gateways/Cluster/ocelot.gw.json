@@ -25,7 +25,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/api/v2/user/header",
+      "DownstreamPathTemplate": "/api/v2/user/resolve-permission",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -47,6 +47,58 @@
         "AllowedScopes": []
       }
     },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/app-settings/global-values",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/app-settings/global-values",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/app-settings/app-vars",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/app-settings/app-vars",
+      "UpstreamHttpMethod": ["Get", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+
+
+
 
     {
       "DownstreamPathTemplate": "/api/v2/gene",
@@ -506,6 +558,17 @@
       }
     },
 
+
+
+
+
+
+
+
+
+
+
+
     {
       "DownstreamPathTemplate": "/api/v2/molecules/",
       "DownstreamScheme": "http",
@@ -635,6 +698,19 @@
         "AllowedScopes": []
       }
     },
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 
@@ -795,7 +871,57 @@
 
 
 
+    {
+      "DownstreamPathTemplate": "/api/v2/screen/{id}/screen-run",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
 
+      "UpstreamPathTemplate": "/v2/screen/{id}/screen-run",
+      "UpstreamHttpMethod": ["Get", "Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/screen/{id}/screen-run/{screenRunId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "Screen.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}",
+        "AppUser-AccessLevel": "{AppUserAccessLevel}"
+      },
+
+      "UpstreamPathTemplate": "/v2/screen/{id}/screen-run/{screenRunId}",
+      "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
 
     {
       "DownstreamPathTemplate": "/api/v2/hit-collection",

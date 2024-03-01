@@ -13,12 +13,12 @@ namespace UserStore.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class APIResourcesController : ControllerBase
+    public class ApiResourcesController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<APIResourcesController> _logger;
+        private readonly ILogger<ApiResourcesController> _logger;
 
-        public APIResourcesController(IMediator mediator, ILogger<APIResourcesController> logger)
+        public ApiResourcesController(IMediator mediator, ILogger<ApiResourcesController> logger)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -51,6 +51,7 @@ namespace UserStore.API.Controllers.V2
                 });
             }
         }
+        
 
         // Add API Resource
         [HttpPost]
@@ -62,13 +63,8 @@ namespace UserStore.API.Controllers.V2
             try
             {
                 command.Id = id;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "APIResource added successfully",
-                });
+                var apiResource = await _mediator.Send(command);
+                return StatusCode(StatusCodes.Status201Created, apiResource);
             }
             catch (ArgumentNullException ex)
             {
@@ -118,11 +114,8 @@ namespace UserStore.API.Controllers.V2
             command.Id = id;
             try
             {
-                await _mediator.Send(command);
-                return Ok(new BaseResponse
-                {
-                    Message = "APIResource updated successfully"
-                });
+                var updatedResource = await _mediator.Send(command);
+                return Ok(updatedResource);
             }
             catch (ArgumentNullException ex)
             {

@@ -95,13 +95,9 @@ namespace UserStore.API.Controllers.V2
             try
             {
                 command.Id = id;
-                await _mediator.Send(command);
+                var newOrg = await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "Org added successfully",
-                });
+                return StatusCode(StatusCodes.Status201Created, newOrg);
             }
             catch (ArgumentNullException ex)
             {
@@ -126,6 +122,45 @@ namespace UserStore.API.Controllers.V2
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
                 {
                     Message = "An error occurred while adding org."
+                });
+            }
+        }
+
+        // Update an Org
+        [HttpPut("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateOrg(Guid id, [FromBody] AddOrgCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                var updatedOrg = await _mediator.Send(command);
+
+                return Ok(updatedOrg);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("UpdateOrg ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "UpdateOrg: Invalid request.");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "UpdateOrg: An error occurred while updating org.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = "An error occurred while updating org."
                 });
             }
         }
