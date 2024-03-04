@@ -23,8 +23,9 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Scientist { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? UnverifiedHitCount { get; set; }

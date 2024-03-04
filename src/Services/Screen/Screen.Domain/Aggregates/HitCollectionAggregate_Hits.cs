@@ -1,6 +1,7 @@
 using AutoMapper;
 using CQRS.Core.Domain;
 using Daikon.Events.Screens;
+using Daikon.Shared.Constants.AppScreen;
 using Screen.Domain.Entities;
 
 namespace Screen.Domain.Aggregates
@@ -21,6 +22,11 @@ namespace Screen.Domain.Aggregates
             {
                 throw new Exception("Hit already exists.");
             }
+
+            // check if Voters is null, if so, initialize it
+            hitAddedEvent.Voters ??= [];
+            // import votes, helpful when bulk importing hits
+            hitAddedEvent.Voters = hitAddedEvent.Voters.Where(voter => voter.Value == VotingValue.Positive || voter.Value == VotingValue.Negative || voter.Value == VotingValue.Neutral).ToDictionary(voter => voter.Key, voter => voter.Value);
             RaiseEvent(hitAddedEvent);
         }
 
@@ -55,7 +61,28 @@ namespace Screen.Domain.Aggregates
             // Get @event.HitId from _hits Dictionary and update it without creating a new HitRecord
             // Only store important parameters necessary for the screen aggregate to run
             // _hits[@event.HitId].InitialCompoundStructure = @event.InitialCompoundStructure;
-            // No updates required
+            
+            @event.Voters ??= [];
+
+            // preserve value of existing voters of the hit in the new event voters list
+            foreach (var voter in _hits[@event.HitId].Voters)
+            {
+                // Enable this section to allow the owner of the vote to update their vote
+                // if (@event.UserId == voter.Key)
+                // {
+                //     continue;
+                // }
+                @event.Voters.Remove(voter.Key);
+                @event.Voters.Add(voter.Key, voter.Value);
+            }
+
+            @event.Voters = @event.Voters.Where(voter => voter.Value == VotingValue.Positive || voter.Value == VotingValue.Negative || voter.Value == VotingValue.Neutral).ToDictionary(voter => voter.Key, voter => voter.Value);
+            
+            // Calculate the votes
+            @event.Positive = @event.Voters.Count(voter => voter.Value == VotingValue.Positive);
+            @event.Negative = @event.Voters.Count(voter => voter.Value == VotingValue.Negative);
+            @event.Neutral = @event.Voters.Count(voter => voter.Value == VotingValue.Neutral);
+
         }
 
         /* Delete Hit */

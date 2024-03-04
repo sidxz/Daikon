@@ -96,9 +96,200 @@
       }
     },
 
+    {
+      "DownstreamPathTemplate": "/api/v2/api-resources",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/api-resources",
+      "UpstreamHttpMethod": ["Get", "Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/api-resources/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/api-resources/{id}",
+      "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/org",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/org",
+      "UpstreamHttpMethod": ["Get", "Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/org/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/org/{id}",
+      "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/roles",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/roles",
+      "UpstreamHttpMethod": ["Get", "Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/roles/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/roles/{id}",
+      "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+
+    {
+      "DownstreamPathTemplate": "/api/v2/user",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/user",
+      "UpstreamHttpMethod": ["Get", "Post", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/api/v2/user/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "UserStore.API",
+          "Port": "80"
+        }
+      ],
+      "DownstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+      "UpstreamHeaderTransform": {
+        "AppUser-Id": "{AppUserId}"
+      },
+
+      "UpstreamPathTemplate": "/v2/user/{id}",
+      "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "EntraID",
+        "AllowedScopes": []
+      }
+    },
 
 
 
+
+
+
+    
 
     {
       "DownstreamPathTemplate": "/api/v2/gene",

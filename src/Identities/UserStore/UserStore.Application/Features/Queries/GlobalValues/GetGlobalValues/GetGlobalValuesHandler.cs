@@ -1,4 +1,5 @@
 
+using Daikon.Shared;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using UserStore.Domain.Entities;
@@ -18,7 +19,7 @@ namespace UserStore.Application.Features.Queries.GlobalValues.GetGlobalValues
         {
             try
             {
-                var globalValue = GlobalValue.Get();
+                var globalValue = ConstantsVM.Get();
                 return Task.FromResult(globalValue);
             }
             catch (Exception e)

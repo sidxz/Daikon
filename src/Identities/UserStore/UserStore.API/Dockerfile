@@ -9,6 +9,8 @@ WORKDIR /src
 
 # Core Services
 COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Shared/Daikon.Shared.csproj", "BuildingBlocks/Daikon.Shared/"]
+
 
 # UserStore Services
 COPY ["Identities/UserStore/UserStore.API/UserStore.API.csproj", "Identities/UserStore/UserStore.API/"]

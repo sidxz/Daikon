@@ -23,6 +23,9 @@ namespace Screen.Domain.Entities
         public DVariable<int>? Negative { get; set; }
         public DVariable<bool>? IsVotingAllowed { get; set; }
         
+        // userId, voting value
+        public Dictionary<Guid, string>? Voters { get; set; }
+        
         
         /* Molecule */
         public DVariable<string>? RequestedSMILES { get; set; }

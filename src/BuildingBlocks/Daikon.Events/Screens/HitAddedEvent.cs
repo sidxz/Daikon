@@ -25,6 +25,7 @@ namespace Daikon.Events.Screens
         public DVariable<int>? Neutral { get; set; }
         public DVariable<int>? Negative { get; set; }
         public DVariable<bool>? IsVotingAllowed { get; set; }
+        public Dictionary<Guid, string>? Voters { get; set; }
         
         public DVariable<string>? RequestedSMILES { get; set; }
         public DVariable<bool> IsStructureDisclosed { get; set; }

@@ -71,6 +71,7 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.Method, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Method)))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Status)))
                 .ForMember(dest => dest.ExpectedCompleteDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<DateTime>, DateTime>(src => src.ExpectedCompleteDate)))
+                .ForMember(dest => dest.LatestStatusChangeDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<DateTime>, DateTime>(src => src.LatestStatusChangeDate)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Notes)))
                 .ForMember(dest => dest.PrimaryOrgId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<Guid>, Guid>(src => src.PrimaryOrgId)))
                 .ForMember(dest => dest.PrimaryOrgName, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.PrimaryOrgName)))

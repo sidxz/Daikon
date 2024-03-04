@@ -26,7 +26,7 @@ namespace Screen.Application.Features.Commands.NewScreenRun
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? StartDate { get; set; }
-
+        
         public DateTime? EndDate { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]

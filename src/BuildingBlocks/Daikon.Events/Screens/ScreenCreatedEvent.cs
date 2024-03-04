@@ -16,7 +16,7 @@ namespace Daikon.Events.Screens
         public string? ScreenType { get; set; }
         public DVariable<string>? Method { get; set; }
         public DVariable<string>? Status { get; set; }
-        public DateTime? LastStatusChangedDate { get; set; }
+        public DVariable<DateTime>? LatestStatusChangeDate { get; set; }
         public DVariable<string>? Notes { get; set; }
         public DVariable<Guid>? PrimaryOrgId { get; set; }
         public DVariable<string>? PrimaryOrgName { get; set; }

@@ -19,7 +19,7 @@ namespace Screen.Application.Features.Commands.UpdateScreen
         public DVariable<string>? Status { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DateTime? LastStatusChangedDate { get; set; }
+        public DVariable<DateTime>? LatestStatusChangeDate { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Notes { get; set; }
