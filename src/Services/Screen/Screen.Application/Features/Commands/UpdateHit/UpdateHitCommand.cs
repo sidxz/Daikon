@@ -40,19 +40,13 @@ namespace Screen.Application.Features.Commands.UpdateHit
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Notes { get; set; }
 
-        /* Voting */
+         /* Voting */
 
-        // [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        // public DVariable<int>? Positive { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<bool>))]
+        public DVariable<bool>? IsVotingAllowed { get; set; }
 
-        // [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        // public DVariable<int>? Neutral { get; set; }
-
-        // [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        // public DVariable<int>? Negative { get; set; }
-
-        // [JsonConverter(typeof(DVariableJsonConverter<bool>))]
-        // public DVariable<bool>? IsVotingAllowed { get; set; }
+        // userId, voting value
+        public Dictionary<Guid, string>? Voters { get; set; }
 
 
         

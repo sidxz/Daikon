@@ -18,7 +18,7 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
 
         private readonly IMLogixAPIService _mLogixAPIService;
 
-        public GetHitCollectionByIdQueryHandler(IMapper mapper, IHitCollectionRepository hitCollectionRepository, 
+        public GetHitCollectionByIdQueryHandler(IMapper mapper, IHitCollectionRepository hitCollectionRepository,
             IHitRepository hitRepository, ILogger<GetHitCollectionByIdQueryHandler> logger, IMLogixAPIService mLogixAPIService)
         {
             _mapper = mapper;
@@ -38,20 +38,32 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
             var hits = await _hitRepository.GetHitsListByHitCollectionId(hitCollection.Id);
 
             hitCollectionVm.Hits = _mapper.Map<List<HitVM>>(hits, opts => opts.Items["WithMeta"] = request.WithMeta);
+            foreach (var hit in hitCollectionVm.Hits)
+            {
+                if (hit.Voters.TryGetValue(request.RequestorUserId, out var usersVote))
+                {
+                    hit.UsersVote = usersVote; // User's vote found, assign it
+                }
+                else
+                {
+                    hit.UsersVote = "NA"; // User's vote not found, assign "NA"
+                }
+            }
 
             foreach (var hit in hitCollectionVm.Hits)
             {
-                try {
+                try
+                {
                     var molecule = await _mLogixAPIService.GetMoleculeById(hit.MoleculeId);
-                   
+
                     hit.Molecule = _mapper.Map<MoleculeVM>(molecule);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error fetching molecule for hit {HitId}", hit.Id);
-                
+
                 }
-                
+
             }
 
             return hitCollectionVm;

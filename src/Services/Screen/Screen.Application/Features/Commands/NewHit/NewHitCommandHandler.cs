@@ -43,6 +43,7 @@ namespace Screen.Application.Features.Commands.NewHit
             try
             {
                 var newHitAddedEvent = _mapper.Map<HitAddedEvent>(request);
+                newHitAddedEvent.Author = request.RequestorUserId.ToString();
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
 

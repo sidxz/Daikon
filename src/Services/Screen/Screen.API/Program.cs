@@ -11,6 +11,8 @@ using Screen.Application.Features.Commands.NewScreen;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Screen.Application;
 using Screen.Infrastructure;
+using CQRS.Core.Middlewares;
+using MediatR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,13 +34,16 @@ builder.Services.AddVersionedApiExplorer(setup =>
 });
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+builder.Services.AddLogging();
 
 builder.Services.AddControllers(options =>
     {
         options.Conventions.Add(
             new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
     });
-    
+
+
+
 builder.Services.AddFluentValidationAutoValidation()
     .AddFluentValidationClientsideAdapters()
     .AddValidatorsFromAssemblyContaining<NewScreenCommandValidator>();
@@ -53,6 +58,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 //builder.Services.AddDomainServices();
+
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestorIdBehavior<,>));
 
 var app = builder.Build();
 

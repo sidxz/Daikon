@@ -27,6 +27,8 @@ namespace Screen.Application.Features.Queries.GetScreensList
 
         public async Task<List<ScreensListVM>> Handle(GetScreensListQuery request, CancellationToken cancellationToken)
         {
+            Console.WriteLine("+++++++++++++++++");
+            Console.WriteLine(request.RequestorUserId);
             var screens = await _screenRepository.GetScreensList();
             var screensListVm = _mapper.Map<List<ScreensListVM>>(screens, opts => opts.Items["WithMeta"] = request.WithMeta);
             // Flatten the target dictionary to a string

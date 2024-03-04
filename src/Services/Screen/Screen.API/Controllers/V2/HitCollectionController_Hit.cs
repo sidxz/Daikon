@@ -18,7 +18,6 @@ namespace Screen.API.Controllers.V2
         public async Task<ActionResult> AddHit(Guid id, NewHitCommand command)
         {
             command.Id = id;
-
             try
             {
                 command.HitId = Guid.NewGuid();
@@ -78,6 +77,7 @@ namespace Screen.API.Controllers.V2
             command.Id = id;
             command.HitId = hitId;
 
+            
             try
             {
                 await _mediator.Send(command);

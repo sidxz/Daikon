@@ -8,5 +8,6 @@ namespace CQRS.Core.Query
     public abstract class BaseQuery
     {
         public bool WithMeta { get; set; }
+        public Guid RequestorUserId { get; set;}
     }
 }
