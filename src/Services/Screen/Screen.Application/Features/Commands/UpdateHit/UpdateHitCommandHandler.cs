@@ -4,6 +4,7 @@ using CQRS.Core.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 
@@ -38,6 +39,12 @@ namespace Screen.Application.Features.Commands.UpdateHit
             try
             {
                 var hitUpdatedEvent = _mapper.Map<HitUpdatedEvent>(request);
+                _logger.LogInformation($"Updating Hit: {request.Id}");
+                _logger.LogInformation(request.ToJson());
+                _logger.LogInformation(request.Voters.ToJson());
+                _logger.LogInformation(hitUpdatedEvent.ToJson());
+                _logger.LogInformation(hitUpdatedEvent.Voters.ToJson());
+
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
 

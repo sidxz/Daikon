@@ -9,9 +9,9 @@ namespace Daikon.Shared.Constants.AppScreen
 {
     public class VotingValue
     {
-        public const string Positive = "positive";
-        public const string Negative = "negative";
-        public const string Neutral = "neutral";
+        public const string Positive = "Positive";
+        public const string Negative = "Negative";
+        public const string Neutral = "Neutral";
         public static List<NameValuePair> GetVotingValues()
         {
             return [.. new List<NameValuePair>

@@ -40,7 +40,7 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
             hitCollectionVm.Hits = _mapper.Map<List<HitVM>>(hits, opts => opts.Items["WithMeta"] = request.WithMeta);
             foreach (var hit in hitCollectionVm.Hits)
             {
-                if (hit.Voters.TryGetValue(request.RequestorUserId, out var usersVote))
+                if (hit.Voters.TryGetValue(request.RequestorUserId.ToString(), out var usersVote))
                 {
                     hit.UsersVote = usersVote; // User's vote found, assign it
                 }

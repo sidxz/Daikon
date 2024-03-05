@@ -47,7 +47,7 @@ namespace Screen.Application.Features.Commands.NewHit
         public DVariable<bool>? IsVotingAllowed { get; set; }
 
         // userId, voting value
-        public Dictionary<Guid, string>? Voters { get; set; }
+        public Dictionary<string, string>? Voters { get; set; }
 
         /* Compound */
 

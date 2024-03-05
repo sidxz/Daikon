@@ -1,7 +1,9 @@
 
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using CQRS.Core.Domain;
 using Daikon.Events.Screens;
+using Microsoft.Extensions.Logging;
 using Screen.Domain.Entities;
 
 namespace Screen.Domain.Aggregates
@@ -11,7 +13,6 @@ namespace Screen.Domain.Aggregates
         private bool _active;
         private string _Name;
         private Guid _ScreenId;
-
 
         public HitCollectionAggregate()
         {
