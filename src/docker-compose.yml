@@ -44,6 +44,12 @@ services:
       context: .
       dockerfile: Services/Horizon/Horizon.API/Dockerfile
 
+  MLogix.API:
+    image: ${DOCKER_REGISTRY-}mlogix
+    build:
+      context: .
+      dockerfile: Services/MLogix/MLogix.API/Dockerfile
+
   MolDb.API:
     image: ${DOCKER_REGISTRY-}moldb
     build:

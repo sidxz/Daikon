@@ -25,10 +25,11 @@ namespace Daikon.Events.Screens
         public DVariable<int>? Neutral { get; set; }
         public DVariable<int>? Negative { get; set; }
         public DVariable<bool>? IsVotingAllowed { get; set; }
+        public Dictionary<string, string>? Voters { get; set; }
         
-        public DVariable<string>? InitialCompoundStructure { get; set; }
-        public DVariable<string>? CompoundRegistrationStatus { get; set; }
-
-        public DVariable<Guid>? CompoundId { get; set; }
+        public DVariable<string>? RequestedSMILES { get; set; }
+        public DVariable<bool> IsStructureDisclosed { get; set; }
+        public Guid? MoleculeId { get; set; }
+        public Guid? MoleculeRegistrationId { get; set; }
     }
 }

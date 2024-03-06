@@ -18,29 +18,30 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
         public DVariable<string>? Protocol { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<int>? LibrarySize { get; set; }
+        public DVariable<string>? LibrarySize { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Scientist { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<int>? UnverifiedHitCount { get; set; }
+        public DVariable<string>? UnverifiedHitCount { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<double>? HitRate { get; set; }
+        public DVariable<string>? HitRate { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<int>? PrimaryHitCount { get; set; }
+        public DVariable<string>? PrimaryHitCount { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
 
-        public DVariable<int>? ConfirmedHitCount { get; set; }
+        public DVariable<string>? ConfirmedHitCount { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<int>? NoOfCompoundsScreened { get; set; }
+        public DVariable<string>? NoOfCompoundsScreened { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Concentration { get; set; }

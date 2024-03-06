@@ -71,7 +71,9 @@ namespace Horizon.Application.Handlers
                 HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 Library = @event.Library,
-                InitialStructureSMILES = @event.InitialCompoundStructure,
+                RequestedSMILES = @event.RequestedSMILES,
+                MoleculeId = @event.MoleculeId.ToString(),
+                MoleculeRegistrationId = @event.MoleculeRegistrationId.ToString(),
                 DateCreated = DateTime.UtcNow,
                 IsModified = false,
             };

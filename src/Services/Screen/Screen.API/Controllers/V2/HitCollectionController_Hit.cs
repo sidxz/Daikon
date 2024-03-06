@@ -18,7 +18,6 @@ namespace Screen.API.Controllers.V2
         public async Task<ActionResult> AddHit(Guid id, NewHitCommand command)
         {
             command.Id = id;
-
             try
             {
                 command.HitId = Guid.NewGuid();
@@ -69,7 +68,7 @@ namespace Screen.API.Controllers.V2
             }
         }
 
-        [HttpPost("{id}/hit/{hitId}", Name = "UpdateHit")]
+        [HttpPut("{id}/hit/{hitId}", Name = "UpdateHit")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
 
@@ -78,13 +77,14 @@ namespace Screen.API.Controllers.V2
             command.Id = id;
             command.HitId = hitId;
 
+            
             try
             {
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {
-                    Message = "Screen Run updated successfully",
+                    Message = "Hit updated successfully",
                 });
             }
             catch (ArgumentNullException ex)
@@ -114,7 +114,7 @@ namespace Screen.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the hit";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the hit";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse

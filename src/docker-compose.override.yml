@@ -110,6 +110,7 @@ services:
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
       - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
       - "8003:80"
@@ -143,6 +144,7 @@ services:
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
       - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
       - "8004:80"
@@ -176,9 +178,11 @@ services:
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
       - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
       - "8005:80"
+
 
   Horizon.API:
     environment:
@@ -199,16 +203,37 @@ services:
     ports:
       - "8006:80"
 
-  MolDb.API:
+  MLogix.API:
     environment:
-      - "KafkaConsumerSettings_BootstrapServers=Kafka:9092"
-      - "KafkaConsumerSettings_Topics=daikon-core-events"
-      - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
-      - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings_EnableAutoCommit=true"
-      - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "MLxMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "MLxMongoDbSettings:DatabaseName=MoleculeLogix"
+
+      - "MLxMongoDbSettings:MoleculeCollectionName=Molecules"
+      - "MLxMongoDbSettings:MoleculeRevisionCollectionName=MoleculesRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=mlogix-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+
     ports:
-      - "8101:80"
+      - "8007:80"
+
+  
 
   UserStore.API:
     environment:
@@ -233,3 +258,15 @@ services:
       - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
     ports:
       - "8010:80"
+
+
+  MolDb.API:
+    environment:
+      - "KafkaConsumerSettings_BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings_Topics=daikon-core-events"
+      - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
+      - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings_EnableAutoCommit=true"
+      - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
+    ports:
+      - "8101:80"

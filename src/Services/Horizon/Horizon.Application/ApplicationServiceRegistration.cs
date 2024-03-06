@@ -28,6 +28,7 @@ namespace Horizon.Application
             services.AddScoped<ITargetEventHandler, TargetEventHandler>();
             services.AddScoped<IScreenEventHandler, ScreenEventHandler>();
             services.AddScoped<IHitCollectionEventHandler, HitCollectionEventHandler>();
+            services.AddScoped<IMLogixEventHandler, MLogixEventHandler>();
 
             return services;
         }

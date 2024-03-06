@@ -12,8 +12,8 @@ namespace Daikon.Events.Screens
         }
 
         public Guid HitId { get; set; }
+        public DVariable<string>? Library { get; set; }
         public DVariable<string>? LibrarySource { get; set; }
-        public DVariable<string>? Source { get; set; }
         public DVariable<string>? Method { get; set; }
         public DVariable<string>? MIC { get; set; }
         public DVariable<string>? MICUnit { get; set; }
@@ -27,5 +27,11 @@ namespace Daikon.Events.Screens
         public DVariable<int>? Neutral { get; set; }
         public DVariable<int>? Negative { get; set; }
         public DVariable<bool>? IsVotingAllowed { get; set; }
+        public Dictionary<string, string>? Voters { get; set; }
+        
+        // public DVariable<string>? RequestedSMILES { get; set; }
+        // public DVariable<bool> IsStructureDisclosed { get; set; }
+        // public Guid? MoleculeId { get; set; }
+        // public Guid? MoleculeRegistrationId { get; set; }
     }
 }

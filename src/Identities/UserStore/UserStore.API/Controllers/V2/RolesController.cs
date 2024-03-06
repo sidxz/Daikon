@@ -63,13 +63,9 @@ namespace UserStore.API.Controllers.V2
             try
             {
                 command.Id = id;
-                await _mediator.Send(command);
+                var newRole = await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "Role added successfully",
-                });
+                return StatusCode(StatusCodes.Status201Created, newRole);
             }
             catch (ArgumentNullException ex)
             {
@@ -119,11 +115,8 @@ namespace UserStore.API.Controllers.V2
             command.Id = id;
             try
             {
-                await _mediator.Send(command);
-                return Ok(new BaseResponse
-                {
-                    Message = "Role updated successfully"
-                });
+                var updatedRole = await _mediator.Send(command);
+                return Ok(updatedRole);
             }
             catch (ArgumentNullException ex)
             {

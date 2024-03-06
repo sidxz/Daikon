@@ -13,5 +13,6 @@ namespace CQRS.Core.Command
     public abstract class BaseCommand : DocMetadata
     {
         public Guid Id { get; set; }
+        public Guid RequestorUserId { get; set;}
     }
 }

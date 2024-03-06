@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
+using Screen.Application.DTOs.MLogixAPI;
 using Screen.Domain.Aggregates;
 
 
@@ -17,6 +18,7 @@ namespace Screen.Application.Features.Commands.NewHit
         private readonly IMapper _mapper;
         private readonly ILogger<NewHitCommandHandler> _logger;
         private readonly IHitRepository _hitRepository;
+        private readonly IMLogixAPIService _mLogixAPIService;
         private readonly IMolDbAPIService _molDbAPIService;
 
         private readonly IEventSourcingHandler<HitCollectionAggregate> _hitCollectionEventSourcingHandler;
@@ -24,15 +26,15 @@ namespace Screen.Application.Features.Commands.NewHit
 
         public NewHitCommandHandler(ILogger<NewHitCommandHandler> logger,
             IEventSourcingHandler<HitCollectionAggregate> hitCollectionEventSourcingHandler,
-            IHitRepository hitRepository, IMolDbAPIService molDbAPIService,
+            IHitRepository hitRepository, IMLogixAPIService mLogixAPIService, IMolDbAPIService molDbAPIService,
             IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _hitRepository = hitRepository ?? throw new ArgumentNullException(nameof(hitRepository));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
+            _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
             _hitCollectionEventSourcingHandler = hitCollectionEventSourcingHandler ?? throw new ArgumentNullException(nameof(hitCollectionEventSourcingHandler));
-
+            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
         }
 
         public async Task<Unit> Handle(NewHitCommand request, CancellationToken cancellationToken)
@@ -41,20 +43,30 @@ namespace Screen.Application.Features.Commands.NewHit
             try
             {
                 var newHitAddedEvent = _mapper.Map<HitAddedEvent>(request);
+                newHitAddedEvent.Author = request.RequestorUserId.ToString();
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
-                Guid compoundId;
-                try {
-                    compoundId = await _molDbAPIService.RegisterCompound("Test", request.InitialCompoundStructure);
-                    newHitAddedEvent.CompoundId = compoundId;
+
+                try
+                {
+                    var moleculeRegistrationRequest = new RegisterMoleculeRequest
+                    {
+                        Name = request.MoleculeName,
+                        RequestedSMILES = request.RequestedSMILES
+                    };
+                    var moleculeRegistrationResponse = await _mLogixAPIService.RegisterCompound(moleculeRegistrationRequest);
+                    newHitAddedEvent.MoleculeId = moleculeRegistrationResponse.Id;
+                    newHitAddedEvent.MoleculeRegistrationId = moleculeRegistrationResponse.RegistrationId;
+
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error while calling MolDbAPI");
+                    _logger.LogError(ex, "Error while calling MLogixAPIService");
                     _logger.LogError(ex.Message);
                     throw new Exception(nameof(HitCollectionAggregate));
                 }
-                
+
+
 
                 aggregate.AddHit(newHitAddedEvent);
 

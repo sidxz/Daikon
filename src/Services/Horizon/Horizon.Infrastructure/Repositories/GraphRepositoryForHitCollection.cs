@@ -255,7 +255,7 @@ namespace Horizon.Infrastructure.Repositories
 
         public Task AddHit(Hit hit)
         {
-            _logger.LogInformation("AddHit(): Adding hit with id {HitId} and compoundId {CompoundId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.CompoundId, hit.HitCollectionId);
+            _logger.LogInformation("AddHit(): Adding hit with id {HitId} and MoleculeId {MoleculeId} MoleculeRegId {MoleculeRegId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.MoleculeId, hit.MoleculeRegistrationId, hit.HitCollectionId);
             var session = _driver.AsyncSession();
             try
             {
@@ -264,16 +264,27 @@ namespace Horizon.Infrastructure.Repositories
                 {
                     await session.ExecuteWriteAsync(async tx =>
                     {
+                        // var createHitQuery = @"
+                        //     MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
+                        //     CREATE (h)-[:HIT]->(hit:Hit {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES})
+                        // ";
+
                         var createHitQuery = @"
-                            MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
-                            CREATE (h)-[:HIT]->(hit:Hit {hitId: $hitId, library: $library, initialStructureSMILES: $initialStructureSMILES})
+                            MATCH (hc:HitCollection {hitCollectionId: $hitCollectionId})
+                            MERGE (hc)-[:HIT]->(hit:Hit {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES})
+                            WITH hit
+                            FOREACH (_ IN CASE WHEN $moleculeRegistrationId IS NOT NULL AND $moleculeRegistrationId <> '' THEN [1] ELSE [] END |
+                                MERGE (m:Molecule {registrationId: $moleculeRegistrationId})
+                                MERGE (hit)-[:HIT_MOLECULE]->(m)
+                            )
                         ";
                         await tx.RunAsync(createHitQuery, new
                         {
                             hitCollectionId = hit.HitCollectionId,
                             hitId = hit.HitId,
                             library = hit.Library,
-                            initialStructureSMILES = hit.InitialStructureSMILES
+                            requestedSMILES = hit.RequestedSMILES,
+                            moleculeRegistrationId = hit.MoleculeRegistrationId,
                         });
                     });
                 });
@@ -291,7 +302,7 @@ namespace Horizon.Infrastructure.Repositories
 
         public Task UpdateHit(Hit hit)
         {
-            _logger.LogInformation("UpdateHit(): Updating hit with id {HitId} and compoundId {CompoundId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.CompoundId, hit.HitCollectionId);
+            _logger.LogInformation("UpdateHit(): Updating hit with id {HitId} and MoleculeId {MoleculeID} and hitCollectionId {hitCollectionId}", hit.HitId, hit.MoleculeId, hit.HitCollectionId);
             var session = _driver.AsyncSession();
             try
             {
@@ -302,13 +313,13 @@ namespace Horizon.Infrastructure.Repositories
                     {
                         var updateHitQuery = @"
                             MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})-[:HIT]->(hit:Hit {hitId: $hitId})
-                            SET hit.initialStructureSMILES = $initialStructureSMILES
+                            SET hit.requestedSMILES = $requestedSMILES
                         ";
                         await tx.RunAsync(updateHitQuery, new
                         {
                             hitCollectionId = hit.HitCollectionId,
                             hitId = hit.HitId,
-                            compoundId = hit.CompoundId
+                            requestedSMILES = hit.RequestedSMILES
                         });
                     });
                 });

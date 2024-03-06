@@ -12,7 +12,7 @@ namespace Screen.Application.Features.Queries.ViewModels
         public string ScreenType { get; set; }
         public object Method { get; set; }
         public object Status { get; set; }
-        public DateTime LastStatusChangedDate { get; set; }
+        public object LatestStatusChangeDate { get; set; }
         public object Notes { get; set; }
         public object PrimaryOrgId { get; set; }
         public object PrimaryOrgName { get; set; }

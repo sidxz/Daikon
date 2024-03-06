@@ -18,6 +18,7 @@ using HitAssessment.Application.Contracts.Infrastructure;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
 using HitAssessment.Domain.EntityRevisions;
+using HitAssessment.Infrastructure.MLogixAPI;
 using HitAssessment.Infrastructure.MolDbAPI;
 using HitAssessment.Infrastructure.Query.Consumers;
 using HitAssessment.Infrastructure.Query.Repositories;
@@ -101,6 +102,7 @@ namespace HitAssessment.Infrastructure
 
             /* MolDb API */
             services.AddScoped<IMolDbAPIService, MolDbAPIService>();
+            services.AddScoped<IMLogixAPIService, MLogixAPIService>();
 
             return services;
         }

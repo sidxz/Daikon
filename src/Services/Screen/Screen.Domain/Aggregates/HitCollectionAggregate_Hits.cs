@@ -1,6 +1,7 @@
 using AutoMapper;
 using CQRS.Core.Domain;
 using Daikon.Events.Screens;
+using Daikon.Shared.Constants.AppScreen;
 using Screen.Domain.Entities;
 
 namespace Screen.Domain.Aggregates
@@ -10,18 +11,29 @@ namespace Screen.Domain.Aggregates
         private readonly Dictionary<Guid, Hit> _hits = [];
 
         /* Add Hit */
-        public void AddHit(HitAddedEvent hitAddedEvent)
+        public void AddHit(HitAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This hitCollection has been deleted.");
             }
 
-            if (_hits.ContainsKey(hitAddedEvent.HitId))
+            if (_hits.ContainsKey(@event.HitId))
             {
                 throw new Exception("Hit already exists.");
             }
-            RaiseEvent(hitAddedEvent);
+
+            // check if Voters is null, if so, initialize it
+            @event.Voters ??= [];
+            // import votes, helpful when bulk importing hits
+            @event.Voters = @event.Voters.Where(voter => voter.Value == VotingValue.Positive || voter.Value == VotingValue.Negative || voter.Value == VotingValue.Neutral).ToDictionary(voter => voter.Key, voter => voter.Value);
+            // Calculate the votes
+            // check if Positive, Negative, and Neutral are null, if so, initialize them
+            
+            @event.Positive = @event.Voters.Count(voter => voter.Value == VotingValue.Positive);
+            @event.Negative = @event.Voters.Count(voter => voter.Value == VotingValue.Negative);
+            @event.Neutral = @event.Voters.Count(voter => voter.Value == VotingValue.Neutral);
+            RaiseEvent(@event);
         }
 
         public void Apply(HitAddedEvent @event)
@@ -29,24 +41,45 @@ namespace Screen.Domain.Aggregates
             _hits.Add(@event.HitId, new Hit()
             {
                 HitCollectionId = @event.Id,
-                InitialCompoundStructure = @event.InitialCompoundStructure,
+                RequestedSMILES = @event.RequestedSMILES,
             });
         }
 
         /* Update Hit */
-        public void UpdateHit(HitUpdatedEvent hitUpdatedEvent)
+        public void UpdateHit(HitUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This hitCollection has been deleted.");
             }
 
-            if (!_hits.ContainsKey(hitUpdatedEvent.HitId))
+            if (!_hits.ContainsKey(@event.HitId))
             {
                 throw new Exception("Hit does not exist.");
             }
 
-            RaiseEvent(hitUpdatedEvent);
+            _hits[@event.HitId].Voters ??= [];
+
+            // find the voters vote from the @event and add it to the hit's voters list
+            var requestorsVote = @event.Voters.FirstOrDefault(voter => voter.Key == @event.RequestorUserId.ToString());
+            // preserve value of existing voters of the hit in the new event voters list
+            @event.Voters.Clear();
+            foreach (var voter in _hits[@event.HitId].Voters)
+            {
+                @event.Voters.Add(voter.Key, voter.Value);
+            }
+            // add the requestor's vote to the voters list
+            @event.Voters.Add(@event.RequestorUserId.ToString(), requestorsVote.Value);
+            
+            @event.Voters = @event.Voters.Where(voter => voter.Value == VotingValue.Positive || voter.Value == VotingValue.Negative || voter.Value == VotingValue.Neutral).ToDictionary(voter => voter.Key, voter => voter.Value);
+
+            // Calculate the votes
+            
+            @event.Positive = @event.Voters.Count(voter => voter.Value == VotingValue.Positive);
+            @event.Negative = @event.Voters.Count(voter => voter.Value == VotingValue.Negative);
+            @event.Neutral = @event.Voters.Count(voter => voter.Value == VotingValue.Neutral);
+
+            RaiseEvent(@event);
         }
 
 
@@ -55,7 +88,8 @@ namespace Screen.Domain.Aggregates
             // Get @event.HitId from _hits Dictionary and update it without creating a new HitRecord
             // Only store important parameters necessary for the screen aggregate to run
             // _hits[@event.HitId].InitialCompoundStructure = @event.InitialCompoundStructure;
-            // No updates required
+
+
         }
 
         /* Delete Hit */

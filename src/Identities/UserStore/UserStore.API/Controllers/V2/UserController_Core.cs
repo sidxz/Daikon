@@ -159,13 +159,9 @@ namespace UserStore.API.Controllers.V2
             try
             {
                 command.Id = id;
-                await _mediator.Send(command);
+                var newUser = await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "User added successfully",
-                });
+                return StatusCode(StatusCodes.Status201Created, newUser);
             }
             catch (ArgumentNullException ex)
             {
@@ -215,12 +211,9 @@ namespace UserStore.API.Controllers.V2
             try
             {
                 command.Id = id;
-                await _mediator.Send(command);
+                var updatedUser = await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "User updated successfully",
-                });
+                return StatusCode(StatusCodes.Status200OK, updatedUser);
             }
             catch (ArgumentNullException ex)
             {

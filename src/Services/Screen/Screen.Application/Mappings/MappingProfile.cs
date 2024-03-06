@@ -71,6 +71,7 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.Method, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Method)))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Status)))
                 .ForMember(dest => dest.ExpectedCompleteDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<DateTime>, DateTime>(src => src.ExpectedCompleteDate)))
+                .ForMember(dest => dest.LatestStatusChangeDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<DateTime>, DateTime>(src => src.LatestStatusChangeDate)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Notes)))
                 .ForMember(dest => dest.PrimaryOrgId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<Guid>, Guid>(src => src.PrimaryOrgId)))
                 .ForMember(dest => dest.PrimaryOrgName, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.PrimaryOrgName)))
@@ -79,15 +80,15 @@ namespace Screen.Application.Mappings
             CreateMap<Domain.Entities.ScreenRun, Features.Queries.ViewModels.ScreenRunVM>()
                 .ForMember(dest => dest.Library, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Library)))
                 .ForMember(dest => dest.Protocol, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Protocol)))
-                .ForMember(dest => dest.LibrarySize, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<int>, int>(src => src.LibrarySize)))
+                .ForMember(dest => dest.LibrarySize, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.LibrarySize)))
                 .ForMember(dest => dest.Scientist, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Scientist)))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<DateTime>, DateTime>(src => src.StartDate)))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<DateTime>, DateTime>(src => src.EndDate)))
-                .ForMember(dest => dest.UnverifiedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<int>, int>(src => src.UnverifiedHitCount)))
-                .ForMember(dest => dest.HitRate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<double>, double>(src => src.HitRate)))
-                .ForMember(dest => dest.PrimaryHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<int>, int>(src => src.PrimaryHitCount)))
-                .ForMember(dest => dest.ConfirmedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<int>, int>(src => src.ConfirmedHitCount)))
-                .ForMember(dest => dest.NoOfCompoundsScreened, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<int>, int>(src => src.NoOfCompoundsScreened)))
+                .ForMember(dest => dest.UnverifiedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.UnverifiedHitCount)))
+                .ForMember(dest => dest.HitRate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.HitRate)))
+                .ForMember(dest => dest.PrimaryHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.PrimaryHitCount)))
+                .ForMember(dest => dest.ConfirmedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.ConfirmedHitCount)))
+                .ForMember(dest => dest.NoOfCompoundsScreened, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.NoOfCompoundsScreened)))
                 .ForMember(dest => dest.Concentration, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Concentration)))
                 .ForMember(dest => dest.ConcentrationUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.ConcentrationUnit)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Notes)))
@@ -114,10 +115,11 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.Neutral, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<int>, int>(src => src.Neutral)))
                 .ForMember(dest => dest.Negative, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<int>, int>(src => src.Negative)))
                 .ForMember(dest => dest.IsVotingAllowed, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<bool>, bool>(src => src.IsVotingAllowed)))
-                .ForMember(dest => dest.InitialCompoundStructure, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<string>, string>(src => src.InitialCompoundStructure)))
-                .ForMember(dest => dest.CompoundRegistrationStatus, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<string>, string>(src => src.CompoundRegistrationStatus)))
-                .ForMember(dest => dest.CompoundId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<Guid>, Guid>(src => src.CompoundId)))
+                .ForMember(dest => dest.RequestedSMILES, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<string>, string>(src => src.RequestedSMILES)))
+                .ForMember(dest => dest.IsStructureDisclosed, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<bool>, bool>(src => src.IsStructureDisclosed)))
                 .ReverseMap();
+
+            CreateMap<Contracts.Infrastructure.DTOs.GetMoleculesResultDTO, Features.Queries.ViewModels.MoleculeVM>();
 
         }
 

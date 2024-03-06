@@ -40,30 +40,15 @@ namespace Screen.Application.Features.Commands.UpdateHit
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Notes { get; set; }
 
-        /* Voting */
-
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? Positive { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? Neutral { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? Negative { get; set; }
+         /* Voting */
 
         [JsonConverter(typeof(DVariableJsonConverter<bool>))]
         public DVariable<bool>? IsVotingAllowed { get; set; }
 
-        /* Compound */
+        // userId, voting value
+        public Dictionary<string, string>? Voters { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? InitialCompoundStructure { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? CompoundRegistrationStatus { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<Guid>))]
-        public DVariable<Guid>? CompoundId { get; set; }
         
     }
 }

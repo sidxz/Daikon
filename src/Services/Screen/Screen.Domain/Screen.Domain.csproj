@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\CQRS.Core\CQRS.Core.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.Events\Daikon.Events.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.Shared\Daikon.Shared.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

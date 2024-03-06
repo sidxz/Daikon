@@ -23,11 +23,15 @@ namespace Screen.Domain.Entities
         public DVariable<int>? Negative { get; set; }
         public DVariable<bool>? IsVotingAllowed { get; set; }
         
+        // userId, voting value
+        public Dictionary<string, string>? Voters { get; set; }
         
-        /* Compound */
-        public DVariable<string>? InitialCompoundStructure { get; set; }
-        public DVariable<string>? CompoundRegistrationStatus { get; set; }
-        public DVariable<Guid>? CompoundId { get; set; }
+        
+        /* Molecule */
+        public DVariable<string>? RequestedSMILES { get; set; }
+        public DVariable<bool> IsStructureDisclosed { get; set; }
+        public Guid? MoleculeId { get; set; }
+        public Guid? MoleculeRegistrationId { get; set; }
 
     }
 }

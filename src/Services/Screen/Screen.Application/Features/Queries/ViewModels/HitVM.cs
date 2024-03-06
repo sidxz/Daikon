@@ -23,11 +23,23 @@ namespace Screen.Application.Features.Queries.ViewModels
         public object Neutral { get; set; }
         public object Negative { get; set; }
         public object IsVotingAllowed { get; set; }
+        public Dictionary<string, string>? Voters { get; set; }
         
-        
-        /* Compound */
-        public object InitialCompoundStructure { get; set; }
-        public object CompoundRegistrationStatus { get; set; }
-        public object CompoundId { get; set; }
+        /* Voting Derived */
+        public string UsersVote { get; set; }
+
+
+        /* Molecule */
+        public object RequestedSMILES { get; set; }
+        public object IsStructureDisclosed { get; set; }
+        public Guid MoleculeId { get; set; }
+        public Guid MoleculeRegistrationId { get; set; }
+
+        public MoleculeVM Molecule { get; set; }
+
+
+
+
+
     }
 }

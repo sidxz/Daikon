@@ -18,31 +18,31 @@ namespace Screen.Application.Features.Commands.NewScreenRun
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Protocol { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? LibrarySize { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? LibrarySize { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Scientist { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? StartDate { get; set; }
-
+        
         public DateTime? EndDate { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? UnverifiedHitCount { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? UnverifiedHitCount { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<double>))]
-        public DVariable<double>? HitRate { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? HitRate { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? PrimaryHitCount { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PrimaryHitCount { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? ConfirmedHitCount { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? ConfirmedHitCount { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<int>))]
-        public DVariable<int>? NoOfCompoundsScreened { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? NoOfCompoundsScreened { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Concentration { get; set; }
