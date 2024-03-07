@@ -56,7 +56,9 @@ namespace OcelotApiGw.AuthFlowMiddlewares
                     // HACK: Ocelot does not support adding custom headers to the response.
                     // As a workaround, using placeholders to ocelot so that it can replce the placeholders with the actual values
                     // in json configuration files.
-
+                    _logger.LogInformation("OAuth2UserAccessHandler ---->>> INJECT ---->>> {AppUserId}, {AppUserEmail}", 
+                                        validateUserAccessResponse.AppUserId.ToString(), 
+                                        validateUserAccessResponse?.NormalizedEmail);
                     _placeholders.Add("{AppUserId}", () => new OkResponse<string>(validateUserAccessResponse.AppUserId.ToString()));
                     _placeholders.Add("{AppUserEmail}", () => new OkResponse<string>(validateUserAccessResponse?.NormalizedEmail));
                     _placeholders.Add("{AppUserFullName}", () => new OkResponse<string>(validateUserAccessResponse?.FirstName + " " + validateUserAccessResponse?.LastName));

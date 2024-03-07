@@ -367,6 +367,14 @@ namespace Screen.API.Controllers.V2
                     Message = ex.Message
                 });
             }
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("RenameScreen: Requested Resource Already Exists {Name}", ex.Message);
+                return Conflict(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
             catch (Exception ex)
             {

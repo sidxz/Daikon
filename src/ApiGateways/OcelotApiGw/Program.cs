@@ -82,7 +82,7 @@ var ocelotPipelineConfig = new OcelotPipelineConfiguration
   AuthorizationMiddleware = async (ctx, next) =>
   {
     await oAuth2UserAccessHandler.ValidateUser(ctx);
-    await apiResourcePermissionMiddleware.FetchUserPermissionsForAPI(ctx);
+    //await apiResourcePermissionMiddleware.FetchUserPermissionsForAPI(ctx);
 
     await next.Invoke();
   }

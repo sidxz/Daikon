@@ -17,8 +17,6 @@ namespace UserStore.Infrastructure.Repositories
             var client = new MongoClient(configuration.GetValue<string>("UserStoreMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("UserStoreMongoDbSettings:DatabaseName"));
             _appUserCollection = database.GetCollection<AppUser>(configuration.GetValue<string>("UserStoreMongoDbSettings:AppUserCollectionName"));
-            _appUserCollection.Indexes.CreateOne(new CreateIndexModel<AppUser>(Builders<AppUser>.IndexKeys.Ascending(t => t.OIDCSub), new CreateIndexOptions { Unique = true }));
-            _appUserCollection.Indexes.CreateOne(new CreateIndexModel<AppUser>(Builders<AppUser>.IndexKeys.Ascending(t => t.EntraObjectId), new CreateIndexOptions { Unique = true }));
             _appUserCollection.Indexes.CreateOne(new CreateIndexModel<AppUser>(Builders<AppUser>.IndexKeys.Ascending(t => t.NormalizedEmail), new CreateIndexOptions { Unique = true }));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
