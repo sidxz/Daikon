@@ -22,12 +22,8 @@ namespace Daikon.Events.Screens
         public DVariable<string>? IC50Unit { get; set; }
         public DVariable<int>? ClusterGroup { get; set; }
         public DVariable<string>? Notes { get; set; }
-
-        public DVariable<int>? Positive { get; set; }
-        public DVariable<int>? Neutral { get; set; }
-        public DVariable<int>? Negative { get; set; }
         public DVariable<bool>? IsVotingAllowed { get; set; }
-        public Dictionary<string, string>? Voters { get; set; }
+        public Tuple<string, string>? VoteToAdd { get; set; }
         
         // public DVariable<string>? RequestedSMILES { get; set; }
         // public DVariable<bool> IsStructureDisclosed { get; set; }

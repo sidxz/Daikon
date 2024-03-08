@@ -46,7 +46,7 @@ namespace Screen.Application.Features.Commands.UpdateHit
         public DVariable<bool>? IsVotingAllowed { get; set; }
 
         // userId, voting value
-        public Dictionary<string, string>? Voters { get; set; }
+        public Tuple<string, string>? VoteToAdd { get; set; }
 
 
         

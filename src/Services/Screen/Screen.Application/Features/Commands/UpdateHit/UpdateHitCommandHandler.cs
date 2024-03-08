@@ -2,11 +2,13 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.Screens;
+using Daikon.Shared.Constants.AppScreen;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
+using Screen.Domain.Entities;
 
 
 namespace Screen.Application.Features.Commands.UpdateHit
@@ -19,9 +21,9 @@ namespace Screen.Application.Features.Commands.UpdateHit
         private readonly IHitRepository _hitRepository;
 
         private readonly IEventSourcingHandler<HitCollectionAggregate> _hitCollectionEventSourcingHandler;
-  
 
-        public UpdateHitCommandHandler(ILogger<UpdateHitCommandHandler> logger, 
+
+        public UpdateHitCommandHandler(ILogger<UpdateHitCommandHandler> logger,
             IEventSourcingHandler<HitCollectionAggregate> hitCollectionEventSourcingHandler,
             IHitRepository hitRepository,
             IMapper mapper)
@@ -30,20 +32,41 @@ namespace Screen.Application.Features.Commands.UpdateHit
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _hitRepository = hitRepository ?? throw new ArgumentNullException(nameof(hitRepository));
             _hitCollectionEventSourcingHandler = hitCollectionEventSourcingHandler ?? throw new ArgumentNullException(nameof(hitCollectionEventSourcingHandler));
-          
+
         }
 
         public async Task<Unit> Handle(UpdateHitCommand request, CancellationToken cancellationToken)
         {
-           
+
+
+
             try
             {
+                if (request.VoteToAdd != null)
+                {
+                    _logger.LogInformation("VoteToAdd is not null");
+                    _logger.LogInformation( request.VoteToAdd.ToJson());
+                    _logger.LogInformation("request.VoteToAdd.Item1 " + request.VoteToAdd.Item1);
+                    _logger.LogInformation("request.VoteToAdd.Item2 " + request.VoteToAdd.Item2);
+                    _logger.LogInformation("request.RequestorUserId.ToString() "  + request.RequestorUserId.ToString());
+                    if (request.VoteToAdd.Item1 != request.RequestorUserId.ToString())
+                    {
+                        throw new ArgumentException("User cannot cast a vote for another user");
+                    }
+
+                    // check if the casted vote is valid
+                    if (request.VoteToAdd.Item2 != VotingValue.Positive.ToString() && request.VoteToAdd.Item2 != VotingValue.Negative.ToString() && request.VoteToAdd.Item2 != VotingValue.Neutral.ToString())
+                    {
+                        throw new ArgumentException("Vote value must be Positive, Negative, or Neutral");
+                    }
+                }
+
                 var hitUpdatedEvent = _mapper.Map<HitUpdatedEvent>(request);
                 _logger.LogInformation($"Updating Hit: {request.Id}");
                 _logger.LogInformation(request.ToJson());
-                _logger.LogInformation(request.Voters.ToJson());
+                _logger.LogInformation(request.VoteToAdd.ToJson());
                 _logger.LogInformation(hitUpdatedEvent.ToJson());
-                _logger.LogInformation(hitUpdatedEvent.Voters.ToJson());
+                _logger.LogInformation(hitUpdatedEvent.VoteToAdd.ToJson());
 
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
