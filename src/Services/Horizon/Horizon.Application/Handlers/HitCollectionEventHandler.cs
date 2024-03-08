@@ -95,7 +95,7 @@ namespace Horizon.Application.Handlers
         public Task OnEvent(HitDeletedEvent @event)
         {
             _logger.LogInformation($"Horizon: HitDeletedEvent: {@event.Id}");
-            return _graphRepository.DeleteHit(@event.Id.ToString());
+            return _graphRepository.DeleteHit(@event.HitId.ToString());
         }
 
         public Task OnEvent(HitCollectionAssociatedScreenUpdatedEvent @event)
