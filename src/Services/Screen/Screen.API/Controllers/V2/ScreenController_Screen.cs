@@ -35,6 +35,12 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(typeof(List<ScreenVM>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<List<ScreenVM>>> GetScreensList([FromQuery] bool WithMeta = false)
         {
+            // Debug: Log the incoming request headers
+            _logger.LogInformation("SCREEN Incoming request headers:");
+            foreach (var header in Request.Headers)
+            {
+                _logger.LogInformation($"{header.Key}: {header.Value}");
+            }
             try
             {
                 var screens = await _mediator.Send(new GetScreensListQuery { WithMeta = WithMeta });
