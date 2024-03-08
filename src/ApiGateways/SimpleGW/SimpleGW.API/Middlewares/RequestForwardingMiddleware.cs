@@ -1,4 +1,6 @@
 
+using System.Net.Http.Headers;
+
 namespace SimpleGW.API.Middlewares
 {
     public class RequestForwardingMiddleware
@@ -42,6 +44,12 @@ namespace SimpleGW.API.Middlewares
                     {
                         proxiedRequest.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
                     }
+                }
+                // set the Content-Type header to application/json for POST, PUT, and PATCH requests
+                if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
+                {
+                    proxiedRequest.Content = new StreamContent(context.Request.Body);
+                    proxiedRequest.Content.Headers.ContentType = new MediaTypeHeaderValue(context.Request.ContentType);
                 }
 
                 var response = await client.SendAsync(proxiedRequest, context.RequestAborted);

@@ -264,16 +264,32 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
-      - "OIDCProvider=EntraID"
+      -  OIDCProvider=EntraID
+      -  EntraID:Instance=${EntraID_Instance}
+      -  EntraID:Domain=${EntraID_Domain}
+      -  EntraID:TenantId=${EntraID_TenantId}
+      -  EntraID:ClientId=${EntraID_ClientId}
+      -  EntraID:Audience=${EntraID_Audience}
+
       - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
-      - "MicroserviceRoutes:gene=Gene.API"
-      - "MicroserviceRoutes:target=Target.API"
-      - "MicroserviceRoutes:screen=Screen.API"
-      - "MicroserviceRoutes:hitassessment=HitAssessment.API"
-      - "MicroserviceRoutes:project=Project.API"
-      - "MicroserviceRoutes:horizon=Horizon.API"
-      - "MicroserviceRoutes:molecule=MLogix.API"
-      - "MicroserviceRoutes:api-resources=UserStore.API"
+
+      - "EndPointRouting:gene=http://Gene.API"
+      - "EndPointRouting:gene-batch=http://Gene.API"
+      - "EndPointRouting:strain=http://Gene.API"
+
+      - "EndPointRouting:target=http://Target.API"
+      - "EndPointRouting:screen=http://Screen.API"
+      - "EndPointRouting:hit-collection=http://Screen.API"
+
+      - "EndPointRouting:hit-assessment=http://HitAssessment.API"
+      - "EndPointRouting:project=http://Project.API"
+      - "EndPointRouting:horizon=http://Horizon.API"
+      - "EndPointRouting:molecule=http://MLogix.API"
+      - "EndPointRouting:api-resources=http://UserStore.API"
+      - "EndPointRouting:app-settings=http://UserStore.API"
+      - "EndPointRouting:org=http://UserStore.API"
+      - "EndPointRouting:roles=http://UserStore.API"
+      - "EndPointRouting:user=http://UserStore.API"
 
       
     ports:

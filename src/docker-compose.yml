@@ -63,7 +63,7 @@ services:
   #     dockerfile: ApiGateways/OcelotApiGw/Dockerfile
   
   SimpleGW.API:
-    image: ${DOCKER_REGISTRY-}SimpleGW
+    image: ${DOCKER_REGISTRY-}simplegw
     build:
       context: .
       dockerfile: ApiGateways/SimpleGW/SimpleGW.API/Dockerfile

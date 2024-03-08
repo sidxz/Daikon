@@ -29,11 +29,11 @@ namespace SimpleGW.API.Middlewares
                     var microserviceName = pathSegments[1].ToLower(); // Convert to lowercase for case-insensitive comparison
                     _logger.LogInformation($"Extracted microservice name: {microserviceName}");
 
-                    var microserviceRoutes = _configuration.GetSection("MicroserviceRoutes").Get<Dictionary<string, string>>();
+                    var endPointRouting = _configuration.GetSection("EndPointRouting").Get<Dictionary<string, string>>();
 
-                    if (microserviceRoutes != null && microserviceRoutes.Any())
+                    if (endPointRouting != null && endPointRouting.Any())
                     {
-                        var routes = microserviceRoutes.ToDictionary(k => k.Key.ToLower(), v => v.Value); // Convert keys to lowercase for case-insensitive matching
+                        var routes = endPointRouting.ToDictionary(k => k.Key.ToLower(), v => v.Value); // Convert keys to lowercase for case-insensitive matching
 
                         if (routes.TryGetValue(microserviceName, out var targetEndpoint))
                         {
@@ -51,10 +51,10 @@ namespace SimpleGW.API.Middlewares
                     }
                     else
                     {
-                        _logger.LogWarning("MicroserviceRoutes configuration is missing or empty.");
+                        _logger.LogWarning("EndPointRouting configuration is missing or empty.");
                         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                         context.Response.ContentType = "application/json";
-                        await context.Response.WriteAsync("{\"message\":\"MicroserviceRoutes configuration is missing or empty.\"}");
+                        await context.Response.WriteAsync("{\"message\":\"EndPointRouting configuration is missing or empty.\"}");
                         return; // Exit to prevent calling the next middleware
                     }
                 }
