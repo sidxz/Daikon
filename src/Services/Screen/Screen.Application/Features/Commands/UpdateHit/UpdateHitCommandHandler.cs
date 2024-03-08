@@ -44,11 +44,6 @@ namespace Screen.Application.Features.Commands.UpdateHit
             {
                 if (request.VoteToAdd != null)
                 {
-                    _logger.LogInformation("VoteToAdd is not null");
-                    _logger.LogInformation( request.VoteToAdd.ToJson());
-                    _logger.LogInformation("request.VoteToAdd.Item1 " + request.VoteToAdd.Item1);
-                    _logger.LogInformation("request.VoteToAdd.Item2 " + request.VoteToAdd.Item2);
-                    _logger.LogInformation("request.RequestorUserId.ToString() "  + request.RequestorUserId.ToString());
                     if (request.VoteToAdd.Item1 != request.RequestorUserId.ToString())
                     {
                         throw new ArgumentException("User cannot cast a vote for another user");

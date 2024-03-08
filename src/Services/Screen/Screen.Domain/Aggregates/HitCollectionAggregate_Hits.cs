@@ -1,5 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Domain;
+using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
 using Daikon.Shared.Constants.AppScreen;
 using Screen.Domain.Entities;
@@ -55,9 +56,9 @@ namespace Screen.Domain.Aggregates
 
             if (!_hits.ContainsKey(@event.HitId))
             {
-                throw new Exception("Hit does not exist.");
+                throw new AggregateNotFoundException("Hit does not exist.");
             }
-            
+
             RaiseEvent(@event);
         }
 
