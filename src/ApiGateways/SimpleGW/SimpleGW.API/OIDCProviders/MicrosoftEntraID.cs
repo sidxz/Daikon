@@ -17,12 +17,13 @@ namespace SimpleGW.OIDCProviders
                 return;
             }
 
-            // dump configuration to console for debugging
-            Console.WriteLine($"EntraID Instance: {entraIdConfig["Instance"]}");
-            Console.WriteLine($"EntraID Domain: {entraIdConfig["Domain"]}");
-            Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
-            Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
-            Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
+            /* Dump configuration to console for debugging */
+            // Console.WriteLine($"EntraID Instance: {entraIdConfig["Instance"]}");
+            // Console.WriteLine($"EntraID Domain: {entraIdConfig["Domain"]}");
+            // Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
+            // Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
+            // Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
+            
             var requiredConfigs = new[] { "Instance", "Domain", "TenantId", "Audience", "ClientId" };
             foreach (var configKey in requiredConfigs)
             {

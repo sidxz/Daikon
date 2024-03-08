@@ -395,8 +395,13 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
+# Environment files
+.env
+
 # JetBrains Rider
 *.sln.iml
+
+
 src/ApiGateways/OcelotApiGw/appsettings.Development.json
 src/ApiGateways/OcelotApiGw/appsettings.json
 src/ApiGateways/SimpleGW/SimpleGW.API/appsettings.Development.json

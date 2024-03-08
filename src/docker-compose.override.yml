@@ -250,12 +250,32 @@ services:
     ports:
       - "8011:80"
 
-  Ocelotapigw:
-    container_name: ocelotapigw
+  # Ocelotapigw:
+  #   container_name: ocelotapigw
+  #   environment:
+  #     - "ASPNETCORE_ENVIRONMENT=Cluster"
+  #     - ASPNETCORE_URLS=http://+:80
+  #     - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
+  #   ports:
+  #     - "8010:80"
+
+  SimpleGW.API:
     environment:
-      - "ASPNETCORE_ENVIRONMENT=Cluster"
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      - "OIDCProvider=EntraID"
       - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
+      - "MicroserviceRoutes:gene=Gene.API"
+      - "MicroserviceRoutes:target=Target.API"
+      - "MicroserviceRoutes:screen=Screen.API"
+      - "MicroserviceRoutes:hitassessment=HitAssessment.API"
+      - "MicroserviceRoutes:project=Project.API"
+      - "MicroserviceRoutes:horizon=Horizon.API"
+      - "MicroserviceRoutes:molecule=MLogix.API"
+      - "MicroserviceRoutes:api-resources=UserStore.API"
+
+      
     ports:
       - "8010:80"
 
