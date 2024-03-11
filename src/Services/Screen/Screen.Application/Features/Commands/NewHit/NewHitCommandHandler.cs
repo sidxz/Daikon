@@ -47,26 +47,12 @@ namespace Screen.Application.Features.Commands.NewHit
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
 
-                try
+                // Some molecules are proprietary and cannot be registered in MLogix
+                if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
                 {
-                    var moleculeRegistrationRequest = new RegisterMoleculeRequest
-                    {
-                        Name = request.MoleculeName,
-                        RequestedSMILES = request.RequestedSMILES
-                    };
-                    var moleculeRegistrationResponse = await _mLogixAPIService.RegisterCompound(moleculeRegistrationRequest);
-                    newHitAddedEvent.MoleculeId = moleculeRegistrationResponse.Id;
-                    newHitAddedEvent.MoleculeRegistrationId = moleculeRegistrationResponse.RegistrationId;
-
+                    _logger.LogInformation("Will try to register molecule ...");
+                    await RegisterMoleculeAndAssignToEvent(request, newHitAddedEvent);
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error while calling MLogixAPIService");
-                    _logger.LogError(ex.Message);
-                    throw new Exception(nameof(HitCollectionAggregate));
-                }
-
-
 
                 aggregate.AddHit(newHitAddedEvent);
 
@@ -77,7 +63,32 @@ namespace Screen.Application.Features.Commands.NewHit
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(HitCollectionAggregate), request.Id);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled exception occurred while processing request.");
+                throw; // Consider a more specific exception if applicable
+            }
             return Unit.Value;
+        }
+
+        private async Task RegisterMoleculeAndAssignToEvent(NewHitCommand request, HitAddedEvent eventToAdd)
+        {
+            try
+            {
+                var response = await _mLogixAPIService.RegisterCompound(new RegisterMoleculeRequest
+                {
+                    Name = request.MoleculeName,
+                    RequestedSMILES = request.RequestedSMILES
+                });
+
+                eventToAdd.MoleculeId = response.Id;
+                eventToAdd.MoleculeRegistrationId = response.RegistrationId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while calling MLogixAPIService for SMILES: {SMILES}", request.RequestedSMILES);
+                throw;
+            }
         }
     }
 }

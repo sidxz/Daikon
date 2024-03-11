@@ -102,6 +102,7 @@ namespace UserStore.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUserByHeaderId()
         {
+            _logger.LogInformation("*************** GetUserByHeaderId :::: Header: {HeaderName}: {HeaderValue}", "AppUser-Id", Request.Headers["AppUser-Id"]);
             var id = Guid.Empty;
             if (Request.Headers.TryGetValue("AppUser-Id", out var headerValue))
             {
@@ -122,6 +123,7 @@ namespace UserStore.API.Controllers.V2
             try
             {
                 var response = await _mediator.Send(new GetUserByIdQuery { Id = id });
+                _logger.LogInformation("*************** GetUserByHeaderId :::: Response: {Response}", response);
                 return Ok(response);
             }
             catch (ResourceNotFoundException ex)

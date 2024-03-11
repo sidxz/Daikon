@@ -38,16 +38,26 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
             var hits = await _hitRepository.GetHitsListByHitCollectionId(hitCollection.Id);
 
             hitCollectionVm.Hits = _mapper.Map<List<HitVM>>(hits, opts => opts.Items["WithMeta"] = request.WithMeta);
+            _logger.LogInformation("************** REQUESTOR");
+            if (request.RequestorUserId == Guid.Empty)
+            {
+                _logger.LogInformation("RequestorUserId is empty");
+            }
+            _logger.LogInformation(request.RequestorUserId.ToString());
             foreach (var hit in hitCollectionVm.Hits)
             {
                 if (hit.Voters.TryGetValue(request.RequestorUserId.ToString(), out var usersVote))
                 {
+                    _logger.LogInformation("User's vote found");
                     hit.UsersVote = usersVote; // User's vote found, assign it
                 }
                 else
                 {
+                    _logger.LogInformation("User's vote not found");
                     hit.UsersVote = "NA"; // User's vote not found, assign "NA"
                 }
+
+                hit.VoteScore = (3 * (int)hit.Positive) + (1 * (int)hit.Neutral) - (3 * (int)hit.Negative); // Calculate vote score
             }
 
             foreach (var hit in hitCollectionVm.Hits)

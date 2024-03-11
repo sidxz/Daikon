@@ -1,5 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Domain;
+using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
 using Daikon.Shared.Constants.AppScreen;
 using Screen.Domain.Entities;
@@ -55,29 +56,8 @@ namespace Screen.Domain.Aggregates
 
             if (!_hits.ContainsKey(@event.HitId))
             {
-                throw new Exception("Hit does not exist.");
+                throw new AggregateNotFoundException("Hit does not exist.");
             }
-
-            _hits[@event.HitId].Voters ??= [];
-
-            // find the voters vote from the @event and add it to the hit's voters list
-            var requestorsVote = @event.Voters.FirstOrDefault(voter => voter.Key == @event.RequestorUserId.ToString());
-            // preserve value of existing voters of the hit in the new event voters list
-            @event.Voters.Clear();
-            foreach (var voter in _hits[@event.HitId].Voters)
-            {
-                @event.Voters.Add(voter.Key, voter.Value);
-            }
-            // add the requestor's vote to the voters list
-            @event.Voters.Add(@event.RequestorUserId.ToString(), requestorsVote.Value);
-            
-            @event.Voters = @event.Voters.Where(voter => voter.Value == VotingValue.Positive || voter.Value == VotingValue.Negative || voter.Value == VotingValue.Neutral).ToDictionary(voter => voter.Key, voter => voter.Value);
-
-            // Calculate the votes
-            
-            @event.Positive = @event.Voters.Count(voter => voter.Value == VotingValue.Positive);
-            @event.Negative = @event.Voters.Count(voter => voter.Value == VotingValue.Negative);
-            @event.Neutral = @event.Voters.Count(voter => voter.Value == VotingValue.Neutral);
 
             RaiseEvent(@event);
         }

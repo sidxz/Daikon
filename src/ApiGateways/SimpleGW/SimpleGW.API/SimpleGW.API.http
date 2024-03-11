@@ -1,0 +1,6 @@
+@SimpleGW.API_HostAddress = http://localhost:5233
+
+GET {{SimpleGW.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

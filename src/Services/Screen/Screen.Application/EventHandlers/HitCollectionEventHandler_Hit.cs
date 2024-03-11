@@ -1,5 +1,6 @@
 using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
+using Daikon.Shared.Constants.AppScreen;
 using Microsoft.Extensions.Logging;
 
 
@@ -48,13 +49,50 @@ namespace Screen.Application.EventHandlers
             var hit = _mapper.Map<Domain.Entities.Hit>(@event);
             hit.Id = @event.HitId;
             hit.HitCollectionId = @event.Id;
-            
+
             hit.DateCreated = existingHit.DateCreated;
             hit.RequestedSMILES = existingHit.RequestedSMILES;
             hit.IsStructureDisclosed = existingHit.IsStructureDisclosed;
             hit.MoleculeId = existingHit.MoleculeId;
             hit.MoleculeRegistrationId = existingHit.MoleculeRegistrationId;
             hit.IsModified = true;
+
+            hit.Voters = existingHit.Voters ?? [];
+            hit.Positive = existingHit.Positive ?? 0;
+            hit.Negative = existingHit.Negative ?? 0;
+            hit.Neutral = existingHit.Neutral ?? 0;
+
+
+            // Voting Update
+            if (@event.VoteToAdd != null)
+            {
+                if (@event.VoteToAdd.Item1 != @event.RequestorUserId.ToString())
+                {
+                    throw new ArgumentException("User cannot cast a vote for another user");
+                }
+
+                // check if the casted vote is valid
+                if (@event.VoteToAdd.Item2 != VotingValue.Positive.ToString() && @event.VoteToAdd.Item2 != VotingValue.Negative.ToString() && @event.VoteToAdd.Item2 != VotingValue.Neutral.ToString())
+                {
+                    throw new ArgumentException("Vote value must be Positive, Negative, or Neutral");
+                }
+
+                if (@event.VoteToAdd.Item2 == VotingValue.Positive.ToString())
+                {
+                    hit.Voters[@event.VoteToAdd.Item1] = VotingValue.Positive;
+                    hit.Positive++;
+                }
+                else if (@event.VoteToAdd.Item2 == VotingValue.Negative.ToString())
+                {
+                    hit.Voters[@event.VoteToAdd.Item1] = VotingValue.Negative;
+                    hit.Negative++;
+                }
+                else if (@event.VoteToAdd.Item2 == VotingValue.Neutral.ToString())
+                {
+                    hit.Voters[@event.VoteToAdd.Item1] = VotingValue.Neutral;
+                    hit.Neutral++;
+                }
+            }
 
             try
             {

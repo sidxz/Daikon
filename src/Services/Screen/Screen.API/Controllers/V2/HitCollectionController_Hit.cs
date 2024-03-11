@@ -111,6 +111,14 @@ namespace Screen.API.Controllers.V2
                     Message = ex.Message
                 });
             }
+            catch (AggregateNotFoundException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
             catch (Exception ex)
             {

@@ -35,6 +35,12 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(typeof(List<ScreenVM>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<List<ScreenVM>>> GetScreensList([FromQuery] bool WithMeta = false)
         {
+            // Debug: Log the incoming request headers
+            _logger.LogInformation("SCREEN Incoming request headers:");
+            foreach (var header in Request.Headers)
+            {
+                _logger.LogInformation($"{header.Key}: {header.Value}");
+            }
             try
             {
                 var screens = await _mediator.Send(new GetScreensListQuery { WithMeta = WithMeta });
@@ -363,6 +369,14 @@ namespace Screen.API.Controllers.V2
             {
                 _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
                 return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("RenameScreen: Requested Resource Already Exists {Name}", ex.Message);
+                return Conflict(new BaseResponse
                 {
                     Message = ex.Message
                 });

@@ -91,7 +91,7 @@ namespace Horizon.Application.Handlers
                     IsModified = true,
                 };
 
-                await _graphRepository.UpdateScreen(screen);
+                await _graphRepository.UpdateAssociatedTargetsOfScreen(screen);
             }
             catch (Exception ex)
             {
