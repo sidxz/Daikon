@@ -27,6 +27,7 @@ namespace Screen.Application.Features.Queries.ViewModels
         
         /* Voting Derived */
         public string UsersVote { get; set; }
+        public int VoteScore { get; set; }
 
 
         /* Molecule */

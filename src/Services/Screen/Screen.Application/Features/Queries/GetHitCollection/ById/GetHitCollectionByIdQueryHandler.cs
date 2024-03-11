@@ -56,6 +56,8 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
                     _logger.LogInformation("User's vote not found");
                     hit.UsersVote = "NA"; // User's vote not found, assign "NA"
                 }
+
+                hit.VoteScore = (3 * (int)hit.Positive) + (1 * (int)hit.Neutral) - (3 * (int)hit.Negative); // Calculate vote score
             }
 
             foreach (var hit in hitCollectionVm.Hits)
