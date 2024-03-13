@@ -22,10 +22,8 @@ namespace Target.Application
 
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
-
             services.AddScoped<ITargetEventHandler, TargetEventHandler>();
           
-
             return services;
         }
 

@@ -12,6 +12,8 @@ using Target.Infrastructure;
 using FluentValidation.AspNetCore;
 using Target.Application.Features.Command.NewTarget;
 using FluentValidation;
+using MediatR;
+using CQRS.Core.Middlewares;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +57,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 builder.Services.AddDomainServices();
+
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestorIdBehavior<,>));
 
 var app = builder.Build();
 

@@ -17,6 +17,7 @@ using Daikon.VersionStore.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
 using Target.Domain.EntityRevisions;
@@ -29,6 +30,9 @@ namespace Target.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+            var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+            ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
+            
             /* Command */
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<TargetCreatedEvent>();
@@ -77,7 +81,7 @@ namespace Target.Infrastructure
             services.AddScoped<IVersionStoreRepository<TargetRevision>, VersionStoreRepository<TargetRevision>>();
             services.AddScoped<IVersionHub<TargetRevision>, VersionHub<TargetRevision>>();
 
-             /* Consumers */
+            /* Consumers */
             services.AddScoped<IEventConsumer, TargetEventConsumer>(); // Depends on IKafkaConsumerSettings; Takes care of both gene and strain events
             services.AddHostedService<ConsumerHostedService>();
 
