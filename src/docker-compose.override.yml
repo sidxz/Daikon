@@ -306,3 +306,15 @@ services:
       - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
     ports:
       - "8101:80"
+
+
+  Questionnaire.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "QuestionnaireMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "QuestionnaireMongoDbSettings:DatabaseName=Project"
+      
+    ports:
+      - "8008:80"

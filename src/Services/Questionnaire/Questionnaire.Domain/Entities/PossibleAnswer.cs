@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CQRS.Core.Domain;
 
-namespace Questionnaire.Domain
+namespace Questionnaire.Domain.Entities
 {
     public class PossibleAnswer : BaseEntity
     {

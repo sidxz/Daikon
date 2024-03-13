@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using CQRS.Core.Domain;
 
-namespace Questionnaire.Domain
+namespace Questionnaire.Domain.Entities
 {
     public class Question : BaseEntity
     {
@@ -23,6 +20,6 @@ namespace Questionnaire.Domain
         public bool IsInverted { get; set; }
         public double? Weight { get; set; }
         public bool IsAdminOnly { get; set; }
-        public List<PossibleAnswer> PossibleAnswers { get; set; }
+        public List<PossibleAnswer> PossibleAnswers { get; set; } = [];
     }
 }
