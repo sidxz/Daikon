@@ -290,6 +290,7 @@ services:
       - "EndPointRouting:org=http://UserStore.API"
       - "EndPointRouting:roles=http://UserStore.API"
       - "EndPointRouting:user=http://UserStore.API"
+      - "EndPointRouting:questionnaire=http://Questionnaire.API"
 
       
     ports:
@@ -315,6 +316,6 @@ services:
 
       - "QuestionnaireMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
       - "QuestionnaireMongoDbSettings:DatabaseName=Project"
-      
+
     ports:
       - "8008:80"

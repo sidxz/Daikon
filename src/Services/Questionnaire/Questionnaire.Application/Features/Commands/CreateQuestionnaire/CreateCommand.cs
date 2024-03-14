@@ -13,6 +13,6 @@ namespace Questionnaire.Application.Features.Commands.CreateQuestionnaire
         public string Name { get; set; }
         public string Description { get; set; }
         public string Version { get; set; }
-        public List<Question> Questions { get; set; }
+        public List<Question>? Questions { get; set; }
     }
 }

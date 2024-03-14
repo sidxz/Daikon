@@ -4,6 +4,7 @@ using CQRS.Core.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Questionnaire.Application.Contracts.Persistence;
+using Questionnaire.Domain.Entities;
 
 namespace Questionnaire.Application.Features.Commands.CreateQuestionnaire
 {
@@ -33,7 +34,7 @@ namespace Questionnaire.Application.Features.Commands.CreateQuestionnaire
 
             // set id if not set
             if (request.Id == Guid.Empty) request.Id = Guid.NewGuid();
-
+            request.Questions ??= [];
             foreach (var question in request.Questions)
             {
                 // if question id is not set then set it
