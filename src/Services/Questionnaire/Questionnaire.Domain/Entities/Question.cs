@@ -18,6 +18,7 @@ namespace Questionnaire.Domain.Entities
         public bool? IsRequired { get; set; }
         public bool? IsMultiple { get; set; }
         public bool? IsInverted { get; set; }
+        public bool? IsDisabled { get; set; }
         public double? Weight { get; set; }
         public bool? IsAdminOnly { get; set; }
         public List<PossibleAnswer> PossibleAnswers { get; set; } = [];
