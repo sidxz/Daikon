@@ -11,8 +11,8 @@ namespace Questionnaire.Application.Features.Commands.UpdateQuestionnaire
     public class UpdateCommand : BaseCommand, IRequest<Domain.Entities.Questionnaire>
     {
         public string Name { get; set; }
-        public string Description { get; set; }
-        public string Version { get; set; }
+        public string? Description { get; set; }
+        public string? Version { get; set; }
         public List<Question> Questions { get; set; }
 
     }

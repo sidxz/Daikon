@@ -10,9 +10,9 @@ namespace Questionnaire.Domain.Entities
     {
         public Guid QuestionId { get; set; }
         public string Answer { get; set; }
-        public string Description { get; set; }
-        public string Color { get; set; }
-        public string Icon { get; set; }
-        public bool IsInverted { get; set; }
+        public string? Description { get; set; }
+        public string? Color { get; set; }
+        public string? Icon { get; set; }
+        public bool? IsInverted { get; set; }
     }
 }

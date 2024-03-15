@@ -8,7 +8,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Questionnaire.Application.Contracts.Persistence;
 
-namespace Questionnaire.Application.Features.Queries.GetQuestionnaire
+namespace Questionnaire.Application.Features.Queries.GetQuestionnaire.ById
 {
     public class GetQuestionnaireHandler : IRequestHandler<GetQuestionnaireQuery, Domain.Entities.Questionnaire>
     {
@@ -25,16 +25,17 @@ namespace Questionnaire.Application.Features.Queries.GetQuestionnaire
 
         public Task<Domain.Entities.Questionnaire> Handle(GetQuestionnaireQuery request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("GetQuestionnaireHandler.Handle - Retrieving questionnaire by name: {QuestionnaireName}", request.Name);
+            _logger.LogInformation("GetQuestionnaireHandler.Handle - Retrieving questionnaire by Id: {QuestionnaireId}", request.Id);
             try
             {
-                request.Name = request.Name.ToUpper();
-                var questionnaire = _questionnaireRepository.ReadQuestionnaireByName(request.Name);
+
+                var questionnaire = _questionnaireRepository.ReadQuestionnaireById(request.Id) 
+                    ?? throw new AggregateNotFoundException(nameof(GetQuestionnaireQuery));
                 return questionnaire;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while retrieving the questionnaire with name {QuestionnaireName}", request.Name);
+                _logger.LogError(ex, "An error occurred while retrieving the questionnaire with name {QuestionnaireId}", request.Id);
                 throw new RepositoryException(nameof(GetQuestionnaireHandler), "Error retrieving questionnaire", ex);
             }
         }

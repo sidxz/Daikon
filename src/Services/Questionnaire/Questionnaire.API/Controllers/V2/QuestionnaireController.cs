@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Questionnaire.Application.Features.Commands.CreateQuestionnaire;
 using Questionnaire.Application.Features.Commands.DeleteQuestionnaire;
 using Questionnaire.Application.Features.Commands.UpdateQuestionnaire;
-using Questionnaire.Application.Features.Queries.GetQuestionnaire;
 using Questionnaire.Application.Features.Queries.ListQuestionnaires;
 
 
@@ -68,7 +67,7 @@ namespace Questionnaire.API.Controllers.V2
         }
 
         // Get a questionnaire by name
-        [HttpGet("{name}")]
+        [HttpGet("by-name/{name}")]
         [ProducesResponseType(typeof(Domain.Entities.Questionnaire), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
         public async Task<ActionResult<Domain.Entities.Questionnaire>> GetQuestionnaire(string name)
@@ -76,7 +75,7 @@ namespace Questionnaire.API.Controllers.V2
             _logger.LogInformation("GetQuestionnaire - Retrieving questionnaire by name: {QuestionnaireName}", name);
             try
             {
-                var questionnaire = await _mediator.Send(new GetQuestionnaireQuery { Name = name });
+                var questionnaire = await _mediator.Send(new Application.Features.Queries.GetQuestionnaire.ByName.GetQuestionnaireQuery { Name = name });
                 return Ok(questionnaire);
             }
             catch (ResourceNotFoundException ex)
@@ -106,6 +105,47 @@ namespace Questionnaire.API.Controllers.V2
                 });
             }
         }
+
+
+        [HttpGet("by-id/{id}")]
+        [ProducesResponseType(typeof(Domain.Entities.Questionnaire), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult<Domain.Entities.Questionnaire>> GetQuestionnaire(Guid id)
+        {
+            _logger.LogInformation("GetQuestionnaire - Retrieving questionnaire by name: {QuestionnaireId}", id);
+            try
+            {
+                var questionnaire = await _mediator.Send(new Application.Features.Queries.GetQuestionnaire.ById.GetQuestionnaireQuery { Id = id });
+                return Ok(questionnaire);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetQuestionnaire: Requested Resource Not Found");
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the questionnaire";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
 
         // Create a new questionnaire
         [HttpPost]
