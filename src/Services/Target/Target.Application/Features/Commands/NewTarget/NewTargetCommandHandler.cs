@@ -5,6 +5,8 @@ using CQRS.Core.Handlers;
 using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Target.Application.Contracts.Persistence;
+using Daikon.Events.Targets;
 
 namespace Target.Application.Features.Command.NewTarget
 {
@@ -15,39 +17,45 @@ namespace Target.Application.Features.Command.NewTarget
         private readonly ILogger<NewTargetCommandHandler> _logger;
 
         private readonly IEventSourcingHandler<TargetAggregate> _eventSourcingHandler;
-        //private readonly ITargetRepository _targetRepository;
+        private readonly ITargetRepository _targetRepository;
 
-        public NewTargetCommandHandler(ILogger<NewTargetCommandHandler> logger, 
-            IEventSourcingHandler<TargetAggregate> eventSourcingHandler, 
-            IMapper mapper)
+        public NewTargetCommandHandler(ILogger<NewTargetCommandHandler> logger,
+            IEventSourcingHandler<TargetAggregate> eventSourcingHandler,
+            IMapper mapper, ITargetRepository targetRepository)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _eventSourcingHandler = eventSourcingHandler ?? throw new ArgumentNullException(nameof(eventSourcingHandler));
-          
+            _targetRepository = targetRepository ?? throw new ArgumentNullException(nameof(targetRepository));
         }
 
 
         public async Task<Unit> Handle(NewTargetCommand request, CancellationToken cancellationToken)
         {
-           
-            // check if target (targetName) already exists; reject if it does
 
-            // var targetExists = await _targetRepository.ReadTargetByAccession(request.Name);
-            // if (targetExists != null)
-            // {
-            //     throw new DuplicateEntityRequestException(nameof(NewTargetCommand), request.Name);
-            // }
+            // check if target (targetName) already exists within same strain ; reject if it does
 
-            
+            var existingTarget = await _targetRepository.ReadTargetByName(request.Name);
+            if (existingTarget.Name == request.Name && existingTarget.StrainId == request.StrainId)
+            {
+                throw new DuplicateEntityRequestException(nameof(NewTargetCommand), request.Name);
+            }
 
-            var target = _mapper.Map<Domain.Entities.Target>(request);
+            try
+            {
+                var targetCreatedEvent = _mapper.Map<TargetCreatedEvent>(request);
 
+                var aggregate = new TargetAggregate(targetCreatedEvent);
 
-            var aggregate = new TargetAggregate(target, _mapper);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+                await _eventSourcingHandler.SaveAsync(aggregate);
 
-            return Unit.Value;
+                return Unit.Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the target with Name {TargetName}", request.Name);
+                throw;
+            }
 
         }
     }

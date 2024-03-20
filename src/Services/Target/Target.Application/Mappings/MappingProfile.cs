@@ -4,8 +4,10 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.Targets;
+using Target.Application.Features.Command.DeleteTarget;
 using Target.Application.Features.Command.NewTarget;
 using Target.Application.Features.Command.UpdateTarget;
+using Target.Application.Features.Command.UpdateTargetAssociatedGenes;
 using Target.Application.Features.Commands.SubmitTPQ;
 using Target.Application.Features.Commands.UpdateTPQ;
 using Target.Application.Features.Queries.GetTarget;
@@ -31,6 +33,11 @@ namespace Target.Application.Mappings
             CreateMap<Domain.Entities.Target, TargetUpdatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.PQResponse, TargetPromotionQuestionnaireSubmittedEvent>().ReverseMap();
             CreateMap<Domain.Entities.PQResponse, TargetPromotionQuestionnaireUpdatedEvent>().ReverseMap();
+
+            CreateMap<NewTargetCommand, TargetCreatedEvent>().ReverseMap();
+            CreateMap<UpdateTargetCommand, TargetUpdatedEvent>().ReverseMap();
+            CreateMap<UpdateTargetAssociatedGenesCommand, TargetAssociatedGenesUpdatedEvent>().ReverseMap();
+            CreateMap<DeleteTargetCommand, TargetDeletedEvent>().ReverseMap();
 
 
             CreateMap<Domain.Entities.Target, TargetVM>()

@@ -7,6 +7,7 @@ using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using CQRS.Core.Comparators;
+using Daikon.Events.Targets;
 
 namespace Target.Application.Features.Command.UpdateTarget
 {
@@ -46,14 +47,14 @@ namespace Target.Application.Features.Command.UpdateTarget
             }
 
 
-            var target = _mapper.Map<Domain.Entities.Target>(request);
+            var targetUpdatedEvent = _mapper.Map<TargetUpdatedEvent>(request);
+            targetUpdatedEvent.Name = existingTarget.Name;
+            targetUpdatedEvent.AssociatedGenes = existingTarget.AssociatedGenes;
 
-            // Things that cannot be modified
-            target.Name = existingTarget.Name;
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateTarget(target, _mapper);
+                aggregate.UpdateTarget(targetUpdatedEvent);
 
                 await _eventSourcingHandler.SaveAsync(aggregate);
             }

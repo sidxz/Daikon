@@ -5,6 +5,7 @@ using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using Daikon.Events.Targets;
 
 namespace Target.Application.Features.Command.DeleteTarget
 {
@@ -28,13 +29,12 @@ namespace Target.Application.Features.Command.DeleteTarget
       try
       {
         var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-        var gene = new Domain.Entities.Target
-        {
-          Id = request.Id,
-          Name = "",
-        };
 
-        aggregate.DeleteTarget(gene, _mapper);
+        var targetDeletedEvent = _mapper.Map<TargetDeletedEvent>(request);
+
+        aggregate.DeleteTarget(targetDeletedEvent);
+
+        
         await _eventSourcingHandler.SaveAsync(aggregate);
       }
       catch (AggregateNotFoundException ex)

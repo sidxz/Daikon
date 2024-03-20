@@ -18,15 +18,13 @@ namespace Target.Domain.Aggregates
 
 
         /* New Target */
-        public TargetAggregate(Entities.Target target, IMapper mapper)
+        public TargetAggregate(TargetCreatedEvent @event)
         {
             _active = true;
-            _id = target.Id;
-            _Name = target.Name;
+            _id = @event.Id;
+            _Name = @event.Name;
 
-            var targetCreatedEvent = mapper.Map<TargetCreatedEvent>(target);
-
-            RaiseEvent(targetCreatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetCreatedEvent @event)
@@ -37,18 +35,17 @@ namespace Target.Domain.Aggregates
         }
 
         /* Update Target */
-        public void UpdateTarget(Entities.Target target, IMapper mapper)
+        public void UpdateTarget(TargetUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This target is deleted.");
             }
 
-            var targetUpdatedEvent = mapper.Map<TargetUpdatedEvent>(target);
-            targetUpdatedEvent.Id = target.Id;
-            targetUpdatedEvent.Name = target.Name;
+            @event.Id = target.Id;
+            @event.Name = target.Name;
 
-            RaiseEvent(targetUpdatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetUpdatedEvent @event)
@@ -57,23 +54,17 @@ namespace Target.Domain.Aggregates
         }
 
         /* Update Target Associated Genes */
-        public void UpdateTargetAssociatedGenes(Dictionary<string, string> associatedGenes, IMapper mapper)
+        public void UpdateTargetAssociatedGenes(TargetAssociatedGenesUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This target is deleted.");
             }
 
-            var targetAssociatedGenesUpdatedEvent = new TargetAssociatedGenesUpdatedEvent()
-            {
-                Id = target.Id,
-                Name = _Name,
-                AssociatedGenes = associatedGenes
-            };
-            targetAssociatedGenesUpdatedEvent.Id = target.Id;
-            targetAssociatedGenesUpdatedEvent.Name = target.Name;
+            @event.Id = target.Id;
+            @event.Name = target.Name;
 
-            RaiseEvent(targetAssociatedGenesUpdatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetAssociatedGenesUpdatedEvent @event)
@@ -83,20 +74,14 @@ namespace Target.Domain.Aggregates
         }
 
         /* Delete Target */
-        public void DeleteTarget(Entities.Target target, IMapper mapper)
+        public void DeleteTarget(TargetDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This target is already deleted.");
             }
-
-            var targetDeletedEvent = new TargetDeletedEvent()
-            {
-                Id = target.Id,
-                Name = _Name
-            };
             
-            RaiseEvent(targetDeletedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetDeletedEvent @event)
