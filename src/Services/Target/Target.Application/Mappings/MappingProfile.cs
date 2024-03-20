@@ -6,6 +6,8 @@ using CQRS.Core.Resolvers;
 using Daikon.Events.Targets;
 using Target.Application.Features.Command.NewTarget;
 using Target.Application.Features.Command.UpdateTarget;
+using Target.Application.Features.Commands.SubmitTPQ;
+using Target.Application.Features.Commands.UpdateTPQ;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTargetsList;
 
@@ -18,9 +20,17 @@ namespace Target.Application.Mappings
             CreateMap<NewTargetCommand, Domain.Entities.Target>().ReverseMap();
             CreateMap<UpdateTargetCommand, Domain.Entities.Target>().ReverseMap();
 
+            
+            CreateMap<TargetPromotionQuestionnaireSubmittedEvent, SubmitTPQCommand>().ReverseMap();
+            CreateMap<TargetPromotionQuestionnaireUpdatedEvent, UpdateTPQCommand>().ReverseMap();
+
+            CreateMap<Domain.Entities.PQResponse, SubmitTPQCommand>().ReverseMap();
+            CreateMap<Domain.Entities.PQResponse, UpdateTPQCommand>().ReverseMap();
 
             CreateMap<Domain.Entities.Target, TargetCreatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Target, TargetUpdatedEvent>().ReverseMap();
+            CreateMap<Domain.Entities.PQResponse, TargetPromotionQuestionnaireSubmittedEvent>().ReverseMap();
+            CreateMap<Domain.Entities.PQResponse, TargetPromotionQuestionnaireUpdatedEvent>().ReverseMap();
 
 
             CreateMap<Domain.Entities.Target, TargetVM>()

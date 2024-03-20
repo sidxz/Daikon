@@ -17,7 +17,7 @@ namespace Target.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class TargetController : ControllerBase
+    public partial class TargetController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly ILogger<TargetController> _logger;

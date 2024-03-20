@@ -7,7 +7,7 @@ import logging
 from typing import List
 
 
-router = APIRouter(prefix="/api/v2")
+router = APIRouter(prefix="/api/v2/mol-db")
 logger = logging.getLogger(__name__)
 
 
@@ -22,7 +22,7 @@ async def get_molecule_service() -> MoleculeService:
     return MoleculeService(repository)
 
 
-@router.get("/molecules/", tags=["Queries"])
+@router.get("/molecule/", tags=["Queries"])
 async def list_molecules(
   molecule_service: MoleculeService = Depends(get_molecule_service),
 ) -> List[dict]:

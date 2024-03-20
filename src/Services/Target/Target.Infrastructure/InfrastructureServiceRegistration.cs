@@ -39,6 +39,9 @@ namespace Target.Infrastructure
             BsonClassMap.RegisterClassMap<TargetUpdatedEvent>();
             BsonClassMap.RegisterClassMap<TargetDeletedEvent>();
             BsonClassMap.RegisterClassMap<TargetAssociatedGenesUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireSubmittedEvent>();
+            BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireDeletedEvent>();
 
             /* Event Database */
             var eventDatabaseSettings = new EventDatabaseSettings
@@ -51,6 +54,7 @@ namespace Target.Infrastructure
             services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
 
             services.AddScoped<IEventStore<TargetAggregate>, EventStore<TargetAggregate>>();
+            services.AddScoped<IEventStore<TPQuestionnaireAggregate>, EventStore<TPQuestionnaireAggregate>>();
 
 
 
@@ -64,11 +68,12 @@ namespace Target.Infrastructure
 
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<TargetAggregate>, EventSourcingHandler<TargetAggregate>>();
-
+            services.AddScoped<IEventSourcingHandler<TPQuestionnaireAggregate>, EventSourcingHandler<TPQuestionnaireAggregate>>();
 
 
             /* Query */
             services.AddScoped<ITargetRepository, TargetRepository>();
+            services.AddScoped<IPQResponseRepository, PQResponseRepository>();
 
             /* Version Store */
             var targetVersionStoreSettings = new VersionDatabaseSettings<TargetRevision>

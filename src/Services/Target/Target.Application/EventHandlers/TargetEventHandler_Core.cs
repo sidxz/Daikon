@@ -12,15 +12,19 @@ namespace Target.Application.EventHandlers
     {
 
         private readonly ITargetRepository _targetRepository;
+
+        private readonly IPQResponseRepository _pqResponseRepository;
         private ILogger<TargetEventHandler> _logger;
 
         private IMapper _mapper;
 
-        public TargetEventHandler(ITargetRepository targetRepository, ILogger<TargetEventHandler> logger, IMapper mapper)
+        public TargetEventHandler(ITargetRepository targetRepository, IPQResponseRepository pqResponseRepository,
+            ILogger<TargetEventHandler> logger, IMapper mapper)
         {
             _targetRepository = targetRepository;
             _logger = logger;
             _mapper = mapper;
+            _pqResponseRepository = pqResponseRepository;
         }
 
         public async Task OnEvent(TargetCreatedEvent @event)

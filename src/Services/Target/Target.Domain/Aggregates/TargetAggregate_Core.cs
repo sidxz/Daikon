@@ -5,7 +5,7 @@ using Daikon.Events.Targets;
 
 namespace Target.Domain.Aggregates
 {
-    public  class TargetAggregate : AggregateRoot
+    public class TargetAggregate : AggregateRoot
     {
         private bool _active;
         private string _Name;

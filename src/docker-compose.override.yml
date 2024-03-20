@@ -64,6 +64,7 @@ services:
       - "TargetMongoDbSettings:DatabaseName=Target"
 
       - "TargetMongoDbSettings:TargetCollectionName=Targets"
+      - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
 
       - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
 
@@ -291,6 +292,7 @@ services:
       - "EndPointRouting:roles=http://UserStore.API"
       - "EndPointRouting:user=http://UserStore.API"
       - "EndPointRouting:questionnaire=http://Questionnaire.API"
+      - "EndPointRouting:mol-db=http://MolDb.API"
 
       
     ports:
