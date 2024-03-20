@@ -8,11 +8,11 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
         public string Name { get; set; }
         public string? HaType { get; set; }
         public string? LegacyId { get; set; }
-        public object HAStart { get; set; }
-        public object HAPredictedStart { get; set; }
-        public object HAStatus { get; set; }
+        public DateTime HAStart { get; set; }
+        public DateTime HAPredictedStart { get; set; }
+        public string? HAStatus { get; set; }
 
         public bool IsHAComplete { get; set; }
-        public object PrimaryOrg { get; set; }
+        public string? PrimaryOrg { get; set; }
     }
 }
