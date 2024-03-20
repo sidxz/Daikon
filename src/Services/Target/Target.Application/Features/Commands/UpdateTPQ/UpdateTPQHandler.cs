@@ -54,11 +54,13 @@ namespace Target.Application.Features.Commands.UpdateTPQ
                 tpqUpdatedEvent.ApprovedAssociatedGenes = existingTPQ.ApprovedAssociatedGenes;
 
             }
+            else {
+                tpqUpdatedEvent.IsVerified = false;
+            }
 
             try
             {
                 var aggregate = await _questionnaireESH.GetByAsyncId(request.Id);
-
 
                 aggregate.UpdatePQResponse(tpqUpdatedEvent);
 

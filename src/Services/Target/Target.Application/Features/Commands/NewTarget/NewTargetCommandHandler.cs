@@ -36,7 +36,7 @@ namespace Target.Application.Features.Command.NewTarget
             // check if target (targetName) already exists within same strain ; reject if it does
 
             var existingTarget = await _targetRepository.ReadTargetByName(request.Name);
-            if (existingTarget.Name == request.Name && existingTarget.StrainId == request.StrainId)
+            if (existingTarget!= null && (existingTarget.Name == request.Name && existingTarget.StrainId == request.StrainId))
             {
                 throw new DuplicateEntityRequestException(nameof(NewTargetCommand), request.Name);
             }

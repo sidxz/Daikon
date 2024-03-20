@@ -4,6 +4,7 @@ using System.Text.Json;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Target.Application.Features.Commands.ApproveTarget;
 using Target.Application.Features.Commands.SubmitTPQ;
 using Target.Application.Features.Commands.UpdateTPQ;
 using Target.Application.Features.Queries.GetTPQ;
@@ -63,7 +64,7 @@ namespace Target.API.Controllers.V2
         {
             try
             {
-                var tpq = await _mediator.Send(new GetTPQQuery { Id = id, WithMeta = WithMeta});
+                var tpq = await _mediator.Send(new GetTPQQuery { Id = id, WithMeta = WithMeta });
                 return Ok(tpq);
             }
             catch (ResourceNotFoundException ex)
@@ -101,7 +102,7 @@ namespace Target.API.Controllers.V2
         [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<BaseResponse>> SubmitTPQ([FromBody] SubmitTPQCommand submitTPQCommand)
         {
-          _logger.LogInformation($"Received SubmitTPQCommand: {JsonSerializer.Serialize(submitTPQCommand)}");
+            _logger.LogInformation($"Received SubmitTPQCommand: {JsonSerializer.Serialize(submitTPQCommand)}");
 
             var id = Guid.NewGuid();
             try
@@ -182,6 +183,54 @@ namespace Target.API.Controllers.V2
             catch (Exception ex)
             {
                 const string SAFE_ERROR_MESSAGE = "An error occurred while updating the TPQ";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        // Approve
+        [HttpPost("tpq/{tpqId}/approve", Name = "ApproveTPQ")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<BaseResponse>> ApproveTPQ(Guid tpqId, [FromBody] ApproveTargetCommand approveTargetCommand)
+        {
+            var targetId = Guid.NewGuid();
+            try
+            {
+                approveTargetCommand.TPQId = tpqId;
+                approveTargetCommand.Id = targetId;
+                var response = await _mediator.Send(approveTargetCommand);
+                return StatusCode(StatusCodes.Status201Created, new AddResponse
+                {
+                    Id = targetId,
+                    Message = "Target added successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("ApproveTPQ: ArgumentNullException {TPQId}", tpqId);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while approving the TPQ";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
