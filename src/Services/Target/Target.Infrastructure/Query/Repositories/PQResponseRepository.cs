@@ -107,6 +107,9 @@ namespace Target.Infrastructure.Query.Repositories
 
         public async Task<Domain.Entities.PQResponse> Update(Domain.Entities.PQResponse pqResponse)
         {
+            _logger.LogInformation($"Updating PQResponse: {pqResponse.Id}");
+            _logger.LogInformation($"PQResponse: {pqResponse.ToJson()}");
+            
             ArgumentNullException.ThrowIfNull(pqResponse);
             try
             {

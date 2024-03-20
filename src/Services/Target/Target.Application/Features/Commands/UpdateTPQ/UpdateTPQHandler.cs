@@ -34,6 +34,9 @@ namespace Target.Application.Features.Commands.UpdateTPQ
             _logger.LogInformation($"Handling UpdateTPQCommand:");
             // fetch the existing TPQ.
             var existingTPQ = await _pqResponseRepository.ReadById(request.Id);
+            var tpqUpdatedEvent = _mapper.Map<TargetPromotionQuestionnaireUpdatedEvent>(request);
+
+
             // check if the TPQ is Verified, if it is, dont allow changes to RequestedTargetName, RequestedAssociatedGenes
             if (existingTPQ.IsVerified == true)
             {
@@ -45,13 +48,18 @@ namespace Target.Application.Features.Commands.UpdateTPQ
                 {
                     throw new InvalidOperationException("RequestedAssociatedGenes cannot be modified for a verified TPQ");
                 }
+
+                tpqUpdatedEvent.StrainId = existingTPQ.StrainId;
+                tpqUpdatedEvent.ApprovedTargetName = existingTPQ.ApprovedTargetName;
+                tpqUpdatedEvent.ApprovedAssociatedGenes = existingTPQ.ApprovedAssociatedGenes;
+
             }
 
             try
             {
                 var aggregate = await _questionnaireESH.GetByAsyncId(request.Id);
 
-                var tpqUpdatedEvent = _mapper.Map<TargetPromotionQuestionnaireUpdatedEvent>(request);
+
                 aggregate.UpdatePQResponse(tpqUpdatedEvent);
 
                 await _questionnaireESH.SaveAsync(aggregate);

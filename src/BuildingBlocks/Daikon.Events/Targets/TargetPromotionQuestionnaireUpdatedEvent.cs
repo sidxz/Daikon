@@ -8,7 +8,7 @@ namespace Daikon.Events.Targets
 {
     public class TargetPromotionQuestionnaireUpdatedEvent : BaseEvent
     {
-        public TargetPromotionQuestionnaireUpdatedEvent() : base(nameof(TargetPromotionQuestionnaireSubmittedEvent))
+        public TargetPromotionQuestionnaireUpdatedEvent() : base(nameof(TargetPromotionQuestionnaireUpdatedEvent))
         {
 
         }
