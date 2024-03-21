@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Entities;
 
-namespace Target.Application.Features.Queries.GetTPQ
+namespace Target.Application.Features.Queries.GetTPQ.ById
 {
     public class GetTPQHandler : IRequestHandler<GetTPQQuery, PQResponse>
     {

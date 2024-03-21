@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Target.Application.Features.Commands.ApproveTarget;
 using Target.Application.Features.Commands.SubmitTPQ;
 using Target.Application.Features.Commands.UpdateTPQ;
-using Target.Application.Features.Queries.GetTPQ;
 using Target.Application.Features.Queries.ListTPQRespUnverified;
 using Target.Domain.Entities;
 
@@ -64,12 +63,52 @@ namespace Target.API.Controllers.V2
         {
             try
             {
-                var tpq = await _mediator.Send(new GetTPQQuery { Id = id, WithMeta = WithMeta });
+                var tpq = await _mediator.Send(new Application.Features.Queries.GetTPQ.ById.GetTPQQuery { Id = id, WithMeta = WithMeta });
                 return Ok(tpq);
             }
             catch (ResourceNotFoundException ex)
             {
                 _logger.LogInformation("GetTPQ: Requested Resource Not Found");
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the TPQ";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        // Get method for GetTPQ by TargetId
+        [HttpGet("tpq/by-target-id/{targetId}", Name = "GetTPQByTargetId")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(PQResponse), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<PQResponse>> GetTPQByTargetId(Guid targetId, [FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var tpq = await _mediator.Send(new Application.Features.Queries.GetTPQ.ByTargetId.GetTPQQuery { TargetId = targetId, WithMeta = WithMeta });
+                return Ok(tpq);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("GetTPQByTargetId: Requested Resource Not Found");
                 return NotFound(new BaseResponse
                 {
                     Message = ex.Message
