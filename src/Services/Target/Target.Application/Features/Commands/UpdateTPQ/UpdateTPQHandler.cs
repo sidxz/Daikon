@@ -40,18 +40,8 @@ namespace Target.Application.Features.Commands.UpdateTPQ
             // check if the TPQ is Verified, if it is, dont allow changes to RequestedTargetName, RequestedAssociatedGenes
             if (existingTPQ.IsVerified == true)
             {
-                if (existingTPQ.RequestedTargetName != request.RequestedTargetName)
-                {
-                    throw new InvalidOperationException("RequestedTargetName cannot be modified for a verified TPQ");
-                }
-                if (!existingTPQ.RequestedAssociatedGenes.DictionaryEqual(request.RequestedAssociatedGenes))
-                {
-                    throw new InvalidOperationException("RequestedAssociatedGenes cannot be modified for a verified TPQ");
-                }
-
-                tpqUpdatedEvent.StrainId = existingTPQ.StrainId;
-                tpqUpdatedEvent.ApprovedTargetName = existingTPQ.ApprovedTargetName;
-                tpqUpdatedEvent.ApprovedAssociatedGenes = existingTPQ.ApprovedAssociatedGenes;
+                tpqUpdatedEvent = _mapper.Map<TargetPromotionQuestionnaireUpdatedEvent>(existingTPQ);
+                tpqUpdatedEvent.Response = request.Response;
 
             }
             else {
