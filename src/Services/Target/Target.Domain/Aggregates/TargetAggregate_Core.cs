@@ -1,15 +1,14 @@
 
-using AutoMapper;
 using CQRS.Core.Domain;
 using Daikon.Events.Targets;
-
+using CQRS.Core.Comparators;
 namespace Target.Domain.Aggregates
 {
     public class TargetAggregate : AggregateRoot
     {
         private bool _active;
         private string _Name;
-        private Entities.Target target;
+        public Dictionary<string, string> _associatedGenes { get; set; }
 
         public TargetAggregate()
         {
@@ -23,6 +22,7 @@ namespace Target.Domain.Aggregates
             _active = true;
             _id = @event.Id;
             _Name = @event.Name;
+            _associatedGenes = @event.AssociatedGenes;
 
             RaiseEvent(@event);
         }
@@ -32,6 +32,7 @@ namespace Target.Domain.Aggregates
             _id = @event.Id;
             _active = true;
             _Name = @event.Name;
+            _associatedGenes = @event.AssociatedGenes;
         }
 
         /* Update Target */
@@ -42,8 +43,9 @@ namespace Target.Domain.Aggregates
                 throw new InvalidOperationException("This target is deleted.");
             }
 
-            @event.Id = target.Id;
-            @event.Name = target.Name;
+            @event.Id = _id;
+            @event.Name = _Name;
+            @event.AssociatedGenes = _associatedGenes;
 
             RaiseEvent(@event);
         }
@@ -61,8 +63,14 @@ namespace Target.Domain.Aggregates
                 throw new InvalidOperationException("This target is deleted.");
             }
 
-            @event.Id = target.Id;
-            @event.Name = target.Name;
+            if (_associatedGenes.DictionaryEqual(@event.AssociatedGenes))
+            {
+                throw new InvalidOperationException("Associated genes are not modified");
+            }
+
+            @event.Id = _id;
+            @event.Name = _Name;
+            _associatedGenes = @event.AssociatedGenes;
 
             RaiseEvent(@event);
         }
@@ -71,6 +79,7 @@ namespace Target.Domain.Aggregates
         {
             _id = @event.Id;
             _Name = @event.Name;
+            _associatedGenes = @event.AssociatedGenes;
         }
 
         /* Delete Target */
