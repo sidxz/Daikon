@@ -94,7 +94,6 @@ namespace Target.Application.EventHandlers
         }
 
 
-
         public async Task OnEvent(TargetDeletedEvent @event)
         {
             _logger.LogInformation("OnEvent: TargetUpdatedEvent: {Id}", @event.Id);
@@ -115,5 +114,31 @@ namespace Target.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"TargetDeletedEvent Error deleting target {@event.Id}", ex);
             }
         }
+
+        public async Task OnEvent(TargetRenamedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: TargetRenamedEvent: {Id}", @event.Id);
+            var existingTarget = await _targetRepository.ReadTargetById(@event.Id);
+
+            if (existingTarget == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetRenamedEvent Error renaming target {@event.Id}", new Exception("Target not found"));
+            }
+
+            existingTarget.Name = @event.Name;
+            existingTarget.IsModified = true;
+
+            try
+            {
+                await _targetRepository.UpdateTarget(existingTarget);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"TargetRenamedEvent Error renaming target {@event.Id}", ex);
+            }
+        }
+
+        
+        
     }
 }

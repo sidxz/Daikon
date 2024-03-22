@@ -70,7 +70,6 @@ namespace Target.Domain.Aggregates
 
             @event.Id = _id;
             @event.Name = _Name;
-            _associatedGenes = @event.AssociatedGenes;
 
             RaiseEvent(@event);
         }
@@ -89,7 +88,7 @@ namespace Target.Domain.Aggregates
             {
                 throw new InvalidOperationException("This target is already deleted.");
             }
-            
+
             RaiseEvent(@event);
         }
 
@@ -99,5 +98,27 @@ namespace Target.Domain.Aggregates
             _Name = @event.Name;
             _active = false;
         }
+
+        /* Target Rename Event */
+        public void RenameTarget(TargetRenamedEvent @event)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This target is deleted.");
+            }
+            if (_Name == @event.Name)
+            {
+                throw new InvalidOperationException("Target name is not modified");
+            }
+
+            RaiseEvent(@event);
+        }
+
+        public void Apply(TargetRenamedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
+        }
+
     }
 }

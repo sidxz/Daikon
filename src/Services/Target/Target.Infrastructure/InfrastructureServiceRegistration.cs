@@ -39,6 +39,7 @@ namespace Target.Infrastructure
             BsonClassMap.RegisterClassMap<TargetUpdatedEvent>();
             BsonClassMap.RegisterClassMap<TargetDeletedEvent>();
             BsonClassMap.RegisterClassMap<TargetAssociatedGenesUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<TargetRenamedEvent>();
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireSubmittedEvent>();
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireUpdatedEvent>();
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireDeletedEvent>();
