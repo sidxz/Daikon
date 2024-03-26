@@ -2,6 +2,7 @@
 using CQRS.Core.Domain;
 using Daikon.Events.Targets;
 using CQRS.Core.Comparators;
+using Daikon.Shared.Constants.AppTarget;
 namespace Target.Domain.Aggregates
 {
     public class TargetAggregate : AggregateRoot
@@ -23,7 +24,7 @@ namespace Target.Domain.Aggregates
             _id = @event.Id;
             _Name = @event.Name;
             _associatedGenes = @event.AssociatedGenes;
-
+            @event.TargetType = @event.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein;
             RaiseEvent(@event);
         }
 
@@ -70,7 +71,7 @@ namespace Target.Domain.Aggregates
 
             @event.Id = _id;
             @event.Name = _Name;
-
+            @event.TargetType = @event.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein;
             RaiseEvent(@event);
         }
 

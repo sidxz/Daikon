@@ -82,6 +82,7 @@ namespace Horizon.Application.Query.Handlers
                 TargetId = @event.Id.ToString(),
                 Name = @event.Name,
                 GeneAccessionNumbers = @event.AssociatedGenes.Values.ToList(),
+                TargetType = @event.TargetType,
                 IsModified = true,
                 IsDraft = false
             };
@@ -99,6 +100,21 @@ namespace Horizon.Application.Query.Handlers
         {
             _logger.LogInformation($"Horizon: TargetDeletedEvent: {@event.Id} {@event.Name}");
             throw new NotImplementedException();
+        }
+
+        public async Task OnEvent(TargetRenamedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: TargetRenamedEvent: {@event.Id} {@event.Name}");
+
+
+            try
+            {
+                await _graphRepository.RenameTarget(@event.Id.ToString(), @event.Name);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "TargetRenamedEvent Error renaming target", ex);
+            }
         }
 
 
