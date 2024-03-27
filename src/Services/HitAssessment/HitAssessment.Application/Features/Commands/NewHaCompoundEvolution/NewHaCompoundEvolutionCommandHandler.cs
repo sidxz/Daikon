@@ -41,18 +41,27 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
 
                 var aggregate = await _haEventSourcingHandler.GetByAsyncId(request.Id);
                 Guid compoundId;
-                try
-                {
-                    compoundId = await _molDbAPIService.RegisterCompound("Test", request.CompoundStructureSMILES);
-                    haCEAddedEvent.CompoundId = compoundId;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error while calling MolDbAPI");
-                    _logger.LogError(ex.Message);
-                    throw new Exception(nameof(HaAggregate));
-                }
 
+                if (request.CompoundId == null || request.CompoundId == Guid.Empty)
+                {
+                    try
+                    {
+                        _logger.LogInformation("Registering compound with MolDbAPI");
+                        compoundId = await _molDbAPIService.RegisterCompound(request.CompoundName ?? "Unknown", request.CompoundStructureSMILES);
+                        haCEAddedEvent.CompoundId = compoundId;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error while calling MolDbAPI");
+                        _logger.LogError(ex.Message);
+                        throw new Exception(nameof(HaAggregate));
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("CompoundId provided in request");
+                    compoundId = request.CompoundId.Value;
+                }
 
                 aggregate.AddCompoundEvolution(haCEAddedEvent);
 

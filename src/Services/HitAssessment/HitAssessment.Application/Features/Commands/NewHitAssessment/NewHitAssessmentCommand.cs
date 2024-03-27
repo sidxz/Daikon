@@ -13,9 +13,17 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         public string Name { get; set; }
         public string? HaType { get; set; }
         public string? LegacyId { get; set; }
+
+        // Primary HA Compound
         public Guid? HitId { get; set; }
-        public Guid? CompoundId { get; set; }
+        public Guid CompoundId { get; set; }
+        public string? CompoundMIC { get; set; }
+        public string? CompoundIC50 { get; set; }
+
+        // Associated HA Compounds
         public Dictionary<string, string>? AssociatedHitIds { get; set; }
+
+        
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? HaStartDate { get; set; }

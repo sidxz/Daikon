@@ -3,6 +3,7 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.HitAssessment;
+using HitAssessment.Application.DTOs.MLogixAPI;
 using HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.DeleteHitAssessment;
 using HitAssessment.Application.Features.Commands.NewHaCompoundEvolution;
@@ -46,8 +47,19 @@ namespace HitAssessment.Application.Mappings
             .ForMember(dest => dest.Description, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.Description)))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.Status)))
             .ForMember(dest => dest.PrimaryOrgId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<Guid>, Guid>(src => src.PrimaryOrgId)))
-
             .ReverseMap();
+
+            CreateMap<Domain.Entities.HaCompoundEvolution, HaCompoundEvolutionVM>()
+            .ForMember(dest => dest.EvolutionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<DateTime>, DateTime>(src => src.EvolutionDate)))
+            .ForMember(dest => dest.Stage, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.Stage)))
+            .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.Notes)))
+            .ForMember(dest => dest.MIC, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.MIC)))
+            .ForMember(dest => dest.MICUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.MICUnit)))
+            .ForMember(dest => dest.IC50, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.IC50)))
+            .ForMember(dest => dest.IC50Unit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.IC50Unit)))
+            .ReverseMap();
+
+            CreateMap<GetMoleculesResultDTO, MoleculeVM>().ReverseMap();
         }
     }
 }

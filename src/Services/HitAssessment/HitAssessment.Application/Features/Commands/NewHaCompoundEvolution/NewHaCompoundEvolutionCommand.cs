@@ -12,6 +12,9 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
 
         public Guid CompoundEvolutionId { get; set; }
 
+        public Guid? CompoundId { get; set; }
+        public string CompoundName { get; set; }
+
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? CompoundStructureSMILES { get; set; }
 

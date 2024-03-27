@@ -28,6 +28,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 
         public object PrimaryOrgId { get; set; }
         public List<Guid>? ParticipatingOrgs { get; set; }
+        public List<HaCompoundEvolutionVM> HaCompoundEvolution { get; set; }
 
     }
 }
