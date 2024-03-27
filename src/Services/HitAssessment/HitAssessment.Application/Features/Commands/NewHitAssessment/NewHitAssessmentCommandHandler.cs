@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using CQRS.Core.Handlers;
 using Daikon.Events.HitAssessment;
@@ -31,8 +32,9 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         {
             try
             {
-                _logger.LogInformation($"Handling NewHitAssessmentCommand: {request}");
-
+                // serialize the request to json and log
+                var requestJson = JsonSerializer.Serialize(request);
+                _logger.LogInformation($"Handling NewHitAssessmentCommand: {requestJson}");
                 // check if name exists
                 var existingHitAssessment = await _haRepository.ReadHaByName(request.Name);
                 if (existingHitAssessment != null)

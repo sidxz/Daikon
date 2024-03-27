@@ -8,9 +8,9 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
         public string Name { get; set; }
         public string? HaType { get; set; }
         public string? LegacyId { get; set; }
-        public DateTime HAStart { get; set; }
-        public DateTime HAPredictedStart { get; set; }
-        public string? HAStatus { get; set; }
+        public DateTime HaStartDate { get; set; }
+        public DateTime HaPredictedStartDate { get; set; }
+        public string? Status { get; set; }
 
         public bool IsHAComplete { get; set; }
         public string? PrimaryOrg { get; set; }

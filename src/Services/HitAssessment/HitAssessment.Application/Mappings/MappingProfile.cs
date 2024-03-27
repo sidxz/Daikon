@@ -41,10 +41,10 @@ namespace HitAssessment.Application.Mappings
             CreateMap<Domain.Entities.HitAssessment, HitAssessmentListVM>().ReverseMap();
 
             CreateMap<Domain.Entities.HitAssessment, HitAssessmentVM>()
-            .ForMember(dest => dest.HAStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.HAStart)))
-            .ForMember(dest => dest.HAPredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.HAPredictedStart)))
-            .ForMember(dest => dest.HADescription, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.HADescription)))
-            .ForMember(dest => dest.HAStatus, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.HAStatus)))
+            .ForMember(dest => dest.HaStartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.HaStartDate)))
+            .ForMember(dest => dest.HaPredictedStartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.HaPredictedStartDate)))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.Description)))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.Status)))
             .ForMember(dest => dest.PrimaryOrgId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<Guid>, Guid>(src => src.PrimaryOrgId)))
 
             .ReverseMap();

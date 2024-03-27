@@ -14,13 +14,13 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
         public Guid CompoundId { get; set; }
 
         public Dictionary<string, string> AssociatedHitIds { get; set; }
-        public object HAStart { get; set; }
-        public object HAPredictedStart { get; set; }
-        public object HADescription { get; set; }
-        public object HAStatus { get; set; }
+        public object HaStartDate { get; set; }
+        public object HaPredictedStartDate { get; set; }
+        public object Description { get; set; }
+        public object Status { get; set; }
 
         public bool IsHAComplete { get; set; }
-        public DateTime? HAStatusDate { get; set; }
+        public DateTime? StatusDate { get; set; }
         public DateTime? TerminationDate { get; set; }
         public DateTime? EOLDate { get; set; }
         public DateTime? CompletionDate { get; set; }

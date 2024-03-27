@@ -11,6 +11,7 @@ using HitAssessment.Application.Features.Queries.GetHitAssessment.ById;
 using HitAssessment.Application.Features.Queries.GetHitAssessment;
 using HitAssessment.Application.Features.Queries.GetHitAssessmentList;
 using HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAssessmentList;
+using System.Text.Json;
 
 namespace HitAssessment.API.Controllers.V2
 {
@@ -98,8 +99,10 @@ namespace HitAssessment.API.Controllers.V2
         [HttpPost(Name = "AddHitAssessment")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> AddHitAssessment(NewHitAssessmentCommand command)
+        public async Task<ActionResult> AddHitAssessment([FromBody] NewHitAssessmentCommand command)
         {
+            // log the raw request recieved
+            // _logger.LogInformation($"Received SubmitTPQCommand API: {JsonSerializer.Serialize(command)}");
             var id = Guid.NewGuid();
             try
             {
