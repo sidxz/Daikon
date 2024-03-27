@@ -1,4 +1,5 @@
 
+using CQRS.Core.Domain;
 using CQRS.Core.Event;
 
 namespace Daikon.Events.HitAssessment
@@ -18,10 +19,10 @@ namespace Daikon.Events.HitAssessment
         public Guid CompoundId { get; set; }
 
         public Dictionary<string, string> AssociatedHitIds { get; set; }
-        public DateTime HAStart { get; set; }
-        public DateTime HAPredictedStart { get; set; }
-        public string HADescription { get; set; }
-        public string HAStatus { get; set; }
+        public DVariable<DateTime> HAStart { get; set; }
+        public DVariable<DateTime> HAPredictedStart { get; set; }
+        public DVariable<string> HADescription { get; set; }
+        public DVariable<string> HAStatus { get; set; }
 
         public bool IsHAComplete { get; set; }
         public DateTime? HAStatusDate { get; set; }
@@ -29,9 +30,8 @@ namespace Daikon.Events.HitAssessment
         public DateTime? EOLDate { get; set; }
         public DateTime? CompletionDate { get; set; }
 
-
-        public string PrimaryOrg { get; set; }
-        public List<string> SupportingOrgs { get; set; }
+        public DVariable<Guid>? PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgs { get; set; }
 
     }
 }

@@ -26,8 +26,8 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
         public DateTime? CompletionDate { get; set; }
 
 
-        public object PrimaryOrg { get; set; }
-        public List<string> SupportingOrgs { get; set; }
+        public object PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgs { get; set; }
 
     }
 }

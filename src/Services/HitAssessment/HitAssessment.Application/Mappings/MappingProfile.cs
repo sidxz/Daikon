@@ -45,7 +45,7 @@ namespace HitAssessment.Application.Mappings
             .ForMember(dest => dest.HAPredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.HAPredictedStart)))
             .ForMember(dest => dest.HADescription, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.HADescription)))
             .ForMember(dest => dest.HAStatus, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.HAStatus)))
-            .ForMember(dest => dest.PrimaryOrg, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.PrimaryOrg)))
+            .ForMember(dest => dest.PrimaryOrgId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<Guid>, Guid>(src => src.PrimaryOrgId)))
 
             .ReverseMap();
         }

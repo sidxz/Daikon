@@ -10,6 +10,6 @@ namespace HitAssessment.Domain.EntityRevisions
         public DVariableHistory<DateTime> HAPredictedStart { get; set; }
         public DVariableHistory<string> HADescription { get; set; }
         public DVariableHistory<string> HAStatus { get; set; }
-        public DVariableHistory<string> PrimaryOrg { get; set; }
+        public DVariableHistory<Guid> PrimaryOrgId { get; set; }
     }
 }

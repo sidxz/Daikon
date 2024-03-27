@@ -1,4 +1,5 @@
 
+using CQRS.Core.Domain;
 using CQRS.Core.Event;
 
 namespace Daikon.Events.HitAssessment
@@ -30,8 +31,7 @@ namespace Daikon.Events.HitAssessment
         public DateTime? CompletionDate { get; set; }
 
 
-        public string PrimaryOrg { get; set; }
-        public List<string> SupportingOrgs { get; set; }
-
+        public DVariable<Guid>? PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgs { get; set; }
     }
 }

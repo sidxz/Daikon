@@ -24,8 +24,7 @@ namespace HitAssessment.Domain.Entities
         public DateTime? EOLDate { get; set; }
         public DateTime? CompletionDate { get; set; }
 
-
-        public DVariable<string> PrimaryOrg { get; set; }
-        public List<string> SupportingOrgs { get; set; }
+        public DVariable<Guid>? PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgs { get; set; }
     }
 }

@@ -14,7 +14,6 @@ namespace HitAssessment.Application.Features.Commands.UpdateHitAssessment
         public string? HaType { get; set; }
         public string? LegacyId { get; set; }
         
-
         public Dictionary<string, string> AssociatedHitIds { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
@@ -35,10 +34,9 @@ namespace HitAssessment.Application.Features.Commands.UpdateHitAssessment
         public DateTime? EOLDate { get; set; }
         public DateTime? CompletionDate { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> PrimaryOrg { get; set; }
-        
-        public List<string> SupportingOrgs { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<Guid>))]
+        public DVariable<Guid>? PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgs { get; set; }
 
 
     }
