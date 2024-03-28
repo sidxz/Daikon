@@ -68,7 +68,11 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("GetHaCompoundEvolutionOfHa: Getting haCompoundEvolution of ha {HaId}", HaId);
-                return await _haCompoundEvoCollection.Find(haCompoundEvolution => haCompoundEvolution.HitAssessmentId == HaId).ToListAsync();
+                // sort by created date EvolutionDate.Value
+
+                return await _haCompoundEvoCollection.Find(haCompoundEvolution => haCompoundEvolution.HitAssessmentId == HaId)
+                .SortByDescending(haCompoundEvolution => haCompoundEvolution.EvolutionDate.Value)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {

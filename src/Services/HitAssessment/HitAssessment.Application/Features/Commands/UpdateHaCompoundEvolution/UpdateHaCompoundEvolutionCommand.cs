@@ -10,9 +10,10 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
     public class UpdateHaCompoundEvolutionCommand : BaseCommand, IRequest<Unit>
     {
         public Guid CompoundEvolutionId { get; set; }
+        public string MoleculeName { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? CompoundStructureSMILES { get; set; }
+        public DVariable<string>? RequestedSMILES { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? EvolutionDate { get; set; }

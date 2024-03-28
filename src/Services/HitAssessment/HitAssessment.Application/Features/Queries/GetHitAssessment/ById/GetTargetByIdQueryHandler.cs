@@ -52,13 +52,13 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
             {
                 try
                 {
-                    var molecule = await _mLogixAPIService.GetMoleculeById(evolution.CompoundId);
+                    var molecule = await _mLogixAPIService.GetMoleculeById(evolution.MoleculeId);
 
                     evolution.Molecule = _mapper.Map<MoleculeVM>(molecule);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error fetching molecule for compound evolution with compound Id", evolution.CompoundId);
+                    _logger.LogError(ex, "Error fetching molecule for compound evolution with Molecule Id", evolution.MoleculeId);
 
                 }
             }

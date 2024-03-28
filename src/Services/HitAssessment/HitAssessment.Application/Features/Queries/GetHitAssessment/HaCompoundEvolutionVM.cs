@@ -5,8 +5,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 {
     public class HaCompoundEvolutionVM : DocMetadata
     {
-        //public Guid HitAssessmentId { get; set; }
-        public Guid CompoundId { get; set; }
+        public Guid HitAssessmentId { get; set; }
         public object EvolutionDate { get; set; }
         public object Stage { get; set; }
         public object Notes { get; set; }
@@ -14,6 +13,10 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
         public object MICUnit { get; set; }
         public object IC50 { get; set; }
         public object IC50Unit { get; set; }
+
+        public object RequestedSMILES { get; set; }
+        public object IsStructureDisclosed { get; set; }
+        public Guid MoleculeId { get; set; }
         public MoleculeVM Molecule { get; set; }
     }
 }

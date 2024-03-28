@@ -8,7 +8,7 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
         {
             
 
-            RuleFor(t => t.CompoundStructureSMILES)
+            RuleFor(t => t.RequestedSMILES)
             .NotEmpty().WithMessage("SMILES is required");
 
         }

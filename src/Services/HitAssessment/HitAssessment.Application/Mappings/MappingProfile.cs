@@ -57,6 +57,8 @@ namespace HitAssessment.Application.Mappings
             .ForMember(dest => dest.MICUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.MICUnit)))
             .ForMember(dest => dest.IC50, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.IC50)))
             .ForMember(dest => dest.IC50Unit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.IC50Unit)))
+            .ForMember(dest => dest.RequestedSMILES, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<string>, string>(src => src.RequestedSMILES)))
+            .ForMember(dest => dest.IsStructureDisclosed, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<bool>, bool>(src => src.IsStructureDisclosed)))
             .ReverseMap();
 
             CreateMap<GetMoleculesResultDTO, MoleculeVM>().ReverseMap();

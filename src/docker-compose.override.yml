@@ -110,7 +110,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
       - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
@@ -144,7 +144,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
       - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
@@ -178,7 +178,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
       - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
@@ -229,7 +229,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
 
     ports:
       - "8007:80"

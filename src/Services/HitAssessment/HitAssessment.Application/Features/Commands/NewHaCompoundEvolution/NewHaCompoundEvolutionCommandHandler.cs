@@ -4,6 +4,7 @@ using CQRS.Core.Handlers;
 using Daikon.Events.HitAssessment;
 using HitAssessment.Application.Contracts.Infrastructure;
 using HitAssessment.Application.Contracts.Persistence;
+using HitAssessment.Application.DTOs.MLogixAPI;
 using HitAssessment.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -18,19 +19,18 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
         private readonly IHaCompoundEvolutionRepository _haCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<HaAggregate> _haEventSourcingHandler;
-        private readonly IMolDbAPIService _molDbAPIService;
-
+        private readonly IMLogixAPIService _mLogixAPIService;
         public NewHaCompoundEvolutionCommandHandler(ILogger<NewHaCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<HaAggregate> haEventSourcingHandler,
             IHaCompoundEvolutionRepository haCompoundEvoRepository,
+            IMLogixAPIService mLogixAPIService,
             IMapper mapper, IMolDbAPIService molDbAPIService)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _haCompoundEvoRepository = haCompoundEvoRepository ?? throw new ArgumentNullException(nameof(haCompoundEvoRepository));
             _haEventSourcingHandler = haEventSourcingHandler ?? throw new ArgumentNullException(nameof(haEventSourcingHandler));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
-
+            _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
         }
 
         public async Task<Unit> Handle(NewHaCompoundEvolutionCommand request, CancellationToken cancellationToken)
@@ -40,27 +40,21 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
                 var haCEAddedEvent = _mapper.Map<HaCompoundEvolutionAddedEvent>(request);
 
                 var aggregate = await _haEventSourcingHandler.GetByAsyncId(request.Id);
-                Guid compoundId;
+               
 
-                if (request.CompoundId == null || request.CompoundId == Guid.Empty)
+                if (request.MoleculeId is null || request.MoleculeId == Guid.Empty)
                 {
-                    try
+                    if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
                     {
-                        _logger.LogInformation("Registering compound with MolDbAPI");
-                        compoundId = await _molDbAPIService.RegisterCompound(request.CompoundName ?? "Unknown", request.CompoundStructureSMILES);
-                        haCEAddedEvent.CompoundId = compoundId;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error while calling MolDbAPI");
-                        _logger.LogError(ex.Message);
-                        throw new Exception(nameof(HaAggregate));
+                        _logger.LogInformation("Will try to register molecule ...");
+                        await RegisterMoleculeAndAssignToEvent(request, haCEAddedEvent);
                     }
                 }
                 else
                 {
-                    _logger.LogInformation("CompoundId provided in request");
-                    compoundId = request.CompoundId.Value;
+                    _logger.LogInformation("MoleculeId provided in request. Skipping molecule registration...");
+                     haCEAddedEvent.MoleculeId = (Guid)request.MoleculeId;
+                    
                 }
 
                 aggregate.AddCompoundEvolution(haCEAddedEvent);
@@ -72,7 +66,27 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(HaAggregate), request.Id);
             }
+
+            
             return Unit.Value;
+        }
+        private async Task RegisterMoleculeAndAssignToEvent(NewHaCompoundEvolutionCommand request, HaCompoundEvolutionAddedEvent eventToAdd)
+        {
+            try
+            {
+                var response = await _mLogixAPIService.RegisterCompound(new RegisterMoleculeRequest
+                {
+                    Name = request.MoleculeName,
+                    RequestedSMILES = request.RequestedSMILES
+                });
+
+                eventToAdd.MoleculeId = response.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while calling MLogixAPIService for SMILES: {SMILES}", request.RequestedSMILES);
+                throw;
+            }
         }
     }
 

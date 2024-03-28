@@ -61,7 +61,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 {
                     Id = request.Id,
                     CompoundEvolutionId = Guid.NewGuid(),
-                    CompoundId = request.CompoundId,
+                    MoleculeId = request.CompoundId,
                     EvolutionDate = request.DateCreated,
                     Stage = "HA",
                     Notes = new DVariable<string>("Initial HA Compound"),

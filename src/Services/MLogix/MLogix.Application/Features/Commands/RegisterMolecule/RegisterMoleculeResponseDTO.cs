@@ -6,7 +6,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
         public Guid Id { get; set; }
         public Guid RegistrationId { get; set; }
         public string? Name { get; set; }
-         public List<string>? Synonyms   { get; set; }
+        public List<string>? Synonyms   { get; set; }
         public Dictionary<string, string>? Ids { get; set; }
         public bool WasAlreadyRegistered { get; set; }
         public float? Similarity { get; set; }
