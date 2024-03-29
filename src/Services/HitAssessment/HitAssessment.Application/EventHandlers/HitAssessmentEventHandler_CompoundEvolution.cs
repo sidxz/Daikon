@@ -69,15 +69,15 @@ namespace HitAssessment.Application.EventHandlers
 
         public async Task OnEvent(HaCompoundEvolutionDeletedEvent @event)
         {
-            _logger.LogInformation("OnEvent: HaCompoundEvolutionDeletedEvent: {Id}", @event.Id);
+            _logger.LogInformation("OnEvent: HaCompoundEvolutionDeletedEvent: {Id}", @event.CompoundEvolutionId);
 
             try
             {
-                await _haCompoundEvolutionRepository.DeleteHaCompoundEvolution(@event.Id);
+                await _haCompoundEvolutionRepository.DeleteHaCompoundEvolution(@event.CompoundEvolutionId);
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting ha compound evolution {@event.Id} for HaCompoundEvolutionDeletedEvent", ex);
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting ha compound evolution {@event.CompoundEvolutionId} for HaCompoundEvolutionDeletedEvent", ex);
             }
         }
     }
