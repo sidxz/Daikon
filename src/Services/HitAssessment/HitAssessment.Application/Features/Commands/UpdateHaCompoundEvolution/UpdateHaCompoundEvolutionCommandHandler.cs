@@ -51,27 +51,23 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
 
                 var aggregate = await _haEventSourcingHandler.GetByAsyncId(request.Id);
 
-
-
-                // check if molecule has been updated then register it
-                if (request.RequestedSMILES != existingCEvo.RequestedSMILES)
-                {
-                    if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
-                    {
-                        _logger.LogInformation("Will try to register molecule ...");
-                        await RegisterMoleculeAndAssignToEvent(request, haCEUpdatedEvent);
-                    }
-                    else
-                    {
-                        throw new ArgumentNullException(nameof(request.RequestedSMILES));
-                    }
-                }
-                else
-                {
-                    haCEUpdatedEvent.MoleculeId = existingCEvo.MoleculeId;
-                }
-
-
+                // TODO (Future option) : check if molecule has been updated then register it
+                // if (request.RequestedSMILES != existingCEvo.RequestedSMILES)
+                // {
+                //     if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
+                //     {
+                //         _logger.LogInformation("Will try to register molecule ...");
+                //         await RegisterMoleculeAndAssignToEvent(request, haCEUpdatedEvent);
+                //     }
+                //     else
+                //     {
+                //         throw new ArgumentNullException(nameof(request.RequestedSMILES));
+                //     }
+                // }
+                // else
+                // {
+                //     haCEUpdatedEvent.MoleculeId = existingCEvo.MoleculeId;
+                // }
 
                 aggregate.UpdateCompoundEvolution(haCEUpdatedEvent);
 
@@ -85,24 +81,7 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
             return Unit.Value;
         }
 
-        private async Task RegisterMoleculeAndAssignToEvent(UpdateHaCompoundEvolutionCommand request, HaCompoundEvolutionUpdatedEvent eventToAdd)
-        {
-            try
-            {
-                var response = await _mLogixAPIService.RegisterCompound(new RegisterMoleculeRequest
-                {
-                    Name = request.MoleculeName,
-                    RequestedSMILES = request.RequestedSMILES
-                });
-
-                eventToAdd.MoleculeId = response.Id;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error while calling MLogixAPIService for SMILES: {SMILES}", request.RequestedSMILES);
-                throw;
-            }
-        }
+        
     }
 
 }

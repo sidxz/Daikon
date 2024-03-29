@@ -11,7 +11,7 @@ namespace HitAssessment.API.Controllers.V2
 {
     public partial class HitAssessmentController : ControllerBase
     {
-        [HttpPost("{haId}/compound-evolution/" , Name = "AddCompoundEvolution")]
+        [HttpPost("{haId}/compound-evolution/", Name = "AddCompoundEvolution")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddCompoundEvolution(Guid haId, NewHaCompoundEvolutionCommand command)
@@ -21,13 +21,8 @@ namespace HitAssessment.API.Controllers.V2
             try
             {
                 command.CompoundEvolutionId = compoundEvolutionId;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = compoundEvolutionId,
-                    Message = "HA Compound Evolution added successfully",
-                });
+                var response = await _mediator.Send(command);
+                return StatusCode(StatusCodes.Status201Created, response);
             }
             catch (ArgumentNullException ex)
             {
@@ -82,9 +77,9 @@ namespace HitAssessment.API.Controllers.V2
 
             try
             {
-                command.Id = id;
+                command.Id = haId;
                 command.CompoundEvolutionId = id;
-                
+
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
@@ -137,11 +132,15 @@ namespace HitAssessment.API.Controllers.V2
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteCompoundEvolution(Guid id)
+        public async Task<ActionResult> DeleteCompoundEvolution(Guid haId, Guid id)
         {
             try
             {
-                await _mediator.Send(new DeleteHaCompoundEvolutionCommand { CompoundEvolutionId = id });
+                await _mediator.Send(new DeleteHaCompoundEvolutionCommand
+                {
+                    Id = haId,
+                    CompoundEvolutionId = id
+                });
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {

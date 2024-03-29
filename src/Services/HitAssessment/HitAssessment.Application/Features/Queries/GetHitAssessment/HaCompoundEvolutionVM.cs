@@ -5,6 +5,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 {
     public class HaCompoundEvolutionVM : DocMetadata
     {
+        public Guid Id { get; set; }
         public Guid HitAssessmentId { get; set; }
         public object EvolutionDate { get; set; }
         public object Stage { get; set; }

@@ -6,10 +6,10 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
     {
         public UpdateHaCompoundEvolutionCommandValidator()
         {
-            
 
-            RuleFor(t => t.RequestedSMILES)
-            .NotEmpty().WithMessage("SMILES is required");
+
+            RuleFor(t => t.EvolutionDate)
+            .NotEmpty().WithMessage("Evolution Date is required");
 
         }
     }

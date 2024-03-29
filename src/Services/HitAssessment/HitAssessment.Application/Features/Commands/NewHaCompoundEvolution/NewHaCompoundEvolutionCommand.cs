@@ -7,7 +7,7 @@ using MediatR;
 
 namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
 {
-    public class NewHaCompoundEvolutionCommand : BaseCommand, IRequest<Unit>
+    public class NewHaCompoundEvolutionCommand : BaseCommand, IRequest<NewHaCompoundEvolutionResDTO>
     {
 
         public Guid CompoundEvolutionId { get; set; }

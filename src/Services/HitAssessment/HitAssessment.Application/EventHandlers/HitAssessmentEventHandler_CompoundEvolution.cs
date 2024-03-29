@@ -49,9 +49,13 @@ namespace HitAssessment.Application.EventHandlers
             var compoundEvolution = _mapper.Map<Domain.Entities.HaCompoundEvolution>(@event);
             compoundEvolution.Id = @event.CompoundEvolutionId;
             compoundEvolution.HitAssessmentId = @event.Id;
+            compoundEvolution.MoleculeId = existingHaCompoundEvolution.MoleculeId;
+            compoundEvolution.RequestedSMILES = existingHaCompoundEvolution.RequestedSMILES;
 
             compoundEvolution.DateCreated = existingHaCompoundEvolution.DateCreated;
             compoundEvolution.IsModified = true;
+            compoundEvolution.DateModified = DateTime.UtcNow;
+            
 
             try
             {

@@ -28,6 +28,8 @@ namespace HitAssessment.Application.Mappings
             CreateMap<HaCompoundEvolutionUpdatedEvent, UpdateHaCompoundEvolutionCommand>().ReverseMap();
             CreateMap<HaCompoundEvolutionDeletedEvent, DeleteHaCompoundEvolutionCommand>().ReverseMap();
 
+            CreateMap<RegisterMoleculeResponseDTO, MoleculeVM>().ReverseMap();
+
 
             /* Events */
             CreateMap<Domain.Entities.HitAssessment, HaCreatedEvent>().ReverseMap();
