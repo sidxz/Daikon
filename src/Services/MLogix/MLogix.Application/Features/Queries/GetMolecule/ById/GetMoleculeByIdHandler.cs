@@ -39,6 +39,7 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ById
             try
             {
                 var molDbMolecule = await _molDbAPIService.GetMoleculeById(molecule.RegistrationId);
+                _logger.LogInformation("MolDB molecule: {0}", molDbMolecule);
 
                 if (molDbMolecule != null)
                 {

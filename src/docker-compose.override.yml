@@ -64,6 +64,7 @@ services:
       - "TargetMongoDbSettings:DatabaseName=Target"
 
       - "TargetMongoDbSettings:TargetCollectionName=Targets"
+      - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
 
       - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
 
@@ -109,7 +110,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
       - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
@@ -143,7 +144,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
       - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
@@ -177,7 +178,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
       - "MLogixAPI:Url=http://MLogix.API/api/v2"
 
     ports:
@@ -195,7 +196,7 @@ services:
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       - "KafkaConsumerSettings:Topics=daikon-core-events"
-      - "KafkaConsumerSettings:GroupId=horizon-gene-consumer-group"
+      - "KafkaConsumerSettings:GroupId=horizon-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
@@ -228,7 +229,7 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-      - "MolDbAPI:Url=http://MolDb.API/api/v2"
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
 
     ports:
       - "8007:80"
@@ -290,6 +291,8 @@ services:
       - "EndPointRouting:org=http://UserStore.API"
       - "EndPointRouting:roles=http://UserStore.API"
       - "EndPointRouting:user=http://UserStore.API"
+      - "EndPointRouting:questionnaire=http://Questionnaire.API"
+      - "EndPointRouting:mol-db=http://MolDb.API"
 
       
     ports:
@@ -306,3 +309,15 @@ services:
       - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
     ports:
       - "8101:80"
+
+
+  Questionnaire.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "QuestionnaireMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "QuestionnaireMongoDbSettings:DatabaseName=Project"
+
+    ports:
+      - "8008:80"

@@ -41,6 +41,23 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
+        public async Task CreateConstraintsAsync()
+        {
+            var session = _driver.AsyncSession();
+            try
+            {
+                await session.ExecuteWriteAsync(async tx =>
+                {
+                    var createConstraintQuery = "CREATE CONSTRAINT molecules_uniId_constraint IF NOT EXISTS FOR (m:Molecules) REQUIRE m.uniId IS UNIQUE;";
+                    await tx.RunAsync(createConstraintQuery);
+                });
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+        }
+
 
         public async Task AddMolecule(Molecule molecule)
         {
@@ -54,18 +71,25 @@ namespace Horizon.Infrastructure.Repositories
                 {
                     await session.ExecuteWriteAsync(async tx =>
                     {
-                        var createMoleculeQuery = @"
-                            CREATE (m:Molecule { 
-                                                registrationId: $registrationId,
-                                                mLogixId: $mLogixId,
-                                                name:  $name, 
-                                                requestedSMILES: $requestedSMILES, 
-                                                smilesCanonical: $smilesCanonical
-                                            })
-                  ";
+                        var createOrUpdateMoleculeQuery = @"
+                            MERGE (m:Molecule { registrationId: $registrationId })
+                            ON CREATE SET
+                                        m.uniId = $uniId,
+                                        m.mLogixId = $mLogixId,
+                                        m.name = $name,
+                                        m.requestedSMILES = $requestedSMILES,
+                                        m.smilesCanonical = $smilesCanonical
+                            ON MATCH SET  
+                                        m.uniId = $uniId,
+                                        m.mLogixId = $mLogixId,
+                                        m.name = $name,
+                                        m.requestedSMILES = $requestedSMILES,
+                                        m.smilesCanonical = $smilesCanonical
+";
 
-                        await tx.RunAsync(createMoleculeQuery, new
+                        await tx.RunAsync(createOrUpdateMoleculeQuery, new
                         {
+                            uniId = molecule.UniId,
                             mLogixId = molecule.MLogixId,
                             registrationId = molecule.RegistrationId,
                             name = molecule.Name,
@@ -101,7 +125,8 @@ namespace Horizon.Infrastructure.Repositories
         when uploading in bulk.
         */
         private static readonly Func<ILogger<GraphRepositoryForMLogix>, IAsyncPolicy> CreateRetryPolicy = logger => Policy
-            .Handle<ClientException>(ex => ex.Message.Contains("ConstraintValidationFailed"))
+             .Handle<TransientException>()
+                .Or<ServiceUnavailableException>()
             .WaitAndRetryAsync(
                 new[]
                 {

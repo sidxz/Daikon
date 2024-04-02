@@ -11,9 +11,6 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
     {
         public Guid CompoundEvolutionId { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? CompoundStructureSMILES { get; set; }
-
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? EvolutionDate { get; set; }
 

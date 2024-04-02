@@ -1,9 +1,8 @@
 
-using CQRS.Core.Domain;
 
 namespace Horizon.Domain.Screens
 {
-    public class Hit : BaseEntity
+    public class Hit : GraphEntity
     {
         public string Library { get; set; }
         public string StrainId { get; set; }

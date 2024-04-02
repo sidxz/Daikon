@@ -1,15 +1,15 @@
 
-using AutoMapper;
 using CQRS.Core.Domain;
 using Daikon.Events.Targets;
-
+using CQRS.Core.Comparators;
+using Daikon.Shared.Constants.AppTarget;
 namespace Target.Domain.Aggregates
 {
-    public  class TargetAggregate : AggregateRoot
+    public class TargetAggregate : AggregateRoot
     {
         private bool _active;
         private string _Name;
-        private Entities.Target target;
+        public Dictionary<string, string> _associatedGenes { get; set; }
 
         public TargetAggregate()
         {
@@ -18,15 +18,14 @@ namespace Target.Domain.Aggregates
 
 
         /* New Target */
-        public TargetAggregate(Entities.Target target, IMapper mapper)
+        public TargetAggregate(TargetCreatedEvent @event)
         {
             _active = true;
-            _id = target.Id;
-            _Name = target.Name;
-
-            var targetCreatedEvent = mapper.Map<TargetCreatedEvent>(target);
-
-            RaiseEvent(targetCreatedEvent);
+            _id = @event.Id;
+            _Name = @event.Name;
+            _associatedGenes = @event.AssociatedGenes;
+            @event.TargetType = @event.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein;
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetCreatedEvent @event)
@@ -34,21 +33,22 @@ namespace Target.Domain.Aggregates
             _id = @event.Id;
             _active = true;
             _Name = @event.Name;
+            _associatedGenes = @event.AssociatedGenes;
         }
 
         /* Update Target */
-        public void UpdateTarget(Entities.Target target, IMapper mapper)
+        public void UpdateTarget(TargetUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This target is deleted.");
             }
 
-            var targetUpdatedEvent = mapper.Map<TargetUpdatedEvent>(target);
-            targetUpdatedEvent.Id = target.Id;
-            targetUpdatedEvent.Name = target.Name;
+            @event.Id = _id;
+            @event.Name = _Name;
+            @event.AssociatedGenes = _associatedGenes;
 
-            RaiseEvent(targetUpdatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetUpdatedEvent @event)
@@ -57,46 +57,40 @@ namespace Target.Domain.Aggregates
         }
 
         /* Update Target Associated Genes */
-        public void UpdateTargetAssociatedGenes(Dictionary<string, string> associatedGenes, IMapper mapper)
+        public void UpdateTargetAssociatedGenes(TargetAssociatedGenesUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This target is deleted.");
             }
 
-            var targetAssociatedGenesUpdatedEvent = new TargetAssociatedGenesUpdatedEvent()
+            if (_associatedGenes.DictionaryEqual(@event.AssociatedGenes))
             {
-                Id = target.Id,
-                Name = _Name,
-                AssociatedGenes = associatedGenes
-            };
-            targetAssociatedGenesUpdatedEvent.Id = target.Id;
-            targetAssociatedGenesUpdatedEvent.Name = target.Name;
+                throw new InvalidOperationException("Associated genes are not modified");
+            }
 
-            RaiseEvent(targetAssociatedGenesUpdatedEvent);
+            @event.Id = _id;
+            @event.Name = _Name;
+            @event.TargetType = @event.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein;
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetAssociatedGenesUpdatedEvent @event)
         {
             _id = @event.Id;
             _Name = @event.Name;
+            _associatedGenes = @event.AssociatedGenes;
         }
 
         /* Delete Target */
-        public void DeleteTarget(Entities.Target target, IMapper mapper)
+        public void DeleteTarget(TargetDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This target is already deleted.");
             }
 
-            var targetDeletedEvent = new TargetDeletedEvent()
-            {
-                Id = target.Id,
-                Name = _Name
-            };
-            
-            RaiseEvent(targetDeletedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(TargetDeletedEvent @event)
@@ -105,5 +99,27 @@ namespace Target.Domain.Aggregates
             _Name = @event.Name;
             _active = false;
         }
+
+        /* Target Rename Event */
+        public void RenameTarget(TargetRenamedEvent @event)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This target is deleted.");
+            }
+            if (_Name == @event.Name)
+            {
+                throw new InvalidOperationException("Target name is not modified");
+            }
+
+            RaiseEvent(@event);
+        }
+
+        public void Apply(TargetRenamedEvent @event)
+        {
+            _id = @event.Id;
+            _Name = @event.Name;
+        }
+
     }
 }

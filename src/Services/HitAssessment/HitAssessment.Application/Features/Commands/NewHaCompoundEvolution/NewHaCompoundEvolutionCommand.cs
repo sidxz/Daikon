@@ -7,13 +7,16 @@ using MediatR;
 
 namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
 {
-    public class NewHaCompoundEvolutionCommand : BaseCommand, IRequest<Unit>
+    public class NewHaCompoundEvolutionCommand : BaseCommand, IRequest<NewHaCompoundEvolutionResDTO>
     {
 
         public Guid CompoundEvolutionId { get; set; }
 
+        public Guid? MoleculeId { get; set; }
+        public string MoleculeName { get; set; }
+
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? CompoundStructureSMILES { get; set; }
+        public DVariable<string>? RequestedSMILES { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? EvolutionDate { get; set; }

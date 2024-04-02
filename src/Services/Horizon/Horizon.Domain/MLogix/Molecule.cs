@@ -1,9 +1,8 @@
 
-using CQRS.Core.Domain;
 
 namespace Horizon.Domain.MLogix
 {
-    public class Molecule : BaseEntity
+    public class Molecule : GraphEntity
     {
         public string Name { get; set; }
         public string RegistrationId { get; set; }

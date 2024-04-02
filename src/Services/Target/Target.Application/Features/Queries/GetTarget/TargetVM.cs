@@ -1,11 +1,16 @@
 
+using CQRS.Core.Domain;
+
 namespace Target.Application.Features.Queries.GetTarget
 {
-    public class TargetVM 
+    public class TargetVM : DocMetadata
     {
         public Guid StrainId { get; set; }
+        public Guid Id { get; set; }
         public required string Name { get; set; }
         public Dictionary<string, string> AssociatedGenes { get; set; }
+        public string AssociatedGenesFlattened { get; set; }
+
         public string TargetType { get; set; }
         public object Bucket { get; set; }
         public object ImpactScore { get; set; }
@@ -27,7 +32,7 @@ namespace Target.Application.Features.Queries.GetTarget
         public object Enablement { get; set; }
         public object Strategy { get; set; }
         public object Challenges { get; set; }
-        
+
 
     }
 }

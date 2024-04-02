@@ -8,6 +8,7 @@ using Target.Application.Features.Command.DeleteTarget;
 using Target.Application.Features.Command.NewTarget;
 using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Command.UpdateTargetAssociatedGenes;
+using Target.Application.Features.Commands.RenameTarget;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTarget.ById;
 using Target.Application.Features.Queries.GetTargetsList;
@@ -17,7 +18,7 @@ namespace Target.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class TargetController : ControllerBase
+    public partial class TargetController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly ILogger<TargetController> _logger;
@@ -321,6 +322,62 @@ namespace Target.API.Controllers.V2
             catch (Exception ex)
             {
                 const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the target";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+
+        }
+
+        // Rename Target
+        [HttpPut("{id}/rename", Name = "RenameTarget")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> RenameTarget(Guid id, RenameTargetCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Target renamed successfully",
+                });
+            }
+
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("RenameTarget: Requested Resource Not Found {Id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("RenameTarget: Requested Resource Already Exists {Name}", ex.Message);
+                return Conflict(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while renaming the target";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

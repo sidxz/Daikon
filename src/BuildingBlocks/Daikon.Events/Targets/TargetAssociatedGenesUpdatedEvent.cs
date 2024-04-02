@@ -11,5 +11,6 @@ namespace Daikon.Events.Targets
         }
         public string Name { get; set; }
         public Dictionary<string, string> AssociatedGenes { get; set; }
+        public string TargetType { get; set; }
     }
 }

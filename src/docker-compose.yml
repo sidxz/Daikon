@@ -56,6 +56,12 @@ services:
       context: .
       dockerfile: Services/Chem/MolDb.API/Dockerfile
 
+  Questionnaire.API:
+    image: ${DOCKER_REGISTRY-}questionnaire
+    build:
+      context: .
+      dockerfile: Services/Questionnaire/Questionnaire.API/Dockerfile
+
   # Ocelotapigw:
   #   image: ${DOCKER_REGISTRY-}ocelotapigw
   #   build:

@@ -29,7 +29,7 @@ namespace HitAssessment.Domain.Aggregates
             _compoundEvolutions.Add(@event.CompoundEvolutionId, new HaCompoundEvolution()
             {
                 HitAssessmentId = @event.Id,
-                CompoundId = @event.CompoundId,
+                MoleculeId = @event.MoleculeId,
                 MIC = @event.MIC,
                 IC50 = @event.IC50,
             });

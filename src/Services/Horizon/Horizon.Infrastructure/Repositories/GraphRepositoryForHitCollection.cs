@@ -43,6 +43,24 @@ namespace Horizon.Infrastructure.Repositories
         }
 
 
+        public async Task CreateConstraintsAsync()
+        {
+            var session = _driver.AsyncSession();
+            try
+            {
+                await session.ExecuteWriteAsync(async tx =>
+                {
+                    var createConstraintQuery = "CREATE CONSTRAINT hit_collection_uniId_constraint IF NOT EXISTS FOR (h:HitCollection) REQUIRE h.uniId IS UNIQUE;";
+                    await tx.RunAsync(createConstraintQuery);
+                });
+            }
+            finally
+            {
+                await session.CloseAsync();
+            }
+        }
+
+
 
 
         public async Task AddHitCollection(HitCollection hitCollection)
@@ -57,35 +75,28 @@ namespace Horizon.Infrastructure.Repositories
                 {
                     await session.ExecuteWriteAsync(async tx =>
                     {
-                        var createHitCollectionQuery = @"
-                            CREATE (h:HitCollection {hitCollectionId: $hitCollectionId, name:  $name, 
-                                                        hitCollectionType: $hitCollectionType, strainId: $strainId, 
-                                                        primaryOrgName: $primaryOrgName
-                                                    })
-                  ";
+                        var createAndRelateQuery = @"
+                    MERGE (h:HitCollection {hitCollectionId: $hitCollectionId})
+                    ON CREATE SET h.uniId = $uniId, h.name = $name, 
+                                  h.hitCollectionType = $hitCollectionType, h.strainId = $strainId, 
+                                  h.primaryOrgName = $primaryOrgName
+                    WITH h
+                    FOREACH (ignoreMe IN CASE WHEN $screenId IS NOT NULL THEN [1] ELSE [] END |
+                        MERGE (s:Screen {screenId: $screenId})
+                        MERGE (h)-[:HIT_COLLECTION_OF]->(s)
+                    )
+                ";
 
-                        await tx.RunAsync(createHitCollectionQuery, new
+                        await tx.RunAsync(createAndRelateQuery, new
                         {
+                            uniId = hitCollection.UniId,
                             hitCollectionId = hitCollection.HitCollectionId,
                             name = hitCollection.Name,
                             hitCollectionType = hitCollection.HitCollectionType,
                             strainId = hitCollection.StrainId,
-                            primaryOrgName = hitCollection.PrimaryOrgName
+                            primaryOrgName = hitCollection.PrimaryOrgName,
+                            screenId = hitCollection.ScreenId // This will be null if not provided, which the Cypher query accounts for
                         });
-                        if (hitCollection.ScreenId != null)
-                        {
-                            var relateToScreenQuery = @"
-                                MATCH (s:Screen {screenId: $screenId})
-                                MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
-                                MERGE (h)-[:HIT_COLLECTION_OF]->(s)
-                            ";
-                            await tx.RunAsync(relateToScreenQuery, new
-                            {
-                                screenId = hitCollection.ScreenId,
-                                hitCollectionId = hitCollection.HitCollectionId
-                            });
-                        }
-
                     });
                 });
             }
@@ -99,6 +110,7 @@ namespace Horizon.Infrastructure.Repositories
                 await session.CloseAsync();
             }
         }
+
 
         public async Task UpdateHitCollection(HitCollection hitCollection)
         {
@@ -264,28 +276,45 @@ namespace Horizon.Infrastructure.Repositories
                 {
                     await session.ExecuteWriteAsync(async tx =>
                     {
-                        // var createHitQuery = @"
-                        //     MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})
-                        //     CREATE (h)-[:HIT]->(hit:Hit {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES})
-                        // ";
 
-                        var createHitQuery = @"
+                        var mergeHitQuery = @"
                             MATCH (hc:HitCollection {hitCollectionId: $hitCollectionId})
-                            MERGE (hc)-[:HIT]->(hit:Hit {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES})
-                            WITH hit
-                            FOREACH (_ IN CASE WHEN $moleculeRegistrationId IS NOT NULL AND $moleculeRegistrationId <> '' THEN [1] ELSE [] END |
-                                MERGE (m:Molecule {registrationId: $moleculeRegistrationId})
-                                MERGE (hit)-[:HIT_MOLECULE]->(m)
-                            )
+                            MERGE (hc)-[:HIT]->(hit:Hit {hitId: $hitId})
+                            ON CREATE SET hit.library = $library, hit.requestedSMILES = $requestedSMILES
                         ";
-                        await tx.RunAsync(createHitQuery, new
+
+                        await tx.RunAsync(mergeHitQuery, new
                         {
                             hitCollectionId = hit.HitCollectionId,
                             hitId = hit.HitId,
                             library = hit.Library,
                             requestedSMILES = hit.RequestedSMILES,
-                            moleculeRegistrationId = hit.MoleculeRegistrationId,
                         });
+
+                        _logger.LogInformation("Query successfully executed: {Query}", nameof(mergeHitQuery));
+
+
+
+                        // if (!string.IsNullOrEmpty(hit.MoleculeRegistrationId))
+                        // {
+                        //     var mergeMoleculeAndCreateRelationshipQuery = @"
+                        //         MERGE (m:Molecule {registrationId: $moleculeRegistrationId})
+                        //         WITH m
+                        //         MATCH (hit:Hit {hitId: $hitId})
+                        //         MERGE (hit)-[:HIT_MOLECULE]->(m)
+                        //     ";
+
+                        //     await tx.RunAsync(mergeMoleculeAndCreateRelationshipQuery, new
+                        //     {
+                        //         hitId = hit.HitId,
+                        //         moleculeRegistrationId = hit.MoleculeRegistrationId,
+                        //     });
+
+                        //     _logger.LogInformation("Link Molecule query successfully executed: {Query}", nameof(mergeMoleculeAndCreateRelationshipQuery));
+
+                        // }
+
+
                     });
                 });
             }
@@ -313,13 +342,14 @@ namespace Horizon.Infrastructure.Repositories
                     {
                         var updateHitQuery = @"
                             MATCH (h:HitCollection {hitCollectionId: $hitCollectionId})-[:HIT]->(hit:Hit {hitId: $hitId})
-                            SET hit.requestedSMILES = $requestedSMILES
+                            SET hit.requestedSMILES = $requestedSMILES, hit.library = $library
                         ";
                         await tx.RunAsync(updateHitQuery, new
                         {
                             hitCollectionId = hit.HitCollectionId,
                             hitId = hit.HitId,
-                            requestedSMILES = hit.RequestedSMILES
+                            requestedSMILES = hit.RequestedSMILES,
+                            library = hit.Library
                         });
                     });
                 });
@@ -380,7 +410,8 @@ namespace Horizon.Infrastructure.Repositories
         when uploading in bulk.
         */
         private static readonly Func<ILogger<GraphRepositoryForHitCollection>, IAsyncPolicy> CreateRetryPolicy = logger => Policy
-            .Handle<ClientException>(ex => ex.Message.Contains("ConstraintValidationFailed"))
+            .Handle<TransientException>()
+                .Or<ServiceUnavailableException>()
             .WaitAndRetryAsync(
                 new[]
                 {

@@ -6,6 +6,7 @@ namespace Horizon.Application.Contracts.Persistance
     public interface IGraphRepositoryForHitCollection
     {
         Task CreateIndexesAsync();
+        Task CreateConstraintsAsync();
         Task AddHitCollection(HitCollection hitCollection);
         Task UpdateHitCollection(HitCollection hitCollection);
         Task UpdateAssociatedScreenOfHitCollection(HitCollection hitCollection);

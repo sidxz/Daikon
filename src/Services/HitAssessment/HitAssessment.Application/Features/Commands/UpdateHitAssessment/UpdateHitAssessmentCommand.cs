@@ -14,31 +14,29 @@ namespace HitAssessment.Application.Features.Commands.UpdateHitAssessment
         public string? HaType { get; set; }
         public string? LegacyId { get; set; }
         
-
         public Dictionary<string, string> AssociatedHitIds { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DVariable<DateTime> HAStart { get; set; }
+        public DVariable<DateTime> HaStartDate { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DVariable<DateTime> HAPredictedStart { get; set; }
+        public DVariable<DateTime> HaPredictedStartDate { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> HADescription { get; set; }
+        public DVariable<string> Description { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> HAStatus { get; set; }
+        public DVariable<string> Status { get; set; }
 
         public bool IsHAComplete { get; set; }
-        public DateTime? HAStatusDate { get; set; }
+        public DateTime? StatusDate { get; set; }
         public DateTime? TerminationDate { get; set; }
         public DateTime? EOLDate { get; set; }
         public DateTime? CompletionDate { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> PrimaryOrg { get; set; }
-        
-        public List<string> SupportingOrgs { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<Guid>))]
+        public DVariable<Guid>? PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgs { get; set; }
 
 
     }

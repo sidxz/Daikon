@@ -7,7 +7,7 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
         public NewHaCompoundEvolutionCommandValidator()
         {
 
-            RuleFor(t => t.CompoundStructureSMILES)
+            RuleFor(t => t.RequestedSMILES)
             .NotEmpty().WithMessage("SMILES is required");
 
         }

@@ -50,7 +50,7 @@ namespace Horizon.Infrastructure.Repositories
                 {
 
                     // functional category constraint; unique
-                    var createConstraintQuery = "CREATE CONSTRAINT functional_category_name_constraint IF NOT EXISTS FOR (fc:FunctionalCategory) REQUIRE fc.name IS UNIQUE;";
+                    var createConstraintQuery = "CREATE CONSTRAINT uniId_constraint IF NOT EXISTS FOR (g:Gene) REQUIRE g.uniId IS UNIQUE;";
                     await tx.RunAsync(createConstraintQuery);
 
                 });
@@ -73,13 +73,14 @@ namespace Horizon.Infrastructure.Repositories
                     await session.ExecuteWriteAsync(async tx =>
                     {
                         var createStrainQuery = @"
-                            CREATE (s:Strain {name: $name, strainId: $strainId, organism: $organism})
+                            CREATE (s:Strain {uniId: $uniId, name: $name, strainId: $strainId, organism: $organism})
                         ";
 
 
                         _logger.LogInformation("tx.RunAsync Adding strain with name {Name}", strain.Name);
                         await tx.RunAsync(createStrainQuery, new
                         {
+                            uniId = strain.UniId,
                             name = strain.Name,
                             strainId = strain.StrainId,
                             organism = strain.Organism
@@ -150,14 +151,7 @@ namespace Horizon.Infrastructure.Repositories
                     {
                         var createGeneQuery = @"
                                 MERGE (g:Gene {accessionNumber: $accessionNumber})
-                                ON CREATE SET g.geneId = $geneId, g.name = $name, g.function = $function, g.product = $product
-
-                                WITH g
-                                FOREACH (ignoreMe IN CASE WHEN $functionalCategory IS NOT NULL AND $functionalCategory <> '' THEN [1] ELSE [] END |
-                                    MERGE (fc:FunctionalCategory {name: $functionalCategory})
-                                    MERGE (g)-[:BELONGS_TO]->(fc)
-                                )
-
+                                ON CREATE SET g.uniId = $uniId, g.geneId = $geneId, g.name = $name, g.function = $function, g.product = $product, g.functionalCategory = $functionalCategory
                                 WITH g
                                 MERGE (s:Strain {strainId: $strainId})
                                 MERGE (g)-[:PART_OF]->(s)
@@ -166,6 +160,7 @@ namespace Horizon.Infrastructure.Repositories
                         _logger.LogInformation("tx.RunAsync Adding gene with accession number {accessionNumber}", gene.AccessionNumber);
                         await tx.RunAsync(createGeneQuery, new
                         {
+                            uniId = gene.UniId,
                             geneId = gene.GeneId,
                             strainId = gene.StrainId,
                             accessionNumber = gene.AccessionNumber,
@@ -203,18 +198,7 @@ namespace Horizon.Infrastructure.Repositories
                     {
                         var updateGeneQuery = @"
                                 MATCH (g:Gene {geneId: $geneId})
-                                SET g.name = $name, g.function = $function, g.product = $product
-
-                                WITH g
-                                OPTIONAL MATCH (g)-[r1:BELONGS_TO]->(oldFc:FunctionalCategory)
-                                WHERE (oldFc IS NULL AND $functionalCategory IS NOT NULL) OR (oldFc IS NOT NULL AND oldFc.name <> $functionalCategory)
-                                DELETE r1
-
-                                WITH g
-                                FOREACH (ignoreMe IN CASE WHEN $functionalCategory IS NOT NULL THEN [1] ELSE [] END |
-                                    MERGE (newFc:FunctionalCategory {name: $functionalCategory})
-                                    MERGE (g)-[:BELONGS_TO]->(newFc)
-                                )
+                                SET g.name = $name, g.function = $function, g.product = $product, g.functionalCategory = $functionalCategory
 
                                 WITH g
                                 OPTIONAL MATCH (g)-[r2:PART_OF]->(oldStrain:Strain)

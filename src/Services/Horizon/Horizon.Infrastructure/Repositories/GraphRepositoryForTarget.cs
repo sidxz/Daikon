@@ -55,11 +55,12 @@ namespace Horizon.Infrastructure.Repositories
                     await session.ExecuteWriteAsync(async tx =>
                     {
                         var createTargetQuery = @"
-                            CREATE (t:Target {targetId: $targetId, name: $name, targetType: $targetType, associatedGenes: $associatedGenes, bucket: $bucket})
+                            CREATE (t:Target { uniId: $uniId, targetId: $targetId, name: $name, targetType: $targetType, associatedGenes: $associatedGenes, bucket: $bucket})
                         ";
 
                         await tx.RunAsync(createTargetQuery, new
                         {
+                            uniId = target.UniId,
                             targetId = target.TargetId,
                             name = target.Name,
                             targetType = target.TargetType,
@@ -167,14 +168,14 @@ namespace Horizon.Infrastructure.Repositories
                         foreach (var accessionNumber in target.GeneAccessionNumbers)
                         {
                             var relateToGeneQuery = @"
-                                MATCH (g:Gene {accessionNumber: $accessionNumber})
+                                MATCH (g:Gene {accessionNumber: $_accessionNumber})
                                 MATCH (t:Target {targetId: $targetId})
                                 MERGE (t)-[:TARGETS {targetType: $targetType }]->(g)
                             ";
 
                             await tx.RunAsync(relateToGeneQuery, new
                             {
-                                accessionNumber = accessionNumber,
+                                _accessionNumber = accessionNumber,
                                 targetId = target.TargetId,
                                 targetType = target.TargetType,
                             });
@@ -197,6 +198,41 @@ namespace Horizon.Infrastructure.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public Task RenameTarget(string targetId, string newName)
+        {
+            _logger.LogInformation("RenameTarget(): Renaming target with id {targetId} to {NewName}", targetId, newName);
+            var session = _driver.AsyncSession();
+            try
+            {
+                var retryPolicy = CreateRetryPolicy(_logger);
+                return retryPolicy.ExecuteAsync(async () =>
+                {
+                    await session.ExecuteWriteAsync(async tx =>
+                    {
+                        var renameScreenQuery = @"
+                            MATCH (t:Target {targetId: $_targetId})
+                            SET t.name = $_newName
+                        ";
+                        await tx.RunAsync(renameScreenQuery, new
+                        {
+                            _targetId = targetId,
+                            _newName = newName
+                        });
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Rename target");
+                throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Renaming Target In Graph", ex);
+            }
+            finally
+            {
+                session.CloseAsync();
+            }
+        }
+
 
 
         // Define the RetryPolicy

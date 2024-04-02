@@ -25,6 +25,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: GeneCreatedEvent: {@event.Id} {@event.AccessionNumber}");
             var gene = new Gene
             {
+                UniId = @event.Id.ToString(),
                 GeneId = @event.Id.ToString(),
                 StrainId = @event.StrainId.ToString(),
 
@@ -39,8 +40,9 @@ namespace Horizon.Application.Query.Handlers
                 IsDraft = false
             };
 
-            try {
-                 await _graphRepository.AddGene(gene);
+            try
+            {
+                await _graphRepository.AddGene(gene);
             }
             catch (RepositoryException ex)
             {
@@ -53,6 +55,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: StrainCreatedEvent: {@event.Id} {@event.Name}");
             var strain = new Strain
             {
+                UniId =  @event.Id.ToString(),
                 StrainId = @event.Id.ToString(),
                 Name = @event.Name,
                 Organism = @event.Organism,
@@ -75,8 +78,9 @@ namespace Horizon.Application.Query.Handlers
         public async Task OnEvent(GeneUpdatedEvent @event)
         {
             _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id} {@event.AccessionNumber}");
-             var gene = new Gene
+            var gene = new Gene
             {
+                UniId =  @event.Id.ToString(),
                 GeneId = @event.Id.ToString(),
                 StrainId = @event.StrainId.ToString(),
 
@@ -91,8 +95,9 @@ namespace Horizon.Application.Query.Handlers
                 IsDraft = false
             };
 
-            try {
-                 await _graphRepository.UpdateGene(gene);
+            try
+            {
+                await _graphRepository.UpdateGene(gene);
             }
             catch (RepositoryException ex)
             {
@@ -106,6 +111,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: StrainUpdatedEvent: {@event.Id} {@event.Name}");
             var strain = new Strain
             {
+                UniId =  @event.Id.ToString(),
                 StrainId = @event.Id.ToString(),
                 Name = @event.Name,
                 Organism = @event.Organism,
@@ -128,8 +134,9 @@ namespace Horizon.Application.Query.Handlers
         public async Task OnEvent(GeneDeletedEvent @event)
         {
             _logger.LogInformation($"Horizon: GeneDeletedEvent: {@event.Id} {@event.AccessionNumber}");
-            try {
-                 await _graphRepository.DeleteGene(@event.Id.ToString());
+            try
+            {
+                await _graphRepository.DeleteGene(@event.Id.ToString());
             }
             catch (RepositoryException ex)
             {

@@ -7,6 +7,7 @@ using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using CQRS.Core.Comparators;
+using Daikon.Events.Targets;
 
 namespace Target.Application.Features.Command.UpdateTargetAssociatedGenes
 {
@@ -44,7 +45,10 @@ namespace Target.Application.Features.Command.UpdateTargetAssociatedGenes
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateTargetAssociatedGenes(request.AssociatedGenes, _mapper);
+
+                var targetUpdatedEvent = _mapper.Map<TargetAssociatedGenesUpdatedEvent>(request);
+
+                aggregate.UpdateTargetAssociatedGenes(targetUpdatedEvent);
 
                 await _eventSourcingHandler.SaveAsync(aggregate);
             }

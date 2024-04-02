@@ -22,6 +22,9 @@ namespace Horizon.Infrastructure
             services.AddScoped<IGraphRepositoryForHitCollection, GraphRepositoryForHitCollection>();
             services.AddScoped<IGraphRepositoryForMLogix, GraphRepositoryForMLogix>();
 
+            services.AddScoped<IGraphQueryRepository, GraphQueryRepository>();
+            
+
             string neo4jUri = configuration.GetValue<string>("HorizonNeo4jSettings:Uri") ?? throw new ArgumentNullException(nameof(neo4jUri));
             string neo4jUser = configuration.GetValue<string>("HorizonNeo4jSettings:User") ?? throw new ArgumentNullException(nameof(neo4jUser));
             string neo4jPassword = configuration.GetValue<string>("HorizonNeo4jSettings:Password") ?? throw new ArgumentNullException(nameof(neo4jPassword));
