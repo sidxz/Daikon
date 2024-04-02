@@ -22,6 +22,7 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: MoleculeCreatedEvent: {@event.RegistrationId} {@event.Name}");
             var molecule = new Molecule
             {
+                UniId =  @event.Id.ToString(),
                 RegistrationId = @event.RegistrationId.ToString(),
                 MLogixId = @event.Id.ToString(),
                 Name = @event.Name,

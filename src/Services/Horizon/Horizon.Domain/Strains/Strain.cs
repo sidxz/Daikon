@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRS.Core.Domain;
 
 namespace Horizon.Domain.Strains
 {
-    public class Strain : BaseEntity
+    public class Strain : GraphEntity
     {
         public string StrainId { get; set; }
         public string Name { get; set; }

@@ -55,11 +55,12 @@ namespace Horizon.Infrastructure.Repositories
                     await session.ExecuteWriteAsync(async tx =>
                     {
                         var createTargetQuery = @"
-                            CREATE (t:Target {targetId: $targetId, name: $name, targetType: $targetType, associatedGenes: $associatedGenes, bucket: $bucket})
+                            CREATE (t:Target { uniId: $uniId, targetId: $targetId, name: $name, targetType: $targetType, associatedGenes: $associatedGenes, bucket: $bucket})
                         ";
 
                         await tx.RunAsync(createTargetQuery, new
                         {
+                            uniId = target.UniId,
                             targetId = target.TargetId,
                             name = target.Name,
                             targetType = target.TargetType,

@@ -196,7 +196,7 @@ services:
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       - "KafkaConsumerSettings:Topics=daikon-core-events"
-      - "KafkaConsumerSettings:GroupId=horizon-gene-consumer-group"
+      - "KafkaConsumerSettings:GroupId=horizon-consumer-group"
       - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"

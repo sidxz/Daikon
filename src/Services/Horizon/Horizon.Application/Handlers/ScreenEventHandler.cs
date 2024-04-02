@@ -24,6 +24,7 @@ namespace Horizon.Application.Handlers
                 _logger.LogInformation($"Horizon: Start-> ScreenCreatedEvent: {@event.Id} {@event.Name}");
                 var screen = new Screen
                 {
+                    UniId =  @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
                     StrainId = @event.StrainId.ToString(),
 
@@ -54,6 +55,7 @@ namespace Horizon.Application.Handlers
                 _logger.LogInformation($"Horizon: ScreenUpdatedEvent: {@event.Id} {@event.Name}");
                 var screen = new Screen
                 {
+                    UniId =  @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
                     StrainId = @event.StrainId.ToString(),
 
@@ -84,6 +86,7 @@ namespace Horizon.Application.Handlers
                 _logger.LogInformation($"Horizon: ScreenAssociatedTargetsUpdatedEvent: {@event.Id} {@event.Name}");
                 var screen = new Screen
                 {
+                    UniId =  @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
                     Name = @event.Name,
                     AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),

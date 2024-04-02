@@ -23,6 +23,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: TargetCreatedEvent: {@event.Id} {@event.Name}");
             var target = new Target
             {
+                UniId =  @event.Id.ToString(),
                 TargetId = @event.Id.ToString(),
                 StrainId = @event.StrainId.ToString(),
 
@@ -51,6 +52,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: TargetUpdatedEvent: {@event.Id} {@event.Name}");
             var target = new Target
             {
+                UniId =  @event.Id.ToString(),
                 TargetId = @event.Id.ToString(),
                 StrainId = @event.StrainId.ToString(),
 
@@ -79,6 +81,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: TargetAssociatedGenesUpdatedEvent: {@event.Id} {@event.Name}");
             var target = new Target
             {
+                UniId =  @event.Id.ToString(),
                 TargetId = @event.Id.ToString(),
                 Name = @event.Name,
                 GeneAccessionNumbers = @event.AssociatedGenes.Values.ToList(),

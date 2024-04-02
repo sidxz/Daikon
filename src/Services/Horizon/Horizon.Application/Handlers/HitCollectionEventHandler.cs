@@ -22,6 +22,7 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitCollectionCreatedEvent: {@event.Id} {@event.Name}");
             var hitCollection = new HitCollection
             {
+                UniId =  @event.Id.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 ScreenId = @event.ScreenId.ToString(),
                 Name = @event.Name,
@@ -40,6 +41,7 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitCollectionUpdatedEvent: {@event.Id} {@event.Name}");
             var hitCollection = new HitCollection
             {
+                UniId =  @event.Id.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 ScreenId = @event.ScreenId.ToString(),
                 Name = @event.Name,
@@ -68,6 +70,7 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitAddedEvent: {@event.Id} {@event.HitId}");
             var hit = new Hit
             {
+                UniId =  @event.Id.ToString(),
                 HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 Library = @event.Library,
@@ -85,6 +88,7 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitUpdatedEvent: {@event.Id} {@event.HitId}");
             var hit = new Hit
             {
+                UniId =  @event.Id.ToString(),
                 HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 IsModified = true,

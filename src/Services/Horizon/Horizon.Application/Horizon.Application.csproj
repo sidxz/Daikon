@@ -10,6 +10,7 @@
     <PackageReference Include="FluentValidation" Version="11.8.1" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.8.1" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
+    <PackageReference Include="Neo4j.Driver" Version="5.18.1" />
   </ItemGroup>
 
   <PropertyGroup>

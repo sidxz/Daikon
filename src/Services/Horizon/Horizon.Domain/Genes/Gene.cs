@@ -6,7 +6,7 @@ using CQRS.Core.Domain;
 
 namespace Horizon.Domain.Genes
 {
-    public class Gene : BaseEntity
+    public class Gene : GraphEntity
     {
         public string GeneId { get; set; }
         public string AccessionNumber { get; set; }

@@ -1,9 +1,8 @@
 
-using CQRS.Core.Domain;
 
 namespace Horizon.Domain.Targets
 {
-    public class Target: BaseEntity
+    public class Target: GraphEntity
     {
         public string TargetId { get; set; }
         public List<string> GeneAccessionNumbers { get; set; }

@@ -59,11 +59,12 @@ namespace Horizon.Infrastructure.Repositories
                     await session.ExecuteWriteAsync(async tx =>
                     {
                         var createScreenQuery = @"
-                            CREATE (s:Screen {screenId: $screenId, name: $name, screenType: $screenType, method: $method, status: $status, primaryOrgName: $primaryOrgName})
+                            CREATE (s:Screen { uniId: $uniId, screenId: $screenId, name: $name, screenType: $screenType, method: $method, status: $status, primaryOrgName: $primaryOrgName})
                         ";
 
                         await tx.RunAsync(createScreenQuery, new
                         {
+                            uniId = screen.UniId,
                             screenId = screen.ScreenId,
                             name = screen.Name,
                             screenType = screen.ScreenType,
@@ -75,15 +76,15 @@ namespace Horizon.Infrastructure.Repositories
                         foreach (var targetId in screen.AssociatedTargetsId)
                         {
                             var relateToTargetQuery = @"
-                                MATCH (s:Screen {screenId: $screenId})
-                                MATCH (t:Target {targetId: $targetId})
+                                MATCH (s:Screen {screenId: $_screenId})
+                                MATCH (t:Target {targetId: $_targetId})
                                 MERGE (s)-[:SCREENS]->(t)
                             ";
 
                             await tx.RunAsync(relateToTargetQuery, new
                             {
-                                screenId = screen.ScreenId,
-                                targetId = targetId
+                                _screenId = screen.ScreenId,
+                                _targetId = targetId
                             });
                         }
                     });
