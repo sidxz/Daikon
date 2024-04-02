@@ -1,7 +1,9 @@
 
+using CQRS.Core.Domain;
+
 namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
 {
-    public class HitAssessmentListVM
+    public class HitAssessmentListVM : DocMetadata
     {
         public Guid Id { get; set; }
         public Guid? StrainId { get; set; }
@@ -13,6 +15,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
         public string? Status { get; set; }
 
         public bool IsHAComplete { get; set; }
-        public string? PrimaryOrg { get; set; }
+        public Guid? PrimaryOrgId { get; set; }
     }
 }
+
