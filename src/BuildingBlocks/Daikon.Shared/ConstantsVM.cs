@@ -1,5 +1,7 @@
 
+using Daikon.Shared.Constants.AppProject;
 using Daikon.Shared.Constants.AppScreen;
+using Daikon.Shared.Constants.AppTarget;
 
 namespace Daikon.Shared
 {
@@ -9,6 +11,10 @@ namespace Daikon.Shared
         {
             return new
             {
+                AppTarget = new
+                {
+                    TargetTypes = TargetType.GetTargetTypes()
+                },
                 AppScreen = new
                 {
                     ScreeningTypes = ScreeningType.GetScreeningTypes(),
@@ -16,7 +22,12 @@ namespace Daikon.Shared
                     ScreeningMethods = ScreeningMethod.GetScreeningMethods(),
 
                     VotingValues = VotingValue.GetVotingValues()
+                },
+                AppProject = new
+                {
+                    ProjectStages = ProjectStage.GetProjectStages()
                 }
+
             };
         }
     }
