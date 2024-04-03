@@ -21,176 +21,162 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateIndexesAsync()
         {
-            var session = _driver.AsyncSession();
             try
             {
-                await session.ExecuteWriteAsync(async tx =>
-                {
-
-                    // Create the index if it does not exist
-                    var createIndexQuery = "CREATE INDEX target_id_index IF NOT EXISTS FOR (t:Target) ON (t.targetId);";
-                    await tx.RunAsync(createIndexQuery);
-
-                });
+                var query = @"
+                  CREATE INDEX target_uniId_index IF NOT EXISTS FOR (t:Target) ON (t.uniId);
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
             }
-            finally
+            catch (Exception ex)
             {
-                await session.CloseAsync();
+                _logger.LogError(ex, "Error in CreateIndexesAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Creating Indexes In Graph", ex);
             }
         }
 
-
-
+        public async Task CreateConstraintsAsync()
+        {
+           
+        }
 
         public async Task AddTarget(Target target)
         {
             _logger.LogInformation("AddTarget(): Adding target with id {TargetId} and name {Name} and genes {genes}", target.TargetId, target.Name, target.GeneAccessionNumbers.ToString());
-            var session = _driver.AsyncSession();
+
             try
             {
-                var retryPolicy = CreateRetryPolicy(_logger);
 
-                await retryPolicy.ExecuteAsync(async () =>
+                var query = @"
+                   MERGE (t:Target { uniId: $uniId })
+                            ON CREATE SET
+                                        t.name = $name,
+                                        t.targetType = $targetType,
+                                        t.associatedGenes = $associatedGenes,
+                                        t.bucket = $bucket
+                            ON MATCH SET  
+                                        t.name = $name,
+                                        t.targetType = $targetType,
+                                        t.associatedGenes = $associatedGenes,
+                                        t.bucket = $bucket
+                ";
+                var (queryResults, _) = await _driver
+                             .ExecutableQuery(query).WithParameters(new
+                             {
+                                 uniId = target.UniId,
+                                 targetId = target.TargetId,
+                                 name = target.Name,
+                                 targetType = target.TargetType,
+                                 associatedGenes = target.GeneAccessionNumbers,
+                                 bucket = target.Bucket
+                             }).ExecuteAsync()
+                             ;
+
+
+                foreach (var accessionNumber in target.GeneAccessionNumbers)
                 {
-                    await session.ExecuteWriteAsync(async tx =>
-                    {
-                        var createTargetQuery = @"
-                            CREATE (t:Target { uniId: $uniId, targetId: $targetId, name: $name, targetType: $targetType, associatedGenes: $associatedGenes, bucket: $bucket})
-                        ";
+                    var query3 = @"
+                        MATCH (g:Gene {accessionNumber: $_accessionNumber})
+                        MATCH (t:Target {uniId: $uniId})
+                        MERGE (t)-[:TARGETS {targetType: $targetType }]->(g)
+                    ";
+                    var (query3Results, _) = await _driver
+                             .ExecutableQuery(query3).WithParameters(new
+                             {
+                                 _accessionNumber = accessionNumber,
+                                 uniId = target.TargetId,
+                                 targetType = target.TargetType
+                             }).ExecuteAsync()
+                             ;
+                }
 
-                        await tx.RunAsync(createTargetQuery, new
-                        {
-                            uniId = target.UniId,
-                            targetId = target.TargetId,
-                            name = target.Name,
-                            targetType = target.TargetType,
-                            associatedGenes = target.GeneAccessionNumbers,
-                            bucket = target.Bucket
-                        });
-
-                        foreach (var accessionNumber in target.GeneAccessionNumbers)
-                        {
-                            var relateToGeneQuery = @"
-                                MATCH (g:Gene {accessionNumber: $accessionNumber})
-                                MATCH (t:Target {targetId: $targetId})
-                                MERGE (t)-[:TARGETS {targetType: $targetType }]->(g)
-                            ";
-
-                            await tx.RunAsync(relateToGeneQuery, new
-                            {
-                                accessionNumber = accessionNumber,
-                                targetId = target.TargetId,
-                                targetType = target.TargetType,
-                            });
-                        }
-                    });
-                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in AddTarget");
                 throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Adding Target To Graph", ex);
             }
-            finally
-            {
-                await session.CloseAsync();
-            }
         }
 
         public async Task UpdateTarget(Target target)
         {
             _logger.LogInformation("UpdateTarget(): Updating target with id {TargetId}", target.TargetId);
-            var session = _driver.AsyncSession();
+
             try
             {
-                var retryPolicy = CreateRetryPolicy(_logger);
-                await retryPolicy.ExecuteAsync(async () =>
-                {
-                    await session.ExecuteWriteAsync(async tx =>
-                    {
-                        var updateTargetQuery = @"
-                    MATCH (t:Target {targetId: $targetId})
+                var query = @"
+                    MATCH (t:Target {uniId: $uniId})
                     SET t.targetType = $targetType, t.bucket = $bucket
-                    ";
-                        await tx.RunAsync(updateTargetQuery, new
-                        {
-                            targetId = target.TargetId,
-                            targetType = target.TargetType,
-                            bucket = target.Bucket
-                        });
-
-                    });
-                });
+                ";
+                var (queryResults, _) = await _driver
+                             .ExecutableQuery(query).WithParameters(new
+                             {
+                                 uniId = target.TargetId,
+                                 targetType = target.TargetType,
+                                 bucket = target.Bucket
+                             }).ExecuteAsync()
+                             ;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in UpdateTarget");
                 throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Updating Target In Graph", ex);
             }
-            finally
-            {
-                await session.CloseAsync();
-            }
         }
 
         public async Task UpdateAssociatedGenesOfTarget(Target target)
         {
             _logger.LogInformation("UpdateAssociatedGenesOfTargetInGraph(): Updating associated genes of target with id {TargetId}", target.TargetId);
-            var session = _driver.AsyncSession();
+
             try
             {
-                var retryPolicy = CreateRetryPolicy(_logger);
-                await retryPolicy.ExecuteAsync(async () =>
-                {
-                    await session.ExecuteWriteAsync(async tx =>
-                    {
-                        var deleteAssociatedGenesQuery = @"
-                            MATCH (t:Target {targetId: $targetId})-[r:TARGETS]->(g:Gene)
+                // Delete existing relations
+                var query = @"
+                    MATCH (t:Target {uniId: $uniId})-[r:TARGETS]->(g:Gene)
                             DELETE r
-                            ";
-                        await tx.RunAsync(deleteAssociatedGenesQuery, new
-                        {
-                            targetId = target.TargetId
-                        });
+                ";
+                var (queryResults, _) = await _driver
+                             .ExecutableQuery(query).WithParameters(new
+                             {
+                                 targetId = target.TargetId
+                             }).ExecuteAsync()
+                             ;
+                // Set new associated genes
+                var query2 = @"
+                    MATCH (t:Target {uniId: $uniId})
+                    SET t.associatedGenes = $associatedGenes
+                ";
+                var (query2Results, _) = await _driver
+                             .ExecutableQuery(query2).WithParameters(new
+                             {
+                                 uniId = target.TargetId,
+                                 associatedGenes = target.GeneAccessionNumbers
+                             }).ExecuteAsync()
+                             ;
+                // Create new relations
+                foreach (var accessionNumber in target.GeneAccessionNumbers)
+                {
+                    var query3 = @"
+                        MATCH (g:Gene {accessionNumber: $_accessionNumber})
+                        MATCH (t:Target {uniId: $uniId})
+                        MERGE (t)-[:TARGETS {targetType: $targetType }]->(g)
+                    ";
+                    var (query3Results, _) = await _driver
+                             .ExecutableQuery(query3).WithParameters(new
+                             {
+                                 _accessionNumber = accessionNumber,
+                                 uniId = target.TargetId,
+                                 targetType = target.TargetType
+                             }).ExecuteAsync()
+                             ;
+                }
 
-                        var updateTargetQuery = @"
-                            MATCH (t:Target {targetId: $targetId})
-                            SET t.associatedGenes = $associatedGenes
-                            ";
-                        await tx.RunAsync(updateTargetQuery, new
-                        {
-                            targetId = target.TargetId,
-                            associatedGenes = target.GeneAccessionNumbers
-                        });
 
-
-
-                        foreach (var accessionNumber in target.GeneAccessionNumbers)
-                        {
-                            var relateToGeneQuery = @"
-                                MATCH (g:Gene {accessionNumber: $_accessionNumber})
-                                MATCH (t:Target {targetId: $targetId})
-                                MERGE (t)-[:TARGETS {targetType: $targetType }]->(g)
-                            ";
-
-                            await tx.RunAsync(relateToGeneQuery, new
-                            {
-                                _accessionNumber = accessionNumber,
-                                targetId = target.TargetId,
-                                targetType = target.TargetType,
-                            });
-                        }
-                    });
-                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in UpdateAssociatedGenesOfTargetInGraph");
                 throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Updating Associated Genes Of Target In Graph", ex);
-            }
-            finally
-            {
-                await session.CloseAsync();
             }
         }
 
@@ -199,66 +185,29 @@ namespace Horizon.Infrastructure.Repositories
             throw new NotImplementedException();
         }
 
-        public Task RenameTarget(string targetId, string newName)
+        public async Task RenameTarget(string targetId, string newName)
         {
             _logger.LogInformation("RenameTarget(): Renaming target with id {targetId} to {NewName}", targetId, newName);
-            var session = _driver.AsyncSession();
+
             try
             {
-                var retryPolicy = CreateRetryPolicy(_logger);
-                return retryPolicy.ExecuteAsync(async () =>
-                {
-                    await session.ExecuteWriteAsync(async tx =>
-                    {
-                        var renameScreenQuery = @"
-                            MATCH (t:Target {targetId: $_targetId})
+                var query = @"
+                     MATCH (t:Target {uniId: $uniId})
                             SET t.name = $_newName
-                        ";
-                        await tx.RunAsync(renameScreenQuery, new
-                        {
-                            _targetId = targetId,
-                            _newName = newName
-                        });
-                    });
-                });
+                ";
+                var (queryResults, _) = await _driver
+                             .ExecutableQuery(query).WithParameters(new
+                             {
+                                 uniId = targetId,
+                                 _newName = newName
+                             }).ExecuteAsync()
+                             ;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in Rename target");
                 throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Renaming Target In Graph", ex);
             }
-            finally
-            {
-                session.CloseAsync();
-            }
         }
-
-
-
-        // Define the RetryPolicy
-        /*
-        This method call specifies the type of exception that the policy should handle, which in this case is ClientException.
-        The lambda expression ex => ex.Message.Contains("ConstraintValidationFailed") further filters these exceptions to only 
-        those where the exception's message contains the text "ConstraintValidationFailed". 
-        This is likely a specific error message you expect from Neo4j when a unique constraint is violated.
-
-        The need for this retry policy is because multiple nodes of same functional category were created in the graph database
-        when uploading in bulk.
-        */
-        private static readonly Func<ILogger<GraphRepositoryForTarget>, IAsyncPolicy> CreateRetryPolicy = logger => Policy
-            .Handle<ClientException>(ex => ex.Message.Contains("ConstraintValidationFailed"))
-            .WaitAndRetryAsync(
-                new[]
-                {
-                    TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(3),
-                    TimeSpan.FromSeconds(7)
-                },
-                onRetry: (exception, timeSpan, retryCount, context) =>
-                {
-                    logger.LogWarning("Attempt {RetryCount} failed with exception. Waiting {TimeSpan} before next retry. Exception: {Exception}",
-                        retryCount, timeSpan, exception.Message);
-                }
-            );
     }
 }

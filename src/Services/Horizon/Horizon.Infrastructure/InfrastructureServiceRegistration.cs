@@ -21,7 +21,6 @@ namespace Horizon.Infrastructure
             services.AddScoped<IGraphRepositoryForScreen, GraphRepositoryForScreen>();
             services.AddScoped<IGraphRepositoryForHitCollection, GraphRepositoryForHitCollection>();
             services.AddScoped<IGraphRepositoryForMLogix, GraphRepositoryForMLogix>();
-
             services.AddScoped<IGraphQueryRepository, GraphQueryRepository>();
             
 
