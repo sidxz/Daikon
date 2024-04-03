@@ -15,11 +15,13 @@ namespace Horizon.Infrastructure.Repositories
     {
         private readonly IDriver _driver;
         private ILogger<GraphRepositoryForMLogix> _logger;
+        private readonly QueryConfig _queryConfig;
 
         public GraphRepositoryForMLogix(IDriver driver, ILogger<GraphRepositoryForMLogix> logger)
         {
             _driver = driver;
             _logger = logger;
+            _queryConfig = new QueryConfig(database: Environment.GetEnvironmentVariable("Database") ?? "Horizon");
         }
 
         public async Task CreateIndexesAsync()
@@ -57,22 +59,12 @@ namespace Horizon.Infrastructure.Repositories
                 await session.CloseAsync();
             }
         }
-
-
         public async Task AddMolecule(Molecule molecule)
         {
             _logger.LogInformation("Adding Molecule to Graph with RegistrationId: {RegistrationId}", molecule.RegistrationId);
-            var session = _driver.AsyncSession();
-            try
-            {
-                var retryPolicy = CreateRetryPolicy(_logger);
 
-                await retryPolicy.ExecuteAsync(async () =>
-                {
-                    await session.ExecuteWriteAsync(async tx =>
-                    {
-                        var createOrUpdateMoleculeQuery = @"
-                            MERGE (m:Molecule { registrationId: $registrationId })
+            var mergeMolQuery = @"
+                     MERGE (m:Molecule { registrationId: $registrationId })
                             ON CREATE SET
                                         m.uniId = $uniId,
                                         m.mLogixId = $mLogixId,
@@ -85,30 +77,19 @@ namespace Horizon.Infrastructure.Repositories
                                         m.name = $name,
                                         m.requestedSMILES = $requestedSMILES,
                                         m.smilesCanonical = $smilesCanonical
-";
+                ";
 
-                        await tx.RunAsync(createOrUpdateMoleculeQuery, new
-                        {
-                            uniId = molecule.UniId,
-                            mLogixId = molecule.MLogixId,
-                            registrationId = molecule.RegistrationId,
-                            name = molecule.Name,
-                            requestedSMILES = molecule.RequestedSMILES,
-                            smilesCanonical = molecule.SmilesCanonical,
-                        });
-
-                    });
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in AddMolecule");
-                throw new RepositoryException(nameof(GraphRepositoryForMLogix), "Error Adding Molecule To Graph", ex);
-            }
-            finally
-            {
-                await session.CloseAsync();
-            }
+            var (queryResults, _) = await _driver
+                         .ExecutableQuery(mergeMolQuery).WithParameters(new
+                         {
+                             uniId = molecule.UniId,
+                             mLogixId = molecule.MLogixId,
+                             registrationId = molecule.RegistrationId,
+                             name = molecule.Name,
+                             requestedSMILES = molecule.RequestedSMILES,
+                             smilesCanonical = molecule.SmilesCanonical,
+                         }).ExecuteAsync()
+                         ;
         }
 
 
