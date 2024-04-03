@@ -27,10 +27,10 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
             _logger.LogInformation("=======================================================START=======================================================");
 
 
-            var runQuery = @"MATCH (i:Gene {geneId : $_geneId}) <-[rel*]-(x)
+            var runQuery = @"MATCH (i {uniId : $uniId}) <-[rel*]-(x)
                                     WHERE x:Gene OR x:Target OR x:Screen OR x:HitCollection
                                     RETURN i, rel, x";
-            var parameters = new Dictionary<string, object> { { "_geneId", "03ed5d27-2750-4d3e-ba36-286461188595" } };
+            var parameters = new Dictionary<string, object> { { "uniId", "6c013bbb-eec9-4197-80d1-4c23bc04ff46" } };
 
             /* 
              * i = index node
@@ -51,17 +51,29 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
             foreach (var record in records)
             {
                 var node = record["i"].As<INode>();
-
+                rootNode.Id = Guid.Parse(node["uniId"].As<string>());
                 rootNode.Name = node["name"].As<string>();
                 rootNode.Type = node.Labels.First();
                 rootNode.NeoId = node.ElementId.ToString();
-                rootNode.Attributes = new Dictionary<string, string>
-                {
-                    { "accessionNumber", node["accessionNumber"].As<string>() },
-                    { "geneId", node["geneId"].As<string>() },
-                };
 
-                //_logger.LogInformation($"Node: {System.Text.Json.JsonSerializer.Serialize(node)}");
+
+                foreach (var property in node.Properties)
+                {
+                    // Check if the property value is an array
+                    if (property.Value is IEnumerable<object> propertyArray && !(property.Value is string))
+                    {
+                        // Use string.Join to convert the array elements to a single string, separated by commas
+                        rootNode.Attributes[property.Key] = string.Join(", ", propertyArray);
+                    }
+                    else
+                    {
+                        // If it's not an array, just convert the value to a string
+                        rootNode.Attributes[property.Key] = property.Value?.ToString();
+                    }
+                }
+
+
+                _logger.LogInformation($"Node: {System.Text.Json.JsonSerializer.Serialize(node.Properties)}");
                 break;
             }
             _logger.LogInformation($"Root Node: {System.Text.Json.JsonSerializer.Serialize(rootNode)}");
@@ -79,9 +91,24 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
                     Name = node["name"].As<string>(),
                     Type = node.Labels.First(),
                     NeoId = node.ElementId.ToString(),
-
-
+                    Id = Guid.Parse(node["uniId"].As<string>()),
+                   
                 };
+                foreach (var property in node.Properties)
+                {
+                    // Check if the property value is an array
+                    if (property.Value is IEnumerable<object> propertyArray && !(property.Value is string))
+                    {
+                        // Use string.Join to convert the array elements to a single string, separated by commas
+                        branchNode.Attributes[property.Key] = string.Join(", ", propertyArray);
+                    }
+                    else
+                    {
+                        // If it's not an array, just convert the value to a string
+                        branchNode.Attributes[property.Key] = property.Value?.ToString();
+                    }
+                }
+
 
                 branchNodes.Add(branchNode.NeoId, branchNode);
                 //_logger.LogInformation($"Node: {System.Text.Json.JsonSerializer.Serialize(node)}");
