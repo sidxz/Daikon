@@ -30,12 +30,12 @@ namespace Horizon.Infrastructure.Repositories
             try
             {
                 var query = @"
-                  CREATE INDEX molecules_uniId_index IF NOT EXISTS FOR (m:Molecules) ON (m.uniId);;
+                  CREATE INDEX molecules_uniId_index IF NOT EXISTS FOR (m:Molecules) ON (m.uniId);
                 ";
                 var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
 
                 var query2 = @"
-                  CREATE INDEX molecules_registration_id_index IF NOT EXISTS FOR (m:Molecules) ON (m.registrationId);;
+                  CREATE INDEX molecules_registration_id_index IF NOT EXISTS FOR (m:Molecules) ON (m.registrationId);
                 ";
                 var (query2Results, _) = await _driver.ExecutableQuery(query2).ExecuteAsync();
 

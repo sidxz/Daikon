@@ -83,7 +83,7 @@ namespace Screen.API.Controllers.V2
         {
             try
             {
-                command.Id = Guid.NewGuid();;
+                command.Id = Guid.NewGuid();
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status201Created, new AddResponse

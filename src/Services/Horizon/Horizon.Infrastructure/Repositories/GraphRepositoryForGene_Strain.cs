@@ -65,10 +65,10 @@ namespace Horizon.Infrastructure.Repositories
                    MERGE (s:Strain { uniId: $uniId })
                             ON CREATE SET
                                         s.name = $name,
-                                        s.organism = $organism,
+                                        s.organism = $organism
                             ON MATCH SET  
                                         s.name = $name,
-                                        s.organism = $organism,
+                                        s.organism = $organism
                 ";
 
                 var (queryResults, _) = await _driver

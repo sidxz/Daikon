@@ -51,15 +51,15 @@ namespace Horizon.Infrastructure.Repositories
                    MERGE (s:Screen { uniId: $uniId })
                             ON CREATE SET
                                         s.name = $name,
-                                        s.screenType = $targetType,
-                                        s.method = $associatedGenes,
-                                        s.status = $bucket
+                                        s.screenType = $screenType,
+                                        s.method = $method,
+                                        s.status = $status,
                                         s.primaryOrgName = $primaryOrgName
                             ON MATCH SET  
                                         s.name = $name,
-                                        s.screenType = $targetType,
-                                        s.method = $associatedGenes,
-                                        s.status = $bucket
+                                        s.screenType = $screenType,
+                                        s.method = $method,
+                                        s.status = $status,
                                         s.primaryOrgName = $primaryOrgName
                 ";
                 var (queryResults, _) = await _driver
@@ -73,6 +73,7 @@ namespace Horizon.Infrastructure.Repositories
                                  primaryOrgName = screen.PrimaryOrgName
                              }).ExecuteAsync()
                              ;
+
                 foreach (var targetId in screen.AssociatedTargetsId)
                 {
                     var relateQuery = @"
@@ -105,7 +106,8 @@ namespace Horizon.Infrastructure.Repositories
 
                 var query = @"
                    MATCH (s:Screen {uniId: $uniId})
-                            SET s.name = $name,
+                            SET 
+                                s.name = $name,
                                 s.screenType = $screenType, 
                                 s.method = $method, 
                                 s.status = $status, 
