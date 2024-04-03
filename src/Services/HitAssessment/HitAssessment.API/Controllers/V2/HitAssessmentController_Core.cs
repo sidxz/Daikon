@@ -101,8 +101,7 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddHitAssessment([FromBody] NewHitAssessmentCommand command)
         {
-            // log the raw request recieved
-            // _logger.LogInformation($"Received SubmitTPQCommand API: {JsonSerializer.Serialize(command)}");
+            
             var id = Guid.NewGuid();
             try
             {

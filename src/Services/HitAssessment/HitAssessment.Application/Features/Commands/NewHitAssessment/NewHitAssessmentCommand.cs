@@ -17,6 +17,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         // Primary HA Compound
         public Guid? HitId { get; set; }
         public Guid CompoundId { get; set; }
+        public string? CompoundSMILES { get; set; }
         public string? CompoundMIC { get; set; }
         public string? CompoundIC50 { get; set; }
 

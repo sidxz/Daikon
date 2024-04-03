@@ -49,6 +49,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 }
 
                 request.DateCreated = DateTime.UtcNow;
+                request.StatusDate = DateTime.UtcNow;
 
                 var newHitAssessmentCreatedEvent = _mapper.Map<HaCreatedEvent>(request);
 
@@ -67,6 +68,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     Notes = new DVariable<string>("Initial HA Compound"),
                     MIC = request.CompoundMIC ?? "0",
                     IC50 = request.CompoundIC50 ?? "0",
+                    RequestedSMILES = request.CompoundSMILES,
                 };
 
                 try {

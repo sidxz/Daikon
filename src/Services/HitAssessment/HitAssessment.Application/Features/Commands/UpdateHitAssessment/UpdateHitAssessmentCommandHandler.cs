@@ -31,6 +31,23 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
 
         public async Task<Unit> Handle(UpdateHitAssessmentCommand request, CancellationToken cancellationToken)
         {
+            
+            // fetch existing hit assessment
+            var existingHitAssessment = await _haRepository.ReadHaById(request.Id);
+
+            if (existingHitAssessment == null)
+            {
+                _logger.LogWarning("HitAssessment not found: {Id}", request.Id);
+                throw new ResourceNotFoundException(nameof(HitAssessment), request.Id);
+            }
+
+            // check if status has changed
+            if (existingHitAssessment.Status != request.Status)
+            {
+                // status has changed, update status date
+                request.StatusDate = DateTime.UtcNow;
+            }
+
             var haUpdatedEvent = _mapper.Map<HaUpdatedEvent>(request);
 
             try

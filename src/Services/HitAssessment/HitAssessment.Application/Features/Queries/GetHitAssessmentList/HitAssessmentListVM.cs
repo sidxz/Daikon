@@ -16,6 +16,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
 
         public bool IsHAComplete { get; set; }
         public Guid? PrimaryOrgId { get; set; }
+        public string CompoundEvoLatestSMILES { get; set; }
     }
 }
 
