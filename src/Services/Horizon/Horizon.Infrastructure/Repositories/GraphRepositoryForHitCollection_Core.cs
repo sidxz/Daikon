@@ -23,45 +23,30 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateIndexesAsync()
         {
-            var session = _driver.AsyncSession();
             try
             {
-                await session.ExecuteWriteAsync(async tx =>
-                {
+                var query = @"
+                  CREATE INDEX hit_collection_uniId_index IF NOT EXISTS FOR (hc:HitCollection) ON (hc.uniId);
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
 
-                    // Create the index if it does not exist
-                    var createIndexQuery = "CREATE INDEX hit_collection_id_index IF NOT EXISTS FOR (h:HitCollection) ON (h.hitCollectionId);";
-                    await tx.RunAsync(createIndexQuery);
-
-                    createIndexQuery = "CREATE INDEX hit_collection_name_index IF NOT EXISTS FOR (h:HitCollection) ON (h.name);";
-                    await tx.RunAsync(createIndexQuery);
-
-                });
+                var query2 = @"
+                  CREATE INDEX hit_index IF NOT EXISTS FOR (h:Hit) ON (h.uniId);
+                ";
+                var (query2Results, _) = await _driver.ExecutableQuery(query2).ExecuteAsync();
             }
-            finally
+            catch (Exception ex)
             {
-                await session.CloseAsync();
+                _logger.LogError(ex, "Error in CreateIndexesAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Creating Indexes In Graph", ex);
             }
         }
 
 
         public async Task CreateConstraintsAsync()
         {
-            var session = _driver.AsyncSession();
-            try
-            {
-                await session.ExecuteWriteAsync(async tx =>
-                {
-                    var createConstraintQuery = "CREATE CONSTRAINT hit_collection_uniId_constraint IF NOT EXISTS FOR (h:HitCollection) REQUIRE h.uniId IS UNIQUE;";
-                    await tx.RunAsync(createConstraintQuery);
-                });
-            }
-            finally
-            {
-                await session.CloseAsync();
-            }
+            
         }
-
 
         public async Task AddHitCollection(HitCollection hitCollection)
         {

@@ -99,7 +99,7 @@ namespace Horizon.Infrastructure.Repositories
             try
             {
                 var deleteHitQuery = @"
-                     MATCH (hit:Hit {uniId: $_hitId})
+                    MATCH (hit:Hit {uniId: $_hitId})
                     DETACH DELETE hit
                 ";
 

@@ -28,9 +28,11 @@ namespace Horizon.Infrastructure.HostedServices
 
                 var targetGraphRepository = scope.ServiceProvider.GetRequiredService<IGraphRepositoryForTarget>();
                 await targetGraphRepository.CreateIndexesAsync();
+                await targetGraphRepository.CreateConstraintsAsync();
 
                 var screenGraphRepository = scope.ServiceProvider.GetRequiredService<IGraphRepositoryForScreen>();
                 await screenGraphRepository.CreateIndexesAsync();
+                await screenGraphRepository.CreateConstraintsAsync();
 
                 var hitCollectionGraphRepository = scope.ServiceProvider.GetRequiredService<IGraphRepositoryForHitCollection>();
                 await hitCollectionGraphRepository.CreateIndexesAsync();

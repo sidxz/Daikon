@@ -22,42 +22,37 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateIndexesAsync()
         {
-            var session = _driver.AsyncSession();
+
             try
             {
-                await session.ExecuteWriteAsync(async tx =>
-                {
-                    // Create the index if it does not exist
-                    var createIndexQuery = "CREATE INDEX gene_accessionNo_index IF NOT EXISTS FOR (g:Gene) ON (g.accessionNumber);";
-                    await tx.RunAsync(createIndexQuery);
-                    createIndexQuery = "CREATE INDEX strain_name_index IF NOT EXISTS FOR (s:Strain) ON (s.name);";
+                var query = @"
+                  CREATE INDEX gene_uniId_index IF NOT EXISTS FOR (g:Gene) ON (g.uniId);
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
 
-                });
+                var query2 = @"
+                  CREATE INDEX gene_accessionNo_index IF NOT EXISTS FOR (g:Gene) ON (g.accessionNumber);
+                ";
+                var (query2Results, _) = await _driver.ExecutableQuery(query2).ExecuteAsync();
+
+
+                var query3 = @"
+                  CREATE INDEX strain_uni_index IF NOT EXISTS FOR (s:Strain) ON (s.uniId);
+                ";
+                var (query3Results, _) = await _driver.ExecutableQuery(query3).ExecuteAsync();
+
             }
-            finally
+            catch (Exception ex)
             {
-                await session.CloseAsync();
+                _logger.LogError(ex, "Error in CreateIndexesAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Creating Indexes In Graph", ex);
             }
+
         }
 
         public async Task CreateConstraintsAsync()
         {
-            var session = _driver.AsyncSession();
-            try
-            {
-                await session.ExecuteWriteAsync(async tx =>
-                {
 
-                    // functional category constraint; unique
-                    var createConstraintQuery = "CREATE CONSTRAINT uniId_constraint IF NOT EXISTS FOR (g:Gene) REQUIRE g.uniId IS UNIQUE;";
-                    await tx.RunAsync(createConstraintQuery);
-
-                });
-            }
-            finally
-            {
-                await session.CloseAsync();
-            }
         }
 
         public async Task AddStrain(Strain strain)
@@ -70,22 +65,20 @@ namespace Horizon.Infrastructure.Repositories
                    MERGE (s:Strain { uniId: $uniId })
                             ON CREATE SET
                                         s.name = $name,
-                                        s.strainId = $strainId,
                                         s.organism = $organism,
                             ON MATCH SET  
                                         s.name = $name,
-                                        s.strainId = $strainId,
                                         s.organism = $organism,
                 ";
+
                 var (queryResults, _) = await _driver
-                             .ExecutableQuery(query).WithParameters(new
-                             {
-                                 uniId = strain.UniId,
-                                 name = strain.Name,
-                                 strainId = strain.StrainId,
-                                 organism = strain.Organism
-                             }).ExecuteAsync()
-                             ;
+                    .ExecutableQuery(query).WithParameters(new
+                    {
+                        uniId = strain.StrainId,
+                        name = strain.Name,
+                        organism = strain.Organism
+                    }).ExecuteAsync();
+
             }
             catch (Exception ex)
             {
@@ -104,17 +97,19 @@ namespace Horizon.Infrastructure.Repositories
             {
                 var query = @"
                      MATCH (s:Strain {uniId: $uniId})
-                            SET s.name = $name, s.organism = $organism
+                        SET
+                            s.name = $name,
+                            s.organism = $organism
                 ";
+
                 var (queryResults, _) = await _driver
-                             .ExecutableQuery(query).WithParameters(new
-                             {
-                                 uniId = strain.UniId,
-                                 name = strain.Name,
-                                 strainId = strain.StrainId,
-                                 organism = strain.Organism
-                             }).ExecuteAsync()
-                             ;
+                    .ExecutableQuery(query).WithParameters(new
+                    {
+                        uniId = strain.StrainId,
+                        name = strain.Name,
+                        organism = strain.Organism
+                    }).ExecuteAsync();
+                    
             }
             catch (Exception ex)
             {

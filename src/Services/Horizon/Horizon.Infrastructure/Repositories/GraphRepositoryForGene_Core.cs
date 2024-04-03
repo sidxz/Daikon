@@ -29,7 +29,7 @@ namespace Horizon.Infrastructure.Repositories
                                     g.product = $product,
                                     g.functionalCategory = $functionalCategory
                                 WITH g
-                                MERGE (s:Strain {strainId: $strainId})
+                                MERGE (s:Strain {uniId: $strainId})
                                 MERGE (g)-[:PART_OF]->(s)
                 ";
                 var (queryResults, _) = await _driver

@@ -26,38 +26,30 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateIndexesAsync()
         {
-            var session = _driver.AsyncSession();
+
             try
             {
-                await session.ExecuteWriteAsync(async tx =>
-                {
+                var query = @"
+                  CREATE INDEX molecules_uniId_index IF NOT EXISTS FOR (m:Molecules) ON (m.uniId);;
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
 
-                    // Create the index if it does not exist
-                    var createIndexQuery = "CREATE INDEX molecules_registration_id_index IF NOT EXISTS FOR (m:Molecules) ON (m.registrationId);";
-                    await tx.RunAsync(createIndexQuery);
-                });
+                var query2 = @"
+                  CREATE INDEX molecules_registration_id_index IF NOT EXISTS FOR (m:Molecules) ON (m.registrationId);;
+                ";
+                var (query2Results, _) = await _driver.ExecutableQuery(query2).ExecuteAsync();
+
             }
-            finally
+            catch (Exception ex)
             {
-                await session.CloseAsync();
+                _logger.LogError(ex, "Error in CreateIndexesAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForMLogix), "Error Creating Indexes In Graph", ex);
             }
         }
 
         public async Task CreateConstraintsAsync()
         {
-            var session = _driver.AsyncSession();
-            try
-            {
-                await session.ExecuteWriteAsync(async tx =>
-                {
-                    var createConstraintQuery = "CREATE CONSTRAINT molecules_uniId_constraint IF NOT EXISTS FOR (m:Molecules) REQUIRE m.uniId IS UNIQUE;";
-                    await tx.RunAsync(createConstraintQuery);
-                });
-            }
-            finally
-            {
-                await session.CloseAsync();
-            }
+
         }
         public async Task AddMolecule(Molecule molecule)
         {
@@ -91,35 +83,5 @@ namespace Horizon.Infrastructure.Repositories
                          }).ExecuteAsync()
                          ;
         }
-
-
-
-
-        // Define the RetryPolicy
-        /*
-        This method call specifies the type of exception that the policy should handle, which in this case is ClientException.
-        The lambda expression ex => ex.Message.Contains("ConstraintValidationFailed") further filters these exceptions to only 
-        those where the exception's message contains the text "ConstraintValidationFailed". 
-        This is likely a specific error message you expect from Neo4j when a unique constraint is violated.
-
-        The need for this retry policy is because multiple nodes of same functional category were created in the graph database
-        when uploading in bulk.
-        */
-        private static readonly Func<ILogger<GraphRepositoryForMLogix>, IAsyncPolicy> CreateRetryPolicy = logger => Policy
-             .Handle<TransientException>()
-                .Or<ServiceUnavailableException>()
-            .WaitAndRetryAsync(
-                new[]
-                {
-                    TimeSpan.FromSeconds(1),
-                    TimeSpan.FromSeconds(3),
-                    TimeSpan.FromSeconds(7)
-                },
-                onRetry: (exception, timeSpan, retryCount, context) =>
-                {
-                    logger.LogWarning("Attempt {RetryCount} failed with exception. Waiting {TimeSpan} before next retry. Exception: {Exception}",
-                        retryCount, timeSpan, exception.Message);
-                }
-            );
     }
 }

@@ -21,22 +21,23 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateIndexesAsync()
         {
-            var session = _driver.AsyncSession();
             try
             {
-                await session.ExecuteWriteAsync(async tx =>
-                {
-
-                    // Create the index if it does not exist
-                    var createIndexQuery = "CREATE INDEX uni_id_index IF NOT EXISTS FOR (t:Target) ON (t.uniId);";
-                    await tx.RunAsync(createIndexQuery);
-
-                });
+                var query = @"
+                  CREATE INDEX target_uniId_index IF NOT EXISTS FOR (t:Target) ON (t.uniId);
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
             }
-            finally
+            catch (Exception ex)
             {
-                await session.CloseAsync();
+                _logger.LogError(ex, "Error in CreateIndexesAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Creating Indexes In Graph", ex);
             }
+        }
+
+        public async Task CreateConstraintsAsync()
+        {
+           
         }
 
         public async Task AddTarget(Target target)
