@@ -24,5 +24,8 @@ RUN dotnet restore "Services/Horizon/Horizon.API/Horizon.API.csproj"
 # Set the working directory
 WORKDIR /app/Services/Horizon/Horizon.API
 
+
+#ENV DOTNET_WATCH_SUPPRESS_PROMPT=1
+
 # Entry point for the application
 ENTRYPOINT ["dotnet", "watch", "run"]

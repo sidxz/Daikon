@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Horizon.Application.Contracts.Persistance;
 using Microsoft.Extensions.Logging;
+using Neo4j.Driver;
 
 namespace Horizon.Application.Features.Calculation
 {
@@ -18,18 +19,26 @@ namespace Horizon.Application.Features.Calculation
             _logger = logger;
         }
 
-        public static string ByUniId(string uniId)
+        public async Task<string> ByUniId(string uniId)
         {
 
             // Case when root is gene
-
-            var runQuery = @"MATCH (x {uniId : $uniId}) <-[rel*]-(x)
-                                    WHERE x:Gene OR x:Target OR x:Screen OR x:HitCollection
-                                    RETURN i, rel, x";
-            var parameters = new Dictionary<string, object> { { "uniId", "6c013bbb-eec9-4197-80d1-4c23bc04ff46" } };
+            _logger.LogInformation("=======================================================ROOT START=======================================================");
+            var runQuery = @"MATCH (i {uniId: $uniId}) -[*]-> (g:Gene) RETURN g";
+            var parameters = new Dictionary<string, object> { { "uniId", uniId } };
 
 
+            var cursor = await _graphQueryRepository.RunAsync(runQuery, parameters);
+            var records = await cursor.ToListAsync();
 
+            var recordsJson = System.Text.Json.JsonSerializer.Serialize(records);
+
+            _logger.LogInformation($"Setting Root Node....");
+            _logger.LogInformation($"Root Node: {recordsJson}");
+
+            _logger.LogInformation("=======================================================ROOT END=======================================================");
+
+            
             return "root";
         }
     }

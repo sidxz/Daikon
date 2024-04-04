@@ -3,6 +3,7 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Handlers;
 using Daikon.Events.HitAssessment;
+using Daikon.Shared.Constants.AppHitAssessment;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Application.Features.Commands.NewHaCompoundEvolution;
 using HitAssessment.Domain.Aggregates;
@@ -40,6 +41,8 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 // serialize the request to json and log
                 var requestJson = JsonSerializer.Serialize(request);
                 _logger.LogInformation($"Handling NewHitAssessmentCommand: {requestJson}");
+
+
                 // check if name exists
                 var existingHitAssessment = await _haRepository.ReadHaByName(request.Name);
                 if (existingHitAssessment != null)
@@ -48,8 +51,17 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     throw new InvalidOperationException("HitAssessment name already exists");
                 }
 
-                request.DateCreated = DateTime.UtcNow;
-                request.StatusDate = DateTime.UtcNow;
+                // handle dates
+                var now = DateTime.UtcNow;
+                request.DateCreated = now;
+                request.StatusLastModifiedDate = now;
+                // set HAPredictedStartDate to 10 days now if not set
+                request.HaPredictedStartDate ??= new DVariable<DateTime>(now.AddDays(10));
+
+
+                request.Status ??= new DVariable<string>(nameof(HitAssessmentStatus.ReadyForHA));
+                request.IsHAComplete ??= false;
+                request.IsHASuccess ??= false;
 
                 var newHitAssessmentCreatedEvent = _mapper.Map<HaCreatedEvent>(request);
 
@@ -71,7 +83,8 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     RequestedSMILES = request.CompoundSMILES,
                 };
 
-                try {
+                try
+                {
                     await _mediator.Send(newHaCompoundEvolutionCommand, cancellationToken);
                 }
                 catch (Exception ex)

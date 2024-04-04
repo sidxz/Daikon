@@ -1,7 +1,9 @@
 using AutoMapper;
+using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.HitAssessment;
+using Daikon.Shared.Constants.AppHitAssessment;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Application.Features.Commands.UpdateHitAssessment;
 using HitAssessment.Domain.Aggregates;
@@ -31,7 +33,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
 
         public async Task<Unit> Handle(UpdateHitAssessmentCommand request, CancellationToken cancellationToken)
         {
-            
+
             // fetch existing hit assessment
             var existingHitAssessment = await _haRepository.ReadHaById(request.Id);
 
@@ -41,11 +43,56 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 throw new ResourceNotFoundException(nameof(HitAssessment), request.Id);
             }
 
+            var now = DateTime.UtcNow;
+
             // check if status has changed
             if (existingHitAssessment.Status != request.Status)
             {
-                // status has changed, update status date
-                request.StatusDate = DateTime.UtcNow;
+                request.StatusLastModifiedDate = now;
+
+                if (request.Status == nameof(HitAssessmentStatus.ReadyForHA))
+                {
+                    request.StatusReadyForHADate = now;
+                    request.IsHAComplete = false;
+                    request.IsHASuccess = false;
+                }
+                else if (request.Status == nameof(HitAssessmentStatus.Active))
+                {
+                    request.StatusActiveDate = now;
+                    request.HaStartDate = now;
+                    request.IsHAComplete = false;
+                    request.IsHASuccess = false;
+                    request.H2LPredictedStartDate = new DVariable<DateTime>(now.AddDays(90));
+                }
+                else if (request.Status == nameof(HitAssessmentStatus.IncorrectMz))
+                {
+                    request.StatusIncorrectMzDate = now;
+                    request.TerminationDate = now;
+                    request.IsHAComplete = true;
+                    request.IsHASuccess = false;
+                }
+                else if (request.Status == nameof(HitAssessmentStatus.KnownLiability))
+                {
+                    request.StatusKnownLiabilityDate = now;
+                    request.CompletionDate = now;
+                    request.IsHAComplete = true;
+                    request.IsHASuccess = false;
+
+                }
+                else if (request.Status == nameof(HitAssessmentStatus.CompleteFailed))
+                {
+                    request.StatusCompleteFailedDate = now;
+                    request.CompletionDate = now;
+                    request.IsHAComplete = true;
+                    request.IsHASuccess = false;
+                }
+                else if (request.Status == nameof(HitAssessmentStatus.CompleteSuccess))
+                {
+                    request.StatusCompleteSuccessDate = now;
+                    request.CompletionDate = now;
+                    request.IsHAComplete = true;
+                    request.IsHASuccess = true;
+                }
             }
 
             var haUpdatedEvent = _mapper.Map<HaUpdatedEvent>(request);

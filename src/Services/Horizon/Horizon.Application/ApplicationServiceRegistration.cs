@@ -1,6 +1,7 @@
 
 using FluentValidation;
 using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Features.Calculation;
 using Horizon.Application.Features.Command.Gene.AddGene;
 using Horizon.Application.Handlers;
 using Horizon.Application.Query.Handlers;
@@ -23,7 +24,7 @@ namespace Horizon.Application
 
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
-
+            services.AddScoped<FindRoot>();
             services.AddScoped<IGeneEventHandler, GeneEventHandler>();
             services.AddScoped<ITargetEventHandler, TargetEventHandler>();
             services.AddScoped<IScreenEventHandler, ScreenEventHandler>();

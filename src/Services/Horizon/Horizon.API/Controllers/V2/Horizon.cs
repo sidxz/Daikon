@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CQRS.Core.Exceptions;
+using CQRS.Core.Responses;
 using Horizon.Application.Features.Queries.GenerateHorizon;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Horizon.API.Controllers.V2
 {
@@ -23,20 +27,48 @@ namespace Horizon.API.Controllers.V2
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         [MapToApiVersion("2.0")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(Guid id, [FromQuery] bool withMeta = false)
         {
             try
             {
-                var query = new GenerateHorizonQuery();
-                var response = await _mediator.Send(query);
-                return Ok(response);
+                var horizon = await _mediator.Send(new GenerateHorizonQuery { Id = id, WithMeta = withMeta });
+
+                return Ok(horizon);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("Horizon: ArgumentNullException {id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("Horizon: Requested Resource Not Found {id}", id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while generating the horizon");
-                return StatusCode((int)HttpStatusCode.InternalServerError, new { Message = "An error occurred while generating the horizon" });
+                const string SAFE_ERROR_MESSAGE = "An error occurred while generating the Horizon";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
             }
         }
     }

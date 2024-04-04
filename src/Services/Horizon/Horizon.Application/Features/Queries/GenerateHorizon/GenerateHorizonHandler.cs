@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Features.Calculation;
 using Horizon.Application.VMs.D3;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -16,14 +17,24 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
         private readonly IGraphQueryRepository _graphQueryRepository;
         private readonly ILogger<GenerateHorizonHandler> _logger;
 
-        public GenerateHorizonHandler(IGraphQueryRepository graphQueryRepository, ILogger<GenerateHorizonHandler> logger)
+        private readonly FindRoot _findRoot;
+
+        public GenerateHorizonHandler(IGraphQueryRepository graphQueryRepository, ILogger<GenerateHorizonHandler> logger, FindRoot findRoot)
         {
             _graphQueryRepository = graphQueryRepository;
             _logger = logger;
+            _findRoot = findRoot;
         }
+        
 
         public async Task<GenerateHorizonResponseVM> Handle(GenerateHorizonQuery request, CancellationToken cancellationToken)
         {
+
+            // Get Root
+            _logger.LogInformation($"Finding Root Node....");
+            var root = await _findRoot.ByUniId(request.Id.ToString());
+            return new GenerateHorizonResponseVM();
+
             _logger.LogInformation("=======================================================START=======================================================");
 
 
