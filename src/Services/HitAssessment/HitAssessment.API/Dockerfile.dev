@@ -1,0 +1,28 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5004
+
+# Core Services
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
+COPY ["BuildingBlocks/Daikon.EventStore/Daikon.EventStore.csproj", "BuildingBlocks/Daikon.EventStore/"]
+COPY ["BuildingBlocks/Daikon.VersionStore/Daikon.VersionStore.csproj", "BuildingBlocks/Daikon.VersionStore/"]
+COPY ["BuildingBlocks/Daikon.Shared/Daikon.Shared.csproj", "BuildingBlocks/Daikon.Shared/"]
+
+# HitAssessment Services
+COPY ["Services/HitAssessment/HitAssessment.API/HitAssessment.API.csproj", "Services/HitAssessment/HitAssessment.API/"]
+COPY ["Services/HitAssessment/HitAssessment.Application/HitAssessment.Application.csproj", "Services/HitAssessment/HitAssessment.Application/"]
+COPY ["Services/HitAssessment/HitAssessment.Domain/HitAssessment.Domain.csproj", "Services/HitAssessment/HitAssessment.Domain/"]
+COPY ["Services/HitAssessment/HitAssessment.Infrastructure/HitAssessment.Infrastructure.csproj", "Services/HitAssessment/HitAssessment.Infrastructure/"]
+
+RUN dotnet restore "Services/HitAssessment/HitAssessment.API/HitAssessment.API.csproj"
+
+WORKDIR "/app/Services/HitAssessment/HitAssessment.API"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]

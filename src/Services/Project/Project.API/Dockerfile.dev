@@ -1,0 +1,27 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5005
+
+# Core Services
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
+COPY ["BuildingBlocks/Daikon.EventStore/Daikon.EventStore.csproj", "BuildingBlocks/Daikon.EventStore/"]
+COPY ["BuildingBlocks/Daikon.VersionStore/Daikon.VersionStore.csproj", "BuildingBlocks/Daikon.VersionStore/"]
+
+# Project Services
+COPY ["Services/Project/Project.API/Project.API.csproj", "Services/Project/Project.API/"]
+COPY ["Services/Project/Project.Application/Project.Application.csproj", "Services/Project/Project.Application/"]
+COPY ["Services/Project/Project.Domain/Project.Domain.csproj", "Services/Project/Project.Domain/"]
+COPY ["Services/Project/Project.Infrastructure/Project.Infrastructure.csproj", "Services/Project/Project.Infrastructure/"]
+
+RUN dotnet restore "Services/Project/Project.API/Project.API.csproj"
+
+WORKDIR "/app/Services/Project/Project.API"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]

@@ -1,0 +1,26 @@
+version: "3.4"
+
+services:
+  Horizon.API:
+    image: ${DOCKER_REGISTRY-}horizon-dev
+    build:
+      context: .
+      dockerfile: Services/Horizon/Horizon.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/Horizon/:/app/Services/Horizon/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5006
+      - "HorizonNeo4jSettings:Uri=bolt://neo4j:7687"
+      - "HorizonNeo4jSettings:User=neo4j"
+      - "HorizonNeo4jSettings:Password=1k5SPVHJ4FZ9"
+      - "HorizonNeo4jSettings:Database=horizon"
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=horizon-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+    ports:
+      - "8006:5006"

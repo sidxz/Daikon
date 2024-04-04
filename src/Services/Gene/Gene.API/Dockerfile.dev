@@ -1,0 +1,29 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5001
+
+# Core Services
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
+COPY ["BuildingBlocks/Daikon.EventStore/Daikon.EventStore.csproj", "BuildingBlocks/Daikon.EventStore/"]
+COPY ["BuildingBlocks/Daikon.VersionStore/Daikon.VersionStore.csproj", "BuildingBlocks/Daikon.VersionStore/"]
+
+
+# Gene Services
+COPY ["Services/Gene/Gene.API/Gene.API.csproj", "Services/Gene/Gene.API/"]
+COPY ["Services/Gene/Gene.Application/Gene.Application.csproj", "Services/Gene/Gene.Application/"]
+COPY ["Services/Gene/Gene.Domain/Gene.Domain.csproj", "Services/Gene/Gene.Domain/"]
+COPY ["Services/Gene/Gene.Infrastructure/Gene.Infrastructure.csproj", "Services/Gene/Gene.Infrastructure/"]
+
+RUN dotnet restore "Services/Gene/Gene.API/Gene.API.csproj"
+
+# Set the working directory
+WORKDIR "/app/Services/Gene/Gene.API"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]

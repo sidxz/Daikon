@@ -1,0 +1,28 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5006
+
+# Copy only the project files and restore as distinct layers to cache dependencies
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
+COPY ["BuildingBlocks/Daikon.EventStore/Daikon.EventStore.csproj", "BuildingBlocks/Daikon.EventStore/"]
+COPY ["BuildingBlocks/Daikon.VersionStore/Daikon.VersionStore.csproj", "BuildingBlocks/Daikon.VersionStore/"]
+
+
+COPY ["Services/Horizon/Horizon.API/Horizon.API.csproj", "Services/Horizon/Horizon.API/"]
+COPY ["Services/Horizon/Horizon.Application/Horizon.Application.csproj", "Services/Horizon/Horizon.Application/"]
+COPY ["Services/Horizon/Horizon.Domain/Horizon.Domain.csproj", "Services/Horizon/Horizon.Domain/"]
+COPY ["Services/Horizon/Horizon.Infrastructure/Horizon.Infrastructure.csproj", "Services/Horizon/Horizon.Infrastructure/"]
+
+RUN dotnet restore "Services/Horizon/Horizon.API/Horizon.API.csproj"
+
+# Set the working directory
+WORKDIR /app/Services/Horizon/Horizon.API
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]
