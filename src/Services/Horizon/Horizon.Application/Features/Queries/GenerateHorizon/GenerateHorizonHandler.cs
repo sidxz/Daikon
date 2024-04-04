@@ -12,36 +12,43 @@ using Neo4j.Driver;
 
 namespace Horizon.Application.Features.Queries.GenerateHorizon
 {
-    public class GenerateHorizonHandler : IRequestHandler<GenerateHorizonQuery, GenerateHorizonResponseVM>
+    public class GenerateHorizonHandler : IRequestHandler<GenerateHorizonQuery, D3Node>
     {
         private readonly IGraphQueryRepository _graphQueryRepository;
         private readonly ILogger<GenerateHorizonHandler> _logger;
 
-        private readonly FindRoot _findRoot;
+        private readonly RootFinder _rootFinder;
 
-        public GenerateHorizonHandler(IGraphQueryRepository graphQueryRepository, ILogger<GenerateHorizonHandler> logger, FindRoot findRoot)
+        public GenerateHorizonHandler(IGraphQueryRepository graphQueryRepository, ILogger<GenerateHorizonHandler> logger, RootFinder rootFinder)
         {
             _graphQueryRepository = graphQueryRepository;
             _logger = logger;
-            _findRoot = findRoot;
+            _rootFinder = rootFinder;
         }
         
 
-        public async Task<GenerateHorizonResponseVM> Handle(GenerateHorizonQuery request, CancellationToken cancellationToken)
+        public async Task<D3Node> Handle(GenerateHorizonQuery request, CancellationToken cancellationToken)
         {
 
             // Get Root
             _logger.LogInformation($"Finding Root Node....");
-            var root = await _findRoot.ByUniId(request.Id.ToString());
-            return new GenerateHorizonResponseVM();
-
-            _logger.LogInformation("=======================================================START=======================================================");
+            var rootId = await _rootFinder.FindByUniqueIdAsync(request.Id.ToString());
+            if (rootId == null)
+            {
+                _logger.LogError($"Root Node not found for id: {request.Id}");
+                return new D3Node()
+                {
+                    Name = "Not Found",
+                    Type = "Error",
+                    Id = Guid.Empty
+                };
+            }
 
 
             var runQuery = @"MATCH (i {uniId : $uniId}) <-[rel*]-(x)
                                     WHERE x:Gene OR x:Target OR x:Screen OR x:HitCollection
                                     RETURN i, rel, x";
-            var parameters = new Dictionary<string, object> { { "uniId", "6c013bbb-eec9-4197-80d1-4c23bc04ff46" } };
+            var parameters = new Dictionary<string, object> { { "uniId", rootId } };
 
             /* 
              * i = index node
@@ -171,11 +178,8 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
             }
 
             _logger.LogInformation($"Final Tree Node: {System.Text.Json.JsonSerializer.Serialize(rootNode)}");
-
-            var resp = new GenerateHorizonResponseVM();
-
-            _logger.LogInformation("=======================================================END=======================================================");
-            return resp;
+           
+            return rootNode;
         }
     }
 }

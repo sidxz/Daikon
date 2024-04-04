@@ -24,7 +24,7 @@ namespace Horizon.Application
 
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
-            services.AddScoped<FindRoot>();
+            services.AddScoped<RootFinder>();
             services.AddScoped<IGeneEventHandler, GeneEventHandler>();
             services.AddScoped<ITargetEventHandler, TargetEventHandler>();
             services.AddScoped<IScreenEventHandler, ScreenEventHandler>();
