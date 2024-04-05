@@ -76,7 +76,9 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
                 var node = record["node"].As<INode>();
                 var branchNode = CreateD3NodeFromINode(node);
                 branchNodes[branchNode.NeoId] = branchNode;
-
+            }
+            foreach (var record in records)
+            {
                 var relationships = record["rel"].As<List<IRelationship>>();
                 SetRelationships(rootNode, branchNodes, relationships);
             }

@@ -38,11 +38,11 @@ services:
       context: .
       dockerfile: Services/Project/Project.API/Dockerfile
   
-  # Horizon.API:
-  #   image: ${DOCKER_REGISTRY-}horizon
-  #   build:
-  #     context: .
-  #     dockerfile: Services/Horizon/Horizon.API/Dockerfile
+  Horizon.API:
+    image: ${DOCKER_REGISTRY-}horizon
+    build:
+      context: .
+      dockerfile: Services/Horizon/Horizon.API/Dockerfile
 
   MLogix.API:
     image: ${DOCKER_REGISTRY-}mlogix
