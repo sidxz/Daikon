@@ -32,9 +32,10 @@ namespace Horizon.Application.Query.Handlers
                 TargetType = @event.TargetType,
                 Bucket = @event.Bucket,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
 
             try
@@ -61,9 +62,10 @@ namespace Horizon.Application.Query.Handlers
                 TargetType = @event.TargetType,
                 Bucket = @event.Bucket,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = true,
-                IsDraft = false
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
 
             try
@@ -86,8 +88,10 @@ namespace Horizon.Application.Query.Handlers
                 Name = @event.Name,
                 GeneAccessionNumbers = @event.AssociatedGenes.Values.ToList(),
                 TargetType = @event.TargetType,
-                IsModified = true,
-                IsDraft = false
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
             try
             {

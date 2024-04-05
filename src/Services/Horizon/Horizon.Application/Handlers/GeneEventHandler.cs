@@ -35,9 +35,9 @@ namespace Horizon.Application.Query.Handlers
                 Product = @event.Product,
                 FunctionalCategory = @event.FunctionalCategory,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
+                DateCreated = @event.DateCreated,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
 
             try
@@ -59,9 +59,9 @@ namespace Horizon.Application.Query.Handlers
                 StrainId = @event.Id.ToString(),
                 Name = @event.Name,
                 Organism = @event.Organism,
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
+                DateCreated = @event.DateCreated,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
 
             try
@@ -90,9 +90,10 @@ namespace Horizon.Application.Query.Handlers
                 Product = @event.Product,
                 FunctionalCategory = @event.FunctionalCategory,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = true,
-                IsDraft = false
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
 
             try
@@ -115,9 +116,10 @@ namespace Horizon.Application.Query.Handlers
                 StrainId = @event.Id.ToString(),
                 Name = @event.Name,
                 Organism = @event.Organism,
-                DateCreated = DateTime.UtcNow,
-                IsModified = true,
-                IsDraft = false
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
 
             try

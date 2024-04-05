@@ -28,8 +28,9 @@ namespace Horizon.Application.Handlers
                 Name = @event.Name,
                 HitCollectionType = @event.HitCollectionType,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
+                DateCreated = @event.DateCreated,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
 
             };
 
@@ -46,8 +47,11 @@ namespace Horizon.Application.Handlers
                 ScreenId = @event.ScreenId.ToString(),
                 Name = @event.Name,
                 HitCollectionType = @event.HitCollectionType,
-
-                IsModified = true,
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
+               
 
             };
             await _graphRepository.UpdateHitCollection(hitCollection);
@@ -78,7 +82,7 @@ namespace Horizon.Application.Handlers
                 MoleculeId = @event.MoleculeId.ToString(),
                 MoleculeRegistrationId = @event.MoleculeRegistrationId.ToString(),
                 DateCreated = @event.DateCreated,
-                IsModified = false,
+                IsModified = @event.IsModified
             };
             await _graphRepository.AddHit(hit);
         }
@@ -92,8 +96,10 @@ namespace Horizon.Application.Handlers
                 HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 Library = @event.Library,
+                DateCreated = @event.DateCreated,
                 DateModified = @event.DateModified,
-                IsModified = true,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
             await _graphRepository.UpdateHit(hit);
         }
@@ -111,7 +117,10 @@ namespace Horizon.Application.Handlers
             {
                 HitCollectionId = @event.Id.ToString(),
                 ScreenId = @event.ScreenId.ToString(),
-                IsModified = true,
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             });
         }
     }

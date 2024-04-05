@@ -28,8 +28,10 @@ namespace Horizon.Application.Handlers
                 Name = @event.Name,
                 RequestedSMILES = @event.RequestedSMILES,
                 SmilesCanonical = @event.SmilesCanonical,
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
 
             return _graphRepository.AddMolecule(molecule);
