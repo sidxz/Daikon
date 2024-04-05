@@ -24,10 +24,10 @@ namespace Horizon.Infrastructure.Repositories
 
             try
             {
-                var query = @"
-                  CREATE INDEX screen_uniId_index IF NOT EXISTS FOR (s:Screen) ON (s.uniId);
-                ";
-                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+                // var query = @"
+                //   CREATE INDEX screen_uniId_index IF NOT EXISTS FOR (s:Screen) ON (s.uniId);
+                // ";
+                // var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -38,7 +38,18 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateConstraintsAsync()
         {
-
+            try
+            {
+                var query = @"
+                    CREATE CONSTRAINT screen_uniId_unique IF NOT EXISTS FOR (s:Screen) REQUIRE s.uniId IS UNIQUE;
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CreateConstraintsAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Creating Constraints In Graph", ex);
+            }
         }
 
 

@@ -29,10 +29,10 @@ namespace Horizon.Infrastructure.Repositories
 
             try
             {
-                var query = @"
-                  CREATE INDEX molecules_uniId_index IF NOT EXISTS FOR (m:Molecules) ON (m.uniId);
-                ";
-                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+                // var query = @"
+                //   CREATE INDEX molecules_uniId_index IF NOT EXISTS FOR (m:Molecules) ON (m.uniId);
+                // ";
+                // var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
 
                 var query2 = @"
                   CREATE INDEX molecules_registration_id_index IF NOT EXISTS FOR (m:Molecules) ON (m.registrationId);
@@ -49,7 +49,18 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateConstraintsAsync()
         {
-
+            try
+            {
+                var query = @"
+                    CREATE CONSTRAINT molecule_uniId_unique IF NOT EXISTS FOR (m:Molecules) REQUIRE m.uniId IS UNIQUE;
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CreateConstraintsAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForMLogix), "Error Creating Constraints In Graph", ex);
+            }
         }
         public async Task AddMolecule(Molecule molecule)
         {

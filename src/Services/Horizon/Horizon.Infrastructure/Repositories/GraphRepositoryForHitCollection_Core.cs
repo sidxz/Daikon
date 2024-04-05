@@ -25,15 +25,10 @@ namespace Horizon.Infrastructure.Repositories
         {
             try
             {
-                var query = @"
-                  CREATE INDEX hit_collection_uniId_index IF NOT EXISTS FOR (hc:HitCollection) ON (hc.uniId);
-                ";
-                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
-
-                var query2 = @"
-                  CREATE INDEX hit_index IF NOT EXISTS FOR (h:Hit) ON (h.uniId);
-                ";
-                var (query2Results, _) = await _driver.ExecutableQuery(query2).ExecuteAsync();
+                // var query = @"
+                //   CREATE INDEX hit_collection_uniId_index IF NOT EXISTS FOR (hc:HitCollection) ON (hc.uniId);
+                // ";
+                // var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -45,7 +40,18 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateConstraintsAsync()
         {
-            
+            try
+            {
+                var query = @"
+                    CREATE CONSTRAINT hit_collection_uniId_unique IF NOT EXISTS FOR (hc:HitCollection) REQUIRE hc.uniId IS UNIQUE;
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CreateConstraintsAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Creating Constraints In Graph", ex);
+            }
         }
 
         public async Task AddHitCollection(HitCollection hitCollection)

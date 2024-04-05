@@ -16,34 +16,13 @@ namespace Horizon.Infrastructure.Repositories
 
             try
             {
-                var query = @"
-                    MATCH (hc:HitCollection {uniId: $hitCollectionId})
-                    MERGE (hc)-[:HIT]->(hit:Hit {uniId: $hitId})
-                        ON CREATE SET 
-                            hit.library = $library, 
-                            hit.requestedSMILES = $requestedSMILES
-                        ON MATCH SET
-                            hit.library = $library, 
-                            hit.requestedSMILES = $requestedSMILES
-                ";
-
-                var (queryResults, _) = await _driver
-                             .ExecutableQuery(query).WithParameters(new
-                             {
-                                 hitCollectionId = hit.HitCollectionId,
-                                 hitId = hit.HitId,
-                                 library = hit.Library,
-                                 requestedSMILES = hit.RequestedSMILES,
-                             }).ExecuteAsync()
-                             ;
-
                 if (!string.IsNullOrEmpty(hit.MoleculeRegistrationId))
                 {
                     var mergeMoleculeQuery = @"
                         MERGE (m:Molecule {registrationId: $moleculeRegistrationId})
                         WITH m
-                        MATCH (hit:Hit {uniId: $hitId})
-                        MERGE (hit)-[:HIT_MOLECULE]->(m)
+                        MATCH (hc:HitCollection {uniId: $hitCollectionId})
+                        MERGE (hc)-[:HIT_MOLECULE {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES}]->(m)
                     ";
 
                     var (queryResults2, _) = await _driver
@@ -51,6 +30,9 @@ namespace Horizon.Infrastructure.Repositories
                              {
                                  hitId = hit.HitId,
                                  moleculeRegistrationId = hit.MoleculeRegistrationId,
+                                 hitCollectionId = hit.HitCollectionId,
+                                 library = hit.Library,
+                                 requestedSMILES = hit.RequestedSMILES
                              }).ExecuteAsync()
                              ;
 
@@ -65,25 +47,23 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task UpdateHit(Hit hit)
         {
-            _logger.LogInformation("UpdateHit(): Updating hit with id {HitId} and MoleculeId {MoleculeID} and hitCollectionId {hitCollectionId}", hit.HitId, hit.MoleculeId, hit.HitCollectionId);
-
+            _logger.LogInformation("UpdateHit(): Updating hit with id {HitId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.HitCollectionId);
             try
             {
                 var query = @"
-                    MATCH (hit:Hit {uniId: $hitId})
-                        SET 
-                            hit.requestedSMILES = $requestedSMILES,
-                            hit.library = $library
-                ";
+                    MATCH (hc:HitCollection {uniId: $hitCollectionId})- [r:HIT_MOLECULE]->(m:Molecule)
+                    WHERE r.hitId = $hitId
+                    SET 
+                        r.library = $library
+        ";
 
                 var (queryResults, _) = await _driver
                     .ExecutableQuery(query).WithParameters(new
                     {
-                        uniId = hit.HitId,
-                        requestedSMILES = hit.RequestedSMILES,
-                        library = hit.Library
-                    }).ExecuteAsync()
-                    ;
+                        hitId = hit.HitId,
+                        hitCollectionId = hit.HitCollectionId,
+                        library = hit.Library,
+                    }).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -92,6 +72,7 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
+
         public async Task DeleteHit(string hitId)
         {
             _logger.LogInformation("DeleteHit(): Deleting hit with id {HitId}", hitId);
@@ -99,16 +80,16 @@ namespace Horizon.Infrastructure.Repositories
             try
             {
                 var deleteHitQuery = @"
-                    MATCH (hit:Hit {uniId: $_hitId})
-                    DETACH DELETE hit
-                ";
+                    MATCH (hc:HitCollection)-[r:HIT_MOLECULE]->(m:Molecule)
+                    WHERE r.hitId = $_hitId
+                    DELETE r
+        ";
 
                 var (queryResults, _) = await _driver
                              .ExecutableQuery(deleteHitQuery).WithParameters(new
                              {
                                  _hitId = hitId,
-                             }).ExecuteAsync()
-                             ;
+                             }).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -116,5 +97,6 @@ namespace Horizon.Infrastructure.Repositories
                 throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Deleting Hit From Graph", ex);
             }
         }
+
     }
 }

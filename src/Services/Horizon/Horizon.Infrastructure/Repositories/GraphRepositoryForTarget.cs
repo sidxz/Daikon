@@ -23,21 +23,32 @@ namespace Horizon.Infrastructure.Repositories
         {
             try
             {
-                var query = @"
-                  CREATE INDEX target_uniId_index IF NOT EXISTS FOR (t:Target) ON (t.uniId);
-                ";
-                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+                // var query = @"
+                //   CREATE INDEX target_uniId_index IF NOT EXISTS FOR (t:Target) ON (t.uniId);
+                // ";
+                // var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in CreateIndexesAsync");
-                throw new RepositoryException(nameof(GraphRepositoryForScreen), "Error Creating Indexes In Graph", ex);
+                throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Creating Indexes In Graph", ex);
             }
         }
 
         public async Task CreateConstraintsAsync()
         {
-           
+           try
+            {
+                var query = @"
+                    CREATE CONSTRAINT target_uniId_unique IF NOT EXISTS FOR (t:Target) REQUIRE t.uniId IS UNIQUE;
+                ";
+                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CreateConstraintsAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Creating Constraints In Graph", ex);
+            }
         }
 
         public async Task AddTarget(Target target)

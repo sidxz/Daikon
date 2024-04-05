@@ -77,7 +77,7 @@ namespace Horizon.Application.Handlers
                 RequestedSMILES = @event.RequestedSMILES,
                 MoleculeId = @event.MoleculeId.ToString(),
                 MoleculeRegistrationId = @event.MoleculeRegistrationId.ToString(),
-                DateCreated = DateTime.UtcNow,
+                DateCreated = @event.DateCreated,
                 IsModified = false,
             };
             await _graphRepository.AddHit(hit);
@@ -91,6 +91,8 @@ namespace Horizon.Application.Handlers
                 UniId = @event.HitId.ToString(),
                 HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.Id.ToString(),
+                Library = @event.Library,
+                DateModified = @event.DateModified,
                 IsModified = true,
             };
             await _graphRepository.UpdateHit(hit);

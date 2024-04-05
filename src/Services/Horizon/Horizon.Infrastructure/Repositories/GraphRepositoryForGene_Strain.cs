@@ -25,10 +25,10 @@ namespace Horizon.Infrastructure.Repositories
 
             try
             {
-                var query = @"
-                  CREATE INDEX gene_uniId_index IF NOT EXISTS FOR (g:Gene) ON (g.uniId);
-                ";
-                var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
+                // var query = @"
+                //   CREATE INDEX gene_uniId_index IF NOT EXISTS FOR (g:Gene) ON (g.uniId);
+                // ";
+                // var (queryResults, _) = await _driver.ExecutableQuery(query).ExecuteAsync();
 
                 var query2 = @"
                   CREATE INDEX gene_accessionNo_index IF NOT EXISTS FOR (g:Gene) ON (g.accessionNumber);
@@ -36,10 +36,10 @@ namespace Horizon.Infrastructure.Repositories
                 var (query2Results, _) = await _driver.ExecutableQuery(query2).ExecuteAsync();
 
 
-                var query3 = @"
-                  CREATE INDEX strain_uni_index IF NOT EXISTS FOR (s:Strain) ON (s.uniId);
-                ";
-                var (query3Results, _) = await _driver.ExecutableQuery(query3).ExecuteAsync();
+                // var query3 = @"
+                //   CREATE INDEX strain_uni_index IF NOT EXISTS FOR (s:Strain) ON (s.uniId);
+                // ";
+                // var (query3Results, _) = await _driver.ExecutableQuery(query3).ExecuteAsync();
 
             }
             catch (Exception ex)
@@ -52,7 +52,23 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateConstraintsAsync()
         {
+            try
+            {
+                var query1 = @"
+                    CREATE CONSTRAINT gene_uniId_unique IF NOT EXISTS FOR (g:Gene) REQUIRE g.uniId IS UNIQUE;
+                ";
+                var (queryResults1, _) = await _driver.ExecutableQuery(query1).ExecuteAsync();
 
+                var query2 = @"
+                    CREATE CONSTRAINT strain_uniId_unique IF NOT EXISTS FOR (s:Strain) REQUIRE s.uniId IS UNIQUE;
+                ";
+                var (queryResults2, _) = await _driver.ExecutableQuery(query2).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in CreateConstraintsAsync");
+                throw new RepositoryException(nameof(GraphRepositoryForGene), "Error Creating Constraints In Graph", ex);
+            }
         }
 
         public async Task AddStrain(Strain strain)
@@ -109,7 +125,7 @@ namespace Horizon.Infrastructure.Repositories
                         name = strain.Name,
                         organism = strain.Organism
                     }).ExecuteAsync();
-                    
+
             }
             catch (Exception ex)
             {
