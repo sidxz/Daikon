@@ -35,7 +35,7 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
 
             // Query to fetch the root node and its connected nodes.
             var query = @"MATCH (root {uniId : $uniId}) <-[rel*]-(node)
-                          WHERE node:Gene OR node:Target OR node:Screen OR node:HitCollection
+                          WHERE node:Gene OR node:Target OR node:Screen OR node:HitCollection OR node:HitAssessment
                           RETURN root, rel, node";
             var parameters = new Dictionary<string, object> { { "uniId", rootId } };
             var cursor = await _graphQueryRepository.RunAsync(query, parameters);

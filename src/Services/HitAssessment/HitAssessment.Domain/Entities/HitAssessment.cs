@@ -16,6 +16,7 @@ namespace HitAssessment.Domain.Entities
 
         /* Associated Hit */
         public Guid HitId { get; set; }
+        public Guid HitCollectionId { get; set; }
         public Guid CompoundId { get; set; }
         public Dictionary<string, string> AssociatedHitIds { get; set; }
 

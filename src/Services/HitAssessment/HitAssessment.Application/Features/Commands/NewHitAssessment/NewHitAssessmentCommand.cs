@@ -23,6 +23,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         public bool? IsHAComplete { get; set; }
 
         // Primary HA Compound
+        public Guid? HitCollectionId { get; set; }
         public Guid? HitId { get; set; }
         public Guid CompoundId { get; set; }
         public string? CompoundSMILES { get; set; }
