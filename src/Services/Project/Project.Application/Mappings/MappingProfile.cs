@@ -39,6 +39,31 @@ namespace Project.Application.Mappings
 
             /* Queries */
             CreateMap<Domain.Entities.Project, ProjectListVM>().ReverseMap();
+
+            CreateMap<Domain.Entities.Project, ProjectVM>()
+            // Mapping DVariable<string> types
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Description)))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Status)))
+            .ForMember(dest => dest.Stage, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Stage)))
+
+            // Mapping DVariable<Guid> types
+            .ForMember(dest => dest.PrimaryOrgId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<Guid>, Guid>(src => src.PrimaryOrgId)))
+
+            // Mapping DVariable<DateTime> types
+            .ForMember(dest => dest.H2LPredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.H2LPredictedStart)))
+            .ForMember(dest => dest.H2LStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.H2LStart)))
+            .ForMember(dest => dest.LOPredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.LOPredictedStart)))
+            .ForMember(dest => dest.LOStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.LOStart)))
+            .ForMember(dest => dest.SPPredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.SPPredictedStart)))
+            .ForMember(dest => dest.SPStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.SPStart)))
+            .ForMember(dest => dest.INDPredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.INDPredictedStart)))
+            .ForMember(dest => dest.INDStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.INDStart)))
+            .ForMember(dest => dest.P1PredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.P1PredictedStart)))
+            .ForMember(dest => dest.P1Start, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.P1Start)))
+            .ForMember(dest => dest.CompletionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.CompletionDate)))
+            .ForMember(dest => dest.ProjectRemovedDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.ProjectRemovedDate)))
+            .ReverseMap();
+
         }
     }
 }

@@ -1,33 +1,53 @@
 
 using CQRS.Core.Domain;
+using Project.Application.Features.Queries.GetHitAssessment;
 
 namespace Project.Application.Features.Queries.GetProject
 {
     public class ProjectVM : DocMetadata
     {
-        public Guid Id { get; set; }
-        public Guid? StrainId { get; set; }
+        public Guid StrainId { get; set; }
         public string Name { get; set; }
-        public string? ProjectType { get; set; }
-        public string? LegacyId { get; set; }
-        public Guid HitId { get; set; }
-        public Guid CompoundId { get; set; }
-
-        public Dictionary<string, string> AssociatedHitIds { get; set; }
-        public object ProjectStart { get; set; }
-        public object ProjectPredictedStart { get; set; }
-        public object ProjectDescription { get; set; }
-        public object ProjectStatus { get; set; }
-
+        public string Alias { get; set; }
+        public string ProjectType { get; set; }
+        public string LegacyId { get; set; }
+        public object Description { get; set; }
+        public object Status { get; set; }
         public bool IsProjectComplete { get; set; }
-        public DateTime? ProjectStatusDate { get; set; }
-        public DateTime? TerminationDate { get; set; }
-        public DateTime? EOLDate { get; set; }
-        public DateTime? CompletionDate { get; set; }
+        public bool IsProjectRemoved { get; set; }
+        public object Stage { get; set; }
+
+        /* Associated Hit Assessment */
+        public Guid HaId { get; set; }
+        public Guid CompoundId { get; set; }
+        public Guid HitCompoundId { get; set; }
+        public Guid HitId { get; set; }
 
 
-        public object PrimaryOrg { get; set; }
-        public List<string> SupportingOrgs { get; set; }
+        /* Orgs */
+        public object PrimaryOrgId { get; set; }
+        public List<Guid> ParticipatingOrgs { get; set; }
+
+
+        /* Dates */
+        public object H2LPredictedStart { get; set; }
+        public object H2LStart { get; set; }
+        public object LOPredictedStart { get; set; }
+        public object LOStart { get; set; }
+        public object SPPredictedStart { get; set; }
+        public object SPStart { get; set; }
+        public object INDPredictedStart { get; set; }
+        public object INDStart { get; set; }
+        public object P1PredictedStart { get; set; }
+        public object P1Start { get; set; }
+        public DateTime ProjectStatusDate { get; set; }
+        public DateTime TerminationDate { get; set; }
+        public object CompletionDate { get; set; }
+        public object ProjectRemovedDate { get; set; }
+
+        /* Compound Evolution */
+        public List<CompoundEvolutionVM> CompoundEvolution { get; set; }
+        public string CompoundEvoLatestSMILES { get; set; } // Calculated
 
     }
 }

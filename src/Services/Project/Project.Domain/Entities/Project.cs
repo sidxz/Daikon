@@ -5,11 +5,11 @@ namespace Project.Domain.Entities
 {
     public class Project : BaseEntity
     {
-        public Guid? StrainId { get; set; }
+        public Guid StrainId { get; set; }
         public string Name { get; set; }
         public string Alias { get; set; }
-        public string? ProjectType { get; set; }
-        public string? LegacyId { get; set; }
+        public string ProjectType { get; set; }
+        public string LegacyId { get; set; }
         public DVariable<string> Description { get; set; }
         public DVariable<string> Status { get; set; }
         public bool IsProjectComplete { get; set; }
@@ -24,8 +24,8 @@ namespace Project.Domain.Entities
 
 
         /* Orgs */
-        public DVariable<Guid>? PrimaryOrgId { get; set; }
-        public List<Guid>? ParticipatingOrgs { get; set; }
+        public DVariable<Guid> PrimaryOrgId { get; set; }
+        public List<Guid> ParticipatingOrgs { get; set; }
 
 
         /* Dates */
@@ -39,10 +39,10 @@ namespace Project.Domain.Entities
         public DVariable<DateTime> INDStart { get; set; }
         public DVariable<DateTime> P1PredictedStart { get; set; }
         public DVariable<DateTime> P1Start { get; set; }
-        public DateTime? ProjectStatusDate { get; set; }
-        public DateTime? TerminationDate { get; set; }
-        public DVariable<DateTime>? CompletionDate { get; set; }
-        public DVariable<DateTime>? ProjectRemovedDate { get; set; }
+        public DateTime ProjectStatusDate { get; set; }
+        public DateTime TerminationDate { get; set; }
+        public DVariable<DateTime> CompletionDate { get; set; }
+        public DVariable<DateTime> ProjectRemovedDate { get; set; }
 
 
     }
