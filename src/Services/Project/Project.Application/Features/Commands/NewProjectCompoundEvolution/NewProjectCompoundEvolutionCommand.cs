@@ -4,16 +4,20 @@ using CQRS.Core.Command;
 using CQRS.Core.Converters;
 using CQRS.Core.Domain;
 using MediatR;
+using Project.Application.Features.Commands.NewHaCompoundEvolution;
 
 namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
 {
-    public class NewProjectCompoundEvolutionCommand : BaseCommand, IRequest<Unit>
+    public class NewProjectCompoundEvolutionCommand : BaseCommand, IRequest<NewProjectCompoundEvolutionResDTO>
     {
 
         public Guid CompoundEvolutionId { get; set; }
 
+        public Guid? MoleculeId { get; set; }
+        public string MoleculeName { get; set; }
+
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? CompoundStructureSMILES { get; set; }
+        public DVariable<string>? RequestedSMILES { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? EvolutionDate { get; set; }

@@ -7,6 +7,8 @@ using Project.Application.Features.Commands.UpdateProject;
 using Project.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Daikon.Shared.Constants.AppProject;
+using CQRS.Core.Domain;
 
 
 namespace Project.Application.Features.Commands.NewProject
@@ -31,6 +33,47 @@ namespace Project.Application.Features.Commands.NewProject
 
         public async Task<Unit> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
         {
+
+            // fetch existing project
+            var existingProject = await _projectRepository.ReadProjectById(request.Id);
+            if (existingProject == null)
+            {
+                _logger.LogWarning("Project not found: {Id}", request.Id);
+                throw new ResourceNotFoundException(nameof(Project), request.Id);
+            }
+
+            var now = DateTime.UtcNow;
+
+            // check if stage has changed
+            if (existingProject.Stage != request.Stage)
+            {
+                if (request.Stage == nameof(ProjectStage.H2L))
+                {
+                    request.H2LStart = now;
+                    request.LOPredictedStart = new DVariable<DateTime>(now.AddDays(90));
+                }
+                else if (request.Stage == nameof(ProjectStage.LO))
+                {
+                    request.LOStart = now;
+                    request.SPPredictedStart = new DVariable<DateTime>(now.AddDays(90));
+                }
+                else if (request.Stage == nameof(ProjectStage.SP))
+                {
+                    request.SPStart = now;
+                    request.INDPredictedStart = new DVariable<DateTime>(now.AddDays(90));
+                }
+                else if (request.Stage == nameof(ProjectStage.IND))
+                {
+                    request.INDStart = now;
+                    request.P1PredictedStart = new DVariable<DateTime>(now.AddDays(90));
+                }
+                else if (request.Stage == nameof(ProjectStage.P1))
+                {
+                    request.P1Start = now;
+                }  
+            }
+
+            
             var projectUpdatedEvent = _mapper.Map<ProjectUpdatedEvent>(request);
 
             try

@@ -11,10 +11,6 @@ namespace Project.Application.Features.Commands.UpdateProject
             RuleFor(t => t.StrainId)
             .NotEmpty().WithMessage("{StrainId} is required");
 
-            RuleFor(t => t.AssociatedHitIds)
-               .Must(BeValidGuidKeyDictionary)
-               .WithMessage("Each key in AssociatedHitIds must be a valid GUID.");
-
         }
         private bool BeValidGuidKeyDictionary(Dictionary<string, string>? dictionary)
         {

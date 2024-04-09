@@ -5,11 +5,26 @@ namespace Project.Domain.EntityRevisions
 {
     public class ProjectRevision : BaseVersionEntity
     {
-        public Dictionary<string, string> AssociatedHitIds { get; set; }
-        public DVariableHistory<DateTime> ProjectStart { get; set; }
-        public DVariableHistory<DateTime> ProjectPredictedStart { get; set; }
-        public DVariableHistory<string> ProjectDescription { get; set; }
-        public DVariableHistory<string> ProjectStatus { get; set; }
-        public DVariableHistory<string> PrimaryOrg { get; set; }
+        
+        public DVariableHistory<string> Description { get; set; }
+        public DVariableHistory<string> Status { get; set; }
+        public DVariableHistory<string> ProjectStage { get; set; }
+
+        /* Orgs */
+        public DVariableHistory<Guid>? PrimaryOrgId { get; set; }
+        
+        /* Dates */
+        public DVariableHistory<DateTime> H2LPredictedStart { get; set; }
+        public DVariableHistory<DateTime> H2LStart { get; set; }
+        public DVariableHistory<DateTime> LOPredictedStart { get; set; }
+        public DVariableHistory<DateTime> LOStart { get; set; }
+        public DVariableHistory<DateTime> SPPredictedStart { get; set; }
+        public DVariableHistory<DateTime> SPStart { get; set; }
+        public DVariableHistory<DateTime> INDPredictedStart { get; set; }
+        public DVariableHistory<DateTime> INDStart { get; set; }
+        public DVariableHistory<DateTime> P1PredictedStart { get; set; }
+        public DVariableHistory<DateTime> P1Start { get; set; }
+        public DVariableHistory<DateTime>? CompletionDate { get; set; }
+        public DVariableHistory<DateTime>? ProjectRemovedDate { get; set; }
     }
 }

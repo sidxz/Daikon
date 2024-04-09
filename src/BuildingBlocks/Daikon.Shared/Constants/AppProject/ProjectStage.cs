@@ -18,11 +18,12 @@ namespace Daikon.Shared.Constants.AppProject
         {
             return [.. new List<NameValuePair>
             {
-                new() { Name = "H2L", Value = H2L },
-                new() { Name = "LO", Value = LO },
-                new() { Name = "SP", Value = SP },
-                new() { Name = "IND", Value = IND },
-                new() { Name = "P1", Value = P1 },
+                new() { Name = H2L, Value = nameof(H2L) },
+                new() { Name = LO, Value = nameof(LO) },
+                new() { Name = SP, Value = nameof(SP) },
+                new() { Name = IND, Value = nameof(IND) },
+                new() { Name = P1, Value = nameof(P1) },
+              
             }];
         }
     }

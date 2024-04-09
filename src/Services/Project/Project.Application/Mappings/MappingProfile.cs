@@ -39,15 +39,6 @@ namespace Project.Application.Mappings
 
             /* Queries */
             CreateMap<Domain.Entities.Project, ProjectListVM>().ReverseMap();
-
-            CreateMap<Domain.Entities.Project, ProjectVM>()
-            .ForMember(dest => dest.ProjectStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.ProjectStart)))
-            .ForMember(dest => dest.ProjectPredictedStart, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.ProjectPredictedStart)))
-            .ForMember(dest => dest.ProjectDescription, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.ProjectDescription)))
-            .ForMember(dest => dest.ProjectStatus, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.ProjectStatus)))
-            .ForMember(dest => dest.PrimaryOrg, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.PrimaryOrg)))
-
-            .ReverseMap();
         }
     }
 }

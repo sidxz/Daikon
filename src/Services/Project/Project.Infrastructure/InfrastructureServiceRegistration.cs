@@ -18,12 +18,12 @@ using Project.Application.Contracts.Infrastructure;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using Project.Domain.EntityRevisions;
-using Project.Infrastructure.MolDbAPI;
 using Project.Infrastructure.Query.Consumers;
 using Project.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using Project.Infrastructure.MLogixAPI;
 
 namespace Project.Infrastructure
 {
@@ -100,7 +100,7 @@ namespace Project.Infrastructure
             services.AddHostedService<ConsumerHostedService>();
 
             /* MolDb API */
-            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
+            services.AddScoped<IMLogixAPIService, MLogixAPIService>();
 
             return services;
         }

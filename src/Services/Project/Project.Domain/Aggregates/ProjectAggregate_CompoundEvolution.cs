@@ -29,7 +29,7 @@ namespace Project.Domain.Aggregates
             _compoundEvolutions.Add(@event.CompoundEvolutionId, new ProjectCompoundEvolution()
             {
                 ProjectId = @event.Id,
-                CompoundId = @event.CompoundId,
+                MoleculeId = @event.MoleculeId,
                 MIC = @event.MIC,
                 IC50 = @event.IC50,
             });

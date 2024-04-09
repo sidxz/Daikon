@@ -6,10 +6,8 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
     {
         public UpdateProjectCompoundEvolutionCommandValidator()
         {
-            
-
-            RuleFor(t => t.CompoundStructureSMILES)
-            .NotEmpty().WithMessage("SMILES is required");
+            RuleFor(t => t.Stage)
+            .NotEmpty().WithMessage("Stage is required");
 
         }
     }

@@ -12,5 +12,10 @@ namespace Project.Domain.EntityRevisions
         public DVariableHistory<string>? MICUnit { get; set; }
         public DVariableHistory<string>? IC50 { get; set; }
         public DVariableHistory<string>? IC50Unit { get; set; }
+
+
+        /* Molecule */
+        public DVariableHistory<string> RequestedSMILES { get; set; }
+        public DVariableHistory<bool> IsStructureDisclosed { get; set; }
     }
 }

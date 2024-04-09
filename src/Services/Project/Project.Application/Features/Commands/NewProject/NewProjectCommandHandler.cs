@@ -5,6 +5,9 @@ using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using CQRS.Core.Domain;
+using Daikon.Shared.Constants.AppProject;
 
 
 namespace Project.Application.Features.Commands.NewProject
@@ -31,7 +34,9 @@ namespace Project.Application.Features.Commands.NewProject
         {
             try
             {
-                _logger.LogInformation($"Handling NewProjectCommand: {request}");
+                // serialize the request to json and log
+                var requestJson = JsonSerializer.Serialize(request);
+                _logger.LogInformation($"Handling NewProjectCommand: {requestJson}");
 
                 // check if name exists
                 var existingProject = await _projectRepository.ReadProjectByName(request.Name);
@@ -40,6 +45,16 @@ namespace Project.Application.Features.Commands.NewProject
                     _logger.LogWarning("Project name already exists: {Name}", request.Name);
                     throw new InvalidOperationException("Project name already exists");
                 }
+
+                // handle dates
+                var now = DateTime.UtcNow;
+                request.DateCreated = now;
+                
+                // set HAPredictedStartDate to 10 days now if not set
+                request.H2LPredictedStart ??= new DVariable<DateTime>(now.AddDays(10));
+                request.Stage ??= new DVariable<string>(nameof(ProjectStage.H2L));
+                request.IsProjectComplete ??= false;
+                request.IsProjectRemoved ??= false;
 
                 var newProjectCreatedEvent = _mapper.Map<ProjectCreatedEvent>(request);
 
