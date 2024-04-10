@@ -52,10 +52,12 @@ namespace Horizon.Application.Handlers
 
         public Task OnEvent(ProjectUpdatedEvent @event)
         {
+            _logger.LogInformation($"Horizon: ProjectUpdatedEvent: {@event.Id}");
+            
             var project = new Project
             {
                 UniId = @event.Id.ToString(),
-                HitAssessmentId = @event.Id.ToString(),
+                ProjectId = @event.Id.ToString(),
                 Status = @event.Status,
                 Stage = @event.Stage,
                 IsProjectComplete = @event.IsProjectComplete,

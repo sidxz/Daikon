@@ -164,7 +164,15 @@ namespace Horizon.Infrastructure.Repositories
 
         public Task Update(Project project)
         {
-            var query = @"
+            try
+            {
+
+
+                _logger.LogInformation("Updating Project with UniId: {UniId}", project.UniId);
+                var json = System.Text.Json.JsonSerializer.Serialize(project);
+                _logger.LogInformation(json);
+
+                var query = @"
                 MATCH (p:Project { uniId: $uniId})
                 SET 
                     p.status = $status,
@@ -172,24 +180,30 @@ namespace Horizon.Infrastructure.Repositories
                     p.orgId = $orgId, 
                     p.isProjectComplete = $isProjectComplete, 
                     p.isProjectRemoved = $isProjectRemoved, 
-                    p.dateCreated = $dateCreated
-                    p.isModified = $isModified
+                    p.dateCreated = $dateCreated,
+                    p.isModified = $isModified,
                     p.dateModified = $dateModified
             ";
-            var parameters = new
-            {
-                 uniId = project.HitAssessmentId,
-                    status = project.Status,
-                    stage = project.Stage,
-                    orgId = project.OrgId,
+                var parameters = new
+                {
+                    uniId = project.ProjectId,
+                    status = project.Status ?? "",
+                    stage = project.Stage ?? "",
+                    orgId = project.OrgId ?? "",
                     isProjectComplete = project.IsProjectComplete,
                     isProjectRemoved = project.IsProjectRemoved,
-                    dateCreated = project.DateCreated,
+                    dateCreated = project.DateCreated ?? DateTime.UtcNow,
                     isModified = project.IsModified,
-                    dateModified = project.DateModified
-            };
+                    dateModified = project.DateModified ?? DateTime.UtcNow
+                };
 
-            return _driver.ExecutableQuery(query).WithParameters(parameters).ExecuteAsync();
+                return _driver.ExecutableQuery(query).WithParameters(parameters).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Update");
+                throw new RepositoryException(nameof(ProjectRepo), "Error Updating Project In Graph", ex);
+            }
         }
     }
 }
