@@ -30,6 +30,7 @@ namespace Horizon.Application
             services.AddScoped<IScreenEventHandler, ScreenEventHandler>();
             services.AddScoped<IHitCollectionEventHandler, HitCollectionEventHandler>();
             services.AddScoped<IHitAssessmentEventHandler, HitAssessmentEventHandler>();
+            services.AddScoped<IProjectEventHandler, ProjectEventHandler>();
             services.AddScoped<IMLogixEventHandler, MLogixEventHandler>();
 
             return services;

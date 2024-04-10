@@ -6,6 +6,7 @@ using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Daikon.Events.HitAssessment;
 using Daikon.Events.MLogix;
+using Daikon.Events.Project;
 using Daikon.Events.Screens;
 using Daikon.Events.Strains;
 using Daikon.Events.Targets;
@@ -71,6 +72,10 @@ namespace Horizon.Infrastructure.Query.Converters
                 "HaCompoundEvolutionAddedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionAddedEvent>(json, options),
                 "HaCompoundEvolutionUpdatedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionUpdatedEvent>(json, options),
                 "HaCompoundEvolutionDeletedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionDeletedEvent>(json, options),
+
+                "ProjectCreatedEvent" => JsonSerializer.Deserialize<ProjectCreatedEvent>(json, options),
+                "ProjectUpdatedEvent" => JsonSerializer.Deserialize<ProjectUpdatedEvent>(json, options),
+                "ProjectDeletedEvent" => JsonSerializer.Deserialize<ProjectDeletedEvent>(json, options),
                 
                 
                 

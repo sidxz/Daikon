@@ -21,6 +21,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         public DVariable<string>? Status { get; set; }
         public bool? IsHASuccess { get; set; }
         public bool? IsHAComplete { get; set; }
+        public bool? IsHAPromoted { get; set; }
 
         // Primary HA Compound
         public Guid? HitCollectionId { get; set; }

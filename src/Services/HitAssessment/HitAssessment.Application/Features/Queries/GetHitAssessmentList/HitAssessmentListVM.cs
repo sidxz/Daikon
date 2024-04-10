@@ -12,9 +12,16 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
         public string? LegacyId { get; set; }
         public DateTime HaStartDate { get; set; }
         public DateTime HaPredictedStartDate { get; set; }
+        public DateTime StatusLastModifiedDate { get; set; }
         public string? Status { get; set; }
 
+        public Guid HitCollectionId { get; set; }
+        public Guid HitId { get; set; }
+        public Guid CompoundId { get; set; }
+
         public bool IsHAComplete { get; set; }
+        public bool IsHAPromoted { get; set; }
+        public bool IsHASuccess { get; set; }
         public Guid? PrimaryOrgId { get; set; }
         public string CompoundEvoLatestSMILES { get; set; }
     }

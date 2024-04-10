@@ -23,6 +23,7 @@ namespace Horizon.Infrastructure
             services.AddScoped<IGraphRepositoryForMLogix, GraphRepositoryForMLogix>();
             services.AddScoped<IGraphQueryRepository, GraphQueryRepository>();
             services.AddScoped<IHitAssessmentRepo, HitAssessmentRepo>();
+            services.AddScoped<IProjectRepo, ProjectRepo>();
             
 
             string neo4jUri = configuration.GetValue<string>("HorizonNeo4jSettings:Uri") ?? throw new ArgumentNullException(nameof(neo4jUri));

@@ -62,6 +62,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 request.Status ??= new DVariable<string>(nameof(HitAssessmentStatus.ReadyForHA));
                 request.IsHAComplete ??= false;
                 request.IsHASuccess ??= false;
+                request.IsHAPromoted ??= false;
 
                 var newHitAssessmentCreatedEvent = _mapper.Map<HaCreatedEvent>(request);
 

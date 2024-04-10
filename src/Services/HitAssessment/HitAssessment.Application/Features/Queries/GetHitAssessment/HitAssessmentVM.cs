@@ -13,9 +13,12 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
         public object Description { get; set; }
         public object Status { get; set; }
         public bool IsHAComplete { get; set; }
+        public bool IsHAPromoted { get; set; }
+        public bool IsHASuccess { get; set; }
 
          /* Associated Hit */
         public Guid HitId { get; set; }
+        public Guid HitCollectionId { get; set; }
         public Guid CompoundId { get; set; }
         public Dictionary<string, string> AssociatedHitIds { get; set; }
         

@@ -19,6 +19,7 @@ namespace Daikon.Events.HitAssessment
         public DVariable<string> Status { get; set; }
         public bool IsHAComplete { get; set; }
         public bool IsHASuccess { get; set; }
+        public bool IsHAPromoted { get; set; }
 
         /* Associated Hit */
         public Guid HitId { get; set; }

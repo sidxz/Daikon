@@ -38,6 +38,14 @@ namespace Horizon.Infrastructure.HostedServices
                 await hitCollectionGraphRepository.CreateIndexesAsync();
                 await hitCollectionGraphRepository.CreateConstraintsAsync();
 
+                var hitAssessmentGraphRepository = scope.ServiceProvider.GetRequiredService<IHitAssessmentRepo>();
+                await hitAssessmentGraphRepository.CreateIndexesAsync();
+                await hitAssessmentGraphRepository.CreateConstraintsAsync();
+
+                var projectGraphRepository = scope.ServiceProvider.GetRequiredService<IProjectRepo>();
+                await projectGraphRepository.CreateIndexesAsync();
+                await projectGraphRepository.CreateConstraintsAsync();
+
                 var mLogixGraphRepository = scope.ServiceProvider.GetRequiredService<IGraphRepositoryForMLogix>();
                 await mLogixGraphRepository.CreateIndexesAsync();
                 await mLogixGraphRepository.CreateConstraintsAsync();
