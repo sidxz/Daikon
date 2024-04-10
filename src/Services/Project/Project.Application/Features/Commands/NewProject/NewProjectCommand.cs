@@ -30,6 +30,7 @@ namespace Project.Application.Features.Commands.NewProject
         /* Associated Hit Assessment */
         public Guid? HaId { get; set; }
         public Guid? CompoundId { get; set; }
+        public string? CompoundSMILES { get; set; }
         public Guid? HitCompoundId { get; set; }
         public Guid? HitId { get; set; }
 

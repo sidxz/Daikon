@@ -18,6 +18,8 @@ namespace Project.Application.Features.Queries.GetProjectList
         
         /* Hit Assessment */
         public Guid HaId { get; set; }
+        public Guid CompoundId { get; set; }
+        public string? CompoundSMILES { get; set; }
 
         /* Orgs */
         public Guid PrimaryOrgId { get; set; }
