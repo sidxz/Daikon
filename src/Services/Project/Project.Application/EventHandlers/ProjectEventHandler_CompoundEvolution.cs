@@ -46,12 +46,11 @@ namespace Project.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating ha compound evolution {@event.CompoundEvolutionId} for ProjectCompoundEvolutionUpdatedEvent", new Exception("Project compound evolution not found"));
             }
 
-            var compoundEvolution = _mapper.Map<Domain.Entities.ProjectCompoundEvolution>(@event);
+            var compoundEvolution = _mapper.Map<Domain.Entities.ProjectCompoundEvolution>(existingProjectCompoundEvolution);
+            compoundEvolution = _mapper.Map<Domain.Entities.ProjectCompoundEvolution>(@event);
+            
             compoundEvolution.Id = @event.CompoundEvolutionId;
             compoundEvolution.ProjectId = @event.Id;
-
-            compoundEvolution.DateCreated = existingProjectCompoundEvolution.DateCreated;
-            compoundEvolution.IsModified = true;
 
             try
             {

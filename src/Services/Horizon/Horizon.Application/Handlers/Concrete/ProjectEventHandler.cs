@@ -24,7 +24,8 @@ namespace Horizon.Application.Handlers
             var project = new Project
             {
                 UniId = @event.Id.ToString(),
-                HitAssessmentId = @event.Id.ToString(),
+                ProjectId = @event.Id.ToString(),
+                HitAssessmentId = @event.HaId.ToString(),
                 Name = @event.Name,
                 Status = @event.Status,
                 Stage = @event.Stage,
@@ -55,13 +56,10 @@ namespace Horizon.Application.Handlers
             {
                 UniId = @event.Id.ToString(),
                 HitAssessmentId = @event.Id.ToString(),
-                Name = @event.Name,
                 Status = @event.Status,
                 Stage = @event.Stage,
                 IsProjectComplete = @event.IsProjectComplete,
                 IsProjectRemoved = @event.IsProjectRemoved,
-                PrimaryMoleculeId = @event.CompoundId.ToString(),
-                HitMoleculeId = @event.HitCompoundId.ToString(),
                 OrgId = @event.PrimaryOrgId.ToString(),
                 DateCreated = @event.DateCreated,
                 DateModified = @event.DateModified,

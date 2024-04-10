@@ -18,6 +18,11 @@ namespace Project.Application.Mappings
     {
         public MappingProfile()
         {
+
+            /* Self */
+            CreateMap<Domain.Entities.Project, Domain.Entities.Project>();
+            CreateMap<Domain.Entities.ProjectCompoundEvolution, Domain.Entities.ProjectCompoundEvolution>();
+
             /* Commands */
             CreateMap<ProjectCreatedEvent, NewProjectCommand>().ReverseMap();
             CreateMap<ProjectUpdatedEvent, UpdateProjectCommand>().ReverseMap();

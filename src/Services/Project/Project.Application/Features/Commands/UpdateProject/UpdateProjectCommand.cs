@@ -9,8 +9,7 @@ namespace Project.Application.Features.Commands.UpdateProject
 {
     public class UpdateProjectCommand : BaseCommand, IRequest<Unit>
     {
-        public Guid? StrainId { get; set; }
-        public string Name { get; set; }
+
         public string? Alias { get; set; }
         public string? ProjectType { get; set; }
         public string? LegacyId { get; set; }
@@ -26,12 +25,6 @@ namespace Project.Application.Features.Commands.UpdateProject
 
         public bool? IsProjectComplete { get; set; }
         public bool? IsProjectRemoved { get; set; }
-
-        /* Associated Hit Assessment */
-        public Guid? HaId { get; set; }
-        public Guid? CompoundId { get; set; }
-        public Guid? HitCompoundId { get; set; }
-        public Guid? HitId { get; set; }
 
         /* Orgs */
         [JsonConverter(typeof(DVariableJsonConverter<Guid>))]

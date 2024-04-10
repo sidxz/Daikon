@@ -8,8 +8,7 @@ namespace Project.Application.Features.Commands.UpdateProject
         public UpdateProjectCommandValidator()
         {
             
-            RuleFor(t => t.StrainId)
-            .NotEmpty().WithMessage("{StrainId} is required");
+          
 
         }
         private bool BeValidGuidKeyDictionary(Dictionary<string, string>? dictionary)

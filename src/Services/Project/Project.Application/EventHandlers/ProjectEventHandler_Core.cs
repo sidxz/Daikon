@@ -52,8 +52,11 @@ namespace Project.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"ProjectUpdatedEvent Error updating project {@event.Id}", new Exception("Project not found"));
             }
 
-            var project = _mapper.Map<Domain.Entities.Project>(@event);
+            var project = _mapper.Map<Domain.Entities.Project>(existingProject);
+            _mapper.Map(@event, project);
+
             project.DateCreated = existingProject.DateCreated;
+
             project.DateModified = DateTime.UtcNow;
             project.IsModified = true;
 

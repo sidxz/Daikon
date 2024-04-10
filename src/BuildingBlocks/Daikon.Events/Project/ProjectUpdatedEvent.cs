@@ -11,8 +11,7 @@ namespace Daikon.Events.Project
 
         }
 
-        public Guid? StrainId { get; set; }
-        public string Name { get; set; }
+       
         public string Alias { get; set; }
         public string? ProjectType { get; set; }
         public string? LegacyId { get; set; }
@@ -21,13 +20,6 @@ namespace Daikon.Events.Project
         public DVariable<string> Stage { get; set; }
         public bool IsProjectComplete { get; set; }
         public bool IsProjectRemoved { get; set; }
-
-        /* Associated Hit Assessment */
-        public Guid HaId { get; set; }
-        public Guid CompoundId { get; set; }
-        public string CompoundSMILES { get; set; }
-        public Guid HitCompoundId { get; set; }
-        public Guid HitId { get; set; }
 
 
         /* Orgs */

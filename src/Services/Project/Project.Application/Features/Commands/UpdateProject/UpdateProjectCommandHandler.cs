@@ -73,6 +73,10 @@ namespace Project.Application.Features.Commands.NewProject
                 }  
             }
 
+
+            request.DateModified = now;
+            request.IsModified = true;
+
             
             var projectUpdatedEvent = _mapper.Map<ProjectUpdatedEvent>(request);
 

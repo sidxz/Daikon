@@ -18,9 +18,6 @@ namespace Daikon.Events.Project
         public string? MICUnit { get; set; }
         public string? IC50 { get; set; }
         public string? IC50Unit { get; set; }
-
-        // public DVariable<string> RequestedSMILES { get; set; }
-        // public Guid MoleculeId { get; set; }
         public DVariable<bool> IsStructureDisclosed { get; set; }
     }
 }

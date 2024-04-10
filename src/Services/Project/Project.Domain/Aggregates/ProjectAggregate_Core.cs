@@ -44,10 +44,6 @@ namespace Project.Domain.Aggregates
                 throw new InvalidOperationException("This Project is deleted.");
             }
 
-            // ProjectUpdatedEvent doesn't allow name or compoundId to be changed.
-            ProjectUpdatedEvent.Name = _Name;
-            ProjectUpdatedEvent.CompoundId = _compoundId;
-
             RaiseEvent(ProjectUpdatedEvent);
         }
 

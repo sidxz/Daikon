@@ -36,7 +36,7 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
 
         public async Task<Unit> Handle(UpdateProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
-           // fetch existing CE
+            // fetch existing CE
             var existingCEvo = await _projectCompoundEvoRepository.ReadProjectCompoundEvolutionById(request.CompoundEvolutionId);
 
             if (existingCEvo == null)
@@ -44,8 +44,11 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
                 throw new ResourceNotFoundException(nameof(ProjectCompoundEvolution), request.CompoundEvolutionId);
             }
 
-             try
+            try
             {
+                var now = DateTime.UtcNow;
+                request.DateModified = now;
+                request.IsModified = true;
                 var compoundEvoUpdatedEvent = _mapper.Map<ProjectCompoundEvolutionUpdatedEvent>(request);
 
                 var aggregate = await _projectEventSourcingHandler.GetByAsyncId(request.Id);

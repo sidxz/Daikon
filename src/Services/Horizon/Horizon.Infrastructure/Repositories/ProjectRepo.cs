@@ -81,7 +81,7 @@ namespace Horizon.Infrastructure.Repositories
             ";
                 var parameters = new
                 {
-                    uniId = project.HitAssessmentId,
+                    uniId = project.ProjectId,
                     name = project.Name,
                     status = project.Status,
                     stage = project.Stage,
@@ -105,7 +105,7 @@ namespace Horizon.Infrastructure.Repositories
 
                     var hcRelParameters = new
                     {
-                        uniId = project.UniId,
+                        uniId = project.ProjectId,
                         hitAssessmentId = project.HitAssessmentId
                     };
 
@@ -167,7 +167,6 @@ namespace Horizon.Infrastructure.Repositories
             var query = @"
                 MATCH (p:Project { uniId: $uniId})
                 SET 
-                    p.name = $name, 
                     p.status = $status,
                     p.stage = $stage,
                     p.orgId = $orgId, 
@@ -180,7 +179,6 @@ namespace Horizon.Infrastructure.Repositories
             var parameters = new
             {
                  uniId = project.HitAssessmentId,
-                    name = project.Name,
                     status = project.Status,
                     stage = project.Stage,
                     orgId = project.OrgId,
