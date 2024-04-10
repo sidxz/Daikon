@@ -15,6 +15,9 @@ namespace Project.Application.Features.Queries.GetProjectList
         public bool IsProjectComplete { get; set; }
         public bool IsProjectRemoved { get; set; }
         public string Stage { get; set; }
+        
+        /* Hit Assessment */
+        public Guid HaId { get; set; }
 
         /* Orgs */
         public Guid PrimaryOrgId { get; set; }
