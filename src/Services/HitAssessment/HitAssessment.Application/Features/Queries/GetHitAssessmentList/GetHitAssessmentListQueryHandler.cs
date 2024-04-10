@@ -35,6 +35,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAsse
                     if (latest != null)
                     {
                         ha.CompoundEvoLatestSMILES = latest.RequestedSMILES;
+                        ha.CompoundEvoLatestMoleculeId = latest.MoleculeId;
                     }
                 }
                 return hasVM;

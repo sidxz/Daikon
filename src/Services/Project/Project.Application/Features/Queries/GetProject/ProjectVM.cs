@@ -6,6 +6,7 @@ namespace Project.Application.Features.Queries.GetProject
 {
     public class ProjectVM : DocMetadata
     {
+        public Guid Id { get; set; }
         public Guid StrainId { get; set; }
         public string Name { get; set; }
         public string Alias { get; set; }

@@ -61,14 +61,14 @@ namespace Project.Application.Features.Commands.NewProject
         public DVariable<DateTime>? P1PredictedStart { get; set; }
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? P1Start { get; set; }
-        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DateTime? ProjectStatusDate { get; set; }
-        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DateTime? TerminationDate { get; set; }
+
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? CompletionDate { get; set; }
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? ProjectRemovedDate { get; set; }
+
+        public DateTime? ProjectStatusDate { get; set; }
+        public DateTime? TerminationDate { get; set; }
 
     }
 }

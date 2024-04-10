@@ -44,6 +44,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 
         /* Compound Evolution */
         public List<HaCompoundEvolutionVM> HaCompoundEvolution { get; set; }
+        public Guid CompoundEvoLatestMoleculeId { get; set; }
         public string CompoundEvoLatestSMILES { get; set; } // Calculated
 
 

@@ -23,6 +23,8 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
         public bool IsHAPromoted { get; set; }
         public bool IsHASuccess { get; set; }
         public Guid? PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgsId { get; set; }
+        public Guid CompoundEvoLatestMoleculeId { get; set; }
         public string CompoundEvoLatestSMILES { get; set; }
     }
 }
