@@ -1,5 +1,4 @@
 
-using Project.Application.Features.Queries.GetHitAssessment;
 using Project.Application.Features.Queries.GetProject;
 
 namespace Project.Application.Features.Commands.NewHaCompoundEvolution

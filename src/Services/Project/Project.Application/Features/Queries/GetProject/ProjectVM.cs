@@ -1,6 +1,6 @@
 
 using CQRS.Core.Domain;
-using Project.Application.Features.Queries.GetHitAssessment;
+using Project.Application.Features.Queries.GetProject;
 
 namespace Project.Application.Features.Queries.GetProject
 {
@@ -49,6 +49,7 @@ namespace Project.Application.Features.Queries.GetProject
 
         /* Compound Evolution */
         public List<CompoundEvolutionVM> CompoundEvolution { get; set; }
+        public Guid CompoundEvoLatestMoleculeId { get; set; }
         public string CompoundEvoLatestSMILES { get; set; } // Calculated
 
     }

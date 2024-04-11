@@ -9,7 +9,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Project.Application.Features.Commands.NewHaCompoundEvolution;
 using Project.Application.DTOs.MLogixAPI;
-using Project.Application.Features.Queries.GetHitAssessment;
+using Project.Application.Features.Queries.GetProject;
 
 
 namespace Project.Application.Features.Commands.NewProjectCompoundEvolution

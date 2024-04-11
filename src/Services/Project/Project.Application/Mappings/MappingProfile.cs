@@ -11,6 +11,8 @@ using Project.Application.Features.Commands.UpdateProjectCompoundEvolution;
 using Project.Application.Features.Commands.UpdateProject;
 using Project.Application.Features.Queries.GetProject;
 using Project.Application.Features.Queries.GetProjectList;
+using Project.Application.DTOs.MLogixAPI;
+using Project.Domain.Entities;
 
 namespace Project.Application.Mappings
 {
@@ -69,6 +71,22 @@ namespace Project.Application.Mappings
             .ForMember(dest => dest.ProjectRemovedDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.ProjectRemovedDate)))
             .ReverseMap();
 
+
+             CreateMap<ProjectCompoundEvolution, CompoundEvolutionVM>()
+            .ForMember(dest => dest.EvolutionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<DateTime>, DateTime>(src => src.EvolutionDate)))
+            .ForMember(dest => dest.Stage, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.Stage)))
+            .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.Notes)))
+            .ForMember(dest => dest.MIC, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.MIC)))
+            .ForMember(dest => dest.MICUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.MICUnit)))
+            .ForMember(dest => dest.IC50, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.IC50)))
+            .ForMember(dest => dest.IC50Unit, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.IC50Unit)))
+            .ForMember(dest => dest.RequestedSMILES, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.RequestedSMILES)))
+            .ForMember(dest => dest.IsStructureDisclosed, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<bool>, bool>(src => src.IsStructureDisclosed)))
+            .ReverseMap();
+
+            CreateMap<GetMoleculesResultDTO, MoleculeVM>().ReverseMap();
+            CreateMap<RegisterMoleculeResponseDTO, MoleculeVM>().ReverseMap();
+            
         }
     }
 }

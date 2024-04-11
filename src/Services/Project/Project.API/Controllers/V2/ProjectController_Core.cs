@@ -35,12 +35,12 @@ namespace Project.API.Controllers.V2
         {
             try
             {
-                var screens = await _mediator.Send(new GetProjectListQuery { WithMeta = WithMeta });
-                return Ok(screens);
+                var projects = await _mediator.Send(new GetProjectListQuery { WithMeta = WithMeta });
+                return Ok(projects);
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen list";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the project list";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -60,8 +60,8 @@ namespace Project.API.Controllers.V2
         {
             try
             {
-                var screen = await _mediator.Send(new GetProjectByIdQuery { Id = id, WithMeta = WithMeta });
-                return Ok(screen);
+                var project = await _mediator.Send(new GetProjectByIdQuery { Id = id, WithMeta = WithMeta });
+                return Ok(project);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -82,7 +82,7 @@ namespace Project.API.Controllers.V2
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the project";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -140,7 +140,7 @@ namespace Project.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the project";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
@@ -200,7 +200,7 @@ namespace Project.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the project";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -248,7 +248,7 @@ namespace Project.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the project";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

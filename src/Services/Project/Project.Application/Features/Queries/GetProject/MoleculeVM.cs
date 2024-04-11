@@ -1,6 +1,6 @@
 
 
-namespace Project.Application.Features.Queries.GetHitAssessment
+namespace Project.Application.Features.Queries.GetProject
 {
     public class MoleculeVM
     {

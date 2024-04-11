@@ -168,7 +168,7 @@ namespace Project.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the Compound Evolution";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

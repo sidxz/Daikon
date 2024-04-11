@@ -1,7 +1,7 @@
 
 using CQRS.Core.Domain;
 
-namespace Project.Application.Features.Queries.GetHitAssessment
+namespace Project.Application.Features.Queries.GetProject
 {
     public class CompoundEvolutionVM : DocMetadata
     {
