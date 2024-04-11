@@ -1,7 +1,9 @@
 
+using CQRS.Core.Domain;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneProteinProductionVM
+    public class GeneProteinProductionVM : DocMetadata
     {
 
         public Guid ProteinProductionId { get; set; }

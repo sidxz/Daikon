@@ -25,6 +25,7 @@ services:
       - "GeneMongoDbSettings:GeneResistanceMutationCollectionName=ResistanceMutations"
       - "GeneMongoDbSettings:GeneVulnerabilityCollectionName=Vulnerabilities"
       - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
+      - "GeneMongoDbSettings:GeneExpansionPropCollectionName=GeneExpansionProps"
 
       - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
       - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
@@ -36,6 +37,9 @@ services:
       - "GeneMongoDbSettings:GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
       - "GeneMongoDbSettings:GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
       - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
+      - "GeneMongoDbSettings:ExpansionPropRevisionCollectionName=GeneExpansionPropsRevisions"
+
+
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       - "KafkaConsumerSettings:Topics=daikon-core-events"

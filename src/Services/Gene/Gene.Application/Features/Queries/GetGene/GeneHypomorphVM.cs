@@ -1,7 +1,9 @@
 
+using CQRS.Core.Domain;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneHypomorphVM
+    public class GeneHypomorphVM : DocMetadata
     {
         public Guid HypomorphId { get; set; }
 

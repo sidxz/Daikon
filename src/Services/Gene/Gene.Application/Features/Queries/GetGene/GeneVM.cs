@@ -1,4 +1,6 @@
 
+using Gene.Domain.Entities;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
     public class GeneVM
@@ -7,7 +9,6 @@ namespace Gene.Application.Features.Queries.GetGene
         public Guid StrainId { get; set; }
         public string AccessionNumber { get; set; }
         public string Name { get; set; }
-        public object Function { get; set; }
         public object Product { get; set; }
         public object FunctionalCategory { get; set; }
 
@@ -21,6 +22,8 @@ namespace Gene.Application.Features.Queries.GetGene
         public List<GeneVulnerabilityVM> Vulnerabilities { get; set; }
 
         public List<GeneUnpublishedStructuralInformationVM> UnpublishedStructuralInformations { get; set; }
+
+        public List<ExpansionPropVM> ExpansionProps { get; set; }
 
     }
 }

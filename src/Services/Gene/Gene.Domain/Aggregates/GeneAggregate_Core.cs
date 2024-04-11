@@ -31,7 +31,6 @@ namespace Gene.Domain.Aggregates
 
                 StrainId = gene.StrainId,
                 AccessionNumber = gene.AccessionNumber,
-                Function = gene.Function,
                 Product = gene.Product,
                 FunctionalCategory = gene.FunctionalCategory,
 
@@ -61,7 +60,6 @@ namespace Gene.Domain.Aggregates
                 StrainId = gene.StrainId,
                 Name = gene.Name,
                 AccessionNumber = gene.AccessionNumber,
-                Function = gene.Function,
                 Product = gene.Product,
                 FunctionalCategory = gene.FunctionalCategory,
 

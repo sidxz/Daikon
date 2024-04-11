@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using Gene.Application.Contracts.Persistence;
+using Gene.Domain.Entities;
 using MediatR;
 
 namespace Gene.Application.Features.Queries.GetGene.ById
@@ -10,29 +11,18 @@ namespace Gene.Application.Features.Queries.GetGene.ById
     {
         private readonly IGeneRepository _geneRepository;
         private readonly IGeneEssentialityRepository _geneEssentialityRepository;
-
         private readonly IGeneProteinProductionRepository _geneProteinProductionRepository;
-
         private readonly IGeneProteinActivityAssayRepository _geneProteinActivityAssayRepository;
-
         private readonly IGeneHypomorphRepository _geneHypomorphRepository;
-
         private readonly IGeneCrispriStrainRepository _geneCrispriStrainRepository;
-
         private readonly IGeneResistanceMutationRepository _geneResistanceMutationRepository;
-
         private readonly IGeneVulnerabilityRepository _geneVulnerabilityRepository;
-
         private readonly IGeneUnpublishedStructuralInformationRepository _geneUnpublishedStructuralInformationRepository;
-
-
-
-
-
+        private readonly IGeneExpansionPropRepo _geneExpansionPropRepo;
         private readonly IMapper _mapper;
 
 
-        public GetGeneByIdQueryHandler(IGeneRepository geneRepository, IMapper mapper, 
+        public GetGeneByIdQueryHandler(IGeneRepository geneRepository, IMapper mapper,
                                 IGeneEssentialityRepository geneEssentialityRepository,
                                 IGeneProteinProductionRepository geneProteinProductionRepository,
                                 IGeneProteinActivityAssayRepository geneProteinActivityAssayRepository,
@@ -40,7 +30,9 @@ namespace Gene.Application.Features.Queries.GetGene.ById
                                 IGeneCrispriStrainRepository geneCrispriStrainRepository,
                                 IGeneResistanceMutationRepository geneResistanceMutationRepository,
                                 IGeneVulnerabilityRepository geneVulnerabilityRepository,
-                                IGeneUnpublishedStructuralInformationRepository geneUnpublishedStructuralInformationRepository
+                                IGeneUnpublishedStructuralInformationRepository geneUnpublishedStructuralInformationRepository,
+                                IGeneExpansionPropRepo geneExpansionPropRepo
+
                                 )
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -53,10 +45,11 @@ namespace Gene.Application.Features.Queries.GetGene.ById
             _geneResistanceMutationRepository = geneResistanceMutationRepository ?? throw new ArgumentNullException(nameof(geneResistanceMutationRepository));
             _geneVulnerabilityRepository = geneVulnerabilityRepository ?? throw new ArgumentNullException(nameof(geneVulnerabilityRepository));
             _geneUnpublishedStructuralInformationRepository = geneUnpublishedStructuralInformationRepository ?? throw new ArgumentNullException(nameof(geneUnpublishedStructuralInformationRepository));
+            _geneExpansionPropRepo = geneExpansionPropRepo ?? throw new ArgumentNullException(nameof(geneExpansionPropRepo));
         }
         public async Task<GeneVM> Handle(GetGeneByIdQuery request, CancellationToken cancellationToken)
         {
-            
+
             var gene = await _geneRepository.ReadGeneById(request.Id);
 
             if (gene == null)
@@ -68,7 +61,7 @@ namespace Gene.Application.Features.Queries.GetGene.ById
 
             var essentialities = await _geneEssentialityRepository.GetEssentialityOfGene(gene.Id);
             geneVm.Essentialities = _mapper.Map<List<GeneEssentialityVM>>(essentialities, opts => opts.Items["WithMeta"] = request.WithMeta);
-            
+
             var proteinProductions = await _geneProteinProductionRepository.GetProteinProductionOfGene(gene.Id);
             geneVm.ProteinProductions = _mapper.Map<List<GeneProteinProductionVM>>(proteinProductions, opts => opts.Items["WithMeta"] = request.WithMeta);
 
@@ -90,7 +83,9 @@ namespace Gene.Application.Features.Queries.GetGene.ById
             var unpublishedStructuralInformations = await _geneUnpublishedStructuralInformationRepository.GetUnpublishedStructuralInformationOfGene(gene.Id);
             geneVm.UnpublishedStructuralInformations = _mapper.Map<List<GeneUnpublishedStructuralInformationVM>>(unpublishedStructuralInformations, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-            
+            var expansionProps = await _geneExpansionPropRepo.ListByEntityId(gene.Id);
+            geneVm.ExpansionProps = _mapper.Map<List<ExpansionPropVM>>(expansionProps, opts => opts.Items["WithMeta"] = request.WithMeta);
+
             return geneVm;
 
         }

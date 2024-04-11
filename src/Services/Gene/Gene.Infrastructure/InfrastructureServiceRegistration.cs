@@ -17,7 +17,6 @@ using Daikon.VersionStore.Settings;
 using Gene.Application.Contracts.Infrastructure;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
-using Gene.Domain.Entities;
 using Gene.Domain.EntityRevisions;
 using Gene.Infrastructure.Batch;
 using Gene.Infrastructure.Query.Consumers;
@@ -25,12 +24,17 @@ using Gene.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 namespace Gene.Infrastructure
 {
     public static class InfrastructureServiceRegistration
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+
+             /* MongoDb */
+            var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+            ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
             /* Command */
 
             BsonClassMap.RegisterClassMap<BaseEvent>();
@@ -73,6 +77,11 @@ namespace Gene.Infrastructure
             BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationAddedEvent>();
             BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationUpdatedEvent>();
             BsonClassMap.RegisterClassMap<GeneUnpublishedStructuralInformationDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<GeneExpansionPropAddedEvent>();
+            BsonClassMap.RegisterClassMap<GeneExpansionPropUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<GeneExpansionPropDeletedEvent>();
+
 
 
             /* Event Database */
@@ -124,6 +133,8 @@ namespace Gene.Infrastructure
             services.AddScoped<IGeneVulnerabilityRepository, GeneVulnerabilityRepository>();
 
             services.AddScoped<IGeneUnpublishedStructuralInformationRepository, GeneUnpublishedStructuralInformationRepository>();
+
+            services.AddScoped<IGeneExpansionPropRepo, GeneExpansionPropRepo>();
 
 
             /* Version Store */
@@ -227,6 +238,18 @@ namespace Gene.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<UnpublishedStructuralInformationRevision>>(unpublishedStructuralInformationVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<UnpublishedStructuralInformationRevision>, VersionStoreRepository<UnpublishedStructuralInformationRevision>>();
             services.AddScoped<IVersionHub<UnpublishedStructuralInformationRevision>, VersionHub<UnpublishedStructuralInformationRevision>>();
+
+
+            var expansionPropVersionStoreSettings = new VersionDatabaseSettings<GeneExpansionPropRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<GeneExpansionPropRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<GeneExpansionPropRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("GeneMongoDbSettings:ExpansionPropRevisionCollectionName")
+                ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + "ExpansionPropRevision"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<GeneExpansionPropRevision>>(expansionPropVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<GeneExpansionPropRevision>, VersionStoreRepository<GeneExpansionPropRevision>>();
+            services.AddScoped<IVersionHub<GeneExpansionPropRevision>, VersionHub<GeneExpansionPropRevision>>();
 
 
             /* Consumers */

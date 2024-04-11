@@ -44,8 +44,8 @@ namespace CQRS.Core.Domain
         public string? Provenance { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? Source { get; set; }
-
-
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public List<Tuple<string, string, string, string, string, string>>? Publications { get; set; } // (Id, Source, Title, Url, Date, Other)
 
         /* ML Generated Properties */
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -94,6 +94,7 @@ namespace CQRS.Core.Domain
             Comment = default!;
             Provenance = default!;
             Source = default!;
+            Publications = default!;
             IsMLGenerated = default!;
             MLGeneratedBy = default!;
             MLGeneratedDate = default!;
@@ -117,6 +118,7 @@ namespace CQRS.Core.Domain
             Comment = docMetadata.Comment;
             Provenance = docMetadata.Provenance;
             Source = docMetadata.Source;
+            Publications = docMetadata.Publications;
             IsMLGenerated = docMetadata.IsMLGenerated;
             MLGeneratedBy = docMetadata.MLGeneratedBy;
             MLGeneratedDate = docMetadata.MLGeneratedDate;

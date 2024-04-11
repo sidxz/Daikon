@@ -30,7 +30,7 @@ namespace Gene.Application.Features.Queries.GetGeneVersions.ById
             return new GeneVersionsVM
             {
                 Id = geneRevision.Id,
-                Function = geneRevision.Function,
+                
                 Product = geneRevision.Product,
                 FunctionalCategory = geneRevision.FunctionalCategory
             };

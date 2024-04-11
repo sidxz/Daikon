@@ -1,7 +1,9 @@
 
+using CQRS.Core.Domain;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneResistanceMutationVM
+    public class GeneResistanceMutationVM : DocMetadata
     {
         public Guid ResistanceMutationId { get; set; }
         

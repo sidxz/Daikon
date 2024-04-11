@@ -95,7 +95,7 @@ namespace Gene.Infrastructure.Query.Repositories
             var update = Builders<Domain.Entities.Gene>.Update
                 .Set(g => g.StrainId, gene.StrainId)
                 .Set(g => g.Name, gene.Name)
-                .Set(g => g.Function, gene.Function)
+                
                 .Set(g => g.Product, gene.Product)
                 .Set(g => g.FunctionalCategory, gene.FunctionalCategory);
 

@@ -11,7 +11,6 @@ namespace Gene.Application.Features.Queries.GetGenesList
         public Guid StrainId { get; set; }
         public string AccessionNumber { get; set; }
         public string Name { get; set; }
-        public string Function { get; set; }
         public string Product { get; set; }
         public string FunctionalCategory { get; set; }
 

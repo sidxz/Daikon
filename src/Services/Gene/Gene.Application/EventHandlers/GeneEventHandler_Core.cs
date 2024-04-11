@@ -1,4 +1,5 @@
 
+using AutoMapper;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
@@ -24,7 +25,11 @@ namespace Gene.Application.Query.EventHandlers
 
         private readonly IGeneUnpublishedStructuralInformationRepository _geneUnpublishedStructuralInformationRepository;
 
+        private readonly IGeneExpansionPropRepo _geneExpansionPropRepo;
+
         private readonly ILogger<GeneEventHandler> _logger;
+
+        private readonly IMapper _mapper;
 
         public GeneEventHandler(IGeneRepository geneRepository, 
                                 IGeneEssentialityRepository geneEssentialityRepository,
@@ -35,6 +40,8 @@ namespace Gene.Application.Query.EventHandlers
                                 IGeneResistanceMutationRepository geneResistanceMutationRepository,
                                 IGeneVulnerabilityRepository geneVulnerabilityRepository,
                                 IGeneUnpublishedStructuralInformationRepository geneUnpublishedStructuralInformationRepository,
+                                IGeneExpansionPropRepo geneExpansionPropRepo,
+                                IMapper mapper,
                                 ILogger<GeneEventHandler> logger)
         {
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
@@ -46,6 +53,8 @@ namespace Gene.Application.Query.EventHandlers
             _geneResistanceMutationRepository = geneResistanceMutationRepository ?? throw new ArgumentNullException(nameof(geneResistanceMutationRepository));
             _geneVulnerabilityRepository = geneVulnerabilityRepository ?? throw new ArgumentNullException(nameof(geneVulnerabilityRepository));
             _geneUnpublishedStructuralInformationRepository = geneUnpublishedStructuralInformationRepository ?? throw new ArgumentNullException(nameof(geneUnpublishedStructuralInformationRepository));
+            _geneExpansionPropRepo = geneExpansionPropRepo ?? throw new ArgumentNullException(nameof(geneExpansionPropRepo));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -59,7 +68,6 @@ namespace Gene.Application.Query.EventHandlers
                 Name = @event.Name,
 
                 AccessionNumber = @event.AccessionNumber,
-                Function = @event.Function,
                 Product = @event.Product,
                 FunctionalCategory = @event.FunctionalCategory,
 
@@ -87,7 +95,6 @@ namespace Gene.Application.Query.EventHandlers
             gene.StrainId = @event.StrainId;
             gene.Name = @event.Name;
             gene.AccessionNumber = @event.AccessionNumber;
-            gene.Function = @event.Function;
             gene.Product = @event.Product;
             gene.FunctionalCategory = @event.FunctionalCategory;
             gene.IsModified = true;
@@ -127,5 +134,6 @@ namespace Gene.Application.Query.EventHandlers
             }
 
         }
+
     }
 }

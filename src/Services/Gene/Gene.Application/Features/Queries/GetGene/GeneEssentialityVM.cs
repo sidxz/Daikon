@@ -1,7 +1,9 @@
 
+using CQRS.Core.Domain;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneEssentialityVM
+    public class GeneEssentialityVM : DocMetadata
     {
         public Guid EssentialityId { get; set; }
         public object Classification { get; set; }
