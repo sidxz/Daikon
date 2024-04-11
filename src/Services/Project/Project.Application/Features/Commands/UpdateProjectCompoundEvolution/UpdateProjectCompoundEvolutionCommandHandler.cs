@@ -7,6 +7,7 @@ using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Project.Domain.Entities;
 
 
 namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
@@ -18,43 +19,59 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
         private readonly IProjectCompoundEvolutionRepository _projectCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<ProjectAggregate> _projectEventSourcingHandler;
-        private readonly IMolDbAPIService _molDbAPIService;
+        private readonly IMLogixAPIService _mLogixAPIService;
 
         public UpdateProjectCompoundEvolutionCommandHandler(ILogger<UpdateProjectCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<ProjectAggregate> projectEventSourcingHandler,
             IProjectCompoundEvolutionRepository projectCompoundEvoRepository,
-            IMapper mapper, IMolDbAPIService molDbAPIService)
+            IMapper mapper, IMLogixAPIService mLogixAPIService)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _projectCompoundEvoRepository = projectCompoundEvoRepository ?? throw new ArgumentNullException(nameof(projectCompoundEvoRepository));
             _projectEventSourcingHandler = projectEventSourcingHandler ?? throw new ArgumentNullException(nameof(projectEventSourcingHandler));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
+            _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
 
         }
 
         public async Task<Unit> Handle(UpdateProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
+            // fetch existing CE
+            var existingCEvo = await _projectCompoundEvoRepository.ReadProjectCompoundEvolutionById(request.CompoundEvolutionId);
+
+            if (existingCEvo == null)
+            {
+                throw new ResourceNotFoundException(nameof(ProjectCompoundEvolution), request.CompoundEvolutionId);
+            }
+
             try
             {
-                var projectCEUpdatedEvent = _mapper.Map<ProjectCompoundEvolutionUpdatedEvent>(request);
+                var now = DateTime.UtcNow;
+                request.DateModified = now;
+                request.IsModified = true;
+                var compoundEvoUpdatedEvent = _mapper.Map<ProjectCompoundEvolutionUpdatedEvent>(request);
 
                 var aggregate = await _projectEventSourcingHandler.GetByAsyncId(request.Id);
-                Guid compoundId;
-                try
-                {
-                    compoundId = await _molDbAPIService.RegisterCompound("Test", request.CompoundStructureSMILES);
-                    projectCEUpdatedEvent.CompoundId = compoundId;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error while calling MolDbAPI");
-                    _logger.LogError(ex.Message);
-                    throw new Exception(nameof(ProjectAggregate));
-                }
 
+                // TODO (Future option) : check if molecule has been updated then register it
+                // if (request.RequestedSMILES != existingCEvo.RequestedSMILES)
+                // {
+                //     if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
+                //     {
+                //         _logger.LogInformation("Will try to register molecule ...");
+                //         await RegisterMoleculeAndAssignToEvent(request, compoundEvoUpdatedEvent);
+                //     }
+                //     else
+                //     {
+                //         throw new ArgumentNullException(nameof(request.RequestedSMILES));
+                //     }
+                // }
+                // else
+                // {
+                //     compoundEvoUpdatedEvent.MoleculeId = existingCEvo.MoleculeId;
+                // }
 
-                aggregate.UpdateCompoundEvolution(projectCEUpdatedEvent);
+                aggregate.UpdateCompoundEvolution(compoundEvoUpdatedEvent);
 
                 await _projectEventSourcingHandler.SaveAsync(aggregate);
             }

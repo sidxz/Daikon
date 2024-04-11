@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.Shared\Daikon.Shared.csproj" />
     <ProjectReference Include="..\HitAssessment.Domain\HitAssessment.Domain.csproj" />
   </ItemGroup>
 

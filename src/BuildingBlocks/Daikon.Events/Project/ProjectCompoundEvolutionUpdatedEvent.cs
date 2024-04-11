@@ -1,4 +1,5 @@
 
+using CQRS.Core.Domain;
 using CQRS.Core.Event;
 
 namespace Daikon.Events.Project
@@ -10,7 +11,6 @@ namespace Daikon.Events.Project
 
         }
         public Guid CompoundEvolutionId { get; set; }
-        public Guid CompoundId { get; set; }
         public DateTime? EvolutionDate { get; set; }
         public string? Stage { get; set; }
         public string? Notes { get; set; }
@@ -18,5 +18,6 @@ namespace Daikon.Events.Project
         public string? MICUnit { get; set; }
         public string? IC50 { get; set; }
         public string? IC50Unit { get; set; }
+        public DVariable<bool> IsStructureDisclosed { get; set; }
     }
 }

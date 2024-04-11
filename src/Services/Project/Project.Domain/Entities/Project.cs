@@ -5,29 +5,48 @@ namespace Project.Domain.Entities
 {
     public class Project : BaseEntity
     {
-        public Guid? StrainId { get; set; }
+        public Guid StrainId { get; set; }
         public string Name { get; set; }
-        public string? ProjectType { get; set; }
-        public string? LegacyId { get; set; }
-        public Guid HitId { get; set; }
-        public Guid CompoundId { get; set; }
-
-        public Dictionary<string, string> AssociatedHitIds { get; set; }
-        public DVariable<DateTime> ProjectStart { get; set; }
-        public DVariable<DateTime> ProjectPredictedStart { get; set; }
-        public DVariable<string> ProjectDescription { get; set; }
-        public DVariable<string> ProjectStatus { get; set; }
-
+        public string Alias { get; set; }
+        public string ProjectType { get; set; }
+        public string LegacyId { get; set; }
+        public DVariable<string> Description { get; set; }
+        public DVariable<string> Status { get; set; }
         public bool IsProjectComplete { get; set; }
-        public DateTime? ProjectStatusDate { get; set; }
-        public DateTime? TerminationDate { get; set; }
-        public DateTime? EOLDate { get; set; }
-        public DateTime? CompletionDate { get; set; }
+        public bool IsProjectRemoved { get; set; }
+        public DVariable<string> Stage { get; set; }
+
+        /* Associated Hit Assessment */
+        public Guid HaId { get; set; }
+        public Guid CompoundId { get; set; }
+        public string CompoundSMILES { get; set; }
+        public Guid HitCompoundId { get; set; }
+        public Guid HitId { get; set; }
 
 
-        public DVariable<string> PrimaryOrg { get; set; }
-        public List<string> SupportingOrgs { get; set; }
+        /* Orgs */
+        public DVariable<Guid> PrimaryOrgId { get; set; }
+        public List<Guid> ParticipatingOrgs { get; set; }
+
+
+        /* Dates */
+        public DVariable<DateTime> H2LPredictedStart { get; set; }
+        public DVariable<DateTime> H2LStart { get; set; }
+        public DVariable<DateTime> LOPredictedStart { get; set; }
+        public DVariable<DateTime> LOStart { get; set; }
+        public DVariable<DateTime> SPPredictedStart { get; set; }
+        public DVariable<DateTime> SPStart { get; set; }
+        public DVariable<DateTime> INDPredictedStart { get; set; }
+        public DVariable<DateTime> INDStart { get; set; }
+        public DVariable<DateTime> P1PredictedStart { get; set; }
+        public DVariable<DateTime> P1Start { get; set; }
+        public DateTime ProjectStatusDate { get; set; }
+        public DateTime TerminationDate { get; set; }
+        public DVariable<DateTime> CompletionDate { get; set; }
+        public DVariable<DateTime> ProjectRemovedDate { get; set; }
+
+
     }
 
-    
+
 }

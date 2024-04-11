@@ -1,0 +1,26 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5011
+
+# Core Services
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Shared/Daikon.Shared.csproj", "BuildingBlocks/Daikon.Shared/"]
+
+
+# UserStore Services
+COPY ["Identities/UserStore/UserStore.API/UserStore.API.csproj", "Identities/UserStore/UserStore.API/"]
+COPY ["Identities/UserStore/UserStore.Application/UserStore.Application.csproj", "Identities/UserStore/UserStore.Application/"]
+COPY ["Identities/UserStore/UserStore.Domain/UserStore.Domain.csproj", "Identities/UserStore/UserStore.Domain/"]
+COPY ["Identities/UserStore/UserStore.Infrastructure/UserStore.Infrastructure.csproj", "Identities/UserStore/UserStore.Infrastructure/"]
+
+RUN dotnet restore "Identities/UserStore/UserStore.API/UserStore.API.csproj"
+
+WORKDIR "/app/Identities/UserStore/UserStore.API"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]

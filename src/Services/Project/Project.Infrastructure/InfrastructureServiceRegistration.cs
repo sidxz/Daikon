@@ -18,12 +18,13 @@ using Project.Application.Contracts.Infrastructure;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using Project.Domain.EntityRevisions;
-using Project.Infrastructure.MolDbAPI;
 using Project.Infrastructure.Query.Consumers;
 using Project.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using Project.Infrastructure.MLogixAPI;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace Project.Infrastructure
 {
@@ -31,6 +32,10 @@ namespace Project.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+
+            var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+            ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
+            
             BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<ProjectCreatedEvent>();
@@ -100,7 +105,7 @@ namespace Project.Infrastructure
             services.AddHostedService<ConsumerHostedService>();
 
             /* MolDb API */
-            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
+            services.AddScoped<IMLogixAPIService, MLogixAPIService>();
 
             return services;
         }

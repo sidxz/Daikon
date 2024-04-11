@@ -1,0 +1,27 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5007
+
+# Core Services
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
+COPY ["BuildingBlocks/Daikon.EventStore/Daikon.EventStore.csproj", "BuildingBlocks/Daikon.EventStore/"]
+COPY ["BuildingBlocks/Daikon.VersionStore/Daikon.VersionStore.csproj", "BuildingBlocks/Daikon.VersionStore/"]
+
+# MLogix Services
+COPY ["Services/MLogix/MLogix.API/MLogix.API.csproj", "Services/MLogix/MLogix.API/"]
+COPY ["Services/MLogix/MLogix.Application/MLogix.Application.csproj", "Services/MLogix/MLogix.Application/"]
+COPY ["Services/MLogix/MLogix.Domain/MLogix.Domain.csproj", "Services/MLogix/MLogix.Domain/"]
+COPY ["Services/MLogix/MLogix.Infrastructure/MLogix.Infrastructure.csproj", "Services/MLogix/MLogix.Infrastructure/"]
+
+RUN dotnet restore "Services/MLogix/MLogix.API/MLogix.API.csproj"
+
+WORKDIR "/app/Services/MLogix/MLogix.API"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]

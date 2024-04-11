@@ -12,8 +12,6 @@ namespace Project.Domain.Aggregates
         private bool _active;
         private string _Name;
         private Guid _compoundId;
-        private Guid _hitId;
-        private Dictionary<string, string> _associatedHits { get; set; }
 
         public ProjectAggregate()
         {
@@ -21,16 +19,13 @@ namespace Project.Domain.Aggregates
         }
 
         /* New Project */
-        public ProjectAggregate(ProjectCreatedEvent ProjectCreatedEvent)
+        public ProjectAggregate(ProjectCreatedEvent @event)
         {
             _active = true;
-            _id = ProjectCreatedEvent.Id;
-            _Name = ProjectCreatedEvent.Name;
-            _compoundId = ProjectCreatedEvent.CompoundId;
-            _hitId = ProjectCreatedEvent.HitId;
-
-
-            RaiseEvent(ProjectCreatedEvent);
+            _id = @event.Id;
+            _Name = @event.Name;
+            _compoundId = @event.CompoundId;
+            RaiseEvent(@event);
         }
 
         public void Apply(ProjectCreatedEvent @event)
@@ -39,8 +34,6 @@ namespace Project.Domain.Aggregates
             _id = @event.Id;
             _Name = @event.Name;
             _compoundId = @event.CompoundId;
-            _hitId = @event.HitId;
-
         }
 
         /* Update Project */
@@ -50,11 +43,6 @@ namespace Project.Domain.Aggregates
             {
                 throw new InvalidOperationException("This Project is deleted.");
             }
-
-            // ProjectUpdatedEvent doesn't allow name or HitId to be changed.
-            ProjectUpdatedEvent.Name = _Name;
-            ProjectUpdatedEvent.CompoundId = _compoundId;
-            ProjectUpdatedEvent.HitId = _hitId;
 
             RaiseEvent(ProjectUpdatedEvent);
         }

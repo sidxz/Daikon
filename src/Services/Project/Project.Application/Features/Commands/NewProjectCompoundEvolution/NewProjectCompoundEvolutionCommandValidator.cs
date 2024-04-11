@@ -7,7 +7,7 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
         public NewProjectCompoundEvolutionCommandValidator()
         {
 
-            RuleFor(t => t.CompoundStructureSMILES)
+            RuleFor(t => t.RequestedSMILES)
             .NotEmpty().WithMessage("SMILES is required");
 
         }

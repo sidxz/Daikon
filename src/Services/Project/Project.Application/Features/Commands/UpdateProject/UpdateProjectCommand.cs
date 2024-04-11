@@ -9,36 +9,60 @@ namespace Project.Application.Features.Commands.UpdateProject
 {
     public class UpdateProjectCommand : BaseCommand, IRequest<Unit>
     {
-        public Guid? StrainId { get; set; }
-        
+
+        public string? Alias { get; set; }
         public string? ProjectType { get; set; }
         public string? LegacyId { get; set; }
-        
-
-        public Dictionary<string, string> AssociatedHitIds { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DVariable<DateTime> ProjectStart { get; set; }
-
-        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DVariable<DateTime> ProjectPredictedStart { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> ProjectDescription { get; set; }
+        public DVariable<string>? Description { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> ProjectStatus { get; set; }
+        public DVariable<string>? Status { get; set; }
 
-        public bool IsProjectComplete { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Stage { get; set; }
+
+        public bool? IsProjectComplete { get; set; }
+        public bool? IsProjectRemoved { get; set; }
+
+        /* Orgs */
+        [JsonConverter(typeof(DVariableJsonConverter<Guid>))]
+        public DVariable<Guid>? PrimaryOrgId { get; set; }
+        public List<Guid>? ParticipatingOrgs { get; set; }
+
+
+
+        /* Dates */
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? H2LPredictedStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? H2LStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? LOPredictedStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? LOStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? SPPredictedStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? SPStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? INDPredictedStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? INDStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? P1PredictedStart { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? P1Start { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? CompletionDate { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? ProjectRemovedDate { get; set; }
+
         public DateTime? ProjectStatusDate { get; set; }
-        public DateTime? TerminationDate { get; set; }
-        public DateTime? EOLDate { get; set; }
-        public DateTime? CompletionDate { get; set; }
 
-        [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> PrimaryOrg { get; set; }
-        
-        public List<string> SupportingOrgs { get; set; }
+        public DateTime? TerminationDate { get; set; }
 
 
     }

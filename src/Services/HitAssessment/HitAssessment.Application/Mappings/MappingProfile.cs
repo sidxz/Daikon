@@ -49,7 +49,19 @@ namespace HitAssessment.Application.Mappings
             .ForMember(dest => dest.Description, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.Description)))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<string>, string>(src => src.Status)))
             .ForMember(dest => dest.PrimaryOrgId, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<Guid>, Guid>(src => src.PrimaryOrgId)))
+            .ForMember(dest => dest.StatusLastModifiedDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusLastModifiedDate)))
+            .ForMember(dest => dest.StatusReadyForHADate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusReadyForHADate)))
+            .ForMember(dest => dest.StatusActiveDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusActiveDate)))
+            .ForMember(dest => dest.StatusIncorrectMzDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusIncorrectMzDate)))
+            .ForMember(dest => dest.StatusKnownLiabilityDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusKnownLiabilityDate)))
+            .ForMember(dest => dest.StatusCompleteFailedDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusCompleteFailedDate)))
+            .ForMember(dest => dest.StatusCompleteSuccessDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusCompleteSuccessDate)))
+            .ForMember(dest => dest.TerminationDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.TerminationDate)))
+            .ForMember(dest => dest.CompletionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.CompletionDate)))
+            .ForMember(dest => dest.EOLDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.EOLDate)))
+            .ForMember(dest => dest.H2LPredictedStartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.H2LPredictedStartDate)))
             .ReverseMap();
+
 
             CreateMap<Domain.Entities.HaCompoundEvolution, HaCompoundEvolutionVM>()
             .ForMember(dest => dest.EvolutionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HaCompoundEvolution, IValueProperty<DateTime>, DateTime>(src => src.EvolutionDate)))

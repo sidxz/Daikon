@@ -1,4 +1,3 @@
-version: "3.4"
 
 services:
   Gene.API:
@@ -193,6 +192,8 @@ services:
       - "HorizonNeo4jSettings:Uri=bolt://neo4j:7687"
       - "HorizonNeo4jSettings:User=neo4j"
       - "HorizonNeo4jSettings:Password=1k5SPVHJ4FZ9"
+      - "HorizonNeo4jSettings:Database=horizon"
+
 
       - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
       - "KafkaConsumerSettings:Topics=daikon-core-events"

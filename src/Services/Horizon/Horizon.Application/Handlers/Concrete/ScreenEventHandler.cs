@@ -24,7 +24,7 @@ namespace Horizon.Application.Handlers
                 _logger.LogInformation($"Horizon: Start-> ScreenCreatedEvent: {@event.Id} {@event.Name}");
                 var screen = new Screen
                 {
-                    UniId =  @event.Id.ToString(),
+                    UniId = @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
                     StrainId = @event.StrainId.ToString(),
 
@@ -35,8 +35,10 @@ namespace Horizon.Application.Handlers
                     Status = @event.Status,
                     PrimaryOrgName = @event.PrimaryOrgName,
 
-                    DateCreated = DateTime.UtcNow,
-                    IsModified = false,
+                    DateCreated = @event.DateCreated,
+                    DateModified = @event.DateModified,
+                    IsModified = @event.IsModified,
+                    IsDraft = @event.IsDraft
                 };
 
                 await _graphRepository.AddScreen(screen);
@@ -55,7 +57,7 @@ namespace Horizon.Application.Handlers
                 _logger.LogInformation($"Horizon: ScreenUpdatedEvent: {@event.Id} {@event.Name}");
                 var screen = new Screen
                 {
-                    UniId =  @event.Id.ToString(),
+                    UniId = @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
                     StrainId = @event.StrainId.ToString(),
 
@@ -66,8 +68,10 @@ namespace Horizon.Application.Handlers
                     Status = @event.Status,
                     PrimaryOrgName = @event.PrimaryOrgName,
 
-                    DateCreated = DateTime.UtcNow,
-                    IsModified = true,
+                    DateCreated = @event.DateCreated,
+                    DateModified = @event.DateModified,
+                    IsModified = @event.IsModified,
+                    IsDraft = @event.IsDraft
                 };
 
                 await _graphRepository.UpdateScreen(screen);
@@ -86,12 +90,14 @@ namespace Horizon.Application.Handlers
                 _logger.LogInformation($"Horizon: ScreenAssociatedTargetsUpdatedEvent: {@event.Id} {@event.Name}");
                 var screen = new Screen
                 {
-                    UniId =  @event.Id.ToString(),
+                    UniId = @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
                     Name = @event.Name,
                     AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
-                    DateCreated = DateTime.UtcNow,
-                    IsModified = true,
+                    DateCreated = @event.DateCreated,
+                    DateModified = @event.DateModified,
+                    IsModified = @event.IsModified,
+                    IsDraft = @event.IsDraft
                 };
 
                 await _graphRepository.UpdateAssociatedTargetsOfScreen(screen);

@@ -21,13 +21,9 @@ namespace Project.API.Controllers.V2
             try
             {
                 command.CompoundEvolutionId = compoundEvolutionId;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = compoundEvolutionId,
-                    Message = "Project Compound Evolution added successfully",
-                });
+                var response = await _mediator.Send(command);
+                return StatusCode(StatusCodes.Status201Created, response);
+                
             }
             catch (ArgumentNullException ex)
             {
@@ -168,7 +164,7 @@ namespace Project.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the Compound Evolution";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

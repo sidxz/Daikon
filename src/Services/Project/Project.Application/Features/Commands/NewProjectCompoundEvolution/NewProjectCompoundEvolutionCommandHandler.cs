@@ -7,63 +7,98 @@ using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Project.Application.Features.Commands.NewHaCompoundEvolution;
+using Project.Application.DTOs.MLogixAPI;
+using Project.Application.Features.Queries.GetProject;
 
 
 namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
 {
-    public class NewProjectCompoundEvolutionCommandHandler : IRequestHandler<NewProjectCompoundEvolutionCommand, Unit>
+    public class NewProjectCompoundEvolutionCommandHandler : IRequestHandler<NewProjectCompoundEvolutionCommand, NewProjectCompoundEvolutionResDTO>
     {
         private readonly IMapper _mapper;
         private readonly ILogger<NewProjectCompoundEvolutionCommandHandler> _logger;
         private readonly IProjectCompoundEvolutionRepository _projectCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<ProjectAggregate> _projectEventSourcingHandler;
-        private readonly IMolDbAPIService _molDbAPIService;
+        private readonly IMLogixAPIService _mLogixAPIService;
 
         public NewProjectCompoundEvolutionCommandHandler(ILogger<NewProjectCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<ProjectAggregate> projectEventSourcingHandler,
             IProjectCompoundEvolutionRepository projectCompoundEvoRepository,
-            IMapper mapper, IMolDbAPIService molDbAPIService)
+            IMapper mapper, IMLogixAPIService mLogixAPIService)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _projectCompoundEvoRepository = projectCompoundEvoRepository ?? throw new ArgumentNullException(nameof(projectCompoundEvoRepository));
             _projectEventSourcingHandler = projectEventSourcingHandler ?? throw new ArgumentNullException(nameof(projectEventSourcingHandler));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
+            _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
 
         }
 
-        public async Task<Unit> Handle(NewProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)
+        public async Task<NewProjectCompoundEvolutionResDTO> Handle(NewProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                var projectCEAddedEvent = _mapper.Map<ProjectCompoundEvolutionAddedEvent>(request);
+                var compoundEvoAddedEvent = _mapper.Map<ProjectCompoundEvolutionAddedEvent>(request);
 
                 var aggregate = await _projectEventSourcingHandler.GetByAsyncId(request.Id);
-                Guid compoundId;
-                try
+
+                var response = new NewProjectCompoundEvolutionResDTO
                 {
-                    compoundId = await _molDbAPIService.RegisterCompound("Test", request.CompoundStructureSMILES);
-                    projectCEAddedEvent.CompoundId = compoundId;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error while calling MolDbAPI");
-                    _logger.LogError(ex.Message);
-                    throw new Exception(nameof(ProjectAggregate));
-                }
+                    Id = request.Id,
+                };
 
 
-                aggregate.AddCompoundEvolution(projectCEAddedEvent);
+
+                if (request.MoleculeId is null || request.MoleculeId == Guid.Empty)
+                {
+                    if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
+                    {
+                        _logger.LogInformation("Will try to register molecule ...");
+                        await RegisterMoleculeAndAssignToEvent(request, compoundEvoAddedEvent, response);
+                    }
+                }
+                else
+                {
+                    _logger.LogInformation("MoleculeId provided in request. Skipping molecule registration...");
+                    compoundEvoAddedEvent.MoleculeId = (Guid)request.MoleculeId;
+
+                }
+
+                aggregate.AddCompoundEvolution(compoundEvoAddedEvent);
 
                 await _projectEventSourcingHandler.SaveAsync(aggregate);
+
+                return response;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(ProjectAggregate), request.Id);
             }
-            return Unit.Value;
+        }
+
+
+        private async Task RegisterMoleculeAndAssignToEvent(NewProjectCompoundEvolutionCommand request, ProjectCompoundEvolutionAddedEvent eventToAdd, NewProjectCompoundEvolutionResDTO response)
+        {
+            try
+            {
+                var mLogiXResponse = await _mLogixAPIService.RegisterCompound(new RegisterMoleculeRequest
+                {
+                    Name = request.MoleculeName,
+                    RequestedSMILES = request.RequestedSMILES
+                });
+
+                eventToAdd.MoleculeId = mLogiXResponse.Id;
+                response.MoleculeId = mLogiXResponse.Id;
+                response.Molecule = _mapper.Map<MoleculeVM>(mLogiXResponse);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while calling MLogixAPIService for SMILES: {SMILES}", request.RequestedSMILES);
+                throw;
+            }
         }
     }
 

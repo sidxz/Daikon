@@ -50,13 +50,23 @@ namespace Horizon.Infrastructure.Query.Consumers
         private readonly ITargetEventHandler _targetEventHandler;
         private readonly IScreenEventHandler _screenEventHandler;
         private readonly IHitCollectionEventHandler _hitCollectionEventHandler;
+        private readonly IHitAssessmentEventHandler _hitAssessmentEventHandler;
+        
+        private readonly IProjectEventHandler _projectEventHandler;
+
         private readonly IMLogixEventHandler _mLogixEventHandler;
         private readonly ILogger<EventConsumer> _logger;
 
-        public EventConsumer(IConfiguration configuration, IGeneEventHandler eventHandler,
-                 ITargetEventHandler targetEventHandler, IScreenEventHandler screenEventHandler, IHitCollectionEventHandler hitCollectionEventHandler,
-                    IMLogixEventHandler mLogixEventHandler,
-                     ILogger<EventConsumer> logger)
+        public EventConsumer(
+                            IConfiguration configuration, IGeneEventHandler eventHandler,
+                            ITargetEventHandler targetEventHandler,
+                            IScreenEventHandler screenEventHandler,
+                            IHitCollectionEventHandler hitCollectionEventHandler,
+                            IMLogixEventHandler mLogixEventHandler,
+                            IHitAssessmentEventHandler hitAssessmentEventHandler,
+                            IProjectEventHandler projectEventHandler,
+                            ILogger<EventConsumer> logger
+                            )
         {
             _config = new ConsumerConfig
             {
@@ -71,6 +81,8 @@ namespace Horizon.Infrastructure.Query.Consumers
             _targetEventHandler = targetEventHandler;
             _screenEventHandler = screenEventHandler;
             _hitCollectionEventHandler = hitCollectionEventHandler;
+            _hitAssessmentEventHandler = hitAssessmentEventHandler;
+            _projectEventHandler = projectEventHandler;
             _mLogixEventHandler = mLogixEventHandler;
             _logger = logger;
         }
@@ -106,16 +118,16 @@ namespace Horizon.Infrastructure.Query.Consumers
                         {
                             Converters = { new EventJSONConverter() }
                         };
-                        
+
                         BaseEvent @event;
-                        try 
+                        try
                         {
                             @event = JsonSerializer.Deserialize<BaseEvent>(consumeResult.Message.Value, Options);
                         }
                         catch (UnknownEventDiscriminatorException ex)
                         {
                             _logger.LogInformation("Horizon: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
-                           
+
                             continue;
                         }
                         catch (Exception ex)
@@ -123,7 +135,7 @@ namespace Horizon.Infrastructure.Query.Consumers
                             _logger.LogError(ex, "Error deserializing event: {message}", consumeResult.Message.Value);
                             throw new EventConsumeException(nameof(EventConsumer), $"Error deserializing event: {consumeResult.Message.Value}", ex);
                         }
-                        
+
                         // 1st check if the event is a Gene event
                         var geneHandlerMethod = _geneEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
                         if (geneHandlerMethod != null)
@@ -132,13 +144,19 @@ namespace Horizon.Infrastructure.Query.Consumers
                             {
                                 _logger.LogDebug("Invoking {handlerMethod} with {@event}", geneHandlerMethod.Name, @event.ToJson());
                                 geneHandlerMethod.Invoke(_geneEventHandler, new object[] { @event });
+                                consumer.Commit(consumeResult);
                             }
                             catch (EventHandlerException ex)
                             {
                                 _logger.LogError("Handler method not found {name}", nameof(geneHandlerMethod));
                                 throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
-                            consumer.Commit(consumeResult);
+                            catch (Exception ex)
+                            {
+                                _logger.LogError("Error invoking handler method {name}", nameof(geneHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+
                             continue;
                         }
 
@@ -150,13 +168,19 @@ namespace Horizon.Infrastructure.Query.Consumers
                             {
                                 _logger.LogDebug("Invoking {handlerMethod} with {@event}", targetHandlerMethod.Name, @event.ToJson());
                                 targetHandlerMethod.Invoke(_targetEventHandler, new object[] { @event });
+                                consumer.Commit(consumeResult);
                             }
                             catch (EventHandlerException ex)
                             {
                                 _logger.LogError("Handler method not found {name}", nameof(targetHandlerMethod));
                                 throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
-                            consumer.Commit(consumeResult);
+                            catch (Exception ex)
+                            {
+                                _logger.LogError("Error invoking handler method {name}", nameof(targetHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+
                             continue;
                         }
 
@@ -168,13 +192,19 @@ namespace Horizon.Infrastructure.Query.Consumers
                             {
                                 _logger.LogDebug("Invoking {handlerMethod} with {@event}", screenHandlerMethod.Name, @event.ToJson());
                                 screenHandlerMethod.Invoke(_screenEventHandler, new object[] { @event });
+                                consumer.Commit(consumeResult);
                             }
                             catch (EventHandlerException ex)
                             {
                                 _logger.LogError("Handler method not found {name}", nameof(screenHandlerMethod));
                                 throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
-                            consumer.Commit(consumeResult);
+                            catch (Exception ex)
+                            {
+                                _logger.LogError("Error invoking handler method {name}", nameof(screenHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+
                             continue;
                         }
 
@@ -186,13 +216,19 @@ namespace Horizon.Infrastructure.Query.Consumers
                             {
                                 _logger.LogDebug("Invoking {handlerMethod} with {@event}", hitCollectionHandlerMethod.Name, @event.ToJson());
                                 hitCollectionHandlerMethod.Invoke(_hitCollectionEventHandler, new object[] { @event });
+                                consumer.Commit(consumeResult);
                             }
                             catch (EventHandlerException ex)
                             {
                                 _logger.LogError("Handler method not found {name}", nameof(hitCollectionHandlerMethod));
                                 throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
-                            consumer.Commit(consumeResult);
+                            catch (Exception ex)
+                            {
+                                _logger.LogError("Error invoking handler method {name}", nameof(hitCollectionHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+
                             continue;
                         }
 
@@ -204,24 +240,85 @@ namespace Horizon.Infrastructure.Query.Consumers
                             {
                                 _logger.LogDebug("Invoking {handlerMethod} with {@event}", mLogixHandlerMethod.Name, @event.ToJson());
                                 mLogixHandlerMethod.Invoke(_mLogixEventHandler, new object[] { @event });
+                                consumer.Commit(consumeResult);
                             }
                             catch (EventHandlerException ex)
                             {
                                 _logger.LogError("Handler method not found {name}", nameof(mLogixHandlerMethod));
                                 throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
                             }
-                            consumer.Commit(consumeResult);
+                            catch (Exception ex)
+                            {
+                                _logger.LogError("Error invoking handler method {name}", nameof(mLogixHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+
+                            continue;
+                        }
+
+                        // 6th check if the event is a HitAssessment event
+                        var hitAssessmentHandlerMethod = _hitAssessmentEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (hitAssessmentHandlerMethod != null)
+                        {
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", hitAssessmentHandlerMethod.Name, @event.ToJson());
+                                hitAssessmentHandlerMethod.Invoke(_hitAssessmentEventHandler, new object[] { @event });
+                                consumer.Commit(consumeResult);
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(hitAssessmentHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError("Error invoking handler method {name}", nameof(hitAssessmentHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+
+                            continue;
+                        }
+
+                        // 7th check if the event is a Project event
+                        var projectHandlerMethod = _projectEventHandler.GetType().GetMethod("OnEvent", new Type[] { @event.GetType() });
+                        if (projectHandlerMethod != null)
+                        {
+                            try
+                            {
+                                _logger.LogDebug("Invoking {handlerMethod} with {@event}", projectHandlerMethod.Name, @event.ToJson());
+                                projectHandlerMethod.Invoke(_projectEventHandler, new object[] { @event });
+                                consumer.Commit(consumeResult);
+                            }
+                            catch (EventHandlerException ex)
+                            {
+                                _logger.LogError("Handler method not found {name}", nameof(projectHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError("Error invoking handler method {name}", nameof(projectHandlerMethod));
+                                throw new EventConsumeException(nameof(EventConsumer), $"Error Invoking {@event.ToJson()}", ex);
+                            }
+
                             continue;
                         }
 
 
                         // check if no handler method was found, throw an exception
-                        if (geneHandlerMethod == null && targetHandlerMethod == null)
+                        if (geneHandlerMethod == null
+                                && targetHandlerMethod == null
+                                && screenHandlerMethod == null
+                                && hitCollectionHandlerMethod == null
+                                && mLogixHandlerMethod == null
+                                && hitAssessmentHandlerMethod == null
+                                && projectHandlerMethod == null
+                                )
                         {
                             _logger.LogError("Horizon Event is registered but no handler method found");
                             throw new ArgumentNullException(nameof(EventConsumer), "Handler method not found");
                         }
-                        
+
                     }
                 }
                 catch (ConsumeException e)

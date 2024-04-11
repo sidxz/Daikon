@@ -1,0 +1,29 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5003
+
+# Core Services
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
+COPY ["BuildingBlocks/Daikon.EventStore/Daikon.EventStore.csproj", "BuildingBlocks/Daikon.EventStore/"]
+COPY ["BuildingBlocks/Daikon.VersionStore/Daikon.VersionStore.csproj", "BuildingBlocks/Daikon.VersionStore/"]
+COPY ["BuildingBlocks/Daikon.Shared/Daikon.Shared.csproj", "BuildingBlocks/Daikon.Shared/"]
+
+
+# Screen Services
+COPY ["Services/Screen/Screen.API/Screen.API.csproj", "Services/Screen/Screen.API/"]
+COPY ["Services/Screen/Screen.Application/Screen.Application.csproj", "Services/Screen/Screen.Application/"]
+COPY ["Services/Screen/Screen.Domain/Screen.Domain.csproj", "Services/Screen/Screen.Domain/"]
+COPY ["Services/Screen/Screen.Infrastructure/Screen.Infrastructure.csproj", "Services/Screen/Screen.Infrastructure/"]
+
+RUN dotnet restore "Services/Screen/Screen.API/Screen.API.csproj"
+
+WORKDIR "/app/Services/Screen/Screen.API"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]

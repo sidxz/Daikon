@@ -10,6 +10,7 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
 
             RuleFor(t => t.EvolutionDate)
             .NotEmpty().WithMessage("Evolution Date is required");
+            
 
         }
     }

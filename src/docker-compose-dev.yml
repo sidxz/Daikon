@@ -1,6 +1,369 @@
-version: "3.4"
 
 services:
+
+  SimpleGW.API:
+    image: ${DOCKER_REGISTRY-}simplegw-dev
+    build:
+      context: .
+      dockerfile: ApiGateways/SimpleGW/SimpleGW.API/Dockerfile.dev
+    volumes:
+      - ./ApiGateways/SimpleGW/:/app/ApiGateways/SimpleGW/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      -  OIDCProvider=EntraID
+      -  EntraID:Instance=${EntraID_Instance}
+      -  EntraID:Domain=${EntraID_Domain}
+      -  EntraID:TenantId=${EntraID_TenantId}
+      -  EntraID:ClientId=${EntraID_ClientId}
+      -  EntraID:Audience=${EntraID_Audience}
+
+      - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
+
+      - "EndPointRouting:gene=http://Gene.API"
+      - "EndPointRouting:gene-batch=http://Gene.API"
+      - "EndPointRouting:strain=http://Gene.API"
+
+      - "EndPointRouting:target=http://Target.API"
+      - "EndPointRouting:screen=http://Screen.API"
+      - "EndPointRouting:hit-collection=http://Screen.API"
+
+      - "EndPointRouting:hit-assessment=http://HitAssessment.API"
+      - "EndPointRouting:project=http://Project.API"
+      - "EndPointRouting:horizon=http://Horizon.API"
+      - "EndPointRouting:molecule=http://MLogix.API"
+      - "EndPointRouting:api-resources=http://UserStore.API"
+      - "EndPointRouting:app-settings=http://UserStore.API"
+      - "EndPointRouting:org=http://UserStore.API"
+      - "EndPointRouting:roles=http://UserStore.API"
+      - "EndPointRouting:user=http://UserStore.API"
+      - "EndPointRouting:questionnaire=http://Questionnaire.API"
+      - "EndPointRouting:mol-db=http://MolDb.API"
+
+    ports:
+      - "8010:5010"
+
+  UserStore.API:
+    image: ${DOCKER_REGISTRY-}userstore-dev
+    build:
+      context: .
+      dockerfile: Identities/UserStore/UserStore.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Identities/UserStore/:/app/Identities/UserStore/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5011
+
+      - "UserStoreMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "UserStoreMongoDbSettings:DatabaseName=UserStore"
+
+      - "UserStoreMongoDbSettings:AppOrgCollectionName=AppOrgs"
+      - "UserStoreMongoDbSettings:AppUserCollectionName=AppUsers"
+      - "UserStoreMongoDbSettings:AppRoleCollectionName=AppRoles"
+      - "UserStoreMongoDbSettings:APIResourceCollectionName=AppAPIResources"
+    ports:
+      - "8011:5011"
+  
+
+  Gene.API:
+    image: ${DOCKER_REGISTRY-}gene-dev
+    build:
+      context: .
+      dockerfile: Services/Gene/Gene.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/Gene/:/app/Services/Gene/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5001
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "GeneMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "GeneMongoDbSettings:DatabaseName=Gene"
+
+      - "GeneMongoDbSettings:GeneCollectionName=Genes"
+      - "GeneMongoDbSettings:StrainCollectionName=Strains"
+      - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
+      - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
+      - "GeneMongoDbSettings:GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
+      - "GeneMongoDbSettings:GeneHypomorphCollectionName=Hypomorphs"
+      - "GeneMongoDbSettings:GeneCrispriStrainCollectionName=CrispriStrains"
+      - "GeneMongoDbSettings:GeneResistanceMutationCollectionName=ResistanceMutations"
+      - "GeneMongoDbSettings:GeneVulnerabilityCollectionName=Vulnerabilities"
+      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
+
+      - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
+      - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
+      - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
+      - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
+      - "GeneMongoDbSettings:GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
+      - "GeneMongoDbSettings:GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
+      - "GeneMongoDbSettings:GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
+      - "GeneMongoDbSettings:GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
+      - "GeneMongoDbSettings:GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
+      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=gene-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+    ports:
+      - "8001:5001"
+
+
+  Target.API:
+    image: ${DOCKER_REGISTRY-}target-dev
+    build:
+      context: .
+      dockerfile: Services/Target/Target.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/Target/:/app/Services/Target/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5002
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "TargetMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "TargetMongoDbSettings:DatabaseName=Target"
+
+      - "TargetMongoDbSettings:TargetCollectionName=Targets"
+      - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
+
+      - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=target-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+    ports:
+      - "8002:5002"
+
+  Screen.API:
+    image: ${DOCKER_REGISTRY-}screen-dev
+    build:
+      context: .
+      dockerfile: Services/Screen/Screen.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/Screen/:/app/Services/Screen/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5003
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "ScreenMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "ScreenMongoDbSettings:DatabaseName=Screen"
+
+      - "ScreenMongoDbSettings:ScreenCollectionName=Screens"
+      - "ScreenMongoDbSettings:ScreenRunCollectionName=ScreenRuns"
+      - "ScreenMongoDbSettings:HitCollectionCollectionName=HitCollections"
+      - "ScreenMongoDbSettings:HitCollectionName=Hits"
+
+      - "ScreenMongoDbSettings:ScreenRevisionCollectionName=ScreensRevisions"
+      - "ScreenMongoDbSettings:ScreenRunRevisionCollectionName=ScreenRunsRevisions"
+      - "ScreenMongoDbSettings:HitCollectionRevisionCollectionName=HitCollectionsRevisions"
+      - "ScreenMongoDbSettings:HitRevisionCollectionName=HitRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=screen-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+
+    ports:
+      - "8003:5003"
+
+
+  HitAssessment.API:
+    image: ${DOCKER_REGISTRY-}hitassessment-dev
+    build:
+      context: .
+      dockerfile: Services/HitAssessment/HitAssessment.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/HitAssessment/:/app/Services/HitAssessment/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5004
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "HAMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "HAMongoDbSettings:DatabaseName=HitAssessment"
+
+      - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
+      - "HAMongoDbSettings:HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
+
+      - "HAMongoDbSettings:HitAssessmentRevisionCollectionName=HitAssessmentsRevisions"
+      - "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=hitassessment-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+
+    ports:
+      - "8004:5004"
+
+  Project.API:
+    image: ${DOCKER_REGISTRY-}project-dev
+    build:
+      context: .
+      dockerfile: Services/Project/Project.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/Project/:/app/Services/Project/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5005
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "ProjectMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "ProjectMongoDbSettings:DatabaseName=Project"
+
+      - "ProjectMongoDbSettings:ProjectCollectionName=Projects"
+      - "ProjectMongoDbSettings:ProjectCompoundEvolutionCollectionName=ProjectCompoundEvolutions"
+
+      - "ProjectMongoDbSettings:ProjectRevisionCollectionName=ProjectsRevisions"
+      - "ProjectMongoDbSettings:ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=project-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+
+    ports:
+      - "8005:5005"
+
+  Horizon.API:
+    image: ${DOCKER_REGISTRY-}horizon-dev
+    build:
+      context: .
+      dockerfile: Services/Horizon/Horizon.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/Horizon/:/app/Services/Horizon/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5006
+      - "HorizonNeo4jSettings:Uri=bolt://neo4j:7687"
+      - "HorizonNeo4jSettings:User=neo4j"
+      - "HorizonNeo4jSettings:Password=1k5SPVHJ4FZ9"
+      - "HorizonNeo4jSettings:Database=horizon"
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=horizon-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+    ports:
+      - "8006:5006"
+
+  MLogix.API:
+    image: ${DOCKER_REGISTRY-}mlogix-dev
+    build:
+      context: .
+      dockerfile: Services/MLogix/MLogix.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/MLogix/:/app/Services/MLogix/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5007
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "MLxMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "MLxMongoDbSettings:DatabaseName=MoleculeLogix"
+
+      - "MLxMongoDbSettings:MoleculeCollectionName=Molecules"
+      - "MLxMongoDbSettings:MoleculeRevisionCollectionName=MoleculesRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=mlogix-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
+
+    ports:
+      - "8007:5007"
+
+  Questionnaire.API:
+    image: ${DOCKER_REGISTRY-}questionnaire-dev
+    build:
+      context: .
+      dockerfile: Services/Questionnaire/Questionnaire.API/Dockerfile.dev
+    volumes:
+      - ./BuildingBlocks:/app/BuildingBlocks:delegated
+      - ./Services/Questionnaire/:/app/Services/Questionnaire/:delegated
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5008
+
+      - "QuestionnaireMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "QuestionnaireMongoDbSettings:DatabaseName=Project"
+    ports:
+      - "8008:5008"
+
   MolDb.API:
     image: ${DOCKER_REGISTRY-}moldb
     build:

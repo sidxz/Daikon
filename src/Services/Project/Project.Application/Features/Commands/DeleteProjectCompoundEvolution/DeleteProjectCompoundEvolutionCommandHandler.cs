@@ -18,18 +18,16 @@ namespace Project.Application.Features.Commands.DeleteProjectCompoundEvolution
         private readonly IProjectCompoundEvolutionRepository _projectCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<ProjectAggregate> _projectEventSourcingHandler;
-        private readonly IMolDbAPIService _molDbAPIService;
 
         public DeleteProjectCompoundEvolutionCommandHandler(ILogger<DeleteProjectCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<ProjectAggregate> projectEventSourcingHandler,
             IProjectCompoundEvolutionRepository projectCompoundEvoRepository,
-            IMapper mapper, IMolDbAPIService molDbAPIService)
+            IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _projectCompoundEvoRepository = projectCompoundEvoRepository ?? throw new ArgumentNullException(nameof(projectCompoundEvoRepository));
             _projectEventSourcingHandler = projectEventSourcingHandler ?? throw new ArgumentNullException(nameof(projectEventSourcingHandler));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
 
         }
 

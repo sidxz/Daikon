@@ -10,12 +10,14 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAsse
     public class GetHitAssessmentListQueryHandler : IRequestHandler<GetHitAssessmentListQuery, List<HitAssessmentListVM>>
     {
         private readonly IHitAssessmentRepository _haRepository;
+        private readonly IHaCompoundEvolutionRepository _haCompoundEvoRepository;
         private readonly IMapper _mapper;
 
 
-        public GetHitAssessmentListQueryHandler(IHitAssessmentRepository targetRepository, IMapper mapper)
+        public GetHitAssessmentListQueryHandler(IHitAssessmentRepository targetRepository, IMapper mapper, IHaCompoundEvolutionRepository haCompoundEvoRepository)
         {
             _haRepository = targetRepository ?? throw new ArgumentNullException(nameof(targetRepository));
+            _haCompoundEvoRepository = haCompoundEvoRepository ?? throw new ArgumentNullException(nameof(haCompoundEvoRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
         }
@@ -24,8 +26,19 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAsse
             try
             {
                 var haS = await _haRepository.GetHaList();
-
-                return _mapper.Map<List<HitAssessmentListVM>>(haS);
+                var hasVM = _mapper.Map<List<HitAssessmentListVM>>(haS);
+                foreach (var ha in hasVM)
+                {
+                    // fetch compound evolution of HA. This returns a list of compound evolutions
+                    var haCompoundEvo = await _haCompoundEvoRepository.GetHaCompoundEvolutionOfHa(ha.Id);
+                    var latest = haCompoundEvo.FirstOrDefault();
+                    if (latest != null)
+                    {
+                        ha.CompoundEvoLatestSMILES = latest.RequestedSMILES;
+                        ha.CompoundEvoLatestMoleculeId = latest.MoleculeId;
+                    }
+                }
+                return hasVM;
             }
             catch (RepositoryException ex)
             {

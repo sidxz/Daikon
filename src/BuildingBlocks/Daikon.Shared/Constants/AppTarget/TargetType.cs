@@ -7,7 +7,7 @@ namespace Daikon.Shared.Constants.AppTarget
     {
         public const string Protein = "protein";
         public const string ProteinComplex = "protein-complex";
-        public static List<NameValuePair> GetScreeningTypes()
+        public static List<NameValuePair> GetTargetTypes()
         {
             return [.. new List<NameValuePair>
             {

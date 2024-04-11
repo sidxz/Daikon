@@ -22,14 +22,15 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitCollectionCreatedEvent: {@event.Id} {@event.Name}");
             var hitCollection = new HitCollection
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 ScreenId = @event.ScreenId.ToString(),
                 Name = @event.Name,
                 HitCollectionType = @event.HitCollectionType,
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
+                DateCreated = @event.DateCreated,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
 
             };
 
@@ -41,13 +42,16 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitCollectionUpdatedEvent: {@event.Id} {@event.Name}");
             var hitCollection = new HitCollection
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 ScreenId = @event.ScreenId.ToString(),
                 Name = @event.Name,
                 HitCollectionType = @event.HitCollectionType,
-
-                IsModified = true,
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
+               
 
             };
             await _graphRepository.UpdateHitCollection(hitCollection);
@@ -70,15 +74,15 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitAddedEvent: {@event.Id} {@event.HitId}");
             var hit = new Hit
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.HitId.ToString(),
                 HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.Id.ToString(),
                 Library = @event.Library,
                 RequestedSMILES = @event.RequestedSMILES,
                 MoleculeId = @event.MoleculeId.ToString(),
                 MoleculeRegistrationId = @event.MoleculeRegistrationId.ToString(),
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
+                DateCreated = @event.DateCreated,
+                IsModified = @event.IsModified
             };
             await _graphRepository.AddHit(hit);
         }
@@ -88,10 +92,14 @@ namespace Horizon.Application.Handlers
             _logger.LogInformation($"Horizon: HitUpdatedEvent: {@event.Id} {@event.HitId}");
             var hit = new Hit
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.HitId.ToString(),
                 HitId = @event.HitId.ToString(),
                 HitCollectionId = @event.Id.ToString(),
-                IsModified = true,
+                Library = @event.Library,
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             };
             await _graphRepository.UpdateHit(hit);
         }
@@ -109,7 +117,10 @@ namespace Horizon.Application.Handlers
             {
                 HitCollectionId = @event.Id.ToString(),
                 ScreenId = @event.ScreenId.ToString(),
-                IsModified = true,
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
             });
         }
     }

@@ -1,0 +1,20 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5010
+
+# Gateway Services
+COPY ["ApiGateways/SimpleGW/SimpleGW.API/SimpleGW.API.csproj", "ApiGateways/SimpleGW/SimpleGW.API/"]
+
+RUN dotnet restore "ApiGateways/SimpleGW/SimpleGW.API/SimpleGW.API.csproj"
+
+COPY . .
+
+WORKDIR "/app/ApiGateways/SimpleGW/SimpleGW.API/"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]
