@@ -21,13 +21,9 @@ namespace Project.API.Controllers.V2
             try
             {
                 command.CompoundEvolutionId = compoundEvolutionId;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = compoundEvolutionId,
-                    Message = "Project Compound Evolution added successfully",
-                });
+                var response = await _mediator.Send(command);
+                return StatusCode(StatusCodes.Status201Created, response);
+                
             }
             catch (ArgumentNullException ex)
             {
