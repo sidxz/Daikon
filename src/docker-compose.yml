@@ -1,7 +1,5 @@
-version: "3.4"
 
 services:
-
   UserStore.API:
     image: ${DOCKER_REGISTRY-}userstore
     build:

@@ -68,7 +68,8 @@ namespace Project.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("GetProjectCompoundEvolutionOfProject: Getting projectCompoundEvolution of project {ProjectId}", ProjectId);
-                return await _projectCompoundEvoCollection.Find(projectCompoundEvolution => projectCompoundEvolution.ProjectId == ProjectId).ToListAsync();
+                return await _projectCompoundEvoCollection.Find(projectCompoundEvolution => projectCompoundEvolution.ProjectId == ProjectId).SortByDescending(projectCompoundEvolution => projectCompoundEvolution.EvolutionDate.Value)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
