@@ -61,21 +61,9 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneCreatedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneCreatedEvent: {Id}", @event.Id);
-            var gene = new Domain.Entities.Gene
-            {
-                Id = @event.Id,
-                StrainId = @event.StrainId,
-                Name = @event.Name,
-
-                AccessionNumber = @event.AccessionNumber,
-                Product = @event.Product,
-                FunctionalCategory = @event.FunctionalCategory,
-
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
-            };
-
+            var gene = _mapper.Map<Domain.Entities.Gene>(@event);
+            gene.Id = @event.Id;
+            
             try
             {
                 await _geneRepository.CreateGene(gene);
@@ -90,14 +78,15 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneUpdatedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneUpdatedEvent: {Id}", @event.Id);
-            var gene = await _geneRepository.ReadGeneById(@event.Id);
+            var existingGene = await _geneRepository.ReadGeneById(@event.Id);
 
-            gene.StrainId = @event.StrainId;
-            gene.Name = @event.Name;
-            gene.AccessionNumber = @event.AccessionNumber;
-            gene.Product = @event.Product;
-            gene.FunctionalCategory = @event.FunctionalCategory;
-            gene.IsModified = true;
+            if (existingGene == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"GeneUpdatedEvent Error updating gene with id @event.Id", new Exception("Gene not found"));
+            }
+
+            var gene = _mapper.Map<Domain.Entities.Gene>(existingGene);
+            _mapper.Map(@event, gene);
 
             try
             {
@@ -126,6 +115,7 @@ namespace Gene.Application.Query.EventHandlers
                 await _geneResistanceMutationRepository.DeleteAllResistanceMutationsOfGene(gene.Id);
                 await _geneVulnerabilityRepository.DeleteAllVulnerabilitiesOfGene(gene.Id);
                 await _geneUnpublishedStructuralInformationRepository.DeleteAllUnpublishedStructuralInformationsOfGene(gene.Id);
+                await _geneExpansionPropRepo.DeleteAllOfEntity(gene.Id);
                 await _geneRepository.DeleteGene(gene.Id);
             }
             catch (RepositoryException ex)

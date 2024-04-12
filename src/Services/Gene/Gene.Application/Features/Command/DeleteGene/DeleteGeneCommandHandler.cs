@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,28 +12,27 @@ namespace Gene.Application.Features.Command.DeleteGene
   public class DeleteGeneCommandHandler : IRequestHandler<DeleteGeneCommand, Unit>
   {
     private readonly ILogger<DeleteGeneCommandHandler> _logger;
-
     private readonly IEventSourcingHandler<GeneAggregate> _eventSourcingHandler;
+    private readonly IMapper _mapper;
 
-    public DeleteGeneCommandHandler(ILogger<DeleteGeneCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler)
+    public DeleteGeneCommandHandler(ILogger<DeleteGeneCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler, IMapper mapper)
     {
       _logger = logger;
       _eventSourcingHandler = eventSourcingHandler;
+      _mapper = mapper;
     }
 
     public async Task<Unit> Handle(DeleteGeneCommand request, CancellationToken cancellationToken)
     {
-
-
+      _logger.LogInformation($"Handling DeleteGeneCommand: {request}");
       try
       {
-        var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-        var gene = new Domain.Entities.Gene
-        {
-          Id = request.Id,
-        };
+        request.DateModified = DateTime.UtcNow;
+        var geneDeletedEvent = _mapper.Map<GeneDeletedEvent>(request);
 
-        aggregate.DeleteGene(gene);
+        var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
+        aggregate.DeleteGene(geneDeletedEvent);
+
         await _eventSourcingHandler.SaveAsync(aggregate);
       }
       catch (AggregateNotFoundException ex)

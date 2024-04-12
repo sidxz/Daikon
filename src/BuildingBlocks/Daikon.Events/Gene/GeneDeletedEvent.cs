@@ -9,6 +9,6 @@ namespace Daikon.Events.Gene
         {
 
         }
-        public string AccessionNumber { get; set; }
+       
     }
 }

@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
@@ -32,9 +33,7 @@ namespace Gene.Application.Features.Command.NewGene
 
         public async Task<Unit> Handle(NewGeneCommand request, CancellationToken cancellationToken)
         {
-            //var gene = _mapper.Map<Domain.Entities.Gene>(request);
-
-            // check if gene (accessionNo) already exists; reject if it does
+            _logger.LogInformation($"Handling NewGeneCommand: {request}");
 
             var geneExists = await _geneRepository.ReadGeneByAccession(request.AccessionNumber);
             if (geneExists != null)
@@ -65,17 +64,25 @@ namespace Gene.Application.Features.Command.NewGene
                 throw new ResourceNotFoundException(nameof(StrainAggregate), $"Strain with Id {request.StrainId} or Name {request.StrainName} not found");
             }
 
-            var gene = _mapper.Map<Domain.Entities.Gene>(request);
-            
-            // Ensure Strain Id is set
-            gene.StrainId = strain.Id;
+            try
+            {
+                request.StrainId = strain.Id;
 
+                request.DateCreated = DateTime.UtcNow;
+                request.IsModified = false;
+                
+                var geneCreatedEvent = _mapper.Map<GeneCreatedEvent>(request);
 
-            var aggregate = new GeneAggregate(gene);
-            await _eventSourcingHandler.SaveAsync(aggregate);
+                var aggregate = new GeneAggregate(geneCreatedEvent);
+                await _eventSourcingHandler.SaveAsync(aggregate);
 
-            return Unit.Value;
-
+                return Unit.Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while handling NewGeneCommand");
+                throw;
+            }
         }
     }
 

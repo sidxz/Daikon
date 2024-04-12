@@ -1,7 +1,9 @@
+using CQRS.Core.Middlewares;
 using Gene.API.Conventions;
 using Gene.API.Helper;
 using Gene.Application;
 using Gene.Infrastructure;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -48,7 +50,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 
-
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestorIdBehavior<,>));
 var app = builder.Build();
 
 

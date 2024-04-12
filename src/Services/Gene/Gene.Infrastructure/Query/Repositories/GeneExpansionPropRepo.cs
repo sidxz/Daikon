@@ -62,6 +62,20 @@ namespace Gene.Infrastructure.Query.Repositories
             }
         }
 
+        public Task DeleteAllOfEntity(Guid entityId)
+        {
+            ArgumentNullException.ThrowIfNull(entityId);
+            _logger.LogInformation("DeleteAllOfEntity: Deleting all GeneExpansionProps of EntityId {EntityId}", entityId);
+            try {
+                return _expansionPropCollection.DeleteManyAsync(geneExpansionProps => geneExpansionProps.GeneId == entityId);
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the gene with EntityId {EntityId}", entityId);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error deleting gene", ex);
+            }
+        }
+
         public async Task<List<GeneExpansionProp>> ListByEntityId(Guid entityId)
         {
             ArgumentNullException.ThrowIfNull(entityId);

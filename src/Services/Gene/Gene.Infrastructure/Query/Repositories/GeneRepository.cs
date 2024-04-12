@@ -22,9 +22,7 @@ namespace Gene.Infrastructure.Query.Repositories
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _geneCollection = database.GetCollection<Domain.Entities.Gene>(configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName"));
             _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.AccessionNumber), new CreateIndexOptions { Unique = true }));
-
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -50,12 +48,33 @@ namespace Gene.Infrastructure.Query.Repositories
 
         public async Task<Domain.Entities.Gene> ReadGeneById(Guid id)
         {
-            return await _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
+            ArgumentNullException.ThrowIfNull(id);
+            try
+            {
+                _logger.LogInformation("ReadGeneById: Reading gene {GeneId}", id);
+                return await _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while reading the gene with ID {GeneId}", id);
+                throw new RepositoryException(nameof(GeneRepository), "Error reading gene", ex);
+            }
+
         }
 
         public async Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
         {
-            return await _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
+            ArgumentNullException.ThrowIfNull(accessionNumber);
+            try
+            {
+                _logger.LogInformation("ReadGeneByAccession: Reading gene {AccessionNumber}", accessionNumber);
+                return await _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while reading the gene with AccessionNumber {AccessionNumber}", accessionNumber);
+                throw new RepositoryException(nameof(GeneRepository), "Error reading gene", ex);
+            }
         }
 
 
@@ -63,6 +82,7 @@ namespace Gene.Infrastructure.Query.Repositories
         {
             try
             {
+                _logger.LogInformation("GetGenesList: Getting gene list");
                 return await _geneCollection.Find(gene => true).ToListAsync();
             }
             catch (MongoException ex)
@@ -75,8 +95,10 @@ namespace Gene.Infrastructure.Query.Repositories
 
         public async Task<List<Domain.Entities.Gene>> GetGenesListByStrainId(Guid strainId)
         {
+            ArgumentNullException.ThrowIfNull(strainId);
             try
             {
+                _logger.LogInformation("GetGenesListByStrainId: Getting gene list by StrainId {StrainId}", strainId);
                 return await _geneCollection.Find(gene => gene.StrainId == strainId).ToListAsync();
             }
             catch (MongoException ex)
@@ -91,18 +113,10 @@ namespace Gene.Infrastructure.Query.Repositories
         {
             ArgumentNullException.ThrowIfNull(gene);
 
-            var filter = Builders<Domain.Entities.Gene>.Filter.Eq(g => g.Id, gene.Id);
-            var update = Builders<Domain.Entities.Gene>.Update
-                .Set(g => g.StrainId, gene.StrainId)
-                .Set(g => g.Name, gene.Name)
-                
-                .Set(g => g.Product, gene.Product)
-                .Set(g => g.FunctionalCategory, gene.FunctionalCategory);
-
             try
             {
                 _logger.LogInformation("UpdateGene: Updating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
-                await _geneCollection.UpdateOneAsync(filter, update);
+                await _geneCollection.ReplaceOneAsync(g => g.Id == gene.Id, gene);
                 await _versionHub.CommitVersion(gene);
             }
             catch (MongoException ex)
@@ -131,7 +145,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
 
 
         public async Task<GeneRevision> GetGeneRevisions(Guid Id)

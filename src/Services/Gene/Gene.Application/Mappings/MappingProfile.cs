@@ -5,8 +5,12 @@ using CQRS.Core.Resolvers;
 using Daikon.Events.Gene;
 using Gene.Application.Features.Command.AddExpansionProp;
 using Gene.Application.Features.Command.DeleteExpansionProp;
+using Gene.Application.Features.Command.DeleteGene;
+using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Features.Command.UpdateExpansionProp;
+using Gene.Application.Features.Command.UpdateGene;
 using Gene.Application.Features.Queries.GetGene;
+using Gene.Application.Features.Queries.GetGenesList;
 using Gene.Domain.Entities;
 
 
@@ -18,12 +22,7 @@ namespace Gene.Application.Mappings
         public MappingProfile()
         {
 
-            CreateMap<Domain.Entities.Gene, Features.Queries.GetGenesList.GenesListVM>().ReverseMap();
-
-            CreateMap<Domain.Entities.Gene, Features.Queries.GetGene.GeneVM>()
-                .ForMember(dest => dest.Product, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.Product)))
-                .ForMember(dest => dest.FunctionalCategory, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.FunctionalCategory)));
-
+           
             CreateMap<Domain.Entities.Essentiality, Features.Queries.GetGene.GeneEssentialityVM>()
                 .ForMember(dest => dest.Classification, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Essentiality, IValueProperty<string>, string>(src => src.Classification)))
                 .ForMember(dest => dest.Condition, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Essentiality, IValueProperty<string>, string>(src => src.Condition)))
@@ -94,41 +93,42 @@ namespace Gene.Application.Mappings
 
 
 
-            CreateMap<Features.Command.NewGene.NewGeneCommand, Domain.Entities.Gene>().ReverseMap();
-            CreateMap<Features.Command.UpdateGene.UpdateGeneCommand, Domain.Entities.Gene>().ReverseMap();
+            /* ====== Gene Core ====== */
+            // -- Commands --
+            CreateMap<Domain.Entities.Gene, Domain.Entities.Gene>();
 
-            CreateMap<Features.Command.NewEssentiality.NewEssentialityCommand, Domain.Entities.Essentiality>().ReverseMap();
-            CreateMap<Features.Command.UpdateEssentiality.UpdateEssentialityCommand, Domain.Entities.Essentiality>().ReverseMap();
+            CreateMap<GeneCreatedEvent, NewGeneCommand>().ReverseMap();
+            CreateMap<GeneUpdatedEvent, UpdateGeneCommand>().ReverseMap();
+            CreateMap<GeneDeletedEvent, DeleteGeneCommand>().ReverseMap();
 
-            CreateMap<Features.Command.NewProteinProduction.NewProteinProductionCommand, Domain.Entities.ProteinProduction>().ReverseMap();
-            CreateMap<Features.Command.UpdateProteinProduction.UpdateProteinProductionCommand, Domain.Entities.ProteinProduction>().ReverseMap();
+            CreateMap<GeneCreatedEvent, Domain.Entities.Gene>().ReverseMap();
+            CreateMap<GeneUpdatedEvent, Domain.Entities.Gene>().ReverseMap();
+            CreateMap<GeneDeletedEvent, Domain.Entities.Gene>().ReverseMap();
 
-            CreateMap<Features.Command.NewProteinActivityAssay.NewProteinActivityAssayCommand, Domain.Entities.ProteinActivityAssay>().ReverseMap();
-            CreateMap<Features.Command.UpdateProteinActivityAssay.UpdateProteinActivityAssayCommand, Domain.Entities.ProteinActivityAssay>().ReverseMap();
+            // -- Queries --
+            CreateMap<Domain.Entities.Gene, GenesListVM>().ReverseMap();
 
-            CreateMap<Features.Command.NewHypomorph.NewHypomorphCommand, Domain.Entities.Hypomorph>().ReverseMap();
-            CreateMap<Features.Command.UpdateHypomorph.UpdateHypomorphCommand, Domain.Entities.Hypomorph>().ReverseMap();
+            CreateMap<Domain.Entities.Gene, GeneVM>()
+                .ForMember(dest => dest.Product, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.Product)))
+                .ForMember(dest => dest.FunctionalCategory, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.FunctionalCategory)))
+                .ForMember(dest => dest.Comments, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.Comments)))
+                .ForMember(dest => dest.GeneSequence, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.GeneSequence)))
+                .ForMember(dest => dest.ProteinSequence, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.ProteinSequence)));
 
-            CreateMap<Features.Command.NewCrispriStrain.NewCrispriStrainCommand, Domain.Entities.CrispriStrain>().ReverseMap();
-            CreateMap<Features.Command.UpdateCrispriStrain.UpdateCrispriStrainCommand, Domain.Entities.CrispriStrain>().ReverseMap();
 
-            CreateMap<Features.Command.NewResistanceMutation.NewResistanceMutationCommand, Domain.Entities.ResistanceMutation>().ReverseMap();
-            CreateMap<Features.Command.UpdateResistanceMutation.UpdateResistanceMutationCommand, Domain.Entities.ResistanceMutation>().ReverseMap();
-
-            CreateMap<Features.Command.NewVulnerability.NewVulnerabilityCommand, Domain.Entities.Vulnerability>().ReverseMap();
-            CreateMap<Features.Command.UpdateVulnerability.UpdateVulnerabilityCommand, Domain.Entities.Vulnerability>().ReverseMap();
-
-            CreateMap<Features.Command.NewUnpublishedStructuralInformation.NewUnpublishedStructuralInformationCommand, Domain.Entities.UnpublishedStructuralInformation>().ReverseMap();
-            CreateMap<Features.Command.UpdateUnpublishedStructuralInformation.UpdateUnpublishedStructuralInformationCommand, Domain.Entities.UnpublishedStructuralInformation>().ReverseMap();
-
+            /* ====== Expansion Prop ====== */
+            // -- Commands --
             CreateMap<GeneExpansionProp, GeneExpansionProp>();
-            CreateMap<GeneExpansionPropUpdatedEvent, GeneExpansionProp>().ReverseMap();
-            CreateMap<GeneExpansionPropAddedEvent, GeneExpansionProp>().ReverseMap();
 
             CreateMap<GeneExpansionPropAddedEvent, AddExpansionPropCommand>().ReverseMap();
             CreateMap<GeneExpansionPropUpdatedEvent, UpdateExpansionPropCommand>().ReverseMap();
             CreateMap<GeneExpansionPropDeletedEvent, DeleteExpansionPropCommand>().ReverseMap();
 
+            CreateMap<GeneExpansionPropAddedEvent, GeneExpansionProp>().ReverseMap();
+            CreateMap<GeneExpansionPropUpdatedEvent, GeneExpansionProp>().ReverseMap();
+            CreateMap<GeneExpansionPropDeletedEvent, GeneExpansionProp>().ReverseMap();
+            
+            // -- Queries --
             CreateMap<GeneExpansionProp, ExpansionPropVM>()
                 .ForMember(dest => dest.ExpansionValue, opt => opt.MapFrom(new MapperDVariableMetaResolver<GeneExpansionProp, IValueProperty<string>, string>(src => src.ExpansionValue)))
                 .ReverseMap();

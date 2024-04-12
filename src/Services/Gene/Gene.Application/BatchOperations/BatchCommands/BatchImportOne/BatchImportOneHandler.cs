@@ -105,7 +105,6 @@ namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
                 AccessionNumber = request.AccessionNumber,
                 StrainId = strainId,
                 Name = request.Name,
-                Function = request.Function,
                 Product = request.Product,
                 FunctionalCategory = request.FunctionalCategory,
             });
@@ -134,10 +133,8 @@ namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
             await _mediator.Send(new UpdateGeneCommand
             {
                 Id = request.Id,
-                AccessionNumber = request.AccessionNumber,
-                StrainId = request.StrainId,
+               
                 Name = request.Name,
-                Function = request.Function,
                 Product = request.Product,
                 FunctionalCategory = request.FunctionalCategory,
             });

@@ -13,7 +13,6 @@ namespace Horizon.Application.Features.Command.Gene.AddGene
         public string StrainId { get; set; }
         public string AccessionNumber { get; set; }
         public string? Name { get; set; }
-        public string? Function { get; set; }
         public string? Product { get; set; }
         public string? FunctionalCategory { get; set; }
     }

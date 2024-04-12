@@ -11,7 +11,7 @@ namespace Gene.Domain.Entities
         public string Name { get; set; }
         public string Type { get; set; }
         public string ProteinNameExpanded { get; set; }
-        public string AplphaFoldId { get; set; }
+        public string AlphaFoldId { get; set; }
         
         public DVariable<string> Product { get; set; }
         public DVariable<string> FunctionalCategory { get; set; }
