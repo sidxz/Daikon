@@ -5,8 +5,7 @@ namespace Gene.Application.Features.Queries.GetGene
 {
     public class GeneResistanceMutationVM : DocMetadata
     {
-        public Guid ResistanceMutationId { get; set; }
-        
+        public Guid Id { get; set; }
         public object Mutation { get; set; }
         public object Isolate { get; set; }
         public object ParentStrain { get; set; }

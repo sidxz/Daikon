@@ -1,6 +1,7 @@
 
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
+using Gene.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Gene.Application.Query.EventHandlers
@@ -10,17 +11,11 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneCrispriStrainAddedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneCrispriStrainAddedEvent: {CrispriStrainId}", @event.CrispriStrainId);
-            var crispriStrain = new Domain.Entities.CrispriStrain
-            {
-                Id = @event.CrispriStrainId,
-                GeneId = @event.GeneId,
-                CrispriStrainId = @event.CrispriStrainId,
-                CrispriStrainName = @event.CrispriStrainName,
-                Notes = @event.Notes,
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
-            };
+            var crispriStrain = _mapper.Map<CrispriStrain>(@event);
+
+            // Set Ids (swap)
+            crispriStrain.Id = @event.CrispriStrainId;
+            crispriStrain.GeneId = @event.Id;
 
             try
             {
@@ -36,11 +31,13 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneCrispriStrainUpdatedEvent: {CrispriStrainId}", @event.CrispriStrainId);
 
-            var crispriStrain = await _geneCrispriStrainRepository.Read(@event.CrispriStrainId);
+            var existingCrispriStrain = await _geneCrispriStrainRepository.Read(@event.CrispriStrainId);
 
-            crispriStrain.CrispriStrainName = @event.CrispriStrainName;
-            crispriStrain.Notes = @event.Notes;
-            crispriStrain.IsModified = true;
+            var crispriStrain = _mapper.Map<CrispriStrain>(existingCrispriStrain);
+            _mapper.Map(@event, crispriStrain);
+
+            crispriStrain.Id = @event.CrispriStrainId;
+            crispriStrain.GeneId = @event.Id;
 
             try
             {

@@ -26,6 +26,68 @@ namespace Gene.Infrastructure.Query.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+
+        public async Task<Domain.Entities.Gene> ReadGeneById(Guid id)
+        {
+            ArgumentNullException.ThrowIfNull(id);
+            try
+            {
+                return await _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while reading the gene with ID {GeneId}", id);
+                throw new RepositoryException(nameof(GeneRepository), "Error reading gene", ex);
+            }
+
+        }
+
+        public async Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
+        {
+            ArgumentNullException.ThrowIfNull(accessionNumber);
+            try
+            {
+                return await _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while reading the gene with AccessionNumber {AccessionNumber}", accessionNumber);
+                throw new RepositoryException(nameof(GeneRepository), "Error reading gene", ex);
+            }
+        }
+        public async Task<List<Domain.Entities.Gene>> GetGenesList()
+        {
+            try
+            {
+                return await _geneCollection.Find(gene => true)
+                .SortByDescending(gene => gene.AccessionNumber)
+                .ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the gene list");
+                throw new RepositoryException(nameof(GeneRepository), "Error getting gene list", ex);
+            }
+
+        }
+
+        public async Task<List<Domain.Entities.Gene>> GetGenesListByStrainId(Guid strainId)
+        {
+            ArgumentNullException.ThrowIfNull(strainId);
+            try
+            {
+                return await _geneCollection.Find(gene => gene.StrainId == strainId)
+                .SortByDescending(gene => gene.AccessionNumber)
+                .ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the gene list");
+                throw new RepositoryException(nameof(GeneRepository), "Error getting gene list", ex);
+            }
+
+        }
+
         public async Task CreateGene(Domain.Entities.Gene gene)
         {
 
@@ -42,71 +104,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", gene.Id);
                 throw new RepositoryException(nameof(GeneRepository), "Error creating gene", ex);
             }
-        }
-
-
-
-        public async Task<Domain.Entities.Gene> ReadGeneById(Guid id)
-        {
-            ArgumentNullException.ThrowIfNull(id);
-            try
-            {
-                _logger.LogInformation("ReadGeneById: Reading gene {GeneId}", id);
-                return await _geneCollection.Find(gene => gene.Id == id).FirstOrDefaultAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while reading the gene with ID {GeneId}", id);
-                throw new RepositoryException(nameof(GeneRepository), "Error reading gene", ex);
-            }
-
-        }
-
-        public async Task<Domain.Entities.Gene> ReadGeneByAccession(string accessionNumber)
-        {
-            ArgumentNullException.ThrowIfNull(accessionNumber);
-            try
-            {
-                _logger.LogInformation("ReadGeneByAccession: Reading gene {AccessionNumber}", accessionNumber);
-                return await _geneCollection.Find(gene => gene.AccessionNumber == accessionNumber).FirstOrDefaultAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while reading the gene with AccessionNumber {AccessionNumber}", accessionNumber);
-                throw new RepositoryException(nameof(GeneRepository), "Error reading gene", ex);
-            }
-        }
-
-
-        public async Task<List<Domain.Entities.Gene>> GetGenesList()
-        {
-            try
-            {
-                _logger.LogInformation("GetGenesList: Getting gene list");
-                return await _geneCollection.Find(gene => true).ToListAsync();
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the gene list");
-                throw new RepositoryException(nameof(GeneRepository), "Error getting gene list", ex);
-            }
-
-        }
-
-        public async Task<List<Domain.Entities.Gene>> GetGenesListByStrainId(Guid strainId)
-        {
-            ArgumentNullException.ThrowIfNull(strainId);
-            try
-            {
-                _logger.LogInformation("GetGenesListByStrainId: Getting gene list by StrainId {StrainId}", strainId);
-                return await _geneCollection.Find(gene => gene.StrainId == strainId).ToListAsync();
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the gene list");
-                throw new RepositoryException(nameof(GeneRepository), "Error getting gene list", ex);
-            }
-
         }
 
         public async Task UpdateGene(Domain.Entities.Gene gene)
@@ -145,7 +142,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
 
         public async Task<GeneRevision> GetGeneRevisions(Guid Id)
         {

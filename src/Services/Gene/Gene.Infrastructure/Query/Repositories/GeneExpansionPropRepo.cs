@@ -41,8 +41,8 @@ namespace Gene.Infrastructure.Query.Repositories
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", geneExpansionProps.Id);
-                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error creating gene", ex);
+                _logger.LogError(ex, "An error occurred while creating the GeneExpansionProps with ID {id}", geneExpansionProps.Id);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error creating GeneExpansionProps", ex);
             }
         }
 
@@ -57,8 +57,8 @@ namespace Gene.Infrastructure.Query.Repositories
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the gene with ID {GeneId}", id);
-                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error deleting gene", ex);
+                _logger.LogError(ex, "An error occurred while deleting the GeneExpansionProps with ID {id}", id);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error deleting GeneExpansionProps", ex);
             }
         }
 
@@ -71,15 +71,14 @@ namespace Gene.Infrastructure.Query.Repositories
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the gene with EntityId {EntityId}", entityId);
-                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error deleting gene", ex);
+                _logger.LogError(ex, "An error occurred while deleting the GeneExpansionProps of entity with EntityId {EntityId}", entityId);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error deleting GeneExpansionProps", ex);
             }
         }
 
         public async Task<List<GeneExpansionProp>> ListByEntityId(Guid entityId)
         {
             ArgumentNullException.ThrowIfNull(entityId);
-            _logger.LogInformation("ListByEntityId: Listing GeneExpansionProps by EntityId {EntityId}", entityId);
             try
             {
                 var res = await _expansionPropCollection.Find(geneExpansionProps => geneExpansionProps.GeneId == entityId).ToListAsync();
@@ -87,15 +86,14 @@ namespace Gene.Infrastructure.Query.Repositories
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while listing the gene with EntityId {EntityId}", entityId);
-                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error listing gene", ex);
+                _logger.LogError(ex, "An error occurred while listing the GeneExpansionProps with EntityId {EntityId}", entityId);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error listing GeneExpansionProps", ex);
             }
         }
 
         public async Task<GeneExpansionProp> ReadById(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);
-            _logger.LogInformation("ReadById: Reading GeneExpansionProp {GeneExpansionPropId}", id);
             try
             {
                 var res = await _expansionPropCollection.Find(geneExpansionProps => geneExpansionProps.Id == id).FirstOrDefaultAsync();
@@ -103,8 +101,8 @@ namespace Gene.Infrastructure.Query.Repositories
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while reading the gene with ID {GeneId}", id);
-                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error reading gene", ex);
+                _logger.LogError(ex, "An error occurred while reading the GeneExpansionProps with ID {id}", id);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error reading GeneExpansionProps", ex);
             }
         }
 
@@ -114,13 +112,13 @@ namespace Gene.Infrastructure.Query.Repositories
             _logger.LogInformation("Update: Updating GeneExpansionProp {GeneExpansionPropId}, {geneExpansionProps}", geneExpansionProps.Id, geneExpansionProps.ToJson());
             try
             {
-                await _expansionPropCollection.ReplaceOneAsync(geneExpansionProps => geneExpansionProps.Id == geneExpansionProps.Id, geneExpansionProps);
+                await _expansionPropCollection.ReplaceOneAsync(p => p.Id == geneExpansionProps.Id, geneExpansionProps);
                 await _versionHub.CommitVersion(geneExpansionProps);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the gene with ID {GeneId}", geneExpansionProps.Id);
-                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error updating gene", ex);
+                _logger.LogError(ex, "An error occurred while updating the GeneExpansionProps with ID {id}", geneExpansionProps.Id);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error updating GeneExpansionProps", ex);
             }
         }
     }

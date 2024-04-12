@@ -8,7 +8,6 @@ namespace Gene.Domain.Entities
 
         public Guid GeneId { get; set; }
         public Guid UnpublishedStructuralInformationId { get; set; }
-
         public required DVariable<string> Organization { get; set; }
         public DVariable<string>? Method { get; set; }
         public DVariable<string>? Resolution { get; set; }

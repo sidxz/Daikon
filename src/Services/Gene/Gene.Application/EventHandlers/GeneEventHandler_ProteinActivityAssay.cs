@@ -1,6 +1,7 @@
 
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
+using Gene.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Gene.Application.Query.EventHandlers
@@ -10,22 +11,11 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneProteinActivityAssayAddedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneProteinActivityAssayAddedEvent: {ProteinActivityAssayId}", @event.ProteinActivityAssayId);
-            var proteinActivityAssay = new Domain.Entities.ProteinActivityAssay
-            {
-                Id = @event.ProteinActivityAssayId,
-                GeneId = @event.GeneId,
-                ProteinActivityAssayId = @event.ProteinActivityAssayId,
-                Assay = @event.Assay,
-                Method = @event.Method,
-                Throughput = @event.Throughput,
-                PMID = @event.PMID,
-                Reference = @event.Reference,
-                URL = @event.URL,
-                
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
-            };
+            var proteinActivityAssay = _mapper.Map<ProteinActivityAssay>(@event);
+
+            // Set Ids
+            proteinActivityAssay.Id = @event.ProteinActivityAssayId;
+            proteinActivityAssay.GeneId = @event.Id;
 
             try
             {
@@ -41,16 +31,14 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneProteinActivityAssayUpdatedEvent: {ProteinActivityAssayId}", @event.ProteinActivityAssayId);
 
-            var proteinActivityAssay = await _geneProteinActivityAssayRepository.Read(@event.ProteinActivityAssayId);
+            var existingProteinActivityAssay = await _geneProteinActivityAssayRepository.Read(@event.ProteinActivityAssayId);
 
-            proteinActivityAssay.Assay = @event.Assay;
-            proteinActivityAssay.Method = @event.Method;
-            proteinActivityAssay.Throughput = @event.Throughput;
-            proteinActivityAssay.PMID = @event.PMID;
-            proteinActivityAssay.Reference = @event.Reference;
-            proteinActivityAssay.URL = @event.URL;
-            proteinActivityAssay.IsModified = true;
+            var proteinActivityAssay = _mapper.Map<ProteinActivityAssay>(existingProteinActivityAssay);
+            _mapper.Map(@event, proteinActivityAssay);
 
+            proteinActivityAssay.Id = @event.ProteinActivityAssayId;
+            proteinActivityAssay.GeneId = @event.Id;
+            
             try
             {
                 await _geneProteinActivityAssayRepository.UpdateProteinActivityAssay(proteinActivityAssay);

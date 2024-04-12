@@ -5,7 +5,7 @@ namespace Gene.Application.Features.Queries.GetGene
 {
     public class GeneEssentialityVM : DocMetadata
     {
-        public Guid EssentialityId { get; set; }
+        public Guid Id { get; set; }
         public object Classification { get; set; }
         public object Condition { get; set; }
         public object Method { get; set; }

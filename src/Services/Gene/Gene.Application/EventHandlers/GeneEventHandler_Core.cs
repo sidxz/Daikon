@@ -12,23 +12,14 @@ namespace Gene.Application.Query.EventHandlers
         private readonly IGeneRepository _geneRepository;
         private readonly IGeneEssentialityRepository _geneEssentialityRepository;
         private readonly IGeneProteinProductionRepository _geneProteinProductionRepository;
-
         private readonly IGeneProteinActivityAssayRepository _geneProteinActivityAssayRepository;
-
         private readonly IGeneHypomorphRepository _geneHypomorphRepository;
-
         private readonly IGeneCrispriStrainRepository _geneCrispriStrainRepository;
-
         private readonly IGeneResistanceMutationRepository _geneResistanceMutationRepository;
-
         private readonly IGeneVulnerabilityRepository _geneVulnerabilityRepository;
-
         private readonly IGeneUnpublishedStructuralInformationRepository _geneUnpublishedStructuralInformationRepository;
-
         private readonly IGeneExpansionPropRepo _geneExpansionPropRepo;
-
         private readonly ILogger<GeneEventHandler> _logger;
-
         private readonly IMapper _mapper;
 
         public GeneEventHandler(IGeneRepository geneRepository, 
@@ -104,6 +95,11 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneDeletedEvent: {Id}", @event.Id);
             var gene = await _geneRepository.ReadGeneById(@event.Id);
+
+            if (gene == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"GeneDeletedEvent Error deleting gene with id @event.Id", new Exception("Gene not found"));
+            }
 
             try
             {

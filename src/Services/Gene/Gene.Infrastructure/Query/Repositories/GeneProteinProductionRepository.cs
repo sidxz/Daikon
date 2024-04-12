@@ -13,7 +13,7 @@ namespace Gene.Infrastructure.Query.Repositories
     public class GeneProteinProductionRepository : IGeneProteinProductionRepository
     {
 
-        private readonly IMongoCollection<ProteinProduction> _proteinProductionCollection; 
+        private readonly IMongoCollection<ProteinProduction> _proteinProductionCollection;
         private readonly IVersionHub<ProteinProductionRevision> _versionHub;
         private readonly ILogger<GeneProteinProductionRepository> _logger;
 
@@ -22,12 +22,61 @@ namespace Gene.Infrastructure.Query.Repositories
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _proteinProductionCollection = database.GetCollection<ProteinProduction>(
-                configuration.GetValue<string>("GeneMongoDbSettings:GeneProteinProductionCollectionName") ?? 
+                configuration.GetValue<string>("GeneMongoDbSettings:GeneProteinProductionCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "ProteinProduction");
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+
+        public async Task<ProteinProduction> Read(Guid id)
+        {
+           try
+            {
+                return await _proteinProductionCollection.Find(proteinProduction => proteinProduction.Id == id).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the proteinProduction with ID {ProteinProductionId}", id);
+                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error getting proteinProduction", ex);
+            }
+        }
+
+
+
+
+        public async Task<List<ProteinProduction>> GetProteinProductionList()
+        {
+            try
+            {
+                return await _proteinProductionCollection.Find(proteinProduction => true)
+                .SortByDescending(proteinProduction => proteinProduction.DateCreated)
+                .ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the proteinProduction list");
+                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error getting proteinProduction list", ex);
+            }
+
+        }
+
+        public async Task<List<ProteinProduction>> GetProteinProductionOfGene(Guid geneId)
+        {
+            try
+            {
+                return await _proteinProductionCollection.Find(proteinProduction => proteinProduction.GeneId == geneId)
+                .SortByDescending(proteinProduction => proteinProduction.DateCreated)
+                .ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the proteinProduction list");
+                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error getting proteinProduction list", ex);
+            }
+
         }
 
         public async Task AddProteinProduction(ProteinProduction proteinProduction)
@@ -43,73 +92,26 @@ namespace Gene.Infrastructure.Query.Repositories
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", proteinProduction.Id);
-                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error creating gene", ex);
+                _logger.LogError(ex, "An error occurred while creating the gene with ID {ProteinProductionId}", proteinProduction.Id);
+                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error creating ProteinProduction", ex);
             }
         }
 
-
-
-        public async Task<ProteinProduction> Read(Guid id)
-        {
-            return await _proteinProductionCollection.Find(proteinProduction => proteinProduction.Id == id).FirstOrDefaultAsync();
-        }
-
-
-
-
-        public async Task<List<ProteinProduction>> GetProteinProductionList()
-        {
-            try
-            {
-                return await _proteinProductionCollection.Find(proteinProduction => true).ToListAsync();
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the proteinProduction list");
-                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error getting proteinProduction list", ex);
-            }
-
-        }
-
-        public async Task<List<ProteinProduction>> GetProteinProductionOfGene(Guid geneId)
-        {
-            try
-            {
-                return await _proteinProductionCollection.Find(proteinProduction => proteinProduction.GeneId == geneId).ToListAsync();
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the proteinProduction list");
-                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error getting proteinProduction list", ex);
-            }
-
-        }
 
         public async Task UpdateProteinProduction(ProteinProduction proteinProduction)
         {
             ArgumentNullException.ThrowIfNull(proteinProduction);
 
-            var filter = Builders<ProteinProduction>.Filter.Eq(e => e.Id, proteinProduction.Id);
-            var update = Builders<ProteinProduction>.Update
-                .Set(e => e.GeneId, proteinProduction.GeneId)
-                .Set(e => e.Production, proteinProduction.Production)
-                .Set(e => e.Method, proteinProduction.Method)
-                .Set(e => e.Purity, proteinProduction.Purity)
-                .Set(e => e.DateProduced, proteinProduction.DateProduced)
-                .Set(e => e.PMID, proteinProduction.PMID)
-                .Set(e => e.Notes, proteinProduction.Notes)
-                .Set(e => e.URL, proteinProduction.URL);
             try
             {
-                _logger.LogInformation("UpdateProteinProduction: Updating proteinProduction {proteinProductionId}, {proteinProduction}", proteinProduction.Id, proteinProduction.ToJson());
-                await _proteinProductionCollection.UpdateOneAsync(filter, update);
+                _logger.LogInformation("UpdateProteinProduction: Updating ProteinProduction {ProteinProductionId}, {proteinProduction}", proteinProduction.Id, proteinProduction.ToJson());
+                await _proteinProductionCollection.ReplaceOneAsync(p => p.Id == proteinProduction.Id, proteinProduction);
                 await _versionHub.CommitVersion(proteinProduction);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the proteinProduction with ID {proteinProductionId}", proteinProduction.Id);
-                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error updating gene", ex);
+                _logger.LogError(ex, "An error occurred while updating the ProteinProduction with ID {ProteinProductionId}", proteinProduction.Id);
+                throw new RepositoryException(nameof(GeneProteinProductionRepository), "Error updating ProteinProduction", ex);
             }
 
         }
@@ -122,7 +124,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("DeleteProteinProduction: Deleting ProteinProduction {ProteinProduction}", id);
-                await _proteinProductionCollection.DeleteOneAsync(gene => gene.Id == id);
+                await _proteinProductionCollection.DeleteOneAsync(p => p.Id == id);
                 await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
@@ -149,7 +151,7 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteProteinProductionsOfGene: Deleting ProteinProductions of Gene {GeneId}", geneId);
                 await _proteinProductionCollection.DeleteManyAsync(proteinProduction => proteinProduction.GeneId == geneId);
-                
+
             }
             catch (MongoException ex)
             {
@@ -159,14 +161,12 @@ namespace Gene.Infrastructure.Query.Repositories
 
         }
 
-
-
         public async Task<ProteinProductionRevision> GetProteinProductionRevisions(Guid Id)
         {
             var proteinProductionRevision = await _versionHub.GetVersions(Id);
             return proteinProductionRevision;
         }
 
-        
+
     }
 }

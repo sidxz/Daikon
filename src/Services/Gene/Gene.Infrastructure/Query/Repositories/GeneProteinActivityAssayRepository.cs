@@ -30,39 +30,28 @@ namespace Gene.Infrastructure.Query.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task AddProteinActivityAssay(ProteinActivityAssay proteinActivityAssay)
-        {
-
-            ArgumentNullException.ThrowIfNull(proteinActivityAssay);
-
-            try
-            {
-                _logger.LogInformation("AddProteinActivityAssay: Creating ProteinActivityAssay {ProteinActivityAssayId}, {proteinActivityAssay}", proteinActivityAssay.Id, proteinActivityAssay.ToJson());
-                await _proteinActivityAssayCollection.InsertOneAsync(proteinActivityAssay);
-                await _versionHub.CommitVersion(proteinActivityAssay);
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", proteinActivityAssay.Id);
-                throw new RepositoryException(nameof(GeneProteinActivityAssayRepository), "Error creating gene", ex);
-            }
-        }
-
-
 
         public async Task<ProteinActivityAssay> Read(Guid id)
         {
-            return await _proteinActivityAssayCollection.Find(proteinActivityAssay => proteinActivityAssay.Id == id).FirstOrDefaultAsync();
+            try 
+            {
+                return await _proteinActivityAssayCollection.Find(proteinActivityAssay => proteinActivityAssay.Id == id).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the proteinActivityAssay with ID {ProteinActivityAssayId}", id);
+                throw new RepositoryException(nameof(GeneProteinActivityAssayRepository), "Error getting proteinActivityAssay", ex);
+            }
         }
-
-
 
 
         public async Task<List<ProteinActivityAssay>> GetProteinActivityAssayList()
         {
             try
             {
-                return await _proteinActivityAssayCollection.Find(proteinActivityAssay => true).ToListAsync();
+                return await _proteinActivityAssayCollection.Find(proteinActivityAssay => true)
+                .SortByDescending(proteinActivityAssay => proteinActivityAssay.DateCreated)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -76,40 +65,50 @@ namespace Gene.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _proteinActivityAssayCollection.Find(proteinActivityAssay => proteinActivityAssay.GeneId == geneId).ToListAsync();
+                return await _proteinActivityAssayCollection.Find(proteinActivityAssay => proteinActivityAssay.GeneId == geneId)
+                .SortByDescending(proteinActivityAssay => proteinActivityAssay.DateCreated)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
                 _logger.LogError(ex, "An error occurred while getting the proteinActivityAssay list");
                 throw new RepositoryException(nameof(GeneProteinActivityAssayRepository), "Error getting proteinActivityAssay list", ex);
             }
+        }
 
+        public async Task AddProteinActivityAssay(ProteinActivityAssay proteinActivityAssay)
+        {
+
+            ArgumentNullException.ThrowIfNull(proteinActivityAssay);
+
+            try
+            {
+                _logger.LogInformation("AddProteinActivityAssay: Creating ProteinActivityAssay {ProteinActivityAssayId}, {proteinActivityAssay}", proteinActivityAssay.Id, proteinActivityAssay.ToJson());
+                await _proteinActivityAssayCollection.InsertOneAsync(proteinActivityAssay);
+                await _versionHub.CommitVersion(proteinActivityAssay);
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the proteinActivityAssay with ID {id}", proteinActivityAssay.Id);
+                throw new RepositoryException(nameof(GeneProteinActivityAssayRepository), "Error creating proteinActivityAssay", ex);
+            }
         }
 
         public async Task UpdateProteinActivityAssay(ProteinActivityAssay proteinActivityAssay)
         {
             ArgumentNullException.ThrowIfNull(proteinActivityAssay);
 
-            var filter = Builders<ProteinActivityAssay>.Filter.Eq(e => e.Id, proteinActivityAssay.Id);
-            var update = Builders<ProteinActivityAssay>.Update
-                .Set(e => e.Assay, proteinActivityAssay.Assay)
-                .Set(e => e.Method, proteinActivityAssay.Method)
-                .Set(e => e.Throughput, proteinActivityAssay.Throughput)
-                .Set(e => e.PMID, proteinActivityAssay.PMID)
-                .Set(e => e.Reference, proteinActivityAssay.Reference)
-                .Set(e => e.URL, proteinActivityAssay.URL);
             try
             {
-                _logger.LogInformation("UpdateProteinActivityAssay: Updating proteinActivityAssay {proteinActivityAssayId}, {proteinActivityAssay}", proteinActivityAssay.Id, proteinActivityAssay.ToJson());
-                await _proteinActivityAssayCollection.UpdateOneAsync(filter, update);
+                _logger.LogInformation("UpdateProteinActivityAssay: Updating ProteinActivityAssay {ProteinActivityAssayId}, {proteinActivityAssay}", proteinActivityAssay.Id, proteinActivityAssay.ToJson());
+                await _proteinActivityAssayCollection.ReplaceOneAsync(p => p.Id == proteinActivityAssay.Id, proteinActivityAssay);
                 await _versionHub.CommitVersion(proteinActivityAssay);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the proteinActivityAssay with ID {proteinActivityAssayId}", proteinActivityAssay.Id);
-                throw new RepositoryException(nameof(GeneProteinActivityAssayRepository), "Error updating gene", ex);
+                _logger.LogError(ex, "An error occurred while updating the ProteinActivityAssay with ID {ProteinActivityAssay}", proteinActivityAssay.Id);
+                throw new RepositoryException(nameof(GeneProteinActivityAssayRepository), "Error updating ProteinActivityAssay", ex);
             }
-
         }
 
 
@@ -120,7 +119,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("DeleteProteinActivityAssay: Deleting ProteinActivityAssay {ProteinActivityAssay}", id);
-                await _proteinActivityAssayCollection.DeleteOneAsync(gene => gene.Id == id);
+                await _proteinActivityAssayCollection.DeleteOneAsync(p => p.Id == id);
                 await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
@@ -156,7 +155,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
 
 
         public async Task<ProteinActivityAssayRevision> GetProteinActivityAssayRevisions(Guid Id)

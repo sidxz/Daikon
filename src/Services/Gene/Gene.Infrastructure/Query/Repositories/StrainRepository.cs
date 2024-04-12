@@ -23,6 +23,52 @@ namespace Gene.Infrastructure.Query.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+    
+
+        public async Task<Strain> ReadStrainById(Guid id)
+        {
+            try
+            {
+                return await _strainCollection.Find(strain => strain.Id == id).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the strain with ID {StrainId}", id);
+                throw new RepositoryException(nameof(StrainRepository), "Error getting strain", ex);
+            }
+        }
+
+        public async Task<Strain> ReadStrainByName(string name)
+        {
+            try
+            {
+                return await _strainCollection.Find(strain => strain.Name == name).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the strain with name {StrainName}", name);
+                throw new RepositoryException(nameof(StrainRepository), "Error getting strain", ex);
+            }
+        }
+
+
+        public async Task<List<Strain>> GetStrainsList()
+        {
+            try
+            {
+                return await _strainCollection.Find(strain => true)
+                .SortBy(strain => strain.Name)
+                .ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the strain list");
+                throw new RepositoryException(nameof(StrainRepository), "Error getting strain list", ex);
+            }
+
+        }
+
+
         public async Task CreateStrain(Strain strain)
         {
 
@@ -40,47 +86,14 @@ namespace Gene.Infrastructure.Query.Repositories
             }
         }
 
-
-
-        public async Task<Strain> ReadStrainById(Guid id)
-        {
-            return await _strainCollection.Find(strain => strain.Id == id).FirstOrDefaultAsync();
-        }
-
-        public async Task<Strain> ReadStrainByName(string name)
-        {
-            return await _strainCollection.Find(strain => strain.Name == name).FirstOrDefaultAsync();
-        }
-
-
-        public async Task<List<Strain>> GetStrainsList()
-        {
-            try
-            {
-                return await _strainCollection.Find(strain => true).ToListAsync();
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the strain list");
-                throw new RepositoryException(nameof(StrainRepository), "Error getting strain list", ex);
-            }
-
-        }
-
         public async Task UpdateStrain(Strain strain)
         {
             ArgumentNullException.ThrowIfNull(strain);
 
-            var filter = Builders<Strain>.Filter.Eq(g => g.Id, strain.Id);
-            var update = Builders<Strain>.Update
-                .Set(s => s.Name, strain.Name)
-                .Set(s => s.Organism, strain.Organism);
-
             try
             {
                 _logger.LogInformation("UpdateStrain: Updating strain {strainId}, {strain}", strain.Id, strain.ToJson());
-                await _strainCollection.UpdateOneAsync(filter, update);
-
+                await _strainCollection.ReplaceOneAsync(s => s.Id == strain.Id, strain);
             }
             catch (MongoException ex)
             {
@@ -89,7 +102,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
 
         public async Task DeleteStrain(Guid id)
         {

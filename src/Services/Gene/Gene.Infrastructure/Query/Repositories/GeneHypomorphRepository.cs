@@ -13,7 +13,7 @@ namespace Gene.Infrastructure.Query.Repositories
     public class GeneHypomorphRepository : IGeneHypomorphRepository
     {
 
-        private readonly IMongoCollection<Hypomorph> _hypomorphCollection; 
+        private readonly IMongoCollection<Hypomorph> _hypomorphCollection;
         private readonly IVersionHub<HypomorphRevision> _versionHub;
         private readonly ILogger<GeneHypomorphRepository> _logger;
 
@@ -22,7 +22,7 @@ namespace Gene.Infrastructure.Query.Repositories
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _hypomorphCollection = database.GetCollection<Hypomorph>(
-                configuration.GetValue<string>("GeneMongoDbSettings:GeneHypomorphCollectionName") ?? 
+                configuration.GetValue<string>("GeneMongoDbSettings:GeneHypomorphCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "Hypomorph");
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
@@ -30,53 +30,44 @@ namespace Gene.Infrastructure.Query.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task AddHypomorph(Hypomorph hypomorph)
-        {
-
-            ArgumentNullException.ThrowIfNull(hypomorph);
-
-            try
-            {
-                _logger.LogInformation("AddHypomorph: Creating Hypomorph {HypomorphId}, {hypomorph}", hypomorph.Id, hypomorph.ToJson());
-                await _hypomorphCollection.InsertOneAsync(hypomorph);
-                await _versionHub.CommitVersion(hypomorph);
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", hypomorph.Id);
-                throw new RepositoryException(nameof(GeneHypomorphRepository), "Error creating gene", ex);
-            }
-        }
-
 
 
         public async Task<Hypomorph> Read(Guid id)
         {
-            return await _hypomorphCollection.Find(hypomorph => hypomorph.Id == id).FirstOrDefaultAsync();
+            try
+            {
+                return await _hypomorphCollection.Find(hypomorph => hypomorph.Id == id).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the hypomorph with ID {HypomorphId}", id);
+                throw new RepositoryException(nameof(GeneHypomorphRepository), "Error getting hypomorph", ex);
+            }
         }
-
-
 
 
         public async Task<List<Hypomorph>> GetHypomorphList()
         {
             try
             {
-                return await _hypomorphCollection.Find(hypomorph => true).ToListAsync();
+                return await _hypomorphCollection.Find(hypomorph => true)
+                .SortByDescending(hypomorph => hypomorph.DateCreated)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
                 _logger.LogError(ex, "An error occurred while getting the hypomorph list");
                 throw new RepositoryException(nameof(GeneHypomorphRepository), "Error getting hypomorph list", ex);
             }
-
         }
 
         public async Task<List<Hypomorph>> GetHypomorphOfGene(Guid geneId)
         {
             try
             {
-                return await _hypomorphCollection.Find(hypomorph => hypomorph.GeneId == geneId).ToListAsync();
+                return await _hypomorphCollection.Find(hypomorph => hypomorph.GeneId == geneId)
+                .SortByDescending(hypomorph => hypomorph.DateCreated)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -86,29 +77,39 @@ namespace Gene.Infrastructure.Query.Repositories
 
         }
 
-        public async Task UpdateHypomorph(Hypomorph hypomorph)
+        public async Task AddHypomorph(Hypomorph hypomorph)
         {
+            _logger.LogInformation("AddHypomorph: Creating Hypomorph {HypomorphId}, {hypomorph}", hypomorph.Id, hypomorph.ToJson());
             ArgumentNullException.ThrowIfNull(hypomorph);
 
-            var filter = Builders<Hypomorph>.Filter.Eq(e => e.Id, hypomorph.Id);
-            var update = Builders<Hypomorph>.Update
-                .Set(e => e.KnockdownStrain, hypomorph.KnockdownStrain)
-                .Set(e => e.Phenotype, hypomorph.Phenotype)
-                .Set(e => e.Notes, hypomorph.Notes);
             try
             {
-                _logger.LogInformation("UpdateHypomorph: Updating hypomorph {hypomorphId}, {hypomorph}", hypomorph.Id, hypomorph.ToJson());
-                await _hypomorphCollection.UpdateOneAsync(filter, update);
+                await _hypomorphCollection.InsertOneAsync(hypomorph);
                 await _versionHub.CommitVersion(hypomorph);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the hypomorph with ID {hypomorphId}", hypomorph.Id);
-                throw new RepositoryException(nameof(GeneHypomorphRepository), "Error updating gene", ex);
+                _logger.LogError(ex, "An error occurred while creating the Hypomorph with ID {id}", hypomorph.Id);
+                throw new RepositoryException(nameof(GeneHypomorphRepository), "Error creating Hypomorph", ex);
             }
-
         }
 
+        public async Task UpdateHypomorph(Hypomorph hypomorph)
+        {
+            _logger.LogInformation("UpdateHypomorph: Updating Hypomorph {HypomorphId}, {hypomorph}", hypomorph.Id, hypomorph.ToJson());
+            ArgumentNullException.ThrowIfNull(hypomorph);
+
+            try
+            {
+                await _hypomorphCollection.ReplaceOneAsync(h => h.Id == hypomorph.Id, hypomorph);
+                await _versionHub.CommitVersion(hypomorph);
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the Hypomorph with ID {HypomorphId}", hypomorph.Id);
+                throw new RepositoryException(nameof(GeneHypomorphRepository), "Error updating Hypomorph", ex);
+            }
+        }
 
         public async Task DeleteHypomorph(Guid id)
         {
@@ -117,7 +118,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("DeleteHypomorph: Deleting Hypomorph {Hypomorph}", id);
-                await _hypomorphCollection.DeleteOneAsync(gene => gene.Id == id);
+                await _hypomorphCollection.DeleteOneAsync(h => h.Id == id);
                 await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
@@ -144,7 +145,7 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteHypomorphsOfGene: Deleting Hypomorphs of Gene {GeneId}", geneId);
                 await _hypomorphCollection.DeleteManyAsync(hypomorph => hypomorph.GeneId == geneId);
-                
+
             }
             catch (MongoException ex)
             {
@@ -153,8 +154,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
-
 
         public async Task<HypomorphRevision> GetHypomorphRevisions(Guid Id)
         {

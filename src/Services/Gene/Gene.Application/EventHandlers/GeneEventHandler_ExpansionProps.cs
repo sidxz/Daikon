@@ -31,11 +31,6 @@ namespace Gene.Application.Query.EventHandlers
             _logger.LogInformation("OnEvent: GeneExpansionPropUpdatedEvent: {Id}", @event.Id);
             var existingGeneExpansionProp = await _geneExpansionPropRepo.ReadById(@event.ExpansionPropId);
 
-            if (existingGeneExpansionProp == null)
-            {
-                throw new EventHandlerException(nameof(GeneEventHandler), $"Error occurred while updating gene expansion prop {@event.ExpansionPropId} for GeneExpansionPropUpdatedEvent", new Exception("Gene expansion prop not found"));
-            }
-
             var geneExpansionProp = _mapper.Map<GeneExpansionProp>(existingGeneExpansionProp);
             _mapper.Map(@event, geneExpansionProp);
             geneExpansionProp.Id = @event.ExpansionPropId;

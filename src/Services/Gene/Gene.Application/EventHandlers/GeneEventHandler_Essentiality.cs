@@ -1,6 +1,7 @@
 
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
+using Gene.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Gene.Application.Query.EventHandlers
@@ -10,20 +11,11 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneEssentialityAddedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneEssentialityAddedEvent: {EssentialityId}", @event.EssentialityId);
-            var essentiality = new Domain.Entities.Essentiality
-            {
-                Id = @event.EssentialityId,
-                GeneId = @event.GeneId,
-                EssentialityId = @event.EssentialityId,
-                Classification = @event.Classification,
-                Condition = @event.Condition,
-                Method = @event.Method,
-                Reference = @event.Reference,
-                Note = @event.Note,
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
-            };
+            var essentiality = _mapper.Map<Essentiality>(@event);
+            
+             // Set Ids (swap)
+            essentiality.Id = @event.EssentialityId;
+            essentiality.GeneId = @event.Id;
 
             try
             {
@@ -39,14 +31,13 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneEssentialityUpdatedEvent: {EssentialityId}", @event.EssentialityId);
 
-            var essentiality = await _geneEssentialityRepository.Read(@event.EssentialityId);
+            var existingEssentiality = await _geneEssentialityRepository.Read(@event.EssentialityId);
+           
+            var essentiality = _mapper.Map<Essentiality>(existingEssentiality);
+            _mapper.Map(@event, essentiality);
 
-            essentiality.Classification = @event.Classification;
-            essentiality.Condition = @event.Condition;
-            essentiality.Method = @event.Method;
-            essentiality.Reference = @event.Reference;
-            essentiality.Note = @event.Note;
-            essentiality.IsModified = true;
+            essentiality.Id = @event.EssentialityId;
+            essentiality.GeneId = @event.Id;
 
             try
             {
