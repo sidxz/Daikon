@@ -34,6 +34,7 @@ namespace Gene.Application.Features.Command.UpdateExpansionProp
             request.IsModified = true;
             
             var geneExpansionPropUpdatedEvent = _mapper.Map<GeneExpansionPropUpdatedEvent>(request);
+            geneExpansionPropUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {

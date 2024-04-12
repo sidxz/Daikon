@@ -33,6 +33,7 @@ namespace Gene.Application.Features.Command.UpdateProteinActivityAssay
             request.IsModified = true;
 
             var geneProteinActivityAssayUpdatedEvent = _mapper.Map<GeneProteinActivityAssayUpdatedEvent>(request);
+            geneProteinActivityAssayUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
 
             try

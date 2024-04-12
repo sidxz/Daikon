@@ -38,6 +38,9 @@ namespace Gene.Application.Query.EventHandlers
             _mapper.Map(@event, hypomorph);
             hypomorph.Id = @event.HypomorphId;
             hypomorph.GeneId = @event.Id;
+            // Preserve the original creation date and creator
+            hypomorph.CreatedById = existingHypomorph.CreatedById;
+            hypomorph.DateCreated = existingHypomorph.DateCreated;
 
 
             try

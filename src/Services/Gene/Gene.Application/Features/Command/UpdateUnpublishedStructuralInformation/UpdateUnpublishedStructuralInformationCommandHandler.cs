@@ -33,6 +33,7 @@ namespace Gene.Application.Features.Command.UpdateUnpublishedStructuralInformati
             request.IsModified = true;
 
             var geneUnpublishedStructuralInformationUpdatedEvent = _mapper.Map<GeneUnpublishedStructuralInformationUpdatedEvent>(request);
+            geneUnpublishedStructuralInformationUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
 
             try

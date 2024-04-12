@@ -31,6 +31,7 @@ namespace Gene.Application.Features.Command.UpdateCrispriStrain
             request.IsModified = true;
 
             var geneCrispriStrainUpdatedEvent = _mapper.Map<GeneCrispriStrainUpdatedEvent>(request);
+            geneCrispriStrainUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
 
             try

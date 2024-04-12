@@ -37,6 +37,9 @@ namespace Gene.Application.Query.EventHandlers
 
             resistanceMutation.Id = @event.ResistanceMutationId;
             resistanceMutation.GeneId = @event.Id;
+            // Preserve the original creation date and creator
+            resistanceMutation.CreatedById = existingResistanceMutation.CreatedById;
+            resistanceMutation.DateCreated = existingResistanceMutation.DateCreated;
 
 
             try

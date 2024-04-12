@@ -36,6 +36,10 @@ namespace Gene.Application.Query.EventHandlers
             geneExpansionProp.Id = @event.ExpansionPropId;
             geneExpansionProp.GeneId = @event.Id;
 
+            // Preserve the original creation date and creator
+            geneExpansionProp.CreatedById = existingGeneExpansionProp.CreatedById;
+            geneExpansionProp.DateCreated = existingGeneExpansionProp.DateCreated;
+
             try
             {
                 await _geneExpansionPropRepo.Update(geneExpansionProp);

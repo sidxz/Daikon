@@ -45,6 +45,7 @@ namespace Gene.Application.Features.Command.NewStrain
 
 
             var strainCreatedEvent = _mapper.Map<StrainCreatedEvent>(request);
+            strainCreatedEvent.CreatedById = request.RequestorUserId;
             try
             {
                 var aggregate = new StrainAggregate(strainCreatedEvent);

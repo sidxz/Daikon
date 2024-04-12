@@ -49,7 +49,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _crispriStrainCollection.Find(crispriStrain => true)
-                    .SortByDescending(crispriStrain => crispriStrain.DateCreated)
+                    .SortBy(crispriStrain => crispriStrain.DateCreated)
                     .ToListAsync();
             }
             catch (MongoException ex)
@@ -65,7 +65,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _crispriStrainCollection.Find(crispriStrain => crispriStrain.GeneId == geneId)
-                .SortByDescending(crispriStrain => crispriStrain.DateCreated)
+                .SortBy(crispriStrain => crispriStrain.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)

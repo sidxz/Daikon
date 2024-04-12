@@ -51,7 +51,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _hypomorphCollection.Find(hypomorph => true)
-                .SortByDescending(hypomorph => hypomorph.DateCreated)
+                .SortBy(hypomorph => hypomorph.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)
@@ -66,7 +66,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _hypomorphCollection.Find(hypomorph => hypomorph.GeneId == geneId)
-                .SortByDescending(hypomorph => hypomorph.DateCreated)
+                .SortBy(hypomorph => hypomorph.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)

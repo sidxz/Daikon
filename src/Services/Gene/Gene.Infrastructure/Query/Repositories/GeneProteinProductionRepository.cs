@@ -52,7 +52,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _proteinProductionCollection.Find(proteinProduction => true)
-                .SortByDescending(proteinProduction => proteinProduction.DateCreated)
+                .SortBy(proteinProduction => proteinProduction.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)
@@ -68,7 +68,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _proteinProductionCollection.Find(proteinProduction => proteinProduction.GeneId == geneId)
-                .SortByDescending(proteinProduction => proteinProduction.DateCreated)
+                .SortBy(proteinProduction => proteinProduction.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)

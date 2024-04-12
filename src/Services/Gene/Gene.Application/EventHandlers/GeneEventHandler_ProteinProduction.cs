@@ -38,6 +38,9 @@ namespace Gene.Application.Query.EventHandlers
 
             proteinProduction.Id = @event.ProteinProductionId;
             proteinProduction.GeneId = @event.Id;
+            // Preserve the original creation date and creator
+            proteinProduction.CreatedById = existingProteinProduction.CreatedById;
+            proteinProduction.DateCreated = existingProteinProduction.DateCreated;
 
             try
             {

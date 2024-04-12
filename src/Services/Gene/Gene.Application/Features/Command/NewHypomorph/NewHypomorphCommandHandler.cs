@@ -34,6 +34,7 @@ namespace Gene.Application.Features.Command.NewHypomorph
             request.DateCreated = DateTime.UtcNow;
             request.IsModified = false;
             var geneHypomorphAddedEvent = _mapper.Map<GeneHypomorphAddedEvent>(request);
+            geneHypomorphAddedEvent.CreatedById = request.RequestorUserId;
 
             try
             {

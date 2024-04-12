@@ -34,6 +34,7 @@ namespace Gene.Application.Features.Command.NewEssentiality
             request.IsModified = false;
 
             var geneEssentialityAddedEvent = _mapper.Map<GeneEssentialityAddedEvent>(request);
+            geneEssentialityAddedEvent.CreatedById = request.RequestorUserId;
 
             try
             {

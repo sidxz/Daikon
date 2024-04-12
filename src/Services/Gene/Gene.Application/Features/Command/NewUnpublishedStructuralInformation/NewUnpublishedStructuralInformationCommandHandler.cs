@@ -34,6 +34,7 @@ namespace Gene.Application.Features.Command.NewUnpublishedStructuralInformation
             request.IsModified = false;
 
             var geneUnpublishedStructuralInformationAddedEvent = _mapper.Map<GeneUnpublishedStructuralInformationAddedEvent>(request);
+            geneUnpublishedStructuralInformationAddedEvent.CreatedById = request.RequestorUserId;
 
             try
             {

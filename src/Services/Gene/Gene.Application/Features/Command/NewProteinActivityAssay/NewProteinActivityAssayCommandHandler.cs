@@ -34,6 +34,7 @@ namespace Gene.Application.Features.Command.NewProteinActivityAssay
             request.IsModified = false;
 
             var geneProteinActivityAssayAddedEvent = _mapper.Map<GeneProteinActivityAssayAddedEvent>(request);
+            geneProteinActivityAssayAddedEvent.CreatedById = request.RequestorUserId;
 
             try
             {

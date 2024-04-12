@@ -33,6 +33,7 @@ namespace Gene.Application.Features.Command.UpdateHypomorph
             request.IsModified = true;
 
             var geneHypomorphUpdatedEvent = _mapper.Map<GeneHypomorphUpdatedEvent>(request);
+            geneHypomorphUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {

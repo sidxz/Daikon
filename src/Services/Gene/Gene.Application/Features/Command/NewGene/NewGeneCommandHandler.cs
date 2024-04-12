@@ -72,6 +72,7 @@ namespace Gene.Application.Features.Command.NewGene
                 request.IsModified = false;
                 
                 var geneCreatedEvent = _mapper.Map<GeneCreatedEvent>(request);
+                geneCreatedEvent.CreatedById = request.RequestorUserId;
 
                 var aggregate = new GeneAggregate(geneCreatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);

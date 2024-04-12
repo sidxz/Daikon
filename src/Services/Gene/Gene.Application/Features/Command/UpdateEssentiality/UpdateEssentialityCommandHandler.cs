@@ -32,7 +32,7 @@ namespace Gene.Application.Features.Command.UpdateEssentiality
             request.IsModified = true;
 
             var geneEssentialityUpdatedEvent = _mapper.Map<GeneEssentialityUpdatedEvent>(request);
-
+            geneEssentialityUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {

@@ -37,6 +37,10 @@ namespace Gene.Application.Query.EventHandlers
             unpublishedStructuralInformation.Id = @event.UnpublishedStructuralInformationId;
             unpublishedStructuralInformation.GeneId = @event.Id;
 
+            // Preserve the original creation date and creator
+            unpublishedStructuralInformation.CreatedById = existingUsi.CreatedById;
+            unpublishedStructuralInformation.DateCreated = existingUsi.DateCreated;
+
             try
             {
                 await _geneUnpublishedStructuralInformationRepository.UpdateUnpublishedStructuralInformation(unpublishedStructuralInformation);

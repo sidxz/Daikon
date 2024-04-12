@@ -35,6 +35,7 @@ namespace Gene.Application.Features.Command.NewProteinProduction
             request.IsModified = false;
 
             var geneProteinProductionAddedEvent = _mapper.Map<GeneProteinProductionAddedEvent>(request);
+            geneProteinProductionAddedEvent.CreatedById = request.RequestorUserId;
 
             try
             {

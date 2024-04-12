@@ -81,7 +81,9 @@ namespace Gene.Infrastructure.Query.Repositories
             ArgumentNullException.ThrowIfNull(entityId);
             try
             {
-                var res = await _expansionPropCollection.Find(geneExpansionProps => geneExpansionProps.GeneId == entityId).ToListAsync();
+                var res = await _expansionPropCollection.Find(geneExpansionProps => geneExpansionProps.GeneId == entityId)
+                .SortBy(geneExpansionProps => geneExpansionProps.DateCreated)
+                .ToListAsync();
                 return res;
             }
             catch (MongoException ex)

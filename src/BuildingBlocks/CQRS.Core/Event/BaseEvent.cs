@@ -4,7 +4,7 @@ using CQRS.Core.Domain;
 namespace CQRS.Core.Event
 {
 
-    public abstract class BaseEvent :  DocMetadata
+    public abstract class BaseEvent : DocMetadata
     {
         protected BaseEvent(string type)
         {
@@ -12,7 +12,7 @@ namespace CQRS.Core.Event
         }
 
         public Guid Id { get; set; }
-        public Guid RequestorUserId { get; set;}
+        public Guid RequestorUserId { get; set; }
         public int Version { get; set; }
         public string Type { get; set; }
 

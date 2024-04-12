@@ -43,6 +43,10 @@ namespace Gene.Application.Query.EventHandlers
             strain.Name = @event.Name;
             strain.Organism = @event.Organism;
             strain.IsModified = true;
+            // Preserve the original creation date and creator
+            strain.CreatedById = strain.CreatedById;
+            strain.DateCreated = strain.DateCreated;
+            
 
             try
             {

@@ -40,6 +40,7 @@ namespace Gene.Application.Features.Command.UpdateGene
            request.IsModified = true;
 
            var geneUpdatedEvent = _mapper.Map<GeneUpdatedEvent>(request);
+           geneUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {

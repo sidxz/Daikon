@@ -35,6 +35,9 @@ namespace Gene.Application.Features.Command.AddExpansionProp
             
             var geneExpansionPropAddedEvent = _mapper.Map<GeneExpansionPropAddedEvent>(request);
 
+            geneExpansionPropAddedEvent.CreatedById = request.RequestorUserId;
+
+
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

@@ -39,6 +39,10 @@ namespace Gene.Application.Query.EventHandlers
             essentiality.Id = @event.EssentialityId;
             essentiality.GeneId = @event.Id;
 
+            // Preserve the original creation date and creator
+            essentiality.CreatedById = existingEssentiality.CreatedById;
+            essentiality.DateCreated = existingEssentiality.DateCreated;
+
             try
             {
                 await _geneEssentialityRepository.UpdateEssentiality(essentiality);

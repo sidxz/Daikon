@@ -38,6 +38,9 @@ namespace Gene.Application.Query.EventHandlers
 
             proteinActivityAssay.Id = @event.ProteinActivityAssayId;
             proteinActivityAssay.GeneId = @event.Id;
+            // Preserve the original creation date and creator
+            proteinActivityAssay.CreatedById = existingProteinActivityAssay.CreatedById;
+            proteinActivityAssay.DateCreated = existingProteinActivityAssay.DateCreated;
             
             try
             {

@@ -78,6 +78,10 @@ namespace Gene.Application.Query.EventHandlers
 
             var gene = _mapper.Map<Domain.Entities.Gene>(existingGene);
             _mapper.Map(@event, gene);
+            
+            // Preserve the original creation date and creator
+            gene.DateCreated = existingGene.DateCreated;
+            gene.CreatedById = existingGene.CreatedById;
 
             try
             {

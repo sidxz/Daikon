@@ -33,6 +33,7 @@ namespace Gene.Application.Features.Command.NewResistanceMutation
             request.DateCreated = DateTime.UtcNow;
             request.IsModified = false;
             var geneResistanceMutationAddedEvent = _mapper.Map<GeneResistanceMutationAddedEvent>(request);
+            geneResistanceMutationAddedEvent.CreatedById = request.RequestorUserId;
 
             try
             {

@@ -31,6 +31,10 @@ namespace CQRS.Core.Domain
 
         /* Version Meta Data */
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Guid? CreatedById { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Guid? LastModifiedById { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? Author { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public DateTime? DateCreated { get; set; }
@@ -87,6 +91,8 @@ namespace CQRS.Core.Domain
         /* Default Constructor */
         public DocMetadata()
         {
+            CreatedById = default!;
+            LastModifiedById = default!;
             Author = default!;
             DateCreated = default!;
             DateModified = default!;
@@ -111,6 +117,8 @@ namespace CQRS.Core.Domain
         /* Copy Constructor */
         public DocMetadata(DocMetadata docMetadata)
         {
+            CreatedById = docMetadata.CreatedById;
+            LastModifiedById = docMetadata.LastModifiedById;
             Author = docMetadata.Author;
             DateCreated = docMetadata.DateCreated;
             DateModified = docMetadata.DateModified;

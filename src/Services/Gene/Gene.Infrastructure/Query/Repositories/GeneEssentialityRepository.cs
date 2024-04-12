@@ -49,7 +49,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _essentialityCollection.Find(essential => true)
-                .SortByDescending(essential => essential.DateCreated)
+                .SortBy(essential => essential.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)
@@ -65,7 +65,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _essentialityCollection.Find(essentiality => essentiality.GeneId == geneId)
-                .SortByDescending(essentiality => essentiality.DateCreated)
+                .SortBy(essentiality => essentiality.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)

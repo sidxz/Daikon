@@ -34,6 +34,7 @@ namespace Gene.Application.Features.Command.UpdateStrain
             request.IsModified = true;
 
             var strainUpdatedEvent = _mapper.Map<StrainUpdatedEvent>(request);
+            strainUpdatedEvent.LastModifiedById = request.RequestorUserId;
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

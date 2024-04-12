@@ -51,7 +51,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _resistanceMutationCollection.Find(resistanceMutation => true)
-                .SortByDescending(resistanceMutation => resistanceMutation.DateCreated)
+                .SortBy(resistanceMutation => resistanceMutation.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)
@@ -67,7 +67,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _resistanceMutationCollection.Find(resistanceMutation => resistanceMutation.GeneId == geneId)
-                .SortByDescending(resistanceMutation => resistanceMutation.DateCreated)
+                .SortBy(resistanceMutation => resistanceMutation.DateCreated)
                 .ToListAsync();
             }
             catch (MongoException ex)

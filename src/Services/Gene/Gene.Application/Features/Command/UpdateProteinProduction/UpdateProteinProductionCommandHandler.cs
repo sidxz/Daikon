@@ -32,6 +32,7 @@ namespace Gene.Application.Features.Command.UpdateProteinProduction
             request.IsModified = true;
 
             var geneProteinProductionUpdatedEvent = _mapper.Map<GeneProteinProductionUpdatedEvent>(request);
+            geneProteinProductionUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {

@@ -32,6 +32,7 @@ namespace Gene.Application.Features.Command.UpdateResistanceMutation
             request.IsModified = true;
 
             var geneResistanceMutationUpdatedEvent = _mapper.Map<GeneResistanceMutationUpdatedEvent>(request);
+            geneResistanceMutationUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
 
             try

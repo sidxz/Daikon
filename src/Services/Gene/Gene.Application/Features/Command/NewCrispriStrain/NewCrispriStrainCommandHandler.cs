@@ -35,7 +35,7 @@ namespace Gene.Application.Features.Command.NewCrispriStrain
             request.IsModified = false;
 
             var newCrispriCreatedEvent = _mapper.Map<GeneCrispriStrainAddedEvent>(request);
-            
+            newCrispriCreatedEvent.CreatedById = request.RequestorUserId;
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

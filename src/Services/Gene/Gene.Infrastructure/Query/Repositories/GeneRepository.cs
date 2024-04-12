@@ -60,7 +60,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _geneCollection.Find(gene => true)
-                .SortByDescending(gene => gene.AccessionNumber)
+                .SortBy(gene => gene.AccessionNumber)
                 .ToListAsync();
             }
             catch (MongoException ex)
@@ -77,7 +77,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 return await _geneCollection.Find(gene => gene.StrainId == strainId)
-                .SortByDescending(gene => gene.AccessionNumber)
+                .SortBy(gene => gene.AccessionNumber)
                 .ToListAsync();
             }
             catch (MongoException ex)

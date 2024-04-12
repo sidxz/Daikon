@@ -1,9 +1,10 @@
 
+using CQRS.Core.Domain;
 using Gene.Domain.Entities;
 
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneVM
+    public class GeneVM : DocMetadata
     {
         public Guid Id { get; set; }
         public Guid StrainId { get; set; }

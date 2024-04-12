@@ -39,6 +39,10 @@ namespace Gene.Application.Query.EventHandlers
             crispriStrain.Id = @event.CrispriStrainId;
             crispriStrain.GeneId = @event.Id;
 
+             // Preserve the original creation date and creator
+            crispriStrain.CreatedById = existingCrispriStrain.CreatedById;
+            crispriStrain.DateCreated = existingCrispriStrain.DateCreated;
+
             try
             {
                 await _geneCrispriStrainRepository.UpdateCrispriStrain(crispriStrain);
