@@ -16,7 +16,6 @@ namespace Daikon.Events.Gene
         public required DVariable<string> CrispriStrainName { get; set; }
         public DVariable<string>? Notes { get; set; }
         
-        public DateTime DateUpdated { get; set; }
 
     }
 }

@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
 using MediatR;
@@ -26,22 +27,29 @@ namespace Gene.Application.Features.Command.UpdateUnpublishedStructuralInformati
 
         public async Task<Unit> Handle(UpdateUnpublishedStructuralInformationCommand request, CancellationToken cancellationToken)
         {
-            var updateUnpublishedStructuralInformation = _mapper.Map<UnpublishedStructuralInformation>(request);
+            _logger.LogInformation("UpdateUnpublishedStructuralInformationCommandHandler {request}", request);
+
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+
+            var geneUnpublishedStructuralInformationUpdatedEvent = _mapper.Map<GeneUnpublishedStructuralInformationUpdatedEvent>(request);
 
 
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
                 
-                aggregate.UpdateUnpublishedStructuralInformation(updateUnpublishedStructuralInformation);
+                aggregate.UpdateUnpublishedStructuralInformation(geneUnpublishedStructuralInformationUpdatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
+                
+                return Unit.Value;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(StrainAggregate), request.Id);
             }
-            return Unit.Value;
+            
         }
     }
 }

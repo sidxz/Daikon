@@ -10,31 +10,29 @@ namespace Gene.Domain.Aggregates
         private readonly Dictionary<Guid, Essentiality> _essentialities = [];
 
         /* Add Essentiality */
-        public void AddEssentiality(Essentiality essentiality)
+        public void AddEssentiality(GeneEssentialityAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (string.IsNullOrWhiteSpace(essentiality.Classification))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.EssentialityId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Essentiality Id cannot be empty.");
+            }
+            if (_essentialities.ContainsKey(@event.EssentialityId))
+            {
+                throw new Exception("Essentiality already exists.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Classification))
             {
                 throw new InvalidOperationException($" The value of essentiality classification cannot be null or whitespace");
             }
-
-
-            RaiseEvent(new GeneEssentialityAddedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                EssentialityId = essentiality.EssentialityId,
-                Classification = essentiality.Classification,
-                Condition = essentiality.Condition,
-                Method = essentiality.Method,
-                Reference = essentiality.Reference,
-                Note = essentiality.Note,
-                DateCreated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneEssentialityAddedEvent @event)
@@ -51,74 +49,62 @@ namespace Gene.Domain.Aggregates
         }
 
         /* Update Essentiality */
-        public void UpdateEssentiality(Essentiality essentiality)
+        public void UpdateEssentiality(GeneEssentialityUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (!_essentialities.ContainsKey(essentiality.EssentialityId))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.EssentialityId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Essentiality Id cannot be empty.");
+            }
+            if (!_essentialities.ContainsKey(@event.EssentialityId))
             {
                 throw new InvalidOperationException("Essentiality does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(essentiality.Classification))
+            if (string.IsNullOrWhiteSpace(@event.Classification))
             {
                 throw new InvalidOperationException($" The value of essentiality classification cannot be null or whitespace");
             }
 
-            RaiseEvent(new GeneEssentialityUpdatedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                EssentialityId = essentiality.EssentialityId,
-                Classification = essentiality.Classification,
-                Condition = essentiality.Condition,
-                Method = essentiality.Method,
-                Reference = essentiality.Reference,
-                Note = essentiality.Note,
-                DateUpdated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneEssentialityUpdatedEvent @event)
         {
-            _id = @event.Id;
-            _essentialities[@event.EssentialityId] = new Essentiality
-            {
-                EssentialityId = @event.EssentialityId,
-                Classification = @event.Classification,
-                Condition = @event.Condition,
-                Method = @event.Method,
-                Reference = @event.Reference,
-                Note = @event.Note
-            };
+            _essentialities[@event.EssentialityId].Classification = @event.Classification;
+            _essentialities[@event.EssentialityId].Condition = @event.Condition;
+            _essentialities[@event.EssentialityId].Method = @event.Method;
+            _essentialities[@event.EssentialityId].Reference = @event.Reference;
+            _essentialities[@event.EssentialityId].Note = @event.Note;
         }
 
         /* Delete Essentiality */
-        public void DeleteEssentiality(Essentiality essentiality)
+        public void DeleteEssentiality(GeneEssentialityDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-            if (!_essentialities.ContainsKey(essentiality.EssentialityId))
+            if (@event.EssentialityId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Essentiality Id cannot be empty.");
+            }
+            if (!_essentialities.ContainsKey(@event.EssentialityId))
             {
                 throw new InvalidOperationException("Essentiality does not exist.");
             }
 
-            RaiseEvent(new GeneEssentialityDeletedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                EssentialityId = essentiality.EssentialityId
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneEssentialityDeletedEvent @event)
         {
-            _id = @event.Id;
             _essentialities.Remove(@event.EssentialityId);
         }
     }

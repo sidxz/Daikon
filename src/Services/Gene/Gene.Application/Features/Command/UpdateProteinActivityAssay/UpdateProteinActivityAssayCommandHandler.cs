@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
 using MediatR;
@@ -26,22 +27,29 @@ namespace Gene.Application.Features.Command.UpdateProteinActivityAssay
 
         public async Task<Unit> Handle(UpdateProteinActivityAssayCommand request, CancellationToken cancellationToken)
         {
-            var updateProteinActivityAssay = _mapper.Map<ProteinActivityAssay>(request);
+            _logger.LogInformation("UpdateProteinActivityAssayCommandHandler {request}", request);
+
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+
+            var geneProteinActivityAssayUpdatedEvent = _mapper.Map<GeneProteinActivityAssayUpdatedEvent>(request);
 
 
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
                 
-                aggregate.UpdateProteinActivityAssay(updateProteinActivityAssay);
+                aggregate.UpdateProteinActivityAssay(geneProteinActivityAssayUpdatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
+                
+                return Unit.Value;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(StrainAggregate), request.Id);
             }
-            return Unit.Value;
+            
         }
     }
 }

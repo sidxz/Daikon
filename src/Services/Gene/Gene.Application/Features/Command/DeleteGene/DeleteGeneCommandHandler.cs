@@ -27,7 +27,6 @@ namespace Gene.Application.Features.Command.DeleteGene
       _logger.LogInformation($"Handling DeleteGeneCommand: {request}");
       try
       {
-        request.DateModified = DateTime.UtcNow;
         var geneDeletedEvent = _mapper.Map<GeneDeletedEvent>(request);
 
         var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

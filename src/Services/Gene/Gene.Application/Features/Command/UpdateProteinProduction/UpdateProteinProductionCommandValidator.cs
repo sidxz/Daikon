@@ -10,11 +10,6 @@ namespace Gene.Application.Features.Command.UpdateProteinProduction
              RuleFor(e => e.Production)
             .NotEmpty().WithMessage("{Production} is required")
             .NotNull();
-
-            RuleFor(e => e.ProteinProductionId)
-            .NotEmpty().WithMessage("{ProteinProductionId} is required")
-            .NotNull()
-            .NotEqual(Guid.Empty).WithMessage("{ProteinProductionId} is required");
         }
     }
 }

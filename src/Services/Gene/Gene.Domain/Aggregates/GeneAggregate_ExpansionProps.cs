@@ -15,6 +15,14 @@ namespace Gene.Domain.Aggregates
             {
                 throw new InvalidOperationException("This gene has been deleted.");
             }
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ExpansionPropId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Expansion Prop Id cannot be empty.");
+            }
 
             if (_expansionProps.ContainsKey(@event.ExpansionPropId))
             {
@@ -39,6 +47,14 @@ namespace Gene.Domain.Aggregates
             {
                 throw new InvalidOperationException("This gene has been deleted.");
             }
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ExpansionPropId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Expansion Prop Id cannot be empty.");
+            }
 
             if (!_expansionProps.ContainsKey(@event.ExpansionPropId))
             {
@@ -58,6 +74,11 @@ namespace Gene.Domain.Aggregates
             if (!_active)
             {
                 throw new InvalidOperationException("This gene has been deleted.");
+            }
+            
+            if (@event.ExpansionPropId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Expansion Prop Id cannot be empty.");
             }
 
             if (!_expansionProps.ContainsKey(@event.ExpansionPropId))

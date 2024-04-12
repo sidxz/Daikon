@@ -2,8 +2,8 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
-using Gene.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -26,22 +26,26 @@ namespace Gene.Application.Features.Command.UpdateCrispriStrain
 
         public async Task<Unit> Handle(UpdateCrispriStrainCommand request, CancellationToken cancellationToken)
         {
-            var updateCrispriStrain = _mapper.Map<CrispriStrain>(request);
+            _logger.LogInformation("UpdateCrispriStrainCommandHandler {request}", request);
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+
+            var geneCrispriStrainUpdatedEvent = _mapper.Map<GeneCrispriStrainUpdatedEvent>(request);
 
 
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-                
-                aggregate.UpdateCrispriStrain(updateCrispriStrain);
+                aggregate.UpdateCrispriStrain(geneCrispriStrainUpdatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
+                return Unit.Value;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(StrainAggregate), request.Id);
             }
-            return Unit.Value;
+
         }
     }
 }

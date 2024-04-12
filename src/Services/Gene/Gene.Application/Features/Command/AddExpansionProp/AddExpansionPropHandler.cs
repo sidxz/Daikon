@@ -28,6 +28,8 @@ namespace Gene.Application.Features.Command.AddExpansionProp
 
         public async Task<Unit> Handle(AddExpansionPropCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("AddExpansionPropCommandHandler {request}", request);
+            
             request.DateCreated = DateTime.UtcNow;
             request.IsModified = false;
             

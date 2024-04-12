@@ -28,6 +28,11 @@ namespace Gene.Application.Features.Command.UpdateExpansionProp
 
         public async Task<Unit> Handle(UpdateExpansionPropCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation("UpdateExpansionPropHandler {request}", request);
+
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+            
             var geneExpansionPropUpdatedEvent = _mapper.Map<GeneExpansionPropUpdatedEvent>(request);
 
             try

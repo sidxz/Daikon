@@ -10,36 +10,31 @@ namespace Gene.Domain.Aggregates
         private readonly Dictionary<Guid, ResistanceMutation> _resistanceMutation = [];
 
         /* Add ResistanceMutation */
-        public void AddResistanceMutation(ResistanceMutation resistanceMutation)
+        public void AddResistanceMutation(GeneResistanceMutationAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (string.IsNullOrWhiteSpace(resistanceMutation.Mutation))
+            if (@event.Id == Guid.Empty)
             {
-                throw new InvalidOperationException($" The value of resistanceMutation mutation cannot be null or whitespace");
+                throw new InvalidOperationException("Event Id cannot be empty.");
             }
-
-
-            RaiseEvent(new GeneResistanceMutationAddedEvent
+            if (@event.ResistanceMutationId == Guid.Empty)
             {
-                Id = _id,
-                GeneId = _id,
-                ResistanceMutationId = resistanceMutation.ResistanceMutationId,
-                Mutation = resistanceMutation.Mutation,
-                Isolate = resistanceMutation.Isolate,
-                ParentStrain = resistanceMutation.ParentStrain,
-                Compound = resistanceMutation.Compound,
-                ShiftInMIC = resistanceMutation.ShiftInMIC,
-                Organization = resistanceMutation.Organization,
-                Researcher = resistanceMutation.Researcher,
-                Reference = resistanceMutation.Reference,
-                Notes = resistanceMutation.Notes,
-                DateCreated = DateTime.UtcNow
-            });
+                throw new InvalidOperationException("ResistanceMutation Id cannot be empty.");
+            }
+            if (_resistanceMutation.ContainsKey(@event.ResistanceMutationId))
+            {
+                throw new Exception("ResistanceMutation already exists.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Mutation))
+            {
+                throw new InvalidOperationException($"The value of resistanceMutation mutation cannot be null or whitespace");
+            }
+            RaiseEvent(@event);
         }
+
 
         public void Apply(GeneResistanceMutationAddedEvent @event)
         {
@@ -55,87 +50,70 @@ namespace Gene.Domain.Aggregates
                 Researcher = @event.Researcher,
                 Reference = @event.Reference,
                 Notes = @event.Notes
-
             });
         }
 
         /* Update ResistanceMutation */
-        public void UpdateResistanceMutation(ResistanceMutation resistanceMutation)
+        public void UpdateResistanceMutation(GeneResistanceMutationUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (!_resistanceMutation.ContainsKey(resistanceMutation.ResistanceMutationId))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ResistanceMutationId == Guid.Empty)
+            {
+                throw new InvalidOperationException("ResistanceMutation Id cannot be empty.");
+            }
+            if (!_resistanceMutation.ContainsKey(@event.ResistanceMutationId))
             {
                 throw new InvalidOperationException("ResistanceMutation does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(resistanceMutation.Mutation))
+            if (string.IsNullOrWhiteSpace(@event.Mutation))
             {
-                throw new InvalidOperationException($" The value of resistanceMutation mutation cannot be null or whitespace");
+                throw new InvalidOperationException($"The value of resistanceMutation mutation cannot be null or whitespace");
             }
 
-            RaiseEvent(new GeneResistanceMutationUpdatedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ResistanceMutationId = resistanceMutation.ResistanceMutationId,
-                Mutation = resistanceMutation.Mutation,
-                Isolate = resistanceMutation.Isolate,
-                ParentStrain = resistanceMutation.ParentStrain,
-                Compound = resistanceMutation.Compound,
-                ShiftInMIC = resistanceMutation.ShiftInMIC,
-                Organization = resistanceMutation.Organization,
-                Researcher = resistanceMutation.Researcher,
-                Reference = resistanceMutation.Reference,
-                Notes = resistanceMutation.Notes,
-                DateUpdated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneResistanceMutationUpdatedEvent @event)
         {
-            _id = @event.Id;
-            _resistanceMutation[@event.ResistanceMutationId] = new ResistanceMutation
-            {
-                ResistanceMutationId = @event.ResistanceMutationId,
-                Mutation = @event.Mutation,
-                Isolate = @event.Isolate,
-                ParentStrain = @event.ParentStrain,
-                Compound = @event.Compound,
-                ShiftInMIC = @event.ShiftInMIC,
-                Organization = @event.Organization,
-                Researcher = @event.Researcher,
-                Reference = @event.Reference,
-                Notes = @event.Notes
-            };
+            _resistanceMutation[@event.ResistanceMutationId].Mutation = @event.Mutation;
+            _resistanceMutation[@event.ResistanceMutationId].Isolate = @event.Isolate;
+            _resistanceMutation[@event.ResistanceMutationId].ParentStrain = @event.ParentStrain;
+            _resistanceMutation[@event.ResistanceMutationId].Compound = @event.Compound;
+            _resistanceMutation[@event.ResistanceMutationId].ShiftInMIC = @event.ShiftInMIC;
+            _resistanceMutation[@event.ResistanceMutationId].Organization = @event.Organization;
+            _resistanceMutation[@event.ResistanceMutationId].Researcher = @event.Researcher;
+            _resistanceMutation[@event.ResistanceMutationId].Reference = @event.Reference;
+            _resistanceMutation[@event.ResistanceMutationId].Notes = @event.Notes;
         }
 
         /* Delete ResistanceMutation */
-        public void DeleteResistanceMutation(ResistanceMutation resistanceMutation)
+        public void DeleteResistanceMutation(GeneResistanceMutationDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-            if (!_resistanceMutation.ContainsKey(resistanceMutation.ResistanceMutationId))
+            if (@event.ResistanceMutationId == Guid.Empty)
+            {
+                throw new InvalidOperationException("ResistanceMutation Id cannot be empty.");
+            }
+            if (!_resistanceMutation.ContainsKey(@event.ResistanceMutationId))
             {
                 throw new InvalidOperationException("ResistanceMutation does not exist.");
             }
 
-            RaiseEvent(new GeneResistanceMutationDeletedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ResistanceMutationId = resistanceMutation.ResistanceMutationId
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneResistanceMutationDeletedEvent @event)
         {
-            _id = @event.Id;
             _resistanceMutation.Remove(@event.ResistanceMutationId);
         }
     }

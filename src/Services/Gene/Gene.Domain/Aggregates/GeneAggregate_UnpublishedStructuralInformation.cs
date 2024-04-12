@@ -10,35 +10,31 @@ namespace Gene.Domain.Aggregates
         private readonly Dictionary<Guid, UnpublishedStructuralInformation> _unpublishedStructuralInformation = [];
 
         /* Add UnpublishedStructuralInformation */
-        public void AddUnpublishedStructuralInformation(UnpublishedStructuralInformation unpublishedStructuralInformation)
+        public void AddUnpublishedStructuralInformation(GeneUnpublishedStructuralInformationAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (string.IsNullOrWhiteSpace(unpublishedStructuralInformation.Organization))
+            if (@event.Id == Guid.Empty)
             {
-                throw new InvalidOperationException($" The value of unpublishedStructuralInformation organization cannot be null or whitespace");
+                throw new InvalidOperationException("Event Id cannot be empty.");
             }
-
-
-            RaiseEvent(new GeneUnpublishedStructuralInformationAddedEvent
+            if (@event.UnpublishedStructuralInformationId == Guid.Empty)
             {
-                Id = _id,
-                GeneId = _id,
-                UnpublishedStructuralInformationId = unpublishedStructuralInformation.UnpublishedStructuralInformationId,
-                Organization = unpublishedStructuralInformation.Organization,
-                Method = unpublishedStructuralInformation.Method,
-                Resolution = unpublishedStructuralInformation.Resolution,
-                Ligands = unpublishedStructuralInformation.Ligands,
-                Researcher = unpublishedStructuralInformation.Researcher,
-                Reference = unpublishedStructuralInformation.Reference,
-                Notes = unpublishedStructuralInformation.Notes,
-                URL = unpublishedStructuralInformation.URL,
-                DateCreated = DateTime.UtcNow
-            });
+                throw new InvalidOperationException("UnpublishedStructuralInformation Id cannot be empty.");
+            }
+            if (_unpublishedStructuralInformation.ContainsKey(@event.UnpublishedStructuralInformationId))
+            {
+                throw new Exception("UnpublishedStructuralInformation already exists.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Organization))
+            {
+                throw new InvalidOperationException($"The value of organization cannot be null or whitespace");
+            }
+            RaiseEvent(@event);
         }
+        
 
         public void Apply(GeneUnpublishedStructuralInformationAddedEvent @event)
         {
@@ -57,81 +53,64 @@ namespace Gene.Domain.Aggregates
         }
 
         /* Update UnpublishedStructuralInformation */
-        public void UpdateUnpublishedStructuralInformation(UnpublishedStructuralInformation unpublishedStructuralInformation)
+        public void UpdateUnpublishedStructuralInformation(GeneUnpublishedStructuralInformationUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (!_unpublishedStructuralInformation.ContainsKey(unpublishedStructuralInformation.UnpublishedStructuralInformationId))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.UnpublishedStructuralInformationId == Guid.Empty)
+            {
+                throw new InvalidOperationException("UnpublishedStructuralInformation Id cannot be empty.");
+            }
+            if (!_unpublishedStructuralInformation.ContainsKey(@event.UnpublishedStructuralInformationId))
             {
                 throw new InvalidOperationException("UnpublishedStructuralInformation does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(unpublishedStructuralInformation.Organization))
+            if (string.IsNullOrWhiteSpace(@event.Organization))
             {
                 throw new InvalidOperationException($" The value of unpublishedStructuralInformation organization cannot be null or whitespace");
             }
 
-            RaiseEvent(new GeneUnpublishedStructuralInformationUpdatedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                UnpublishedStructuralInformationId = unpublishedStructuralInformation.UnpublishedStructuralInformationId,
-                Organization = unpublishedStructuralInformation.Organization,
-                Method = unpublishedStructuralInformation.Method,
-                Resolution = unpublishedStructuralInformation.Resolution,
-                Ligands = unpublishedStructuralInformation.Ligands,
-                Researcher = unpublishedStructuralInformation.Researcher,
-                Reference = unpublishedStructuralInformation.Reference,
-                Notes = unpublishedStructuralInformation.Notes,
-                URL = unpublishedStructuralInformation.URL,
-                DateUpdated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
-
+        
         public void Apply(GeneUnpublishedStructuralInformationUpdatedEvent @event)
         {
-            _id = @event.Id;
-            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId] = new UnpublishedStructuralInformation
-            {
-                UnpublishedStructuralInformationId = @event.UnpublishedStructuralInformationId,
-                Organization = @event.Organization,
-                Method = @event.Method,
-                Resolution = @event.Resolution,
-                Ligands = @event.Ligands,
-                Researcher = @event.Researcher,
-                Reference = @event.Reference,
-                Notes = @event.Notes,
-                URL = @event.URL
-                
-            };
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].Organization = @event.Organization;
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].Method = @event.Method;
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].Resolution = @event.Resolution;
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].Ligands = @event.Ligands;
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].Researcher = @event.Researcher;
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].Reference = @event.Reference;
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].Notes = @event.Notes;
+            _unpublishedStructuralInformation[@event.UnpublishedStructuralInformationId].URL = @event.URL;
         }
 
         /* Delete UnpublishedStructuralInformation */
-        public void DeleteUnpublishedStructuralInformation(UnpublishedStructuralInformation unpublishedStructuralInformation)
+        public void DeleteUnpublishedStructuralInformation(GeneUnpublishedStructuralInformationDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-            if (!_unpublishedStructuralInformation.ContainsKey(unpublishedStructuralInformation.UnpublishedStructuralInformationId))
+            if (@event.UnpublishedStructuralInformationId == Guid.Empty)
+            {
+                throw new InvalidOperationException("UnpublishedStructuralInformation Id cannot be empty.");
+            }
+            if (!_unpublishedStructuralInformation.ContainsKey(@event.UnpublishedStructuralInformationId))
             {
                 throw new InvalidOperationException("UnpublishedStructuralInformation does not exist.");
             }
-
-            RaiseEvent(new GeneUnpublishedStructuralInformationDeletedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                UnpublishedStructuralInformationId = unpublishedStructuralInformation.UnpublishedStructuralInformationId
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneUnpublishedStructuralInformationDeletedEvent @event)
         {
-            _id = @event.Id;
             _unpublishedStructuralInformation.Remove(@event.UnpublishedStructuralInformationId);
         }
     }

@@ -21,6 +21,14 @@ namespace Gene.Domain.Aggregates
 
         public GeneAggregate(GeneCreatedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.AccessionNumber == null)
+            {
+                throw new InvalidOperationException("Gene Accession Number cannot be empty.");
+            }
             _active = true;
             _id = @event.Id;
             _AccessionNumber = @event.AccessionNumber;
@@ -41,6 +49,10 @@ namespace Gene.Domain.Aggregates
 
         public void UpdateGene(GeneUpdatedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");

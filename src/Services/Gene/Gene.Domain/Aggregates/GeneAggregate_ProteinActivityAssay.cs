@@ -10,32 +10,30 @@ namespace Gene.Domain.Aggregates
         private readonly Dictionary<Guid, ProteinActivityAssay> _proteinActivityAssay = [];
 
         /* Add ProteinActivityAssay */
-        public void AddProteinActivityAssay(ProteinActivityAssay proteinActivityAssay)
+        public void AddProteinActivityAssay(GeneProteinActivityAssayAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (string.IsNullOrWhiteSpace(proteinActivityAssay.Assay))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ProteinActivityAssayId == Guid.Empty)
+            {
+                throw new InvalidOperationException("ProteinActivityAssay Id cannot be empty.");
+            }
+            if (_proteinActivityAssay.ContainsKey(@event.ProteinActivityAssayId))
+            {
+                throw new Exception("ProteinActivityAssay already exists.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Assay))
             {
                 throw new InvalidOperationException($" The value of proteinActivityAssay Assay cannot be null or whitespace");
             }
 
-
-            RaiseEvent(new GeneProteinActivityAssayAddedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ProteinActivityAssayId = proteinActivityAssay.ProteinActivityAssayId,
-                Assay = proteinActivityAssay.Assay,
-                Method = proteinActivityAssay.Method,
-                Throughput = proteinActivityAssay.Throughput,
-                PMID = proteinActivityAssay.PMID,
-                Reference = proteinActivityAssay.Reference,
-                URL = proteinActivityAssay.URL,
-                DateCreated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneProteinActivityAssayAddedEvent @event)
@@ -53,76 +51,61 @@ namespace Gene.Domain.Aggregates
         }
 
         /* Update ProteinActivityAssay */
-        public void UpdateProteinActivityAssay(ProteinActivityAssay proteinActivityAssay)
+        public void UpdateProteinActivityAssay(GeneProteinActivityAssayUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (!_proteinActivityAssay.ContainsKey(proteinActivityAssay.ProteinActivityAssayId))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (!_proteinActivityAssay.ContainsKey(@event.ProteinActivityAssayId))
             {
                 throw new InvalidOperationException("ProteinActivityAssay does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(proteinActivityAssay.Assay))
+            if (string.IsNullOrWhiteSpace(@event.Assay))
             {
-                throw new InvalidOperationException($" The value of proteinActivityAssay Assay cannot be null or whitespace");
+                throw new InvalidOperationException($" The value of Assay cannot be null or whitespace");
             }
 
-            RaiseEvent(new GeneProteinActivityAssayUpdatedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ProteinActivityAssayId = proteinActivityAssay.ProteinActivityAssayId,
-                Assay = proteinActivityAssay.Assay,
-                Method = proteinActivityAssay.Method,
-                Throughput = proteinActivityAssay.Throughput,
-                PMID = proteinActivityAssay.PMID,
-                Reference = proteinActivityAssay.Reference,
-                URL = proteinActivityAssay.URL,
-                DateUpdated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
+
+
 
         public void Apply(GeneProteinActivityAssayUpdatedEvent @event)
         {
-            _id = @event.Id;
-            _proteinActivityAssay[@event.ProteinActivityAssayId] = new ProteinActivityAssay
-            {
-                ProteinActivityAssayId = @event.ProteinActivityAssayId,
-                Assay = @event.Assay,
-                Method = @event.Method,
-                Throughput = @event.Throughput,
-                PMID = @event.PMID,
-                Reference = @event.Reference,
-                URL = @event.URL
-            };
+            _proteinActivityAssay[@event.ProteinActivityAssayId].Assay = @event.Assay;
+            _proteinActivityAssay[@event.ProteinActivityAssayId].Method = @event.Method;
+            _proteinActivityAssay[@event.ProteinActivityAssayId].Throughput = @event.Throughput;
+            _proteinActivityAssay[@event.ProteinActivityAssayId].PMID = @event.PMID;
+            _proteinActivityAssay[@event.ProteinActivityAssayId].Reference = @event.Reference;
+            _proteinActivityAssay[@event.ProteinActivityAssayId].URL = @event.URL;
         }
 
         /* Delete ProteinActivityAssay */
-        public void DeleteProteinActivityAssay(ProteinActivityAssay proteinActivityAssay)
+        public void DeleteProteinActivityAssay(GeneProteinActivityAssayDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-            if (!_proteinActivityAssay.ContainsKey(proteinActivityAssay.ProteinActivityAssayId))
+            if (@event.ProteinActivityAssayId == Guid.Empty)
+            {
+                throw new InvalidOperationException("ProteinActivityAssay Id cannot be empty.");
+            }
+            if (!_proteinActivityAssay.ContainsKey(@event.ProteinActivityAssayId))
             {
                 throw new InvalidOperationException("ProteinActivityAssay does not exist.");
             }
 
-            RaiseEvent(new GeneProteinActivityAssayDeletedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ProteinActivityAssayId = proteinActivityAssay.ProteinActivityAssayId
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneProteinActivityAssayDeletedEvent @event)
         {
-            _id = @event.Id;
             _proteinActivityAssay.Remove(@event.ProteinActivityAssayId);
         }
     }
