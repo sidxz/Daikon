@@ -108,6 +108,26 @@ namespace Gene.Infrastructure.Query.Repositories
             }
         }
 
+        public async Task<GeneExpansionProp> FindByTypeAndValue(Guid Id, string type, string value)
+        {
+            ArgumentNullException.ThrowIfNull(type);
+            ArgumentNullException.ThrowIfNull(value);
+            try
+            {
+                var res = await _expansionPropCollection.Find
+                    (geneExpansionProps => 
+                        geneExpansionProps.GeneId == Id &&
+                        geneExpansionProps.ExpansionType == type && 
+                        geneExpansionProps.ExpansionValue.Value == value).FirstOrDefaultAsync();
+                return res;
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while finding the GeneExpansionProps with Type {type} and Value {value}", type, value);
+                throw new RepositoryException(nameof(GeneExpansionPropRepo), "Error finding GeneExpansionProps", ex);
+            }
+        }
+
         public async Task Update(GeneExpansionProp geneExpansionProps)
         {
             ArgumentNullException.ThrowIfNull(geneExpansionProps);

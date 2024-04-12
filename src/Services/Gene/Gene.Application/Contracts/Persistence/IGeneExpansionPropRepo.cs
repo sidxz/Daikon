@@ -11,6 +11,8 @@ namespace Gene.Application.Contracts.Persistence
         public Task<List<GeneExpansionProp>> ListByEntityId(Guid entityId);
         public Task DeleteAllOfEntity(Guid entityId);
         public Task Delete(Guid id);
+
+        public Task<GeneExpansionProp> FindByTypeAndValue(Guid Id, string type, string value);
         
     }
 }

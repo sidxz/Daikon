@@ -4,6 +4,7 @@ using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.Gene;
 using Daikon.Events.Strains;
+using Gene.Application.BatchOperations.BatchCommands.BatchImportOne;
 using Gene.Application.Features.Command.AddExpansionProp;
 using Gene.Application.Features.Command.DeleteCrispriStrain;
 using Gene.Application.Features.Command.DeleteEssentiality;
@@ -64,6 +65,11 @@ namespace Gene.Application.Mappings
             CreateMap<GeneUpdatedEvent, Domain.Entities.Gene>().ReverseMap();
             CreateMap<GeneDeletedEvent, Domain.Entities.Gene>().ReverseMap();
 
+            // -- Batch --
+            CreateMap<BatchImportOneCommand, NewGeneCommand>().ReverseMap();
+            CreateMap<BatchImportOneCommand, UpdateGeneCommand>().ReverseMap();
+
+
             // -- Queries --
             CreateMap<Domain.Entities.Gene, GenesListVM>().ReverseMap();
 
@@ -103,6 +109,10 @@ namespace Gene.Application.Mappings
             CreateMap<GeneExpansionPropAddedEvent, GeneExpansionProp>().ReverseMap();
             CreateMap<GeneExpansionPropUpdatedEvent, GeneExpansionProp>().ReverseMap();
             CreateMap<GeneExpansionPropDeletedEvent, GeneExpansionProp>().ReverseMap();
+
+            // -- Batch --
+            CreateMap<AddExpansionPropCommand, GeneExpansionProp>().ReverseMap();
+            CreateMap<UpdateExpansionPropCommand, GeneExpansionProp>().ReverseMap();
 
             // -- Queries --
             CreateMap<GeneExpansionProp, ExpansionPropVM>()

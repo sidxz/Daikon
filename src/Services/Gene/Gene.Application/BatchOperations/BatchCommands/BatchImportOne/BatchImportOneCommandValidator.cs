@@ -10,6 +10,10 @@ namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
             RuleFor(p => p.AccessionNumber)
             .NotEmpty().WithMessage("{AccessionNumber} is required")
             .NotNull();
+
+            RuleFor(p => p.Source)
+            .NotEmpty().WithMessage("{Source} is required")
+            .NotNull().WithMessage("{Source} is required");
         }
     }
 }
