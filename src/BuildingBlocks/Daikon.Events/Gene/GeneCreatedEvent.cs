@@ -16,7 +16,6 @@ namespace Daikon.Events.Gene
         public string AccessionNumber { get; set; }
         public string UniProtKB { get; set; }
         public string Name { get; set; }
-        public string Type { get; set; }
         public string ProteinNameExpanded { get; set; }
         public string AlphaFoldId { get; set; }
 

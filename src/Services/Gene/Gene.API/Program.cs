@@ -50,6 +50,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestorIdBehavior<,>));
 var app = builder.Build();
 

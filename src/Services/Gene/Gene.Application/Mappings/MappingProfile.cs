@@ -3,6 +3,7 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.Gene;
+using Daikon.Events.Strains;
 using Gene.Application.Features.Command.AddExpansionProp;
 using Gene.Application.Features.Command.DeleteCrispriStrain;
 using Gene.Application.Features.Command.DeleteEssentiality;
@@ -12,6 +13,7 @@ using Gene.Application.Features.Command.DeleteHypomorph;
 using Gene.Application.Features.Command.DeleteProteinActivityAssay;
 using Gene.Application.Features.Command.DeleteProteinProduction;
 using Gene.Application.Features.Command.DeleteResistanceMutation;
+using Gene.Application.Features.Command.DeleteStrain;
 using Gene.Application.Features.Command.DeleteUnpublishedStructuralInformation;
 using Gene.Application.Features.Command.DeleteVulnerability;
 using Gene.Application.Features.Command.NewCrispriStrain;
@@ -21,6 +23,7 @@ using Gene.Application.Features.Command.NewHypomorph;
 using Gene.Application.Features.Command.NewProteinActivityAssay;
 using Gene.Application.Features.Command.NewProteinProduction;
 using Gene.Application.Features.Command.NewResistanceMutation;
+using Gene.Application.Features.Command.NewStrain;
 using Gene.Application.Features.Command.NewUnpublishedStructuralInformation;
 using Gene.Application.Features.Command.NewVulnerability;
 using Gene.Application.Features.Command.UpdateCrispriStrain;
@@ -31,10 +34,13 @@ using Gene.Application.Features.Command.UpdateHypomorph;
 using Gene.Application.Features.Command.UpdateProteinActivityAssay;
 using Gene.Application.Features.Command.UpdateProteinProduction;
 using Gene.Application.Features.Command.UpdateResistanceMutation;
+using Gene.Application.Features.Command.UpdateStrain;
 using Gene.Application.Features.Command.UpdateUnpublishedStructuralInformation;
 using Gene.Application.Features.Command.UpdateVulnerability;
 using Gene.Application.Features.Queries.GetGene;
 using Gene.Application.Features.Queries.GetGenesList;
+using Gene.Application.Features.Queries.GetStrain;
+using Gene.Application.Features.Queries.GetStrainsList;
 using Gene.Domain.Entities;
 
 
@@ -67,6 +73,23 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Comments, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.Comments)))
                 .ForMember(dest => dest.GeneSequence, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.GeneSequence)))
                 .ForMember(dest => dest.ProteinSequence, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Gene, IValueProperty<string>, string>(src => src.ProteinSequence)));
+
+
+             /* ====== Strains ====== */
+            // -- Commands --
+            CreateMap<Strain, Strain>();
+
+            CreateMap<StrainCreatedEvent, NewStrainCommand>().ReverseMap();
+            CreateMap<StrainUpdatedEvent, UpdateStrainCommand>().ReverseMap();
+            CreateMap<StrainDeletedEvent, DeleteStrainCommand>().ReverseMap();
+
+            CreateMap<GeneCreatedEvent, Strain>().ReverseMap();
+            CreateMap<GeneUpdatedEvent, Strain>().ReverseMap();
+            CreateMap<GeneDeletedEvent, Strain>().ReverseMap();
+
+            // -- Queries --
+            CreateMap<Strain, StrainsListVM>().ReverseMap();
+            CreateMap<Strain, StrainVM>().ReverseMap();
 
 
             /* ====== Expansion Prop ====== */
