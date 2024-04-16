@@ -1,9 +1,11 @@
 
+using CQRS.Core.Domain;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneUnpublishedStructuralInformationVM
+    public class GeneUnpublishedStructuralInformationVM : DocMetadata
     {
-        public Guid UnpublishedStructuralInformationId { get; set; }
+        public Guid Id { get; set; }
         public object Organization { get; set; }
         public object Method { get; set; }
         public object Resolution { get; set; }

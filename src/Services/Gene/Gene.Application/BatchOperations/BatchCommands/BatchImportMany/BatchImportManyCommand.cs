@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Gene.Application.BatchOperations.BatchCommands.BatchImportMany
 {
-    public class BatchImportManyCommand : BaseCommand, IRequest<Unit>
+    public class BatchImportManyCommand : BaseCommand, IRequest<string>
     {
         
         public List <BatchImportOneCommand> Batch { get; set; }

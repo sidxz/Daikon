@@ -9,11 +9,6 @@ namespace Gene.Application.Features.Command.NewHypomorph
             RuleFor(e => e.KnockdownStrain)
             .NotEmpty().WithMessage("{KnockdownStrain} is required")
             .NotNull();
-
-            RuleFor(e => e.GeneId)
-            .NotEmpty().WithMessage("{GeneId} is required")
-            .NotNull()
-            .NotEqual(Guid.Empty).WithMessage("{GeneId} is required");
         }
     }
 }

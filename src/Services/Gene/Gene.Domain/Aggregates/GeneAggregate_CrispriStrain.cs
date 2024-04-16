@@ -10,28 +10,30 @@ namespace Gene.Domain.Aggregates
         private readonly Dictionary<Guid, CrispriStrain> _crispriStrain = [];
 
         /* Add CrispriStrain */
-        public void AddCrispriStrain(CrispriStrain crispriStrain)
+        public void AddCrispriStrain(GeneCrispriStrainAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (string.IsNullOrWhiteSpace(crispriStrain.CrispriStrainName))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.CrispriStrainId == Guid.Empty)
+            {
+                throw new InvalidOperationException("CrispriStrain Id cannot be empty.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.CrispriStrainName))
             {
                 throw new InvalidOperationException($" The value of crispriStrainName cannot be null or whitespace");
             }
-
-
-            RaiseEvent(new GeneCrispriStrainAddedEvent
+            if (_crispriStrain.ContainsKey(@event.CrispriStrainId))
             {
-                Id = _id,
-                GeneId = _id,
-                CrispriStrainId = crispriStrain.CrispriStrainId,
-                CrispriStrainName = crispriStrain.CrispriStrainName,
-                Notes = crispriStrain.Notes,
-                DateCreated = DateTime.UtcNow
-            });
+                throw new Exception("Expansion Props already exists.");
+            }
+
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneCrispriStrainAddedEvent @event)
@@ -45,68 +47,48 @@ namespace Gene.Domain.Aggregates
         }
 
         /* Update CrispriStrain */
-        public void UpdateCrispriStrain(CrispriStrain crispriStrain)
+        public void UpdateCrispriStrain(GeneCrispriStrainUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
 
-            if (!_crispriStrain.ContainsKey(crispriStrain.CrispriStrainId))
+            if (!_crispriStrain.ContainsKey(@event.CrispriStrainId))
             {
                 throw new InvalidOperationException("CrispriStrain does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(crispriStrain.CrispriStrainName))
+            if (string.IsNullOrWhiteSpace(@event.CrispriStrainName))
             {
                 throw new InvalidOperationException($" The value of crispriStrain classification cannot be null or whitespace");
             }
 
-            RaiseEvent(new GeneCrispriStrainUpdatedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                CrispriStrainId = crispriStrain.CrispriStrainId,
-                CrispriStrainName = crispriStrain.CrispriStrainName,
-                Notes = crispriStrain.Notes,
-                DateUpdated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneCrispriStrainUpdatedEvent @event)
         {
-            _id = @event.Id;
-            _crispriStrain[@event.CrispriStrainId] = new CrispriStrain
-            {
-                CrispriStrainId = @event.CrispriStrainId,
-                CrispriStrainName = @event.CrispriStrainName,
-                Notes = @event.Notes
-            };
+            _crispriStrain[@event.CrispriStrainId].CrispriStrainName = @event.CrispriStrainName;
+            _crispriStrain[@event.CrispriStrainId].Notes = @event.Notes;
         }
 
         /* Delete CrispriStrain */
-        public void DeleteCrispriStrain(CrispriStrain crispriStrain)
+        public void DeleteCrispriStrain(GeneCrispriStrainDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-            if (!_crispriStrain.ContainsKey(crispriStrain.CrispriStrainId))
+            if (!_crispriStrain.ContainsKey(@event.CrispriStrainId))
             {
                 throw new InvalidOperationException("CrispriStrain does not exist.");
             }
 
-            RaiseEvent(new GeneCrispriStrainDeletedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                CrispriStrainId = crispriStrain.CrispriStrainId
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneCrispriStrainDeletedEvent @event)
         {
-            _id = @event.Id;
             _crispriStrain.Remove(@event.CrispriStrainId);
         }
     }

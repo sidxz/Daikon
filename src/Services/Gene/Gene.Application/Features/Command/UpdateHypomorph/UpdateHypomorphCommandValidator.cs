@@ -11,10 +11,6 @@ namespace Gene.Application.Features.Command.UpdateHypomorph
             .NotEmpty().WithMessage("{KnockdownStrain} is required")
             .NotNull();
 
-            RuleFor(e => e.HypomorphId)
-            .NotEmpty().WithMessage("{HypomorphId} is required")
-            .NotNull()
-            .NotEqual(Guid.Empty).WithMessage("{HypomorphId} is required");
         }
     }
 }

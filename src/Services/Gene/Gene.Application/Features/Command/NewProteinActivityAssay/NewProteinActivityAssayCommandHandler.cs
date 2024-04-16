@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
@@ -16,7 +17,7 @@ namespace Gene.Application.Features.Command.NewProteinActivityAssay
         private readonly IMapper _mapper;
         private readonly ILogger<NewProteinActivityAssayCommandHandler> _logger;
         private readonly IEventSourcingHandler<GeneAggregate> _eventSourcingHandler;
-        
+
 
         public NewProteinActivityAssayCommandHandler(ILogger<NewProteinActivityAssayCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler, IGeneRepository geneRepository, IStrainRepository strainRepository, IMapper mapper)
         {
@@ -28,21 +29,26 @@ namespace Gene.Application.Features.Command.NewProteinActivityAssay
 
         public async Task<Unit> Handle(NewProteinActivityAssayCommand request, CancellationToken cancellationToken)
         {
-            
-            var newProteinActivityAssay = _mapper.Map<ProteinActivityAssay>(request);
-            
+            _logger.LogInformation("NewProteinActivityAssayCommandHandler {request}", request);
+            request.DateCreated = DateTime.UtcNow;
+            request.IsModified = false;
+
+            var geneProteinActivityAssayAddedEvent = _mapper.Map<GeneProteinActivityAssayAddedEvent>(request);
+            geneProteinActivityAssayAddedEvent.CreatedById = request.RequestorUserId;
+
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.AddProteinActivityAssay(newProteinActivityAssay);
+                aggregate.AddProteinActivityAssay(geneProteinActivityAssayAddedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
+                return Unit.Value;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(GeneAggregate), request.Id);
             }
-            return Unit.Value;
+
 
         }
     }

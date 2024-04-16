@@ -10,29 +10,30 @@ namespace Gene.Domain.Aggregates
         private readonly Dictionary<Guid, Hypomorph> _hypomorphs = [];
 
         /* Add Hypomorph */
-        public void AddHypomorph(Hypomorph hypomorph)
+        public void AddHypomorph(GeneHypomorphAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (string.IsNullOrWhiteSpace(hypomorph.KnockdownStrain))
+            if (@event.Id == Guid.Empty)
             {
-                throw new InvalidOperationException($" The value of hypomorph cannot be null or whitespace");
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.HypomorphId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Hypomorph Id cannot be empty.");
+            }
+            if (_hypomorphs.ContainsKey(@event.HypomorphId))
+            {
+                throw new Exception("Hypomorph already exists.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.KnockdownStrain))
+            {
+                throw new InvalidOperationException($"The value of hypomorph knockdown strain cannot be null or whitespace");
             }
 
-
-            RaiseEvent(new GeneHypomorphAddedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                HypomorphId = hypomorph.HypomorphId,
-                KnockdownStrain = hypomorph.KnockdownStrain,
-                Phenotype = hypomorph.Phenotype,
-                Notes = hypomorph.Notes,
-                DateCreated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneHypomorphAddedEvent @event)
@@ -47,70 +48,61 @@ namespace Gene.Domain.Aggregates
         }
 
         /* Update Hypomorph */
-        public void UpdateHypomorph(Hypomorph hypomorph)
+        public void UpdateHypomorph(GeneHypomorphUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.HypomorphId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Hypomorph Id cannot be empty.");
+            }
 
-            if (!_hypomorphs.ContainsKey(hypomorph.HypomorphId))
+            if (!_hypomorphs.ContainsKey(@event.HypomorphId))
             {
                 throw new InvalidOperationException("Hypomorph does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(hypomorph.KnockdownStrain))
+            if (string.IsNullOrWhiteSpace(@event.KnockdownStrain))
             {
                 throw new InvalidOperationException($" The value of hypomorph classification cannot be null or whitespace");
             }
 
-            RaiseEvent(new GeneHypomorphUpdatedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                HypomorphId = hypomorph.HypomorphId,
-                KnockdownStrain = hypomorph.KnockdownStrain,
-                Phenotype = hypomorph.Phenotype,
-                Notes = hypomorph.Notes,
-                DateUpdated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneHypomorphUpdatedEvent @event)
         {
-            _id = @event.Id;
-            _hypomorphs[@event.HypomorphId] = new Hypomorph
-            {
-                HypomorphId = @event.HypomorphId,
-                KnockdownStrain = @event.KnockdownStrain,
-                Phenotype = @event.Phenotype,
-                Notes = @event.Notes,
-            };
+            _hypomorphs[@event.HypomorphId].KnockdownStrain = @event.KnockdownStrain;
+            _hypomorphs[@event.HypomorphId].Phenotype = @event.Phenotype;
+            _hypomorphs[@event.HypomorphId].Notes = @event.Notes;
         }
 
         /* Delete Hypomorph */
-        public void DeleteHypomorph(Hypomorph hypomorph)
+        public void DeleteHypomorph(GeneHypomorphDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-            if (!_hypomorphs.ContainsKey(hypomorph.HypomorphId))
+            if (@event.HypomorphId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Hypomorph Id cannot be empty.");
+            }
+            if (!_hypomorphs.ContainsKey(@event.HypomorphId))
             {
                 throw new InvalidOperationException("Hypomorph does not exist.");
             }
 
-            RaiseEvent(new GeneHypomorphDeletedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                HypomorphId = hypomorph.HypomorphId
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneHypomorphDeletedEvent @event)
         {
-            _id = @event.Id;
             _hypomorphs.Remove(@event.HypomorphId);
         }
     }

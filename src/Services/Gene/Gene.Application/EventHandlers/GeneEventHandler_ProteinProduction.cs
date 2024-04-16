@@ -11,23 +11,11 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneProteinProductionAddedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneProteinProductionAddedEvent: {ProteinProductionId}", @event.ProteinProductionId);
-            var proteinProduction = new ProteinProduction
-            {
-                Id = @event.ProteinProductionId,
-                GeneId = @event.GeneId,
-                ProteinProductionId = @event.ProteinProductionId,
-                Production = @event.Production,
-                Method = @event.Method,
-                Purity = @event.Purity,
-                DateProduced = @event.DateProduced,
-                PMID = @event.PMID,
-                Notes = @event.Notes,
-                URL = @event.URL,
+            var proteinProduction = _mapper.Map<ProteinProduction>(@event);
 
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
-            };
+            // Set Ids
+            proteinProduction.Id = @event.ProteinProductionId;
+            proteinProduction.GeneId = @event.Id;
 
             try
             {
@@ -44,16 +32,15 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneProteinProductionUpdatedEvent: {ProteinProductionId}", @event.ProteinProductionId);
 
-            var proteinProduction = await _geneProteinProductionRepository.Read(@event.ProteinProductionId);
+            var existingProteinProduction = await _geneProteinProductionRepository.Read(@event.ProteinProductionId);
+            var proteinProduction = _mapper.Map<ProteinProduction>(existingProteinProduction);
+            _mapper.Map(@event, proteinProduction);
 
-            proteinProduction.Production = @event.Production;
-            proteinProduction.Method = @event.Method;
-            proteinProduction.Purity = @event.Purity;
-            proteinProduction.DateProduced = @event.DateProduced;
-            proteinProduction.PMID = @event.PMID;
-            proteinProduction.Notes = @event.Notes;
-            proteinProduction.URL = @event.URL;
-            proteinProduction.IsModified = true;
+            proteinProduction.Id = @event.ProteinProductionId;
+            proteinProduction.GeneId = @event.Id;
+            // Preserve the original creation date and creator
+            proteinProduction.CreatedById = existingProteinProduction.CreatedById;
+            proteinProduction.DateCreated = existingProteinProduction.DateCreated;
 
             try
             {

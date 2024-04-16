@@ -1,10 +1,11 @@
 
+using CQRS.Core.Domain;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneHypomorphVM
+    public class GeneHypomorphVM : DocMetadata
     {
-        public Guid HypomorphId { get; set; }
-
+        public Guid Id { get; set; }
         public object KnockdownStrain { get; set; }
         public object Phenotype { get; set; }
         public object Notes { get; set; }

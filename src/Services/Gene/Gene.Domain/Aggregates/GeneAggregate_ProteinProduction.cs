@@ -10,34 +10,30 @@ namespace Gene.Domain.Aggregates
         private readonly Dictionary<Guid, ProteinProduction> _proteinProduction = [];
 
         /* Add Protein Production */
-        public void AddProteinProduction(ProteinProduction proteinProduction)
+        public void AddProteinProduction(GeneProteinProductionAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (string.IsNullOrWhiteSpace(proteinProduction.Production))
+            if (@event.Id == Guid.Empty)
             {
-                throw new InvalidOperationException($" The value of production cannot be null or whitespace");
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ProteinProductionId == Guid.Empty)
+            {
+                throw new InvalidOperationException("ProteinProduction Id cannot be empty.");
+            }
+            if (_proteinProduction.ContainsKey(@event.ProteinProductionId))
+            {
+                throw new Exception("ProteinProduction already exists.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Production))
+            {
+                throw new InvalidOperationException($"The value of production cannot be null or whitespace");
             }
 
-
-            RaiseEvent(new GeneProteinProductionAddedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ProteinProductionId = proteinProduction.ProteinProductionId,
-                Production = proteinProduction.Production,
-                Method = proteinProduction.Method,
-                Purity = proteinProduction.Purity,
-                DateProduced = proteinProduction.DateProduced,
-                PMID = proteinProduction.PMID,
-                Notes = proteinProduction.Notes,
-                URL = proteinProduction.URL,
-                DateCreated = DateTime.UtcNow
-            });
-            
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneProteinProductionAddedEvent @event)
@@ -56,80 +52,65 @@ namespace Gene.Domain.Aggregates
         }
 
         /* Update Protein Production */
-        public void UpdateProteinProduction(ProteinProduction proteinProduction)
+        public void UpdateProteinProduction(GeneProteinProductionUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-
-            if (!_proteinProduction.ContainsKey(proteinProduction.ProteinProductionId))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ProteinProductionId == Guid.Empty)
+            {
+                throw new InvalidOperationException("ProteinProduction Id cannot be empty.");
+            }
+            if (!_proteinProduction.ContainsKey(@event.ProteinProductionId))
             {
                 throw new InvalidOperationException("Protein production does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(proteinProduction.Production))
+            if (string.IsNullOrWhiteSpace(@event.Production))
             {
                 throw new InvalidOperationException($" The value of production cannot be null or whitespace");
             }
 
-            RaiseEvent(new GeneProteinProductionUpdatedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ProteinProductionId = proteinProduction.ProteinProductionId,
-                Production = proteinProduction.Production,
-                Method = proteinProduction.Method,
-                Purity = proteinProduction.Purity,
-                DateProduced = proteinProduction.DateProduced,
-                PMID = proteinProduction.PMID,
-                Notes = proteinProduction.Notes,
-                URL = proteinProduction.URL,
-                DateUpdated = DateTime.UtcNow
-            });
-            
+            RaiseEvent(@event);
         }
+        
 
         public void Apply(GeneProteinProductionUpdatedEvent @event)
         {
-            _id = @event.Id;
-            _proteinProduction[@event.ProteinProductionId] = new ProteinProduction
-            {
-                ProteinProductionId = @event.ProteinProductionId,
-                Production = @event.Production,
-                Method = @event.Method,
-                Purity = @event.Purity,
-                DateProduced = @event.DateProduced,
-                PMID = @event.PMID,
-                Notes = @event.Notes,
-                URL = @event.URL
-            };
+            _proteinProduction[@event.ProteinProductionId].Production = @event.Production;
+            _proteinProduction[@event.ProteinProductionId].Method = @event.Method;
+            _proteinProduction[@event.ProteinProductionId].Purity = @event.Purity;
+            _proteinProduction[@event.ProteinProductionId].DateProduced = @event.DateProduced;
+            _proteinProduction[@event.ProteinProductionId].PMID = @event.PMID;
+            _proteinProduction[@event.ProteinProductionId].Notes = @event.Notes;
+            _proteinProduction[@event.ProteinProductionId].URL = @event.URL;
         }
 
         /* Delete Protein Production */
-        public void DeleteProteinProduction(ProteinProduction proteinProduction)
+        public void DeleteProteinProduction(GeneProteinProductionDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
-            if (!_proteinProduction.ContainsKey(proteinProduction.ProteinProductionId))
+            if (@event.ProteinProductionId == Guid.Empty)
+            {
+                throw new InvalidOperationException("ProteinProduction Id cannot be empty.");
+            }
+            if (!_proteinProduction.ContainsKey(@event.ProteinProductionId))
             {
                 throw new InvalidOperationException("Protein production does not exist.");
             }
-            
 
-            RaiseEvent(new GeneProteinProductionDeletedEvent
-            {
-                Id = _id,
-                GeneId = _id,
-                ProteinProductionId = proteinProduction.ProteinProductionId
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneProteinProductionDeletedEvent @event)
         {
-            _id = @event.Id;
             _proteinProduction.Remove(@event.ProteinProductionId);
         }
     }

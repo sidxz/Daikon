@@ -1,11 +1,12 @@
 
+using CQRS.Core.Domain;
+
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneProteinProductionVM
+    public class GeneProteinProductionVM : DocMetadata
     {
 
-        public Guid ProteinProductionId { get; set; }
-
+        public Guid Id { get; set; }
         public object Production { get; set; }
         public object Method { get; set; }
         public object Purity { get; set; }

@@ -19,7 +19,5 @@ namespace Daikon.Events.Gene
         public DVariable<string>? Reference { get; set; }
         public DVariable<string>? Note { get; set; }
         
-        public DateTime DateUpdated { get; set; }
-
     }
 }

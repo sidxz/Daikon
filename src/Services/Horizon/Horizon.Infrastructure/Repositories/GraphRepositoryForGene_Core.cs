@@ -11,7 +11,7 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task AddGene(Gene gene)
         {
-            _logger.LogInformation("AddGene(): Adding gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
+            _logger.LogInformation("AddGene(): Adding gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Product, gene.FunctionalCategory);
             try
             {
                 var query = @"
@@ -19,13 +19,11 @@ namespace Horizon.Infrastructure.Repositories
                                 ON CREATE SET
                                     g.uniId = $uniId,
                                     g.name = $name,
-                                    g.function = $function,
                                     g.product = $product,
                                     g.functionalCategory = $functionalCategory
                                 ON MATCH SET
                                     g.uniId = $uniId,
                                     g.name = $name,
-                                    g.function = $function,
                                     g.product = $product,
                                     g.functionalCategory = $functionalCategory
                                 WITH g
@@ -40,7 +38,6 @@ namespace Horizon.Infrastructure.Repositories
                                  strainId = gene.StrainId,
                                  accessionNumber = gene.AccessionNumber,
                                  name = gene.Name,
-                                 function = gene.Function,
                                  product = gene.Product,
                                  functionalCategory = gene.FunctionalCategory
                              }).ExecuteAsync();
@@ -54,7 +51,7 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task UpdateGene(Gene gene)
         {
-            _logger.LogInformation("UpdateGene(): Updating gene with id {id} strainId {strainId} accession number {accessionNumber} and name {name} and function {function} and product {product} and functional category {functionalCategory}", gene.GeneId, gene.StrainId, gene.AccessionNumber, gene.Name, gene.Function, gene.Product, gene.FunctionalCategory);
+            _logger.LogInformation("UpdateGene(): Updating gene with id {id}", gene.GeneId);
 
             try
             {
@@ -63,16 +60,9 @@ namespace Horizon.Infrastructure.Repositories
                     MATCH (g:Gene {uniId: $uniId})
                                 SET 
                                     g.name = $name,
-                                    g.function = $function,
                                     g.product = $product,
                                     g.functionalCategory = $functionalCategory
-                                WITH g
-                                    OPTIONAL MATCH (g)-[r2:PART_OF]->(oldStrain:Strain)
-                                    WHERE oldStrain.uniId <> $strainId OR oldStrain IS NULL
-                                    DELETE r2
-                                WITH g
-                                    MERGE (newStrain:Strain {uniId: $strainId})
-                                    MERGE (g)-[:PART_OF]->(newStrain)";
+                                ";
 
                 var (queryResults, _) = await _driver
                              .ExecutableQuery(query).WithParameters(new
@@ -81,7 +71,6 @@ namespace Horizon.Infrastructure.Repositories
                                  strainId = gene.StrainId,
                                  accessionNumber = gene.AccessionNumber,
                                  name = gene.Name,
-                                 function = gene.Function,
                                  product = gene.Product,
                                  functionalCategory = gene.FunctionalCategory
                              }).ExecuteAsync()

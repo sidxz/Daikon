@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
 using MediatR;
@@ -26,22 +27,28 @@ namespace Gene.Application.Features.Command.UpdateHypomorph
 
         public async Task<Unit> Handle(UpdateHypomorphCommand request, CancellationToken cancellationToken)
         {
-            var updateHypomorph = _mapper.Map<Hypomorph>(request);
+            _logger.LogInformation("UpdateHypomorphCommandHandler {request}", request);
 
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+
+            var geneHypomorphUpdatedEvent = _mapper.Map<GeneHypomorphUpdatedEvent>(request);
+            geneHypomorphUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
                 
-                aggregate.UpdateHypomorph(updateHypomorph);
+                aggregate.UpdateHypomorph(geneHypomorphUpdatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
+                return Unit.Value;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(StrainAggregate), request.Id);
             }
-            return Unit.Value;
+            
         }
     }
 }

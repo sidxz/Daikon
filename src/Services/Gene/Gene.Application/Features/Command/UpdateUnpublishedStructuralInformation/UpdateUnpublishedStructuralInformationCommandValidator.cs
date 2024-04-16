@@ -10,11 +10,6 @@ namespace Gene.Application.Features.Command.UpdateUnpublishedStructuralInformati
              RuleFor(e => e.Organization)
             .NotEmpty().WithMessage("{Organization} is required")
             .NotNull();
-
-            RuleFor(e => e.UnpublishedStructuralInformationId)
-            .NotEmpty().WithMessage("{UnpublishedStructuralInformationId} is required")
-            .NotNull()
-            .NotEqual(Guid.Empty).WithMessage("{UnpublishedStructuralInformationId} is required");
         }
     }
 }

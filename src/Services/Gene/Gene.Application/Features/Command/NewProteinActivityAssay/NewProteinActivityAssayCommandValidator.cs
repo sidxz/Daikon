@@ -10,10 +10,6 @@ namespace Gene.Application.Features.Command.NewProteinActivityAssay
             .NotEmpty().WithMessage("{Assay} is required")
             .NotNull();
 
-            RuleFor(e => e.GeneId)
-            .NotEmpty().WithMessage("{GeneId} is required")
-            .NotNull()
-            .NotEqual(Guid.Empty).WithMessage("{GeneId} is required");
         }
     }
 }

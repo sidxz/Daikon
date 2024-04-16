@@ -70,14 +70,37 @@ namespace Project.Application.Features.Commands.NewProject
                 else if (request.Stage == nameof(ProjectStage.P1))
                 {
                     request.P1Start = now;
-                }  
+                }
             }
 
+            if ((existingProject.Priority ?? "") != (request.Priority ?? "")
+                || (existingProject.Probability ?? "") != (request.Probability ?? "")
+                || (existingProject.PriorityNote ?? "") != (request.PriorityNote ?? "")
+                || (existingProject.ProbabilityNote ?? "") != (request.ProbabilityNote ?? ""))
+            {
+                request.PPLastStatusDate = now;
+            }
+
+            if ((existingProject.PmPriority ?? "") != (request.PmPriority ?? "")
+                || (existingProject.PmProbability ?? "") != (request.PmProbability ?? "")
+                || (existingProject.PmPriorityNote ?? "") != (request.PmPriorityNote ?? "")
+                || (existingProject.PmProbabilityNote ?? "") != (request.PmProbabilityNote ?? ""))
+            {
+                request.PmPPLastStatusDate = now;
+            }
+
+            var IsProjectRemoved = request.IsProjectRemoved ?? false;
+
+            // handle project removal
+            if (IsProjectRemoved == true && existingProject.IsProjectRemoved == false)
+            {
+                request.ProjectRemovedDate = now;
+            }
 
             request.DateModified = now;
             request.IsModified = true;
 
-            
+
             var projectUpdatedEvent = _mapper.Map<ProjectUpdatedEvent>(request);
 
             try

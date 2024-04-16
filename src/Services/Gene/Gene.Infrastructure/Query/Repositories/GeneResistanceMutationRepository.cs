@@ -13,7 +13,7 @@ namespace Gene.Infrastructure.Query.Repositories
     public class GeneResistanceMutationRepository : IGeneResistanceMutationRepository
     {
 
-        private readonly IMongoCollection<ResistanceMutation> _resistanceMutationCollection; 
+        private readonly IMongoCollection<ResistanceMutation> _resistanceMutationCollection;
         private readonly IVersionHub<ResistanceMutationRevision> _versionHub;
         private readonly ILogger<GeneResistanceMutationRepository> _logger;
 
@@ -22,12 +22,60 @@ namespace Gene.Infrastructure.Query.Repositories
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _resistanceMutationCollection = database.GetCollection<ResistanceMutation>(
-                configuration.GetValue<string>("GeneMongoDbSettings:GeneResistanceMutationCollectionName") ?? 
+                configuration.GetValue<string>("GeneMongoDbSettings:GeneResistanceMutationCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "ResistanceMutation");
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+
+
+
+        public async Task<ResistanceMutation> Read(Guid id)
+        {
+            try
+            {
+                return await _resistanceMutationCollection.Find(resistanceMutation => resistanceMutation.Id == id).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the resistanceMutation with ID {ResistanceMutationId}", id);
+                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error getting resistanceMutation", ex);
+            }
+        }
+
+        public async Task<List<ResistanceMutation>> GetResistanceMutationList()
+        {
+            try
+            {
+                return await _resistanceMutationCollection.Find(resistanceMutation => true)
+                .SortBy(resistanceMutation => resistanceMutation.DateCreated)
+                .ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the resistanceMutation list");
+                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error getting resistanceMutation list", ex);
+            }
+
+        }
+
+        public async Task<List<ResistanceMutation>> GetResistanceMutationOfGene(Guid geneId)
+        {
+            try
+            {
+                return await _resistanceMutationCollection.Find(resistanceMutation => resistanceMutation.GeneId == geneId)
+                .SortBy(resistanceMutation => resistanceMutation.DateCreated)
+                .ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the resistanceMutation list");
+                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error getting resistanceMutation list", ex);
+            }
+
         }
 
         public async Task AddResistanceMutation(ResistanceMutation resistanceMutation)
@@ -43,75 +91,26 @@ namespace Gene.Infrastructure.Query.Repositories
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", resistanceMutation.Id);
-                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error creating gene", ex);
+                _logger.LogError(ex, "An error occurred while creating the gene with ID {id}", resistanceMutation.Id);
+                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error creating ResistanceMutation", ex);
             }
         }
 
-
-
-        public async Task<ResistanceMutation> Read(Guid id)
-        {
-            return await _resistanceMutationCollection.Find(resistanceMutation => resistanceMutation.Id == id).FirstOrDefaultAsync();
-        }
-
-
-
-
-        public async Task<List<ResistanceMutation>> GetResistanceMutationList()
-        {
-            try
-            {
-                return await _resistanceMutationCollection.Find(resistanceMutation => true).ToListAsync();
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the resistanceMutation list");
-                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error getting resistanceMutation list", ex);
-            }
-
-        }
-
-        public async Task<List<ResistanceMutation>> GetResistanceMutationOfGene(Guid geneId)
-        {
-            try
-            {
-                return await _resistanceMutationCollection.Find(resistanceMutation => resistanceMutation.GeneId == geneId).ToListAsync();
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting the resistanceMutation list");
-                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error getting resistanceMutation list", ex);
-            }
-
-        }
 
         public async Task UpdateResistanceMutation(ResistanceMutation resistanceMutation)
         {
             ArgumentNullException.ThrowIfNull(resistanceMutation);
 
-            var filter = Builders<ResistanceMutation>.Filter.Eq(e => e.Id, resistanceMutation.Id);
-            var update = Builders<ResistanceMutation>.Update
-                .Set(e => e.Mutation, resistanceMutation.Mutation)
-                .Set(e => e.Isolate, resistanceMutation.Isolate)
-                .Set(e => e.ParentStrain, resistanceMutation.ParentStrain)
-                .Set(e => e.Compound, resistanceMutation.Compound)
-                .Set(e => e.ShiftInMIC, resistanceMutation.ShiftInMIC)
-                .Set(e => e.Organization, resistanceMutation.Organization)
-                .Set(e => e.Researcher, resistanceMutation.Researcher)
-                .Set(e => e.Reference, resistanceMutation.Reference)
-                .Set(e => e.Notes, resistanceMutation.Notes);
-
             try
             {
-                _logger.LogInformation("UpdateResistanceMutation: Updating resistanceMutation {resistanceMutationId}, {resistanceMutation}", resistanceMutation.Id, resistanceMutation.ToJson());
-                await _resistanceMutationCollection.UpdateOneAsync(filter, update);
+                _logger.LogInformation("UpdateResistanceMutation: Updating ResistanceMutation {ResistanceMutationId}, {resistanceMutation}", resistanceMutation.Id, resistanceMutation.ToJson());
+                await _resistanceMutationCollection.ReplaceOneAsync(r => r.Id == resistanceMutation.Id, resistanceMutation);
                 await _versionHub.CommitVersion(resistanceMutation);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the resistanceMutation with ID {resistanceMutationId}", resistanceMutation.Id);
-                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error updating gene", ex);
+                _logger.LogError(ex, "An error occurred while updating the ResistanceMutation with ID {ResistanceMutationId}", resistanceMutation.Id);
+                throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error updating ResistanceMutation", ex);
             }
 
         }
@@ -151,7 +150,7 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteResistanceMutationsOfGene: Deleting ResistanceMutations of Gene {GeneId}", geneId);
                 await _resistanceMutationCollection.DeleteManyAsync(resistanceMutation => resistanceMutation.GeneId == geneId);
-                
+
             }
             catch (MongoException ex)
             {
@@ -160,7 +159,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
 
 
         public async Task<ResistanceMutationRevision> GetResistanceMutationRevisions(Guid Id)

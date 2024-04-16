@@ -12,6 +12,22 @@ namespace Project.Domain.EntityRevisions
 
         /* Orgs */
         public DVariableHistory<Guid> PrimaryOrgId { get; set; }
+
+
+        /* Priority */
+        public DVariableHistory<string> Priority { get; set; }
+        public DVariableHistory<string> Probability { get; set; }
+        public DVariableHistory<string> PriorityNote { get; set; }
+        public DVariableHistory<string> ProbabilityNote { get; set; }
+        public DVariableHistory<DateTime> PPLastStatusDate { get; set; }
+
+        /* Project Manager */
+
+        public DVariableHistory<string> PmPriority { get; set; }
+        public DVariableHistory<string> PmProbability { get; set; }
+        public DVariableHistory<string> PmPriorityNote { get; set; }
+        public DVariableHistory<string> PmProbabilityNote { get; set; }
+        public DVariableHistory<DateTime> PmPPLastStatusDate { get; set; }
         
 
         /* Dates */

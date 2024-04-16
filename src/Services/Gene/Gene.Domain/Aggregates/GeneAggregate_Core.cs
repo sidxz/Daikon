@@ -10,6 +10,7 @@ namespace Gene.Domain.Aggregates
 
         private bool _active;
         private string _AccessionNumber;
+        public string _Name { get; set; }
 
         public GeneAggregate()
         {
@@ -18,25 +19,22 @@ namespace Gene.Domain.Aggregates
 
         /* New Gene */
 
-        public GeneAggregate(Entities.Gene gene)
+        public GeneAggregate(GeneCreatedEvent @event)
         {
-            _active = true;
-            _id = gene.Id;
-            _AccessionNumber = gene.AccessionNumber;
-
-            RaiseEvent(new GeneCreatedEvent
+            if (@event.Id == Guid.Empty)
             {
-                Name = gene.Name,
-                Id = gene.Id,
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.AccessionNumber == null)
+            {
+                throw new InvalidOperationException("Gene Accession Number cannot be empty.");
+            }
+            _active = true;
+            _id = @event.Id;
+            _AccessionNumber = @event.AccessionNumber;
+            _Name = @event.Name;
 
-                StrainId = gene.StrainId,
-                AccessionNumber = gene.AccessionNumber,
-                Function = gene.Function,
-                Product = gene.Product,
-                FunctionalCategory = gene.FunctionalCategory,
-
-                DateCreated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneCreatedEvent @event)
@@ -44,59 +42,44 @@ namespace Gene.Domain.Aggregates
             _id = @event.Id;
             _active = true;
             _AccessionNumber = @event.AccessionNumber;
+            _Name = @event.Name;
         }
 
         /* Update Gene */
 
-        public void UpdateGene(Entities.Gene gene)
+        public void UpdateGene(GeneUpdatedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is deleted.");
             }
 
-            RaiseEvent(new GeneUpdatedEvent
-            {
-                Id = gene.Id,
-                StrainId = gene.StrainId,
-                Name = gene.Name,
-                AccessionNumber = gene.AccessionNumber,
-                Function = gene.Function,
-                Product = gene.Product,
-                FunctionalCategory = gene.FunctionalCategory,
-
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneUpdatedEvent @event)
         {
-            _id = @event.Id;
+            _Name = @event.Name;
         }
 
         /* Delete Gene */
-        public void DeleteGene(Entities.Gene gene)
+        public void DeleteGene(GeneDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This gene is already deleted.");
             }
 
-            RaiseEvent(new GeneDeletedEvent
-            {
-                Id = gene.Id,
-                AccessionNumber = gene.AccessionNumber
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(GeneDeletedEvent @event)
         {
-            _id = @event.Id;
-            _AccessionNumber = @event.AccessionNumber;
             _active = false;
         }
-
-
-
-       
     }
 }

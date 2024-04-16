@@ -2,8 +2,8 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
-using Gene.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -26,22 +26,28 @@ namespace Gene.Application.Features.Command.UpdateEssentiality
 
         public async Task<Unit> Handle(UpdateEssentialityCommand request, CancellationToken cancellationToken)
         {
-            var updateEssentiality = _mapper.Map<Essentiality>(request);
+            _logger.LogInformation("UpdateEssentialityCommandHandler {request}", request);
 
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+
+            var geneEssentialityUpdatedEvent = _mapper.Map<GeneEssentialityUpdatedEvent>(request);
+            geneEssentialityUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
                 
-                aggregate.UpdateEssentiality(updateEssentiality);
+                aggregate.UpdateEssentiality(geneEssentialityUpdatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
+
+                return Unit.Value;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(StrainAggregate), request.Id);
             }
-            return Unit.Value;
         }
     }
 }

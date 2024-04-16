@@ -3,9 +3,11 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
+using Gene.Application.Features.Command.AddExpansionProp;
 using Gene.Application.Features.Command.NewEssentiality;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Features.Command.UpdateEssentiality;
+using Gene.Application.Features.Command.UpdateExpansionProp;
 using Gene.Application.Features.Command.UpdateGene;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
@@ -22,27 +24,30 @@ namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
 
         private readonly IEventSourcingHandler<GeneAggregate> _eventSourcingHandler;
         private readonly IGeneRepository _geneRepository;
-        private readonly IGeneEssentialityRepository _geneEssentialityRepository;
+        private readonly IGeneExpansionPropRepo _geneExpansionPropRepo;
         private readonly IStrainRepository _strainRepository;
 
         private readonly IMediator _mediator;
 
         public BatchImportOneCommandHandler(ILogger<BatchImportOneCommandHandler> logger, IEventSourcingHandler<GeneAggregate> eventSourcingHandler,
                                             IGeneRepository geneRepository, IStrainRepository strainRepository, IMapper mapper,
-                                            IMediator mediator, IGeneEssentialityRepository geneEssentialityRepository)
+                                            IMediator mediator, IGeneExpansionPropRepo geneExpansionPropRepo)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _eventSourcingHandler = eventSourcingHandler ?? throw new ArgumentNullException(nameof(eventSourcingHandler));
             _geneRepository = geneRepository ?? throw new ArgumentNullException(nameof(geneRepository));
             _strainRepository = strainRepository ?? throw new ArgumentNullException(nameof(strainRepository));
-            _geneEssentialityRepository = geneEssentialityRepository ?? throw new ArgumentNullException(nameof(geneEssentialityRepository));
+            _geneExpansionPropRepo = geneExpansionPropRepo ?? throw new ArgumentNullException(nameof(geneExpansionPropRepo));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
 
         public async Task<Unit> Handle(BatchImportOneCommand request, CancellationToken cancellationToken)
         {
+
+            var json = System.Text.Json.JsonSerializer.Serialize(request);
+            _logger.LogInformation($"Processing BatchImportOneCommand: {json}");
             // check if both strainId and strainName are null; reject if they are
             ValidateRequest(request);
 
@@ -98,92 +103,81 @@ namespace Gene.Application.BatchOperations.BatchCommands.BatchImportOne
 
         private async Task NewGene(BatchImportOneCommand request, Guid strainId)
         {
-            Guid newGeneId = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id;
-            await _mediator.Send(new NewGeneCommand
-            {
-                Id = newGeneId,
-                AccessionNumber = request.AccessionNumber,
-                StrainId = strainId,
-                Name = request.Name,
-                Function = request.Function,
-                Product = request.Product,
-                FunctionalCategory = request.FunctionalCategory,
-            });
+            _logger.LogInformation("Creating new gene");
+            request.Id = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id;
+            var newGene = _mapper.Map<NewGeneCommand>(request);
+            await _mediator.Send(newGene);
 
-            /* Essentiality */
-
-            foreach (var essentiality in request.Essentialities)
+            // create expansion properties
+            foreach (var expansionProp in request.ExpansionProps)
             {
-                await _mediator.Send(new NewEssentialityCommand
-                {
-                    Id = newGeneId,
-                    GeneId = newGeneId,
-                    EssentialityId = essentiality.EssentialityId == Guid.Empty ? Guid.NewGuid() : essentiality.EssentialityId,
-                    Classification = essentiality.Classification,
-                    Condition = essentiality.Condition,
-                    Method = essentiality.Method,
-                    Reference = essentiality.Reference,
-                    Note = essentiality.Note,
-                });
+               var expansionPropCommand = _mapper.Map<AddExpansionPropCommand>(expansionProp);
+               expansionPropCommand.Id = request.Id; // GeneId
+               expansionPropCommand.ExpansionPropId = expansionProp.Id == Guid.Empty ? Guid.NewGuid() : expansionProp.Id;
+               await _mediator.Send(expansionPropCommand);
             }
+
         }
 
 
         private async Task UpdateGene(BatchImportOneCommand request, Domain.Entities.Gene existingGene)
         {
-            await _mediator.Send(new UpdateGeneCommand
+            
+            var updateGene = _mapper.Map<UpdateGeneCommand>(request);
+            _logger.LogInformation("Updating existing gene");
+            _logger.LogInformation($"Source: {request.Source}");
+
+            if (request.Source == "Mycobrowser")
             {
-                Id = request.Id,
-                AccessionNumber = request.AccessionNumber,
-                StrainId = request.StrainId,
-                Name = request.Name,
-                Function = request.Function,
-                Product = request.Product,
-                FunctionalCategory = request.FunctionalCategory,
-            });
+                // copy over uniprot data
+                updateGene.UniProtKB = existingGene.UniProtKB;
+                updateGene.ProteinNameExpanded = existingGene.ProteinNameExpanded;
+                updateGene.AlphaFoldId = existingGene.AlphaFoldId;
 
-
-            /* Essentiality */
-
-            var existingEssentialities = await _geneEssentialityRepository.GetEssentialityOfGene(existingGene.Id);
-
-            // check if essentiality exists
-            foreach (var requestedEssentiality in request.Essentialities)
+            }
+            else if (request.Source == "UniProt")
             {
-                // check if requestedEssentiality is in existingEssentialities
-                var existingEssentiality = existingEssentialities.FirstOrDefault(e => e.EssentialityId == requestedEssentiality.EssentialityId);
-                if (existingEssentiality != null)
+                // copy over mycobrowser data
+                updateGene.Product = existingGene.Product;
+                updateGene.FunctionalCategory = existingGene.FunctionalCategory;
+                updateGene.Comments = existingGene.Comments;
+                updateGene.Coordinates = existingGene.Coordinates;
+                updateGene.Orthologues = existingGene.Orthologues;
+                updateGene.GeneSequence = existingGene.GeneSequence;
+                updateGene.ProteinSequence = existingGene.ProteinSequence;
+                updateGene.GeneLength = existingGene.GeneLength;
+                updateGene.ProteinLength = existingGene.ProteinLength;
+
+            }
+            else {
+                // reject if source is neither Mycobrowser nor UniProt
+                throw new ArgumentNullException(nameof(request.Source), "Source must be either Mycobrowser or UniProt");
+            }
+            updateGene.Id = existingGene.Id;
+           
+
+            await _mediator.Send(updateGene);
+
+            // update expansion properties if not found, create, else update
+            foreach (var expansionProp in request.ExpansionProps)
+            {
+                var existingExpansionProp = await _geneExpansionPropRepo.FindByTypeAndValue(existingGene.Id, expansionProp.ExpansionType, expansionProp.ExpansionValue.Value);
+
+                if (existingExpansionProp == null)
                 {
-                    // update it
-                    await _mediator.Send(new UpdateEssentialityCommand
-                    {
-                        Id = existingGene.Id,
-                        GeneId = existingGene.Id,
-                        EssentialityId = existingEssentiality.EssentialityId,
-                        Classification = requestedEssentiality.Classification,
-                        Condition = requestedEssentiality.Condition,
-                        Method = requestedEssentiality.Method,
-                        Reference = requestedEssentiality.Reference,
-                        Note = requestedEssentiality.Note,
-                    });
+                    var expansionPropCommand = _mapper.Map<AddExpansionPropCommand>(expansionProp);
+                    expansionPropCommand.Id = existingGene.Id; // GeneId
+                    expansionPropCommand.ExpansionPropId = expansionProp.Id == Guid.Empty ? Guid.NewGuid() : expansionProp.Id;
+                    await _mediator.Send(expansionPropCommand);
                 }
 
                 else
                 {
-                    // create new
-                    await _mediator.Send(new NewEssentialityCommand
-                    {
-                        Id = existingGene.Id,
-                        GeneId = existingGene.Id,
-                        EssentialityId = requestedEssentiality.EssentialityId == Guid.Empty ? Guid.NewGuid() : requestedEssentiality.EssentialityId,
-                        Classification = requestedEssentiality.Classification,
-                        Condition = requestedEssentiality.Condition,
-                        Method = requestedEssentiality.Method,
-                        Reference = requestedEssentiality.Reference,
-                        Note = requestedEssentiality.Note,
-                    });
+                    var updateExpansionPropCommand = _mapper.Map<UpdateExpansionPropCommand>(expansionProp);
+                    updateExpansionPropCommand.ExpansionPropId = existingExpansionProp.Id;
+                    updateExpansionPropCommand.Id = existingGene.Id; // GeneId
+                    await _mediator.Send(updateExpansionPropCommand);
                 }
-
             }
         }
     }

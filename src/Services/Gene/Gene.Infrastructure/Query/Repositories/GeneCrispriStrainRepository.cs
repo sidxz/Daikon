@@ -13,7 +13,7 @@ namespace Gene.Infrastructure.Query.Repositories
     public class GeneCrispriStrainRepository : IGeneCrispriStrainRepository
     {
 
-        private readonly IMongoCollection<CrispriStrain> _crispriStrainCollection; 
+        private readonly IMongoCollection<CrispriStrain> _crispriStrainCollection;
         private readonly IVersionHub<CrispriStrainRevision> _versionHub;
         private readonly ILogger<GeneCrispriStrainRepository> _logger;
 
@@ -22,7 +22,7 @@ namespace Gene.Infrastructure.Query.Repositories
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _crispriStrainCollection = database.GetCollection<CrispriStrain>(
-                configuration.GetValue<string>("GeneMongoDbSettings:GeneCrispriStrainCollectionName") ?? 
+                configuration.GetValue<string>("GeneMongoDbSettings:GeneCrispriStrainCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "CrispriStrain");
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
@@ -30,39 +30,27 @@ namespace Gene.Infrastructure.Query.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task AddCrispriStrain(CrispriStrain crispriStrain)
-        {
-
-            ArgumentNullException.ThrowIfNull(crispriStrain);
-
-            try
-            {
-                _logger.LogInformation("AddCrispriStrain: Creating CrispriStrain {CrispriStrainId}, {crispriStrain}", crispriStrain.Id, crispriStrain.ToJson());
-                await _crispriStrainCollection.InsertOneAsync(crispriStrain);
-                await _versionHub.CommitVersion(crispriStrain);
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while creating the gene with ID {GeneId}", crispriStrain.Id);
-                throw new RepositoryException(nameof(GeneCrispriStrainRepository), "Error creating gene", ex);
-            }
-        }
-
-
 
         public async Task<CrispriStrain> Read(Guid id)
         {
-            return await _crispriStrainCollection.Find(crispriStrain => crispriStrain.Id == id).FirstOrDefaultAsync();
+            try
+            {
+                return await _crispriStrainCollection.Find(crispriStrain => crispriStrain.Id == id).FirstOrDefaultAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the crispriStrain with ID {CrispriStrainId}", id);
+                throw new RepositoryException(nameof(GeneCrispriStrainRepository), "Error getting crispriStrain", ex);
+            }
         }
-
-
-
 
         public async Task<List<CrispriStrain>> GetCrispriStrainList()
         {
             try
             {
-                return await _crispriStrainCollection.Find(crispriStrain => true).ToListAsync();
+                return await _crispriStrainCollection.Find(crispriStrain => true)
+                    .SortBy(crispriStrain => crispriStrain.DateCreated)
+                    .ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -76,7 +64,9 @@ namespace Gene.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _crispriStrainCollection.Find(crispriStrain => crispriStrain.GeneId == geneId).ToListAsync();
+                return await _crispriStrainCollection.Find(crispriStrain => crispriStrain.GeneId == geneId)
+                .SortBy(crispriStrain => crispriStrain.DateCreated)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
@@ -86,24 +76,39 @@ namespace Gene.Infrastructure.Query.Repositories
 
         }
 
-        public async Task UpdateCrispriStrain(CrispriStrain crispriStrain)
+        public async Task AddCrispriStrain(CrispriStrain crispriStrain)
         {
-            ArgumentNullException.ThrowIfNull(crispriStrain);
 
-            var filter = Builders<CrispriStrain>.Filter.Eq(e => e.Id, crispriStrain.Id);
-            var update = Builders<CrispriStrain>.Update
-                .Set(e => e.CrispriStrainName, crispriStrain.CrispriStrainName)
-                .Set(e => e.Notes, crispriStrain.Notes);
+            ArgumentNullException.ThrowIfNull(crispriStrain);
+            _logger.LogInformation("AddCrispriStrain: Creating CrispriStrain {CrispriStrainId}, {crispriStrain}", crispriStrain.Id, crispriStrain.ToJson());
+
             try
             {
-                _logger.LogInformation("UpdateCrispriStrain: Updating crispriStrain {crispriStrainId}, {crispriStrain}", crispriStrain.Id, crispriStrain.ToJson());
-                await _crispriStrainCollection.UpdateOneAsync(filter, update);
+                await _crispriStrainCollection.InsertOneAsync(crispriStrain);
                 await _versionHub.CommitVersion(crispriStrain);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the crispriStrain with ID {crispriStrainId}", crispriStrain.Id);
-                throw new RepositoryException(nameof(GeneCrispriStrainRepository), "Error updating gene", ex);
+                _logger.LogError(ex, "An error occurred while creating the CrispriStrain with ID {id}", crispriStrain.Id);
+                throw new RepositoryException(nameof(GeneCrispriStrainRepository), "Error creating CrispriStrain", ex);
+            }
+        }
+
+        public async Task UpdateCrispriStrain(CrispriStrain crispriStrain)
+        {
+            ArgumentNullException.ThrowIfNull(crispriStrain);
+
+            _logger.LogInformation("UpdateCrispriStrain: Updating CrispriStrain {CrispriStrainId}, {crispriStrain}", crispriStrain.Id, crispriStrain.ToJson());
+
+            try
+            {
+                await _crispriStrainCollection.ReplaceOneAsync(crispr => crispr.Id == crispriStrain.Id, crispriStrain);
+                await _versionHub.CommitVersion(crispriStrain);
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the CrispriStrain with ID {CrispriStrain}", crispriStrain.Id);
+                throw new RepositoryException(nameof(GeneCrispriStrainRepository), "Error updating CrispriStrain", ex);
             }
 
         }
@@ -116,7 +121,7 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 _logger.LogInformation("DeleteCrispriStrain: Deleting CrispriStrain {CrispriStrain}", id);
-                await _crispriStrainCollection.DeleteOneAsync(gene => gene.Id == id);
+                await _crispriStrainCollection.DeleteOneAsync(crispr => crispr.Id == id);
                 await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
@@ -143,7 +148,7 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteCrispriStrainsOfGene: Deleting CrispriStrains of Gene {GeneId}", geneId);
                 await _crispriStrainCollection.DeleteManyAsync(crispriStrain => crispriStrain.GeneId == geneId);
-                
+
             }
             catch (MongoException ex)
             {
@@ -152,8 +157,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
-
 
         public async Task<CrispriStrainRevision> GetCrispriStrainRevisions(Guid Id)
         {

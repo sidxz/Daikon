@@ -13,6 +13,11 @@ namespace Project.Application.Features.Queries.GetProject
         public string ProjectType { get; set; }
         public string LegacyId { get; set; }
         public object Description { get; set; }
+        public object H2LDescription { get; set; }
+        public object LODescription { get; set; }
+        public object SPDescription { get; set; }
+        public object INDDescription { get; set; }
+        public object P1Description { get; set; }
         public object Status { get; set; }
         public bool IsProjectComplete { get; set; }
         public bool IsProjectRemoved { get; set; }
@@ -24,6 +29,22 @@ namespace Project.Application.Features.Queries.GetProject
         public string CompoundSMILES { get; set; }
         public Guid HitCompoundId { get; set; }
         public Guid HitId { get; set; }
+
+
+        /* Priority */
+        public object Priority { get; set; }
+        public object Probability { get; set; }
+        public object PriorityNote { get; set; }
+        public object ProbabilityNote { get; set; }
+        public object PPLastStatusDate { get; set; }
+
+        /* Project Manager */
+
+        public object PmPriority { get; set; }
+        public object PmProbability { get; set; }
+        public object PmPriorityNote { get; set; }
+        public object PmProbabilityNote { get; set; }
+        public object PmPPLastStatusDate { get; set; }
 
 
         /* Orgs */

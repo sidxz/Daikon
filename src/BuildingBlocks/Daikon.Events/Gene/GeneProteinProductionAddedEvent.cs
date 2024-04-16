@@ -13,7 +13,6 @@ namespace Daikon.Events.Gene
 
         public Guid GeneId { get; set; }
         public Guid ProteinProductionId { get; set; }
-
         public required DVariable<string> Production { get; set; }
         public DVariable<string>? Method { get; set; }
         public DVariable<string>? Purity { get; set; }

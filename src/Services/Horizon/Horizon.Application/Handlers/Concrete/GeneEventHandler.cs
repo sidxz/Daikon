@@ -31,7 +31,6 @@ namespace Horizon.Application.Query.Handlers
 
                 Name = @event.Name,
                 AccessionNumber = @event.AccessionNumber,
-                Function = @event.Function,
                 Product = @event.Product,
                 FunctionalCategory = @event.FunctionalCategory,
 
@@ -57,6 +56,7 @@ namespace Horizon.Application.Query.Handlers
             {
                 UniId =  @event.Id.ToString(),
                 StrainId = @event.Id.ToString(),
+
                 Name = @event.Name,
                 Organism = @event.Organism,
                 DateCreated = @event.DateCreated,
@@ -77,16 +77,13 @@ namespace Horizon.Application.Query.Handlers
 
         public async Task OnEvent(GeneUpdatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id} {@event.AccessionNumber}");
+            _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id}");
             var gene = new Gene
             {
                 UniId =  @event.Id.ToString(),
                 GeneId = @event.Id.ToString(),
-                StrainId = @event.StrainId.ToString(),
 
                 Name = @event.Name,
-                AccessionNumber = @event.AccessionNumber,
-                Function = @event.Function,
                 Product = @event.Product,
                 FunctionalCategory = @event.FunctionalCategory,
 
@@ -114,6 +111,7 @@ namespace Horizon.Application.Query.Handlers
             {
                 UniId =  @event.Id.ToString(),
                 StrainId = @event.Id.ToString(),
+                
                 Name = @event.Name,
                 Organism = @event.Organism,
                 DateCreated = @event.DateCreated,
@@ -135,7 +133,7 @@ namespace Horizon.Application.Query.Handlers
 
         public async Task OnEvent(GeneDeletedEvent @event)
         {
-            _logger.LogInformation($"Horizon: GeneDeletedEvent: {@event.Id} {@event.AccessionNumber}");
+            _logger.LogInformation($"Horizon: GeneDeletedEvent: {@event.Id}");
             try
             {
                 await _graphRepository.DeleteGene(@event.Id.ToString());

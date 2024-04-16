@@ -25,7 +25,6 @@ namespace Horizon.Application.Features.Command.Gene.AddGene
                 StrainId = request.StrainId.ToString(),
                 AccessionNumber = request.AccessionNumber,
                 Name = request.Name,
-                Function = request.Function,
                 Product = request.Product,
                 FunctionalCategory = request.FunctionalCategory,
                 DateCreated = DateTime.UtcNow,

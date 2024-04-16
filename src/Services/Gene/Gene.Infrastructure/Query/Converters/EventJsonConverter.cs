@@ -77,8 +77,10 @@ namespace Gene.Infrastructure.Query.Converters
                 "GeneUnpublishedStructuralInformationUpdatedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationUpdatedEvent>(json, options),
                 "GeneUnpublishedStructuralInformationDeletedEvent" => JsonSerializer.Deserialize<GeneUnpublishedStructuralInformationDeletedEvent>(json, options),
 
+                "GeneExpansionPropAddedEvent" => JsonSerializer.Deserialize<GeneExpansionPropAddedEvent>(json, options),
+                "GeneExpansionPropUpdatedEvent" => JsonSerializer.Deserialize<GeneExpansionPropUpdatedEvent>(json, options),
+                "GeneExpansionPropDeletedEvent" => JsonSerializer.Deserialize<GeneExpansionPropDeletedEvent>(json, options),
 
-                
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };
         }

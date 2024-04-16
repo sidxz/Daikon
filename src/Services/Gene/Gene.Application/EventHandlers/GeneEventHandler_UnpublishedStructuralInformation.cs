@@ -1,6 +1,7 @@
 
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
+using Gene.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Gene.Application.Query.EventHandlers
@@ -10,23 +11,10 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneUnpublishedStructuralInformationAddedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneUnpublishedStructuralInformationAddedEvent: {UnpublishedStructuralInformationId}", @event.UnpublishedStructuralInformationId);
-            var unpublishedStructuralInformation = new Domain.Entities.UnpublishedStructuralInformation
-            {
-                Id = @event.UnpublishedStructuralInformationId,
-                GeneId = @event.GeneId,
-                UnpublishedStructuralInformationId = @event.UnpublishedStructuralInformationId,
-                Organization = @event.Organization,
-                Method = @event.Method,
-                Resolution = @event.Resolution,
-                Ligands = @event.Ligands,
-                Researcher = @event.Researcher,
-                Reference = @event.Reference,
-                Notes = @event.Notes,
-                URL = @event.URL,
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
-            };
+            var unpublishedStructuralInformation = _mapper.Map<UnpublishedStructuralInformation>(@event);
+
+            unpublishedStructuralInformation.Id = @event.UnpublishedStructuralInformationId;
+            unpublishedStructuralInformation.GeneId = @event.Id;
 
             try
             {
@@ -42,17 +30,16 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneUnpublishedStructuralInformationUpdatedEvent: {UnpublishedStructuralInformationId}", @event.UnpublishedStructuralInformationId);
 
-            var unpublishedStructuralInformation = await _geneUnpublishedStructuralInformationRepository.Read(@event.UnpublishedStructuralInformationId);
+            var existingUsi = await _geneUnpublishedStructuralInformationRepository.Read(@event.UnpublishedStructuralInformationId);
+            var unpublishedStructuralInformation = _mapper.Map<UnpublishedStructuralInformation>(existingUsi);
+            _mapper.Map(@event, unpublishedStructuralInformation);
 
-            unpublishedStructuralInformation.Organization = @event.Organization;
-            unpublishedStructuralInformation.Method = @event.Method;
-            unpublishedStructuralInformation.Resolution = @event.Resolution;
-            unpublishedStructuralInformation.Ligands = @event.Ligands;
-            unpublishedStructuralInformation.Researcher = @event.Researcher;
-            unpublishedStructuralInformation.Reference = @event.Reference;
-            unpublishedStructuralInformation.Notes = @event.Notes;
-            unpublishedStructuralInformation.URL = @event.URL;
-            unpublishedStructuralInformation.IsModified = true;
+            unpublishedStructuralInformation.Id = @event.UnpublishedStructuralInformationId;
+            unpublishedStructuralInformation.GeneId = @event.Id;
+
+            // Preserve the original creation date and creator
+            unpublishedStructuralInformation.CreatedById = existingUsi.CreatedById;
+            unpublishedStructuralInformation.DateCreated = existingUsi.DateCreated;
 
             try
             {

@@ -1,6 +1,7 @@
 
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
+using Gene.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace Gene.Application.Query.EventHandlers
@@ -10,19 +11,12 @@ namespace Gene.Application.Query.EventHandlers
         public async Task OnEvent(GeneHypomorphAddedEvent @event)
         {
             _logger.LogInformation("OnEvent: GeneHypomorphAddedEvent: {HypomorphId}", @event.HypomorphId);
-            var hypomorph = new Domain.Entities.Hypomorph
-            {
-                Id = @event.HypomorphId,
-                GeneId = @event.GeneId,
-                HypomorphId = @event.HypomorphId,
-                KnockdownStrain = @event.KnockdownStrain,
-                Phenotype = @event.Phenotype,
-                Notes = @event.Notes,
-                DateCreated = DateTime.UtcNow,
-                IsModified = false,
-                IsDraft = false
-            };
+            var hypomorph = _mapper.Map<Hypomorph>(@event);
 
+            // Set Ids
+            hypomorph.Id = @event.HypomorphId;
+            hypomorph.GeneId = @event.Id;
+            
             try
             {
                 await _geneHypomorphRepository.AddHypomorph(hypomorph);
@@ -37,12 +31,17 @@ namespace Gene.Application.Query.EventHandlers
         {
             _logger.LogInformation("OnEvent: GeneHypomorphUpdatedEvent: {HypomorphId}", @event.HypomorphId);
 
-            var hypomorph = await _geneHypomorphRepository.Read(@event.HypomorphId);
+            var existingHypomorph = await _geneHypomorphRepository.Read(@event.HypomorphId);
+            
+            var hypomorph = _mapper.Map<Hypomorph>(existingHypomorph);
 
-            hypomorph.KnockdownStrain = @event.KnockdownStrain;
-            hypomorph.Phenotype = @event.Phenotype;
-            hypomorph.Notes = @event.Notes;
-            hypomorph.IsModified = true;
+            _mapper.Map(@event, hypomorph);
+            hypomorph.Id = @event.HypomorphId;
+            hypomorph.GeneId = @event.Id;
+            // Preserve the original creation date and creator
+            hypomorph.CreatedById = existingHypomorph.CreatedById;
+            hypomorph.DateCreated = existingHypomorph.DateCreated;
+
 
             try
             {

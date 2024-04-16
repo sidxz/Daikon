@@ -1,8 +1,6 @@
 
 using CQRS.Core.Domain;
-using Daikon.Events.Gene;
 using Daikon.Events.Strains;
-using Gene.Domain.Entities;
 
 namespace Gene.Domain.Aggregates
 {
@@ -18,20 +16,21 @@ namespace Gene.Domain.Aggregates
 
         /* New Strain */
 
-        public StrainAggregate(Strain strain)
+        public StrainAggregate(StrainCreatedEvent @event)
         {
-            _active = true;
-            _id = strain.Id;
-            _Name = strain.Name;
-
-            RaiseEvent(new StrainCreatedEvent
+            if (@event.Id == Guid.Empty)
             {
-                Name = strain.Name,
-                Id = strain.Id,
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.Name == null)
+            {
+                throw new InvalidOperationException("Strain Name cannot be empty.");
+            }
+            _active = true;
+            _id = @event.Id;
+            _Name = @event.Name;
 
-                Organism = strain.Organism,
-                DateCreated = DateTime.UtcNow
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(StrainCreatedEvent @event)
@@ -43,45 +42,48 @@ namespace Gene.Domain.Aggregates
 
         /* Update Strain */
 
-        public void UpdateStrain(Strain strain)
+        public void UpdateStrain(StrainUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This strain is deleted.");
             }
-
-            RaiseEvent(new StrainUpdatedEvent
+            if (@event.Id == Guid.Empty)
             {
-                Id = strain.Id,
-                Name = strain.Name,
-                Organism = strain.Organism,
-            });
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.Name == null)
+            {
+                throw new InvalidOperationException("Strain Name cannot be empty.");
+            }
+
+            RaiseEvent(@event);
         }
+
 
         public void Apply(StrainUpdatedEvent @event)
         {
-            _id = @event.Id;
+            _Name = @event.Name;
         }
 
         /* Delete Strain */
-        public void DeleteGene(Strain strain)
+        public void DeleteGene(StrainDeletedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+
             if (!_active)
             {
                 throw new InvalidOperationException("This strain is already deleted.");
             }
 
-            RaiseEvent(new StrainDeletedEvent
-            {
-                Id = strain.Id,
-                Name = strain.Name
-            });
+            RaiseEvent(@event);
         }
 
         public void Apply(StrainDeletedEvent @event)
         {
-            _id = @event.Id;
-            _Name = @event.Name;
             _active = false;
         }
     }

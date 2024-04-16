@@ -114,32 +114,37 @@ namespace Horizon.Infrastructure.Repositories
 
 
                 // Now set the relationship with the Primary Molecule
-                var pmRelQuery = @"
+                if (!string.IsNullOrEmpty(project.PrimaryMoleculeId))
+                {
+                    var pmRelQuery = @"
                     MATCH (p:Project { uniId: $uniId})
                     MATCH (m:Molecule { uniId: $primaryMoleculeId})
                     MERGE (p)-[:PRIMARY_MOLECULE ]->(m)
                     ";
-                var pmRelParameters = new
+                    var pmRelParameters = new
+                    {
+                        uniId = project.UniId,
+                        primaryMoleculeId = project.PrimaryMoleculeId
+                    };
+
+                    var (pmRelQueryResults, _) = await _driver.ExecutableQuery(pmRelQuery).WithParameters(pmRelParameters).ExecuteAsync();
+                }
+
+                if (!string.IsNullOrEmpty(project.HitMoleculeId))
                 {
-                    uniId = project.UniId,
-                    primaryMoleculeId = project.PrimaryMoleculeId
-                };
-
-                var (pmRelQueryResults, _) = await _driver.ExecutableQuery(pmRelQuery).WithParameters(pmRelParameters).ExecuteAsync();
-
-                var amRelQuery = @"
+                    var amRelQuery = @"
                     MATCH (p:Project { uniId: $uniId})
                     MATCH (m:Molecule { uniId: $hitMoleculeId})
                     MERGE (p)-[:INITIAL_HIT_MOLECULE ]->(m)
                     ";
-                var amRelParameters = new
-                {
-                    uniId = project.UniId,
-                    hitMoleculeId = project.HitMoleculeId
-                };
+                    var amRelParameters = new
+                    {
+                        uniId = project.UniId,
+                        hitMoleculeId = project.HitMoleculeId
+                    };
 
-                var (amRelQueryResults, _) = await _driver.ExecutableQuery(amRelQuery).WithParameters(amRelParameters).ExecuteAsync();
-
+                    var (amRelQueryResults, _) = await _driver.ExecutableQuery(amRelQuery).WithParameters(amRelParameters).ExecuteAsync();
+                }
             }
             catch (Exception ex)
             {

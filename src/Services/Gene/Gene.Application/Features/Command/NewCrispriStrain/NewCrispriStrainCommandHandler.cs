@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
@@ -28,13 +29,17 @@ namespace Gene.Application.Features.Command.NewCrispriStrain
 
         public async Task<Unit> Handle(NewCrispriStrainCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling NewCrispriStrainCommand: {request}");
             
-            var newCrispriStrain = _mapper.Map<CrispriStrain>(request);
-            
+            request.DateCreated = DateTime.UtcNow;
+            request.IsModified = false;
+
+            var newCrispriCreatedEvent = _mapper.Map<GeneCrispriStrainAddedEvent>(request);
+            newCrispriCreatedEvent.CreatedById = request.RequestorUserId;
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.AddCrispriStrain(newCrispriStrain);
+                aggregate.AddCrispriStrain(newCrispriCreatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)

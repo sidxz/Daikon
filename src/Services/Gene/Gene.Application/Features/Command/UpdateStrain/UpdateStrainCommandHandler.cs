@@ -1,14 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
+using Daikon.Events.Strains;
 using Gene.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
+
 
 namespace Gene.Application.Features.Command.UpdateStrain
 {
@@ -16,36 +14,42 @@ namespace Gene.Application.Features.Command.UpdateStrain
     {
 
         private readonly ILogger<UpdateStrainCommandHandler> _logger;
-
         private readonly IEventSourcingHandler<StrainAggregate> _eventSourcingHandler;
+        private readonly IMapper _mapper;
 
-        public UpdateStrainCommandHandler(ILogger<UpdateStrainCommandHandler> logger, IEventSourcingHandler<StrainAggregate> eventSourcingHandler)
+        public UpdateStrainCommandHandler(ILogger<UpdateStrainCommandHandler> logger,
+                 IEventSourcingHandler<StrainAggregate> eventSourcingHandler,
+                 IMapper mapper
+                 )
         {
             _logger = logger;
             _eventSourcingHandler = eventSourcingHandler;
+            _mapper = mapper;
         }
 
         public async Task<Unit> Handle(UpdateStrainCommand request, CancellationToken cancellationToken)
         {
-            var strain = new Domain.Entities.Strain
-            {
-                Id = request.Id,
-                Name = request.Name,
-                Organism = request.Organism,
-            };
+            _logger.LogInformation("UpdateStrainCommandHandler {request}", request);
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
 
+            var strainUpdatedEvent = _mapper.Map<StrainUpdatedEvent>(request);
+            strainUpdatedEvent.LastModifiedById = request.RequestorUserId;
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);
-                aggregate.UpdateStrain(strain);
+
+                aggregate.UpdateStrain(strainUpdatedEvent);
                 await _eventSourcingHandler.SaveAsync(aggregate);
+
+                return Unit.Value;
             }
             catch (AggregateNotFoundException ex)
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(StrainAggregate), request.Id);
             }
-            return Unit.Value;
+
         }
     }
 }

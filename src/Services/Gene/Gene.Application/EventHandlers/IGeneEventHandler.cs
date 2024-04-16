@@ -40,6 +40,10 @@ namespace Gene.Application.Query.EventHandlers
         Task OnEvent(GeneUnpublishedStructuralInformationAddedEvent @event);
         Task OnEvent(GeneUnpublishedStructuralInformationUpdatedEvent @event);
         Task OnEvent(GeneUnpublishedStructuralInformationDeletedEvent @event);
+
+        Task OnEvent(GeneExpansionPropAddedEvent @event);
+        Task OnEvent(GeneExpansionPropUpdatedEvent @event);
+        Task OnEvent(GeneExpansionPropDeletedEvent @event);
         
         
         
