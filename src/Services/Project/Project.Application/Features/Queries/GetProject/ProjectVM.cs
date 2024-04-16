@@ -13,6 +13,11 @@ namespace Project.Application.Features.Queries.GetProject
         public string ProjectType { get; set; }
         public string LegacyId { get; set; }
         public object Description { get; set; }
+        public object H2LDescription { get; set; }
+        public object LODescription { get; set; }
+        public object SPDescription { get; set; }
+        public object INDDescription { get; set; }
+        public object P1Description { get; set; }
         public object Status { get; set; }
         public bool IsProjectComplete { get; set; }
         public bool IsProjectRemoved { get; set; }

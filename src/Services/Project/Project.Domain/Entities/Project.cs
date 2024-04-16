@@ -11,6 +11,12 @@ namespace Project.Domain.Entities
         public string ProjectType { get; set; }
         public string LegacyId { get; set; }
         public DVariable<string> Description { get; set; }
+
+        public DVariable<string> H2LDescription { get; set; }
+        public DVariable<string> LODescription { get; set; }
+        public DVariable<string> SPDescription { get; set; }
+        public DVariable<string> INDDescription { get; set; }
+        public DVariable<string> P1Description { get; set; }
         public DVariable<string> Status { get; set; }
         public bool IsProjectComplete { get; set; }
         public bool IsProjectRemoved { get; set; }

@@ -89,6 +89,13 @@ namespace Project.Application.Features.Commands.NewProject
                 request.PmPPLastStatusDate = now;
             }
 
+            var IsProjectRemoved = request.IsProjectRemoved ?? false;
+
+            // handle project removal
+            if (IsProjectRemoved == true && existingProject.IsProjectRemoved == false)
+            {
+                request.ProjectRemovedDate = now;
+            }
 
             request.DateModified = now;
             request.IsModified = true;

@@ -50,6 +50,11 @@ namespace Project.Application.Mappings
             CreateMap<Domain.Entities.Project, ProjectVM>()
             // Mapping DVariable<string> types
             .ForMember(dest => dest.Description, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Description)))
+            .ForMember(dest => dest.H2LDescription, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.H2LDescription)))
+            .ForMember(dest => dest.LODescription, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.LODescription)))
+            .ForMember(dest => dest.SPDescription, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.SPDescription)))
+            .ForMember(dest => dest.INDDescription, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.INDDescription)))
+            .ForMember(dest => dest.P1Description, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.P1Description)))
             .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Status)))
             .ForMember(dest => dest.Stage, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Stage)))
 

@@ -16,6 +16,21 @@ namespace Project.Application.Features.Commands.UpdateProject
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Description { get; set; }
+        
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? H2LDescription { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? LODescription { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? SPDescription { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? INDDescription { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? P1Description { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Status { get; set; }
