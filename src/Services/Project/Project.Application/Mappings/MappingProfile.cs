@@ -69,6 +69,16 @@ namespace Project.Application.Mappings
             .ForMember(dest => dest.P1Start, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.P1Start)))
             .ForMember(dest => dest.CompletionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.CompletionDate)))
             .ForMember(dest => dest.ProjectRemovedDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.ProjectRemovedDate)))
+            .ForMember(dest => dest.Priority, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Priority)))
+            .ForMember(dest => dest.Probability, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.Probability)))
+            .ForMember(dest => dest.PriorityNote, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.PriorityNote)))
+            .ForMember(dest => dest.ProbabilityNote, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.ProbabilityNote)))
+            .ForMember(dest => dest.PPLastStatusDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.PPLastStatusDate)))
+            .ForMember(dest => dest.PmPriority, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.PmPriority)))
+            .ForMember(dest => dest.PmProbability, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.PmProbability)))
+            .ForMember(dest => dest.PmPriorityNote, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.PmPriorityNote)))
+            .ForMember(dest => dest.PmProbabilityNote, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<string>, string>(src => src.PmProbabilityNote)))
+            .ForMember(dest => dest.PmPPLastStatusDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Project, IValueProperty<DateTime>, DateTime>(src => src.PmPPLastStatusDate)))
             .ReverseMap();
 
 

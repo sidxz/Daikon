@@ -32,6 +32,40 @@ namespace Project.Application.Features.Commands.UpdateProject
         public List<Guid>? ParticipatingOrgs { get; set; }
 
 
+        /* Priority */
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Priority { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Probability { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PriorityNote { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? ProbabilityNote { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? PPLastStatusDate { get; set; }
+
+        /* Project Manager */
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PmPriority { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PmProbability { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PmPriorityNote { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PmProbabilityNote { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? PmPPLastStatusDate { get; set; }
+
+
 
         /* Dates */
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]

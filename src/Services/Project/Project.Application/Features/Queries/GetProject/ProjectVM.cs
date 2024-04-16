@@ -26,6 +26,22 @@ namespace Project.Application.Features.Queries.GetProject
         public Guid HitId { get; set; }
 
 
+        /* Priority */
+        public object Priority { get; set; }
+        public object Probability { get; set; }
+        public object PriorityNote { get; set; }
+        public object ProbabilityNote { get; set; }
+        public object PPLastStatusDate { get; set; }
+
+        /* Project Manager */
+
+        public object PmPriority { get; set; }
+        public object PmProbability { get; set; }
+        public object PmPriorityNote { get; set; }
+        public object PmProbabilityNote { get; set; }
+        public object PmPPLastStatusDate { get; set; }
+
+
         /* Orgs */
         public object PrimaryOrgId { get; set; }
         public List<Guid> ParticipatingOrgs { get; set; }

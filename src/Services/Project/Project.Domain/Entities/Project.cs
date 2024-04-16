@@ -28,6 +28,22 @@ namespace Project.Domain.Entities
         public DVariable<Guid> PrimaryOrgId { get; set; }
         public List<Guid> ParticipatingOrgs { get; set; }
 
+        /* Priority */
+        public DVariable<string> Priority { get; set; }
+        public DVariable<string> Probability { get; set; }
+        public DVariable<string> PriorityNote { get; set; }
+        public DVariable<string> ProbabilityNote { get; set; }
+        public DVariable<DateTime> PPLastStatusDate { get; set; }
+
+        /* Project Manager */
+
+        public DVariable<string> PmPriority { get; set; }
+        public DVariable<string> PmProbability { get; set; }
+        public DVariable<string> PmPriorityNote { get; set; }
+        public DVariable<string> PmProbabilityNote { get; set; }
+        public DVariable<DateTime> PmPPLastStatusDate { get; set; }
+
+
 
         /* Dates */
         public DVariable<DateTime> H2LPredictedStart { get; set; }
@@ -42,6 +58,7 @@ namespace Project.Domain.Entities
         public DVariable<DateTime> P1Start { get; set; }
         public DateTime ProjectStatusDate { get; set; }
         public DateTime TerminationDate { get; set; }
+        public DateTime RemovalDate { get; set; }
         public DVariable<DateTime> CompletionDate { get; set; }
         public DVariable<DateTime> ProjectRemovedDate { get; set; }
 

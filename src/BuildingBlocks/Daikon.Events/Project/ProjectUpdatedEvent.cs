@@ -22,6 +22,22 @@ namespace Daikon.Events.Project
         public bool IsProjectRemoved { get; set; }
 
 
+        /* Priority */
+        public DVariable<string> Priority { get; set; }
+        public DVariable<string> Probability { get; set; }
+        public DVariable<string> PriorityNote { get; set; }
+        public DVariable<string> ProbabilityNote { get; set; }
+        public DVariable<DateTime> PPLastStatusDate { get; set; }
+
+        /* Project Manager */
+
+        public DVariable<string> PmPriority { get; set; }
+        public DVariable<string> PmProbability { get; set; }
+        public DVariable<string> PmPriorityNote { get; set; }
+        public DVariable<string> PmProbabilityNote { get; set; }
+        public DVariable<DateTime> PmPPLastStatusDate { get; set; }
+
+
         /* Orgs */
         public DVariable<Guid>? PrimaryOrgId { get; set; }
         public List<Guid>? ParticipatingOrgs { get; set; }
