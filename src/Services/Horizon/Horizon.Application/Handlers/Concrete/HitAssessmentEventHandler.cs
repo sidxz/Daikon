@@ -51,6 +51,7 @@ namespace Horizon.Application.Handlers
 
         public Task OnEvent(HaUpdatedEvent @event)
         {
+            _logger.LogInformation($"Horizon: HaUpdatedEvent: {@event.Id} {@event.Name}");
             var hitAssessment = new HitAssessment
             {
                 UniId = @event.Id.ToString(),

@@ -70,6 +70,34 @@ namespace Project.Application.EventHandlers
             }
         }
 
+        public async Task OnEvent(ProjectAssociationUpdatedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: ProjectAssociationUpdatedEvent: {Id}", @event.Id);
+            var existingProject = await _projectRepository.ReadProjectById(@event.Id);
+
+            if (existingProject == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ProjectUpdatedEvent Error updating project {@event.Id}", new Exception("Project not found"));
+            }
+
+            var project = _mapper.Map<Domain.Entities.Project>(existingProject);
+            _mapper.Map(@event, project);
+
+            project.DateCreated = existingProject.DateCreated;
+
+            project.DateModified = DateTime.UtcNow;
+            project.IsModified = true;
+
+            try
+            {
+                await _projectRepository.UpdateProject(project);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ProjectUpdatedEvent Error updating project {@event.Id}", ex);
+            }
+        }
+
         public async Task OnEvent(ProjectDeletedEvent @event)
         {
             _logger.LogInformation("OnEvent: ProjectDeletedEvent: {Id}", @event.Id);

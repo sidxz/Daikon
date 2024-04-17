@@ -39,6 +39,7 @@ namespace Project.Infrastructure.Query.Converters
                 "ProjectCompoundEvolutionAddedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionAddedEvent>(json, options),
                 "ProjectCompoundEvolutionUpdatedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionUpdatedEvent>(json, options),
                 "ProjectCompoundEvolutionDeletedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionDeletedEvent>(json, options),
+                "ProjectAssociationUpdatedEvent" => JsonSerializer.Deserialize<ProjectAssociationUpdatedEvent>(json, options),
 
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),
             };

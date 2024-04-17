@@ -46,6 +46,8 @@ namespace Project.Infrastructure
             BsonClassMap.RegisterClassMap<ProjectCompoundEvolutionUpdatedEvent>();
             BsonClassMap.RegisterClassMap<ProjectCompoundEvolutionDeletedEvent>();
 
+            BsonClassMap.RegisterClassMap<ProjectAssociationUpdatedEvent>();
+
 
             /* Event Database */
             var eventDatabaseSettings = new EventDatabaseSettings

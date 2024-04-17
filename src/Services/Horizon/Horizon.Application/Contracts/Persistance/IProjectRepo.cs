@@ -12,5 +12,6 @@ namespace Horizon.Application.Contracts.Persistance
         Task Create(Project project);
         Task Update(Project project);
         Task Delete(string projectId);
+        Task UpdateHitAssessmentAssociation(Project project);
     }
 }
