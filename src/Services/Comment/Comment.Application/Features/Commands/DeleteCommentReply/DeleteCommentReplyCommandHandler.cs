@@ -30,12 +30,12 @@ namespace Comment.Application.Features.Commands.DeleteCommentReply
 
         public async Task<Unit> Handle(DeleteCommentReplyCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling DeleteCommentReplyCommand: {request}");
             try
             {
                 var commentReplyDeletedEvent = _mapper.Map<CommentReplyDeletedEvent>(request);
 
                 var aggregate = await _commentEventSourcingHandler.GetByAsyncId(request.Id);
-
                 aggregate.DeleteCommentReply(commentReplyDeletedEvent);
 
                 await _commentEventSourcingHandler.SaveAsync(aggregate);

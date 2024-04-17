@@ -1,0 +1,27 @@
+# Use the SDK image for development, as it includes all necessary tools
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Expose the ports your application uses
+EXPOSE 5005
+
+# Core Services
+COPY ["BuildingBlocks/CQRS.Core/CQRS.Core.csproj", "BuildingBlocks/CQRS.Core/"]
+COPY ["BuildingBlocks/Daikon.Events/Daikon.Events.csproj", "BuildingBlocks/Daikon.Events/"]
+COPY ["BuildingBlocks/Daikon.EventStore/Daikon.EventStore.csproj", "BuildingBlocks/Daikon.EventStore/"]
+COPY ["BuildingBlocks/Daikon.VersionStore/Daikon.VersionStore.csproj", "BuildingBlocks/Daikon.VersionStore/"]
+
+# Comment Services
+COPY ["Services/Comment/Comment.API/Comment.API.csproj", "Services/Comment/Comment.API/"]
+COPY ["Services/Comment/Comment.Application/Comment.Application.csproj", "Services/Comment/Comment.Application/"]
+COPY ["Services/Comment/Comment.Domain/Comment.Domain.csproj", "Services/Comment/Comment.Domain/"]
+COPY ["Services/Comment/Comment.Infrastructure/Comment.Infrastructure.csproj", "Services/Comment/Comment.Infrastructure/"]
+
+RUN dotnet restore "Services/Comment/Comment.API/Comment.API.csproj"
+
+WORKDIR "/app/Services/Comment/Comment.API"
+
+# Entry point for the application
+ENTRYPOINT ["dotnet", "watch", "run"]

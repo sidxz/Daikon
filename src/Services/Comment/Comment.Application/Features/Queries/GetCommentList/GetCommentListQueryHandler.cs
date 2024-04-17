@@ -18,16 +18,9 @@ namespace Comment.Application.Features.Queries.GetCommentList
 
         public async Task<List<CommentListVM>> Handle(GetCommentListQuery request, CancellationToken cancellationToken)
         {
-            try
-            {
-                var commentS = await _commentRepository.GetCommentList();
+            var allComments = (await _commentRepository.ListAll()).OrderBy(x => x.Topic);
+            return _mapper.Map<List<CommentListVM>>(allComments);
 
-                return _mapper.Map<List<CommentListVM>>(commentS);
-            }
-            catch (RepositoryException ex)
-            {
-                throw new Exception("Error in Comment Repository", ex);
-            }
         }
 
     

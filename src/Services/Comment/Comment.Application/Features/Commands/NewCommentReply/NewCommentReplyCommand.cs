@@ -8,13 +8,14 @@ namespace Comment.Application.Features.Commands.NewCommentReply
 {
     public class NewCommentReplyCommand : BaseCommand, IRequest<Unit>
     {
+        public Guid CommentId { get; set; }
         public Guid ReplyId { get; set; }
 
-        public Guid ResourceId { get; set; }
-
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string>? Body { get; set; }
-        public string? PostedBy { get; set; }
+        public DVariable<string> Body { get; set; }
+        public HashSet<string>? Tags { get; set; }
+        public HashSet<Guid>? Mentions { get; set; }
+        public HashSet<Guid>? Subscribers { get; set; }
 
     }
 }

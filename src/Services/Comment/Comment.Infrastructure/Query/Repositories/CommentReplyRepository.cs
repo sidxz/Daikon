@@ -28,7 +28,7 @@ namespace Comment.Infrastructure.Query.Repositories
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task CreateCommentReply(CommentReply commentReply)
+        public async Task Create(CommentReply commentReply)
         {
 
             ArgumentNullException.ThrowIfNull(commentReply);
@@ -46,7 +46,7 @@ namespace Comment.Infrastructure.Query.Repositories
             }
         }
 
-        public async Task<CommentReply> ReadCommentReplyById(Guid id)
+        public async Task<CommentReply> ReadById(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);
             try
@@ -61,7 +61,39 @@ namespace Comment.Infrastructure.Query.Repositories
             }
         }
 
-        public async Task DeleteCommentReply(Guid id)
+    
+        public async Task<List<CommentReply>> ListByCommentId(Guid CommentId)
+        {
+            ArgumentNullException.ThrowIfNull(CommentId);
+            try
+            {
+                _logger.LogInformation("ListByCommentId: Getting commentReply list of comment {CommentId}", CommentId);
+                return await _commentReplyCollection.Find(commentReply => commentReply.CommentId == CommentId).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the replies of comment with ID {CommentId}", CommentId);
+                throw new RepositoryException(nameof(CommentReplyRepository), "Error getting commentReply list", ex);
+            }
+        }
+
+       public async Task Update(CommentReply commentReply)
+       {
+        ArgumentNullException.ThrowIfNull(commentReply);
+        try
+            {
+                _logger.LogInformation("Update: Updating commentReply {CommentReplyId}, {CommentReply}", commentReply.Id, commentReply.ToJson());
+                await _commentReplyCollection.ReplaceOneAsync(t => t.Id == commentReply.Id, commentReply);
+                await _versionHub.CommitVersion(commentReply);
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the commentReply with ID {CommentReplyId}", commentReply.Id);
+                throw new RepositoryException(nameof(CommentReplyRepository), "Error updating commentReply", ex);
+            }
+       }
+
+       public async Task Delete(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);
             try
@@ -77,38 +109,22 @@ namespace Comment.Infrastructure.Query.Repositories
             }
         }
 
-        public async Task<List<CommentReply>> GetCommentReplyOfComment(Guid CommentId)
+        public async Task DeleteAllByCommentId(Guid CommentId)
         {
             ArgumentNullException.ThrowIfNull(CommentId);
             try
             {
-                _logger.LogInformation("GetCommentReplyOfComment: Getting commentReply list of comment {CommentId}", CommentId);
-                return await _commentReplyCollection.Find(commentReply => commentReply.CommentId == CommentId).ToListAsync();
+                _logger.LogInformation("DeleteAllByCommentId: Deleting commentReply list of comment {CommentId}", CommentId);
+                await _commentReplyCollection.DeleteManyAsync(commentReply => commentReply.CommentId == CommentId);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while getting the commentReply of comment with ID {CommentId}", CommentId);
-                throw new RepositoryException(nameof(CommentReplyRepository), "Error getting commentReply list", ex);
+                _logger.LogError(ex, "An error occurred while deleting the replies of comment with ID {CommentId}", CommentId);
+                throw new RepositoryException(nameof(CommentReplyRepository), "Error deleting commentReply list", ex);
             }
         }
 
-       public async Task UpdateCommentReply(CommentReply commentReply)
-       {
-        ArgumentNullException.ThrowIfNull(commentReply);
-        try
-            {
-                _logger.LogInformation("UpdateCommentReply: Updating commentReply {CommentReplyId}, {CommentReply}", commentReply.Id, commentReply.ToJson());
-                await _commentReplyCollection.ReplaceOneAsync(t => t.Id == commentReply.Id, commentReply);
-                await _versionHub.CommitVersion(commentReply);
-            }
-            catch (MongoException ex)
-            {
-                _logger.LogError(ex, "An error occurred while updating the commentReply with ID {CommentReplyId}", commentReply.Id);
-                throw new RepositoryException(nameof(CommentReplyRepository), "Error updating commentReply", ex);
-            }
-       }
-
-       public async Task<CommentReplyRevision> GetCommentReplyRevisions(Guid Id)
+       public async Task<CommentReplyRevision> GetRevisions(Guid Id)
         {
             var commentReplyRevision = await _versionHub.GetVersions(Id);
             return commentReplyRevision;

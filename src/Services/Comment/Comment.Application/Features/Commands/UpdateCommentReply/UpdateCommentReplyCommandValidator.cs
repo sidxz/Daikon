@@ -7,8 +7,6 @@ namespace Comment.Application.Features.Commands.UpdateCommentReply
         public UpdateCommentReplyCommandValidator()
         {
             
-            RuleFor(t => t.ResourceId)
-            .NotEmpty().WithMessage("{ResourceId} is required");
 
         }
     }

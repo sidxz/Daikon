@@ -71,7 +71,6 @@ namespace Comment.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> UpdateCommentReply(Guid commentId, Guid id, UpdateCommentReplyCommand command)
         {
-            command.ResourceId = commentId;
             command.ReplyId = id;
             try
             {

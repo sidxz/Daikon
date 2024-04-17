@@ -3,10 +3,10 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.Comment;
 using Comment.Application.Contracts.Persistence;
-using Comment.Application.Features.Commands.UpdateComment;
 using Comment.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using CQRS.Core.Domain;
 
 namespace Comment.Application.Features.Commands.UpdateComment
 {
@@ -30,12 +30,26 @@ namespace Comment.Application.Features.Commands.UpdateComment
 
         public async Task<Unit> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
         {
+
+            _logger.LogInformation($"Handling UpdateCommentCommand: {request}");
+
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+
+            request.Tags ??= [];
+            request.Mentions ??= [];
+            request.Subscribers ??= [];
+
+            request.Description ??= new DVariable<string>(string.Empty);
+            request.IsCommentLocked ??= false;
+
+
             var commentUpdatedEvent = _mapper.Map<CommentUpdatedEvent>(request);
+            commentUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {
                 var aggregate = await _commentEventSourcingHandler.GetByAsyncId(request.Id);
-
                 aggregate.UpdateComment(commentUpdatedEvent);
 
                 await _commentEventSourcingHandler.SaveAsync(aggregate);
@@ -44,12 +58,6 @@ namespace Comment.Application.Features.Commands.UpdateComment
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(CommentAggregate), request.Id); ;
-            }
-
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while handling UpdateCommentCommandHandler");
-                throw;
             }
 
             return Unit.Value;

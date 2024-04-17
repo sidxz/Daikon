@@ -239,7 +239,52 @@ services:
     ports:
       - "8007:80"
 
-  
+
+  Questionnaire.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "QuestionnaireMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "QuestionnaireMongoDbSettings:DatabaseName=Project"
+
+    ports:
+      - "8008:80"
+
+
+  Comment.API:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "EventDatabaseSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      - "KafkaProducerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaProducerSettings:Topic=daikon-core-events"
+
+      - "CommentMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
+      - "CommentMongoDbSettings:DatabaseName=Comments"
+
+      - "CommentMongoDbSettings:CommentCollectionName=Comments"
+      - "CommentMongoDbSettings:CommentRevisionCollectionName=CommentsRevisions"
+
+      - "CommentMongoDbSettings:CommentReplyCollectionName=CommentReplies"
+      - "CommentMongoDbSettings:CommentReplyRevisionCollectionName=CommentReplyRevisions"
+
+      - "KafkaConsumerSettings:BootstrapServers=Kafka:9092"
+      - "KafkaConsumerSettings:Topics=daikon-core-events"
+      - "KafkaConsumerSettings:GroupId=comment-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+
+    ports:
+      - "8009:80"
 
   UserStore.API:
     environment:
@@ -297,6 +342,7 @@ services:
       - "EndPointRouting:roles=http://UserStore.API"
       - "EndPointRouting:user=http://UserStore.API"
       - "EndPointRouting:questionnaire=http://Questionnaire.API"
+      - "EndPointRouting:comment=http://Comment.API"
       - "EndPointRouting:mol-db=http://MolDb.API"
 
       
@@ -316,13 +362,4 @@ services:
       - "8101:80"
 
 
-  Questionnaire.API:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-
-      - "QuestionnaireMongoDbSettings:ConnectionString=mongodb://admin:password@EventStoreDb:27017"
-      - "QuestionnaireMongoDbSettings:DatabaseName=Project"
-
-    ports:
-      - "8008:80"
+  

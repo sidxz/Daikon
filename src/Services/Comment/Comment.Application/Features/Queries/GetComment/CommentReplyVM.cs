@@ -1,15 +1,17 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using CQRS.Core.Domain;
 
-namespace Comment.Domain.Entities
+namespace Comment.Application.Features.Queries.GetComment
 {
-    public class CommentReply : BaseEntity
+    public class CommentReplyVM :DocMetadata
     {
-        public Guid CommentId { get; set; }
-        public Guid ReplyId { get; set; }
+        public Guid Id { get; set; }
         public DVariable<string> Body { get; set; }
         public HashSet<string> Tags { get; set; }
         public HashSet<Guid> Mentions { get; set; }
         public HashSet<Guid> Subscribers { get; set; }
-        
     }
 }
