@@ -1,3 +1,4 @@
+using CQRS.Core.Domain;
 using CQRS.Core.Event;
 namespace Daikon.Events.Comment
 {
@@ -7,10 +8,11 @@ namespace Daikon.Events.Comment
         {
 
         }
+        public Guid CommentId { get; set; }
         public Guid ReplyId { get; set; }
-        public Guid ResourceId { get; set; }
-        public string? Body { get; set; }
-        public string? PostedBy { get; set; }
-
+        public DVariable<string> Body { get; set; }
+        public HashSet<string>? Tags { get; set; }
+        public HashSet<Guid>? Mentions { get; set; }
+        public HashSet<Guid>? Subscribers { get; set; }
     }
 }
