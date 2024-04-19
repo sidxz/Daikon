@@ -1,4 +1,5 @@
 
+using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
 using CQRS.Core.Event;
@@ -82,9 +83,29 @@ namespace Screen.Infrastructure
             /* Kafka Producer */
             var kafkaProducerSettings = new KafkaProducerSettings
             {
-                BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers") ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers)),
-                Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic") ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic))
+                BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers") 
+                                            ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers)),
+                Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic") 
+                                            ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic)),
+
+                SecurityProtocol = Enum.Parse<SecurityProtocol>(configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol")?? ""),
+                SaslMechanism = SaslMechanism.Plain,
+                SaslUsername = "$ConnectionString",
+                SaslPassword = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString"),
             };
+
+            var kafkaProducerSecurityProtocol = configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol");
+            if (!string.IsNullOrEmpty(kafkaProducerSecurityProtocol))
+            {
+                kafkaProducerSettings.SecurityProtocol = Enum.Parse<SecurityProtocol>(kafkaProducerSecurityProtocol);
+            }
+            var kafkaProducerConnectionString = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString");
+            if (!string.IsNullOrEmpty(kafkaProducerConnectionString))
+            {
+                kafkaProducerSettings.SaslMechanism = SaslMechanism.Plain;
+                kafkaProducerSettings.SaslUsername = "$ConnectionString";
+                kafkaProducerSettings.SaslPassword = kafkaProducerConnectionString;
+            }
             services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
 
             services.AddScoped<IEventProducer, EventProducer>();
