@@ -29,6 +29,20 @@ namespace Target.Application.Features.Commands.SubmitTPQ
             {
                 _logger.LogInformation($"Handling SubmitTPQCommand: {request.ToJson()}");
 
+                /*public List<(string QIdentification, string Answer, string Description)> Response { get; set; }
+                public List<Tuple<string, string, string>> Response { get; set; }
+                capitalize QIdentification and Answer
+                */
+                if (request.Response != null) // Check if the response is not null
+                {
+                    request.Response = request.Response.Select(tuple =>
+                        new Tuple<string, string, string>(
+                            tuple.Item1?.ToUpper() ?? "", // Safely capitalize QIdentification, default to empty if null
+                            tuple.Item2?.ToUpper() ?? "", // Safely capitalize Answer, default to empty if null
+                            tuple.Item3 ?? "" // Provide default empty if Description is null
+                        )).ToList();
+                }
+
                 var tpqSubmittedEvent = _mapper.Map<TargetPromotionQuestionnaireSubmittedEvent>(request);
 
                 tpqSubmittedEvent.IsVerified = false;

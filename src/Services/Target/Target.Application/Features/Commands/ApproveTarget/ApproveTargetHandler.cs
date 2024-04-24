@@ -52,14 +52,22 @@ namespace Target.Application.Features.Commands.ApproveTarget
             }
 
             // Create the target
-            var newTargetCommand = new NewTargetCommand
-            {
-                Id = request.Id,
-                StrainId = request.StrainId,
-                Name = request.TargetName,
-                AssociatedGenes = request.AssociatedGenes,
-                TargetType = request.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein  
-            };
+            // var newTargetCommand = new NewTargetCommand
+            // {
+            //     Id = request.Id,
+            //     StrainId = request.StrainId,
+            //     Name = request.TargetName,
+            //     AssociatedGenes = request.AssociatedGenes,
+            //     TargetType = request.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein  
+            // };
+
+            var newTargetCommand = _mapper.Map<NewTargetCommand>(request);
+            newTargetCommand.Id = request.Id;
+            newTargetCommand.StrainId = request.StrainId;
+            newTargetCommand.Name = request.TargetName;
+            newTargetCommand.AssociatedGenes = request.AssociatedGenes;
+            newTargetCommand.TargetType = request.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein;
+
 
             await _mediator.Send(newTargetCommand, cancellationToken);
             _logger.LogInformation(" +++++++++++++++++ New Target created with Name {TargetName}", request.TargetName);

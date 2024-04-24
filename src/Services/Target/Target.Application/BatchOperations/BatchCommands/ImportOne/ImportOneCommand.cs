@@ -8,15 +8,17 @@ using CQRS.Core.Converters;
 using CQRS.Core.Domain;
 using MediatR;
 
-namespace Target.Application.Features.Commands.ApproveTarget
+namespace Target.Application.BatchOperations.BatchCommands.ImportOne
 {
-    public class ApproveTargetCommand : BaseCommand, IRequest<Unit>
+    public class ImportOneCommand : BaseCommand, IRequest<Unit>
     {
-        public Guid TPQId { get; set; }
-        public List<Tuple<string, string, string>> Response { get; set; }
+        public Guid? RequestedBy { get; set; }
+        public string Name { get; set; }
+        public Dictionary<string, string>? RequestedAssociatedGenes { get; set; }
         public Guid StrainId { get; set; }
-        public string TargetName { get; set; }
-        public Dictionary<string, string>? AssociatedGenes { get; set; }
+        //public List<(string QIdentification, string Answer, string Description)> Response { get; set; }
+        public List<Tuple<string, string, string>> Response { get; set; }
+
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Bucket { get; set; }
