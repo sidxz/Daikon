@@ -26,6 +26,8 @@ namespace Screen.Application.Mappings
     {
         public MappingProfile()
         {
+            /* Views */
+            CreateMap<Domain.Entities.Hit, Features.Views.GetHitProperties.HitPropertiesVM>().ReverseMap();
 
             /* Commands */
             CreateMap<ScreenCreatedEvent, NewScreenCommand>().ReverseMap();
