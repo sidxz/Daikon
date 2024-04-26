@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Comment.Application.Contracts.Persistence;
 using Comment.Domain.EntityRevisions;
+using MongoDB.Bson;
+using System.Text.RegularExpressions;
 
 namespace Comment.Infrastructure.Query.Repositories
 {
@@ -114,7 +116,9 @@ namespace Comment.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _commentCollection.Find(comment => comment.Tags.Any(tag => tags.Contains(tag))).ToListAsync();
+                var regexFilters = tags.Select(tag => Builders<Domain.Entities.Comment>.Filter.Regex("Tags", new BsonRegularExpression(tag, "i"))).ToList();
+                var combinedFilter = Builders<Domain.Entities.Comment>.Filter.Or(regexFilters);
+                return await _commentCollection.Find(combinedFilter).ToListAsync();
             }
             catch (MongoException ex)
             {
