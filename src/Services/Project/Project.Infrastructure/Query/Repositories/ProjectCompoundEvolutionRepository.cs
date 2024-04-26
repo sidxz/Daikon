@@ -24,6 +24,11 @@ namespace Project.Infrastructure.Query.Repositories
             _projectCompoundEvoCollection = database.GetCollection<ProjectCompoundEvolution>(configuration.GetValue<string>("ProjectMongoDbSettings:ProjectCompoundEvolutionCollectionName"));
             _projectCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<ProjectCompoundEvolution>(Builders<ProjectCompoundEvolution>.IndexKeys.Ascending(t => t.ProjectId), new CreateIndexOptions { Unique = false }));
 
+            _projectCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<ProjectCompoundEvolution>(
+                                                Builders<ProjectCompoundEvolution>.IndexKeys.Descending(t => t.EvolutionDate.Value),
+                                                new CreateIndexOptions { Unique = false }));
+
+
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

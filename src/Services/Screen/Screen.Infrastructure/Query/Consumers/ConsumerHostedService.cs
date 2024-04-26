@@ -50,7 +50,7 @@ namespace Screen.Infrastructure.Query.Consumers
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("[Starting] screen consumer hosted service for topic: {@topic}", _topic);
+            _logger.LogInformation("[Starting] Screen consumer hosted service for topic: {@topic}", _topic);
 
             var scope = _serviceProvider.CreateScope(); // Store scope to dispose of later
             var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
@@ -77,7 +77,7 @@ namespace Screen.Infrastructure.Query.Consumers
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("[Stopping] screen consumer hosted service");
+            _logger.LogInformation("[Stopping] Screen consumer hosted service");
             return Task.CompletedTask;
         }
     }

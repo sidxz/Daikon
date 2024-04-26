@@ -5,6 +5,7 @@ using Comment.Application.Contracts.Persistence;
 using Comment.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using CQRS.Core.Domain;
 
 namespace Comment.Application.Features.Commands.NewComment
 {
@@ -31,18 +32,21 @@ namespace Comment.Application.Features.Commands.NewComment
             try
             {
                 _logger.LogInformation($"Handling NewCommentCommand: {request}");
+                
+                request.DateCreated = DateTime.UtcNow;
+                request.IsModified = false;
 
-                // check if Id exists
-                var existingComment = await _commentRepository.ReadCommentById(request.Id);
-                if (existingComment != null)
-                {
-                    _logger.LogWarning("Comment Id already exists: {Id}", request.Id);
-                    throw new InvalidOperationException("Comment Id already exists");
-                }
+                request.Tags ??= [];
+                request.Mentions ??= [];
+                request.Subscribers ??= [];
 
-                var newCommentCreatedEvent = _mapper.Map<CommentCreatedEvent>(request);
+                request.Description ??= new DVariable<string>(string.Empty);
+                request.IsCommentLocked ??= false;
 
-                var aggregate = new CommentAggregate(newCommentCreatedEvent);
+                var commentCreatedEvent = _mapper.Map<CommentCreatedEvent>(request);
+                commentCreatedEvent.CreatedById = request.RequestorUserId;
+
+                var aggregate = new CommentAggregate(commentCreatedEvent);
 
                 await _commentEventSourcingHandler.SaveAsync(aggregate);
 

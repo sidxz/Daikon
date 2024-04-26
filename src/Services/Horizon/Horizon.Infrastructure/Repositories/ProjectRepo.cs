@@ -210,5 +210,107 @@ namespace Horizon.Infrastructure.Repositories
                 throw new RepositoryException(nameof(ProjectRepo), "Error Updating Project In Graph", ex);
             }
         }
+
+        public async Task UpdateHitAssessmentAssociation(Project project)
+        {
+            try
+            {
+                _logger.LogInformation("UpdateHitAssessmentAssociation with UniId: {UniId}", project.UniId);
+                // delete previous associations
+                var deleteHaQuery = @"
+                MATCH (p:Project { uniId: $uniId})-[r:PROJECT_OF]->(:HitAssessment)
+                DELETE r
+            ";
+                var deleteHaParameters = new
+                {
+                    uniId = project.UniId,
+                };
+
+                var (deleteHaQueryResults, _) = await _driver.ExecutableQuery(deleteHaQuery).WithParameters(deleteHaParameters).ExecuteAsync();
+
+                // Now set the relationship with the HitAssessment
+                if (!string.IsNullOrEmpty(project.HitAssessmentId))
+                {
+                    var hcRelQuery = @"
+                    MATCH (p:Project { uniId: $uniId})
+                    MATCH (ha:HitAssessment { uniId: $hitAssessmentId})
+                    MERGE (p)-[:PROJECT_OF]->(ha)
+                    ";
+
+                    var hcRelParameters = new
+                    {
+                        uniId = project.UniId,
+                        hitAssessmentId = project.HitAssessmentId
+                    };
+
+                    var (hcRelQueryResults, _) = await _driver.ExecutableQuery(hcRelQuery).WithParameters(hcRelParameters).ExecuteAsync();
+                }
+
+
+                // Now delete the relationship with the Primary Molecule
+                var deletePmRelQuery = @"
+                MATCH (p:Project { uniId: $uniId})-[r:PRIMARY_MOLECULE]->(:Molecule)
+                DELETE r
+            ";
+                var deletePmRelParameters = new
+                {
+                    uniId = project.UniId,
+                };
+
+                var (deletePmRelQueryResults, _) = await _driver.ExecutableQuery(deletePmRelQuery).WithParameters(deletePmRelParameters).ExecuteAsync();
+
+                // Now set the relationship with the Primary Molecule
+                if (!string.IsNullOrEmpty(project.PrimaryMoleculeId))
+                {
+                    var pmRelQuery = @"
+                    MATCH (p:Project { uniId: $uniId})
+                    MATCH (m:Molecule { uniId: $primaryMoleculeId})
+                    MERGE (p)-[:PRIMARY_MOLECULE ]->(m)
+                    ";
+                    var pmRelParameters = new
+                    {
+                        uniId = project.UniId,
+                        primaryMoleculeId = project.PrimaryMoleculeId
+                    };
+
+                    var (pmRelQueryResults, _) = await _driver.ExecutableQuery(pmRelQuery).WithParameters(pmRelParameters).ExecuteAsync();
+                }
+
+                // Now delete the relationship with the Hit Molecule
+                var deleteAmRelQuery = @"
+                MATCH (p:Project { uniId: $uniId})-[r:INITIAL_HIT_MOLECULE]->(:Molecule)
+                DELETE r
+            ";
+                var deleteAmRelParameters = new
+                {
+                    uniId = project.UniId,
+                };
+
+                var (deleteAmRelQueryResults, _) = await _driver.ExecutableQuery(deleteAmRelQuery).WithParameters(deleteAmRelParameters).ExecuteAsync();
+
+                // Now set the relationship with the Hit Molecule
+                if (!string.IsNullOrEmpty(project.HitMoleculeId))
+                {
+                    var amRelQuery = @"
+                    MATCH (p:Project { uniId: $uniId})
+                    MATCH (m:Molecule { uniId: $hitMoleculeId})
+                    MERGE (p)-[:INITIAL_HIT_MOLECULE ]->(m)
+                    ";
+                    var amRelParameters = new
+                    {
+                        uniId = project.UniId,
+                        hitMoleculeId = project.HitMoleculeId
+                    };
+
+                    var (amRelQueryResults, _) = await _driver.ExecutableQuery(amRelQuery).WithParameters(amRelParameters).ExecuteAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in UpdateHitAssessmentAssociation");
+                throw new RepositoryException(nameof(ProjectRepo), "Error Updating UpdateHitAssessmentAssociation In Graph", ex);
+            }
+        }
     }
+
 }

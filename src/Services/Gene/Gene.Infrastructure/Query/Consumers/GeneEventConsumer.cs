@@ -41,11 +41,27 @@ namespace Gene.Infrastructure.Query.Consumers
             _config = new ConsumerConfig
             {
                 BootstrapServers = configuration.GetValue<string>("KafkaConsumerSettings:BootstrapServers"),
+
                 GroupId = configuration.GetValue<string>("KafkaConsumerSettings:GroupId"),
                 AutoOffsetReset = Enum.Parse<AutoOffsetReset>(configuration.GetValue<string>("KafkaConsumerSettings:AutoOffsetReset") ?? "Earliest"),
                 EnableAutoCommit = configuration.GetValue<bool>("KafkaConsumerSettings:EnableAutoCommit"),
-                AllowAutoCreateTopics = configuration.GetValue<bool>("KafkaConsumerSettings:AllowAutoCreateTopics")
+                AllowAutoCreateTopics = configuration.GetValue<bool>("KafkaConsumerSettings:AllowAutoCreateTopics"),
+
             };
+
+            var securityProtocol = configuration.GetValue<string>("KafkaConsumerSettings:SecurityProtocol");
+            if (!string.IsNullOrEmpty(securityProtocol))
+            {
+                _config.SecurityProtocol = Enum.Parse<SecurityProtocol>(securityProtocol);
+            }
+
+            var connectionString = configuration.GetValue<string>("KafkaConsumerSettings:ConnectionString");
+            if (!string.IsNullOrEmpty(connectionString))
+            {
+                _config.SaslMechanism = SaslMechanism.Plain;
+                _config.SaslUsername = "$ConnectionString"; 
+                _config.SaslPassword = connectionString;
+            }
 
             _geneEventHandler = geneEventHandler;
             _strainEventHandler = strainEventHandler;

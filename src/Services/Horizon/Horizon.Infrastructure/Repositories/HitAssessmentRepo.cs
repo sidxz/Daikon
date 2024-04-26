@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using CQRS.Core.Exceptions;
 using Horizon.Application.Contracts.Persistance;
@@ -167,7 +168,12 @@ namespace Horizon.Infrastructure.Repositories
 
         public Task Update(HitAssessment hitAssessment)
         {
-            var query = @"
+            _logger.LogInformation("Updating HitAssessment with UniId: {UniId}", hitAssessment.UniId);
+            // var jsonVal = System.Text.Json.JsonSerializer.Serialize(hitAssessment);
+            // _logger.LogInformation("Updating HitAssessment with UniId: {UniId} {jsonVal}", hitAssessment.UniId, jsonVal);
+            try
+            {
+                var query = @"
                 MATCH (ha:HitAssessment { uniId: $uniId})
                 SET 
                     ha.name = $name, 
@@ -175,22 +181,30 @@ namespace Horizon.Infrastructure.Repositories
                     ha.orgId = $orgId, 
                     ha.isHAComplete = $isHAComplete, 
                     ha.isHASuccess = $isHASuccess, 
-                    ha.dateModified = $dateModified
+                    ha.dateModified = $dateModified,
                     ha.isModified = $isModified
             ";
-            var parameters = new
-            {
-                uniId = hitAssessment.HitAssessmentId,
-                name = hitAssessment.Name,
-                status = hitAssessment.Status,
-                orgId = hitAssessment.OrgId,
-                isHAComplete = hitAssessment.IsHAComplete,
-                isHASuccess = hitAssessment.IsHASuccess,
-                dateModified = hitAssessment.DateModified,
-                isModified = hitAssessment.IsModified
-            };
+                var parameters = new
+                {
+                    uniId = hitAssessment.HitAssessmentId,
+                    name = hitAssessment.Name,
+                    status = hitAssessment.Status,
+                    orgId = hitAssessment.OrgId,
+                    isHAComplete = hitAssessment.IsHAComplete,
+                    isHASuccess = hitAssessment.IsHASuccess,
+                    dateModified = hitAssessment.DateModified,
+                    isModified = hitAssessment.IsModified
+                };
 
-            return _driver.ExecutableQuery(query).WithParameters(parameters).ExecuteAsync();
+                return _driver.ExecutableQuery(query).WithParameters(parameters).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Update");
+                throw new RepositoryException(nameof(HitAssessmentRepo), "Error Updating HitAssessment In Graph", ex);
+            }
+
+
         }
     }
 }

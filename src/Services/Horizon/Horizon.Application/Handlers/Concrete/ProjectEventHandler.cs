@@ -79,6 +79,38 @@ namespace Horizon.Application.Handlers
             }
         }
 
+
+        public Task OnEvent(ProjectAssociationUpdatedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: ProjectAssociationUpdatedEvent: {@event.Id}");
+            
+            var project = new Project
+            {
+                UniId = @event.Id.ToString(),
+                ProjectId = @event.Id.ToString(),
+
+                HitAssessmentId = @event.HaId.ToString(),
+                PrimaryMoleculeId = @event.CompoundId.ToString(),
+                HitMoleculeId = @event.HitCompoundId.ToString(),
+
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
+            };
+
+            try
+            {
+                return _graphRepository.UpdateHitAssessmentAssociation(project);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "ProjectUpdatedEvent Error updating hit assessment", ex);
+            }
+        }
+
+
+
         public Task OnEvent(ProjectDeletedEvent @event)
         {
             try

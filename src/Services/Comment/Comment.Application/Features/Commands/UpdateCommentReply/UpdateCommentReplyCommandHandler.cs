@@ -29,12 +29,17 @@ namespace Comment.Application.Features.Commands.UpdateCommentReply
 
         public async Task<Unit> Handle(UpdateCommentReplyCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling UpdateCommentReplyCommand: {request}");
+
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
+
             try
             {
                 var commentReplyUpdatedEvent = _mapper.Map<CommentReplyUpdatedEvent>(request);
+                commentReplyUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
                 var aggregate = await _commentEventSourcingHandler.GetByAsyncId(request.Id);
-
                 aggregate.UpdateCommentReply(commentReplyUpdatedEvent);
 
                 await _commentEventSourcingHandler.SaveAsync(aggregate);

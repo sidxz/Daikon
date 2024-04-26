@@ -29,13 +29,17 @@ namespace Comment.Application.Features.Commands.NewCommentReply
 
         public async Task<Unit> Handle(NewCommentReplyCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling NewCommentReplyCommand: {request}");
+
+            request.DateCreated = DateTime.UtcNow;
+            request.IsModified = false;
+
             try
             {
                 var commentReplyAddedEvent = _mapper.Map<CommentReplyAddedEvent>(request);
+                commentReplyAddedEvent.CreatedById = request.RequestorUserId;
 
                 var aggregate = await _commentEventSourcingHandler.GetByAsyncId(request.Id);
-                
-
                 aggregate.AddCommentReply(commentReplyAddedEvent);
 
                 await _commentEventSourcingHandler.SaveAsync(aggregate);

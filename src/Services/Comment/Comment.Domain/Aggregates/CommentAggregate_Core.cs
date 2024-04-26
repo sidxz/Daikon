@@ -6,9 +6,8 @@ namespace Comment.Domain.Aggregates
     public partial class CommentAggregate: AggregateRoot
     {
         private bool _active;
-        private Guid _resourceId;
-
-        private string _Topic;
+        private Guid? _resourceId;
+        private string _topic;
 
         public CommentAggregate()
         {
@@ -17,14 +16,22 @@ namespace Comment.Domain.Aggregates
 
         /* New Comment */
 
-        public CommentAggregate(CommentCreatedEvent CommentCreatedEvent)
+        public CommentAggregate(CommentCreatedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Comment Id cannot be empty.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Topic))
+            {
+                throw new InvalidOperationException($" Topic cannot be null or whitespace");
+            }
             _active = true;
-            _id = CommentCreatedEvent.Id;
-            _resourceId = CommentCreatedEvent.ResourceId;
-            _Topic = CommentCreatedEvent.Topic;
+            _id = @event.Id;
+            _resourceId = @event.ResourceId;
+            _topic = @event.Topic;
 
-            RaiseEvent(CommentCreatedEvent);
+            RaiseEvent(@event);
             
         }
 
@@ -33,40 +40,50 @@ namespace Comment.Domain.Aggregates
             _active = true;
             _id = @event.Id;
             _resourceId = @event.ResourceId;
-            _Topic = @event.Topic;
+            _topic = @event.Topic;
         }
 
         /* Update Comment */
 
-        public void UpdateComment(CommentUpdatedEvent CommentUpdatedEvent)
+        public void UpdateComment(CommentUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This Comment is deleted.");
             }
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Comment Id cannot be empty.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Topic))
+            {
+                throw new InvalidOperationException($" Topic cannot be null or whitespace");
+            }
 
-            // CommentUpdatedEvent doesn't allow resourceId to be changed.
-            CommentUpdatedEvent.ResourceId = _resourceId;
-            CommentUpdatedEvent.Topic = _Topic;
-
-            RaiseEvent(CommentUpdatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(CommentUpdatedEvent @event)
         {
             _id = @event.Id;
+            _resourceId = @event.ResourceId;
+            _topic = @event.Topic;
         }
 
         /* Delete Comment */
 
-        public void DeleteComment(CommentDeletedEvent CommentDeletedEvent)
+        public void DeleteComment(CommentDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This Comment is already deleted.");
             }
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Comment Id cannot be empty.");
+            }
 
-            RaiseEvent(CommentDeletedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(CommentDeletedEvent @event)

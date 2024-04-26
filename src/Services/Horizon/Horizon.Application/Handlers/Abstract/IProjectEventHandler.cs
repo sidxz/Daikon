@@ -9,6 +9,7 @@ namespace Horizon.Application.Handlers
         Task OnEvent(ProjectCreatedEvent @event);
         Task OnEvent(ProjectUpdatedEvent @event);
         Task OnEvent(ProjectDeletedEvent @event);
+        Task OnEvent(ProjectAssociationUpdatedEvent @event);
 
     }
 }

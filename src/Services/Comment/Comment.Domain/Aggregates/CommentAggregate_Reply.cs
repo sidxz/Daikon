@@ -8,18 +8,34 @@ namespace Comment.Domain.Aggregates
     {
         private readonly Dictionary<Guid, CommentReply> _replies = [];
 
-        public void AddCommentReply(CommentReplyAddedEvent CommentReplyAddedEvent)
+        public void AddCommentReply(CommentReplyAddedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This Comment is deleted.");
             }
 
-            if (_replies.ContainsKey(CommentReplyAddedEvent.ReplyId))
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ReplyId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Reply Id cannot be empty.");
+            }
+
+            if (_replies.ContainsKey(@event.ReplyId))
             {
                 throw new Exception("Comment Reply already exists.");
             }
-            RaiseEvent(CommentReplyAddedEvent);
+
+            if (string.IsNullOrWhiteSpace(@event.Body))
+            {
+                throw new InvalidOperationException($" The reply body cannot be null or whitespace");
+            }
+
+
+            RaiseEvent(@event);
         }
 
         public void Apply(CommentReplyAddedEvent @event)
@@ -28,53 +44,69 @@ namespace Comment.Domain.Aggregates
             _replies.Add(@event.ReplyId, new CommentReply()
             {
                 CommentId = @event.Id,
-                ResourceId = @event.ResourceId,
                 Body = @event.Body,
-                PostedBy = @event.PostedBy,
+                Tags = @event.Tags,
+                Mentions = @event.Mentions,
+                Subscribers = @event.Subscribers
             });
         }
 
-        public void UpdateCommentReply(CommentReplyUpdatedEvent CommentReplyUpdatedEvent)
+        public void UpdateCommentReply(CommentReplyUpdatedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This Comment is deleted.");
             }
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.ReplyId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Reply Id cannot be empty.");
+            }
+            if (string.IsNullOrWhiteSpace(@event.Body))
+            {
+                throw new InvalidOperationException($" The reply body cannot be null or whitespace");
+            }
 
-            if (!_replies.ContainsKey(CommentReplyUpdatedEvent.ReplyId))
+            if (!_replies.ContainsKey(@event.ReplyId))
             {
                 throw new Exception("Comment Reply does not exist.");
             }
 
-            RaiseEvent(CommentReplyUpdatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(CommentReplyUpdatedEvent @event)
         {
-            // Update the existing CommentReply identified by @event.CommentReplyId without creating a new one
-            // Store important parameters necessary for the screen aggregate to run
             _replies[@event.ReplyId].Body = @event.Body;
-
+            _replies[@event.ReplyId].Tags = @event.Tags;
+            _replies[@event.ReplyId].Mentions = @event.Mentions;
+            _replies[@event.ReplyId].Subscribers = @event.Subscribers;
         }
 
-        public void DeleteCommentReply(CommentReplyDeletedEvent CommentReplyDeletedEvent)
+        public void DeleteCommentReply(CommentReplyDeletedEvent @event)
         {
             if (!_active)
             {
                 throw new InvalidOperationException("This Comment is deleted.");
             }
+            if (@event.ReplyId == Guid.Empty)
+            {
+                throw new InvalidOperationException("Reply Id cannot be empty.");
+            }
 
-            if (!_replies.ContainsKey(CommentReplyDeletedEvent.ReplyId))
+            if (!_replies.ContainsKey(@event.ReplyId))
             {
                 throw new Exception("Comment Reply does not exist.");
             }
 
-            RaiseEvent(CommentReplyDeletedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(CommentReplyDeletedEvent @event)
         {
-           
             _replies.Remove(@event.ReplyId);
         }
         

@@ -29,8 +29,19 @@ namespace Daikon.EventStore.Producers
             _kafkaProducerSettings = kafkaProducerSettings;
             _config = new ProducerConfig
             {
-                BootstrapServers = _kafkaProducerSettings.BootstrapServers
+                BootstrapServers = _kafkaProducerSettings.BootstrapServers,
+                SecurityProtocol = _kafkaProducerSettings.SecurityProtocol,
             };
+
+            // Check if SASL settings are provided and apply them
+            if (!string.IsNullOrEmpty(_kafkaProducerSettings.SaslUsername) &&
+                !string.IsNullOrEmpty(_kafkaProducerSettings.SaslPassword))
+            {
+                _config.SaslMechanism = _kafkaProducerSettings.SaslMechanism;
+                _config.SaslUsername = _kafkaProducerSettings.SaslUsername;
+                _config.SaslPassword = _kafkaProducerSettings.SaslPassword;
+            }
+
             _logger = logger;
         }
 

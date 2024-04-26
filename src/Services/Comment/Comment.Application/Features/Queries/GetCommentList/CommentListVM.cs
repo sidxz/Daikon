@@ -6,10 +6,11 @@ namespace Comment.Application.Features.Queries.GetCommentList
     {
         public Guid Id { get; set; }
         public Guid ResourceId { get; set; }
-        public string? Reference { get; set; }
-        public string? Section { get; set; }
-        public string Topic { get; set; }
-        public string? Description { get; set; }
-        public string? PostedBy { get; set; }
+        public object Topic { get; set; }
+        public object Description { get; set; }
+        public HashSet<string> Tags { get; set; }
+        public HashSet<Guid> Mentions { get; set; }
+        public HashSet<Guid> Subscribers { get; set; }
+        public bool IsCommentLocked { get; set; }
     }
 }

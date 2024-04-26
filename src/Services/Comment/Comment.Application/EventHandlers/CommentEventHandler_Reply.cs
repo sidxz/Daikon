@@ -14,14 +14,13 @@ namespace Comment.Application.EventHandlers
             var reply = _mapper.Map<Domain.Entities.CommentReply>(@event);
             
             
+            // Set Ids (swap)
             reply.Id = @event.ReplyId;
             reply.CommentId = @event.Id;
-            reply.DateCreated = DateTime.UtcNow;
-            reply.IsModified = false;
 
             try
             {
-                await _commentReplyRepository.CreateCommentReply(reply);
+                await _commentReplyRepository.Create(reply);
             }
             catch (RepositoryException ex)
             {
@@ -32,22 +31,23 @@ namespace Comment.Application.EventHandlers
         public async Task OnEvent(CommentReplyUpdatedEvent @event)
         {
             _logger.LogInformation("OnEvent: CommentReplyUpdatedEvent: CommentId {Id}, CommentReplyId {ReplyId}", @event.Id, @event.ReplyId);
-            var existingCommentReply = await _commentReplyRepository.ReadCommentReplyById(@event.ReplyId);
 
-            if (existingCommentReply == null)
-            {
-                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating comment reply {@event.ReplyId} for CommentReplyUpdatedEvent", new Exception("Comment reply not found"));
-            }
+            var existingCommentReply = await _commentReplyRepository.ReadById(@event.ReplyId);
 
-            var reply = _mapper.Map<Domain.Entities.CommentReply>(@event);
+           
+            var reply = _mapper.Map<Domain.Entities.CommentReply>(existingCommentReply);
+            _mapper.Map(@event, reply);
+
             reply.Id = @event.ReplyId;
             reply.CommentId = @event.Id;
+
+             // Preserve the original creation date and creator
+            reply.CreatedById = existingCommentReply.CreatedById;
             reply.DateCreated = existingCommentReply.DateCreated;
-            reply.IsModified = true;
 
             try
             {
-                await _commentReplyRepository.UpdateCommentReply(reply);
+                await _commentReplyRepository.Update(reply);
             }
             catch (RepositoryException ex)
             {
@@ -57,11 +57,11 @@ namespace Comment.Application.EventHandlers
 
         public async Task OnEvent(CommentReplyDeletedEvent @event)
         {
-            _logger.LogInformation("OnEvent: CommentReplyDeletedEvent: {Id}", @event.Id);
+            _logger.LogInformation("OnEvent: CommentReplyDeletedEvent: {ReplyId}", @event.ReplyId);
             
             try
             {
-                await _commentReplyRepository.DeleteCommentReply(@event.Id);
+                await _commentReplyRepository.Delete(@event.ReplyId);
             }
             catch (RepositoryException ex)
             {

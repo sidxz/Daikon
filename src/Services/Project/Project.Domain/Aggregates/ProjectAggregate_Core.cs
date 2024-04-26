@@ -52,6 +52,22 @@ namespace Project.Domain.Aggregates
             _id = @event.Id;
         }
 
+        /* Update HA Association */
+        public void UpdateHaAssociation(ProjectAssociationUpdatedEvent ProjectAssociationUpdatedEvent)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This Project is deleted.");
+            }
+
+            RaiseEvent(ProjectAssociationUpdatedEvent);
+        }
+
+        public void Apply(ProjectAssociationUpdatedEvent @event)
+        {
+            _id = @event.Id;
+        }
+
         /* Delete Project */
         public void DeleteProject(ProjectDeletedEvent ProjectDeletedEvent)
         {

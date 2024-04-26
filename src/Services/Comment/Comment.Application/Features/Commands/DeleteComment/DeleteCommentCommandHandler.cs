@@ -25,6 +25,8 @@ namespace Comment.Application.Features.Commands.DeleteComment
 
         public async Task<Unit> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling DeleteCommentCommand: {request}");
+            
             try
             {
                 var aggregate = await _commentEventSourcingHandler.GetByAsyncId(request.Id);

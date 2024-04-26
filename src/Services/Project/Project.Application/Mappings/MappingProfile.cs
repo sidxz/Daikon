@@ -13,6 +13,7 @@ using Project.Application.Features.Queries.GetProject;
 using Project.Application.Features.Queries.GetProjectList;
 using Project.Application.DTOs.MLogixAPI;
 using Project.Domain.Entities;
+using Project.Application.Features.Commands.UpdateProjectAssociation;
 
 namespace Project.Application.Mappings
 {
@@ -39,10 +40,15 @@ namespace Project.Application.Mappings
             CreateMap<Domain.Entities.Project, ProjectCreatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Project, ProjectUpdatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Project, ProjectDeletedEvent>().ReverseMap();
+            CreateMap<Domain.Entities.Project, ProjectAssociationUpdatedEvent>().ReverseMap();
 
             CreateMap<Domain.Entities.ProjectCompoundEvolution, ProjectCompoundEvolutionAddedEvent>().ReverseMap();
             CreateMap<Domain.Entities.ProjectCompoundEvolution, ProjectCompoundEvolutionUpdatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.ProjectCompoundEvolution, ProjectCompoundEvolutionDeletedEvent>().ReverseMap();
+
+            CreateMap<ProjectAssociationUpdatedEvent, UpdateProjectAssociationCommand>().ReverseMap();
+
+
 
             /* Queries */
             CreateMap<Domain.Entities.Project, ProjectListVM>().ReverseMap();

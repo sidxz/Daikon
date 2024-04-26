@@ -54,7 +54,7 @@ namespace Gene.Infrastructure.Query.Consumers
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("[Starting] gene consumer hosted service for topic: {@topic}", _topic);
+            _logger.LogInformation("[Starting] Gene consumer hosted service for topic: {@topic}", _topic);
 
             var scope = _serviceProvider.CreateScope(); // Store scope to dispose of later
             var eventConsumer = scope.ServiceProvider.GetRequiredService<IEventConsumer>();
@@ -81,7 +81,7 @@ namespace Gene.Infrastructure.Query.Consumers
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("[Stopping] gene consumer hosted service");
+            _logger.LogInformation("[Stopping] Gene consumer hosted service");
             return Task.CompletedTask;
         }
     }

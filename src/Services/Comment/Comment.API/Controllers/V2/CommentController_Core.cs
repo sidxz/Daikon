@@ -10,6 +10,7 @@ using Comment.Application.Features.Commands.DeleteComment;
 using Comment.Application.Features.Queries.GetComment;
 using Comment.Application.Features.Queries.GetComment.ById;
 using Comment.Application.Features.Queries.GetCommentList;
+using Comment.Application.Features.Queries.GetComment.ByTags;
 
 
 namespace Comment.API.Controllers.V2
@@ -36,12 +37,12 @@ namespace Comment.API.Controllers.V2
         {
             try
             {
-                var screens = await _mediator.Send(new GetCommentListQuery { WithMeta = WithMeta });
-                return Ok(screens);
+                var comments = await _mediator.Send(new GetCommentListQuery { WithMeta = WithMeta });
+                return Ok(comments);
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen list";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the comment list";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -61,8 +62,8 @@ namespace Comment.API.Controllers.V2
         {
             try
             {
-                var screen = await _mediator.Send(new GetCommentByIdQuery { Id = id, WithMeta = WithMeta });
-                return Ok(screen);
+                var comment = await _mediator.Send(new GetCommentByIdQuery { Id = id, WithMeta = WithMeta });
+                return Ok(comment);
             }
             catch (ResourceNotFoundException ex)
             {
@@ -82,7 +83,7 @@ namespace Comment.API.Controllers.V2
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the comment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -91,6 +92,33 @@ namespace Comment.API.Controllers.V2
                 });
             }
         }
+
+
+        // get by tags
+        [HttpGet("by-tags", Name = "GetCommentsByTags")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(IEnumerable<CommentVM>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<CommentVM>>> GetCommentsByTags([FromQuery] HashSet<string> tags, [FromQuery] bool WithMeta = false)
+
+        {
+            try
+            {
+                var comments = await _mediator.Send(new GetCommentsByTagsQuery { Tags = tags, WithMeta = WithMeta });
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the comment list";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+        
+
 
         [HttpPost(Name = "AddComment")]
         [MapToApiVersion("2.0")]
@@ -136,7 +164,7 @@ namespace Comment.API.Controllers.V2
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the comment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -191,7 +219,7 @@ namespace Comment.API.Controllers.V2
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the comment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
@@ -237,7 +265,7 @@ namespace Comment.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the comment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

@@ -15,9 +15,10 @@ namespace Comment.Application.EventHandlers
         private readonly IMapper _mapper;
         private readonly ILogger<CommentEventHandler> _logger;
 
-        public CommentEventHandler(ICommentRepository commentRepository, IMapper mapper, ILogger<CommentEventHandler> logger)
+        public CommentEventHandler(ICommentRepository commentRepository, IMapper mapper, ILogger<CommentEventHandler> logger, ICommentReplyRepository commentReplyRepository)
         {
             _commentRepository = commentRepository;
+            _commentReplyRepository = commentReplyRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -27,12 +28,11 @@ namespace Comment.Application.EventHandlers
             _logger.LogInformation("OnEvent: CommentCreatedEvent: {Id}", @event.Id);
             var comment = _mapper.Map<Domain.Entities.Comment>(@event);
             comment.Id = @event.Id;
-            comment.DateCreated = DateTime.UtcNow;
-            comment.IsModified = false;
+           
 
             try
             {
-                await _commentRepository.CreateComment(comment);
+                await _commentRepository.Create(comment);
             }
             catch (RepositoryException ex)
             {
@@ -43,21 +43,23 @@ namespace Comment.Application.EventHandlers
         public async Task OnEvent(CommentUpdatedEvent @event)
         {
             _logger.LogInformation("OnEvent: CommentUpdatedEvent: {Id}", @event.Id);
-            var existingComment = await _commentRepository.ReadCommentById(@event.Id);
+
+            var existingComment = await _commentRepository.ReadById(@event.Id);
 
             if (existingComment == null)
             {
                 throw new EventHandlerException(nameof(EventHandler), $"CommentUpdatedEvent Error updating comment {@event.Id}", new Exception("Comment not found"));
             }
 
-            var comment = _mapper.Map<Domain.Entities.Comment>(@event);
+            var comment = _mapper.Map<Domain.Entities.Comment>(existingComment);
+            _mapper.Map(@event, comment);
+
             comment.DateCreated = existingComment.DateCreated;
-            comment.DateModified = DateTime.UtcNow;
-            comment.IsModified = true;
+            comment.CreatedById = existingComment.CreatedById;
 
             try
             {
-                await _commentRepository.UpdateComment(comment);
+                await _commentRepository.Update(comment);
             }
             catch (RepositoryException ex)
             {
@@ -69,10 +71,17 @@ namespace Comment.Application.EventHandlers
         {
             _logger.LogInformation("OnEvent: CommentDeletedEvent: {Id}", @event.Id);
             
+            var existingComment = await _commentRepository.ReadById(@event.Id);
+
+            if (existingComment == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"CommentUpdatedEvent Error updating comment {@event.Id}", new Exception("Comment not found"));
+            }
 
             try
             {
-                await _commentRepository.DeleteComment(@event.Id);
+                await _commentReplyRepository.DeleteAllByCommentId(@event.Id);
+                await _commentRepository.Delete(@event.Id);
             }
             catch (RepositoryException ex)
             {

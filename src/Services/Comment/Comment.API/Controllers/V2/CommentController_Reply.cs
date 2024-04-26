@@ -71,7 +71,8 @@ namespace Comment.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> UpdateCommentReply(Guid commentId, Guid id, UpdateCommentReplyCommand command)
         {
-            command.ResourceId = commentId;
+            command.Id = commentId;
+            command.CommentId = commentId;
             command.ReplyId = id;
             try
             {
@@ -124,11 +125,19 @@ namespace Comment.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
 
-        public async Task<ActionResult> DeleteCommentReply(Guid id)
+        public async Task<ActionResult> DeleteCommentReply(Guid commentId, Guid id)
         {
+
+            var command = new DeleteCommentReplyCommand
+            {
+                ReplyId = id,
+                Id = commentId,
+            };
+            
+
             try
             {
-                await _mediator.Send(new DeleteCommentReplyCommand { ReplyId = id });
+                await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status201Created, new AddResponse
                 {

@@ -60,6 +60,12 @@ services:
       context: .
       dockerfile: Services/Questionnaire/Questionnaire.API/Dockerfile
 
+  Comment.API:
+    image: ${DOCKER_REGISTRY-}comment
+    build:
+      context: .
+      dockerfile: Services/Comment/Comment.API/Dockerfile
+
   # Ocelotapigw:
   #   image: ${DOCKER_REGISTRY-}ocelotapigw
   #   build:

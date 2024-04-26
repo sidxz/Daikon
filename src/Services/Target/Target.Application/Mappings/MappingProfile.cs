@@ -4,10 +4,12 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.Targets;
+using Target.Application.BatchOperations.BatchCommands.ImportOne;
 using Target.Application.Features.Command.DeleteTarget;
 using Target.Application.Features.Command.NewTarget;
 using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Command.UpdateTargetAssociatedGenes;
+using Target.Application.Features.Commands.ApproveTarget;
 using Target.Application.Features.Commands.RenameTarget;
 using Target.Application.Features.Commands.SubmitTPQ;
 using Target.Application.Features.Commands.UpdateTPQ;
@@ -20,6 +22,11 @@ namespace Target.Application.Mappings
     {
         public MappingProfile()
         {
+
+            // Command to Command
+            CreateMap<NewTargetCommand, ApproveTargetCommand>().ReverseMap();
+            CreateMap<ImportOneCommand, ApproveTargetCommand>().ReverseMap();
+            CreateMap<ImportOneCommand, SubmitTPQCommand>().ReverseMap();
             
             // Event to Command
             CreateMap<TargetCreatedEvent, NewTargetCommand >().ReverseMap();
