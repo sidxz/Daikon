@@ -30,6 +30,7 @@ namespace Comment.Infrastructure.Query.Repositories
 
         public async Task Create(CommentReply commentReply)
         {
+            _logger.LogInformation("CreateCommentReply: Creating commentReply {CommentReplyId}, {CommentReply}", commentReply.Id, commentReply.ToJson());
 
             ArgumentNullException.ThrowIfNull(commentReply);
 

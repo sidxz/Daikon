@@ -54,6 +54,11 @@ namespace Comment.Application.Mappings
             CreateMap<CommentReplyUpdatedEvent, Domain.Entities.CommentReply>().ReverseMap();
             CreateMap<CommentReplyDeletedEvent, Domain.Entities.CommentReply>().ReverseMap();
 
+            // -- Queries --
+            CreateMap<Domain.Entities.CommentReply, CommentReplyVM>()
+            .ForMember(dest => dest.Body, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.CommentReply, IValueProperty<string>, string>(src => src.Body)))
+            .ReverseMap();
+
         }
 
     }

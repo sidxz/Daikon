@@ -15,9 +15,10 @@ namespace Comment.Application.EventHandlers
         private readonly IMapper _mapper;
         private readonly ILogger<CommentEventHandler> _logger;
 
-        public CommentEventHandler(ICommentRepository commentRepository, IMapper mapper, ILogger<CommentEventHandler> logger)
+        public CommentEventHandler(ICommentRepository commentRepository, IMapper mapper, ILogger<CommentEventHandler> logger, ICommentReplyRepository commentReplyRepository)
         {
             _commentRepository = commentRepository;
+            _commentReplyRepository = commentReplyRepository;
             _mapper = mapper;
             _logger = logger;
         }

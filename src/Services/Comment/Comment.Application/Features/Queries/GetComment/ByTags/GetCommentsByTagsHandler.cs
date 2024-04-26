@@ -29,6 +29,7 @@ namespace Comment.Application.Features.Queries.GetComment.ByTags
             commentVms.ForEach(async commentVm =>
             {
                 var replies = await _commentReplyRepository.ListByCommentId(commentVm.Id);
+                commentVm.Replies = [];
                 commentVm.Replies = _mapper.Map<List<CommentReplyVM>>(replies, opts => opts.Items["WithMeta"] = request.WithMeta);
             });
 

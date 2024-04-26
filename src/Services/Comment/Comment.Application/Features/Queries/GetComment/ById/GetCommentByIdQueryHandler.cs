@@ -25,6 +25,7 @@ namespace Comment.Application.Features.Queries.GetComment.ById
             var replies = await _commentReplyRepository.ListByCommentId(request.Id);
 
             var commentVm = _mapper.Map<CommentVM>(comment, opts => opts.Items["WithMeta"] = request.WithMeta);
+            commentVm.Replies = [];
             commentVm.Replies = _mapper.Map<List<CommentReplyVM>>(replies, opts => opts.Items["WithMeta"] = request.WithMeta);
 
             return commentVm;
