@@ -2,6 +2,7 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using Comment.Application.Contracts.Persistence;
 using MediatR;
+using Comment.Domain.Entities;
 
 namespace Comment.Application.Features.Queries.GetComment.ByTags
 {
@@ -29,7 +30,10 @@ namespace Comment.Application.Features.Queries.GetComment.ByTags
             commentVms.ForEach(async commentVm =>
             {
                 var replies = await _commentReplyRepository.ListByCommentId(commentVm.Id);
-                commentVm.Replies = [];
+                if (replies == null || replies.Count == 0)
+                {
+                    replies = new List<CommentReply>();
+                }
                 commentVm.Replies = _mapper.Map<List<CommentReplyVM>>(replies, opts => opts.Items["WithMeta"] = request.WithMeta);
             });
 

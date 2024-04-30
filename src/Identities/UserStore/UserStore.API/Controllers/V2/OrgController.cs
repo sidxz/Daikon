@@ -91,7 +91,7 @@ namespace UserStore.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddOrg([FromBody] AddOrgCommand command)
         {
-            var id = Guid.NewGuid();
+            var id = command.Id == Guid.Empty ? Guid.NewGuid() : command.Id;
             try
             {
                 command.Id = id;
