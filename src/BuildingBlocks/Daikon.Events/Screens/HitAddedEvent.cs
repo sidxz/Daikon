@@ -28,6 +28,7 @@ namespace Daikon.Events.Screens
         public Dictionary<string, string>? Voters { get; set; }
         
         public DVariable<string>? RequestedSMILES { get; set; }
+        public string? RequestedMoleculeName { get; set; }
         public DVariable<bool> IsStructureDisclosed { get; set; }
         public Guid? MoleculeId { get; set; }
         public Guid? MoleculeRegistrationId { get; set; }

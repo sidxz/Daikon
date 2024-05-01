@@ -18,15 +18,16 @@ namespace Screen.API.Controllers.V2
 
         public async Task<ActionResult> AddHit(Guid id, NewHitCommand command)
         {
+            var hitId = Guid.NewGuid();
             command.Id = id;
+            command.HitId = hitId;
             try
             {
-                command.HitId = Guid.NewGuid();
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status201Created, new AddResponse
                 {
-                    Id = command.HitId,
+                    Id = hitId,
                     Message = "Hit added successfully",
                 });
             }
@@ -63,7 +64,7 @@ namespace Screen.API.Controllers.V2
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
-                    Id = command.HitId,
+                    Id = hitId,
                     Message = SAFE_ERROR_MESSAGE
                 });
             }

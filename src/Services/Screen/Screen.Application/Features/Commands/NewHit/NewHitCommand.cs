@@ -9,7 +9,7 @@ namespace Screen.Application.Features.Commands.NewHit
     public class NewHitCommand : BaseCommand, IRequest<Unit>
     {
         
-        public Guid HitId { get; set; }
+        public Guid? HitId { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Library { get; set; }

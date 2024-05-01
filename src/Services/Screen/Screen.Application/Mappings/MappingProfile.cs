@@ -3,6 +3,7 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.Screens;
+using Screen.Application.Features.Batch.ImportOne;
 using Screen.Application.Features.Commands.DeleteHit;
 using Screen.Application.Features.Commands.DeleteHitCollection;
 using Screen.Application.Features.Commands.DeleteScreen;
@@ -19,6 +20,7 @@ using Screen.Application.Features.Commands.UpdateHitCollectionAssociatedScreen;
 using Screen.Application.Features.Commands.UpdateScreen;
 using Screen.Application.Features.Commands.UpdateScreenAssociatedTargets;
 using Screen.Application.Features.Commands.UpdateScreenRun;
+using Screen.Domain.Entities;
 
 namespace Screen.Application.Mappings
 {
@@ -28,6 +30,14 @@ namespace Screen.Application.Mappings
         {
             /* Views */
             CreateMap<Domain.Entities.Hit, Features.Views.GetHitProperties.HitPropertiesVM>().ReverseMap();
+
+
+
+            /* Import */
+            CreateMap<NewScreenCommand, ImportOneCommand>().ReverseMap();
+            CreateMap<NewScreenRunCommand, ScreenRunDTO>().ReverseMap();
+            CreateMap<NewHitCollectionCommand, HitCollection>().ReverseMap();
+            CreateMap<NewHitCommand, HitDTO>().ReverseMap();
 
             /* Commands */
             CreateMap<ScreenCreatedEvent, NewScreenCommand>().ReverseMap();

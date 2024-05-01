@@ -29,6 +29,7 @@ namespace Screen.Domain.Entities
         
         /* Molecule */
         public DVariable<string>? RequestedSMILES { get; set; }
+        public string? RequestedMoleculeName { get; set; }
         public DVariable<bool> IsStructureDisclosed { get; set; }
         public Guid? MoleculeId { get; set; }
         public Guid? MoleculeRegistrationId { get; set; }

@@ -44,6 +44,7 @@ namespace Screen.Application.Features.Commands.NewHit
             {
                 var newHitAddedEvent = _mapper.Map<HitAddedEvent>(request);
                 newHitAddedEvent.Author = request.RequestorUserId.ToString();
+                newHitAddedEvent.RequestedMoleculeName = request.MoleculeName;
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
 
