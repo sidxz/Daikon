@@ -33,7 +33,7 @@ namespace Horizon.Application.Handlers
                     ScreenType = @event.ScreenType,
                     Method = @event.Method,
                     Status = @event.Status,
-                    PrimaryOrgName = @event.PrimaryOrgName,
+                    PrimaryOrgId = @event.PrimaryOrgId.ToString(),
 
                     DateCreated = @event.DateCreated,
                     DateModified = @event.DateModified,
@@ -66,7 +66,7 @@ namespace Horizon.Application.Handlers
                     ScreenType = @event.ScreenType,
                     Method = @event.Method,
                     Status = @event.Status,
-                    PrimaryOrgName = @event.PrimaryOrgName,
+                    PrimaryOrgId = @event.PrimaryOrgId.ToString(),
 
                     DateCreated = @event.DateCreated,
                     DateModified = @event.DateModified,

@@ -71,7 +71,7 @@ namespace Horizon.Infrastructure.Repositories
                                         s.screenType = $screenType,
                                         s.method = $method,
                                         s.status = $status,
-                                        s.primaryOrgName = $primaryOrgName
+                                        s.primaryOrgId = $primaryOrgId
                 ";
                 var (queryResults, _) = await _driver
                              .ExecutableQuery(query).WithParameters(new
@@ -81,7 +81,7 @@ namespace Horizon.Infrastructure.Repositories
                                  screenType = screen.ScreenType,
                                  method = screen.Method,
                                  status = screen.Status,
-                                 primaryOrgName = screen.PrimaryOrgName
+                                 primaryOrgId = screen.PrimaryOrgId
                              }).ExecuteAsync()
                              ;
 
@@ -122,7 +122,7 @@ namespace Horizon.Infrastructure.Repositories
                                 s.screenType = $screenType, 
                                 s.method = $method, 
                                 s.status = $status, 
-                                s.primaryOrgName = $primaryOrgName
+                                s.primaryOrgId = $primaryOrgId
                 ";
                 var (queryResults, _) = await _driver
                              .ExecutableQuery(query).WithParameters(new
@@ -132,7 +132,7 @@ namespace Horizon.Infrastructure.Repositories
                                  screenType = screen.ScreenType,
                                  method = screen.Method,
                                  status = screen.Status,
-                                 primaryOrgName = screen.PrimaryOrgName
+                                 primaryOrgId = screen.PrimaryOrgId
                              }).ExecuteAsync()
                              ;
             }

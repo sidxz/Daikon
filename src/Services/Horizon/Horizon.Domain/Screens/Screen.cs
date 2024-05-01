@@ -10,6 +10,6 @@ namespace Horizon.Domain.Screens
         public string ScreenType { get; set; }
         public string Method { get; set; }
         public string Status { get; set; }
-        public string PrimaryOrgName { get; set; }
+        public string PrimaryOrgId { get; set; }
     }
 }

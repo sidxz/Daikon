@@ -28,6 +28,41 @@ namespace Screen.Application.Mappings
     {
         public MappingProfile()
         {
+
+            /* ====== Screen Run ====== */
+            // -- Commands --
+            CreateMap<ScreenRun, ScreenRun>();
+
+            CreateMap<ScreenRunAddedEvent, NewScreenRunCommand>().ReverseMap();
+            CreateMap<ScreenRunUpdatedEvent, UpdateScreenRunCommand>().ReverseMap();
+            CreateMap<ScreenRunDeletedEvent, DeleteScreenRunCommand>().ReverseMap();
+
+            CreateMap<ScreenRun, ScreenRunAddedEvent>().ReverseMap();
+            CreateMap<ScreenRun, ScreenRunUpdatedEvent>().ReverseMap();
+            CreateMap<ScreenRun, ScreenRunDeletedEvent>().ReverseMap();
+
+            // -- Queries --
+            CreateMap<ScreenRun, Features.Queries.ViewModels.ScreenRunVM>()
+                .ForMember(dest => dest.Library, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.Library)))
+                .ForMember(dest => dest.Protocol, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.Protocol)))
+                .ForMember(dest => dest.LibrarySize, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.LibrarySize)))
+                .ForMember(dest => dest.Scientist, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.Scientist)))
+                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<DateTime>, DateTime>(src => src.StartDate)))
+                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<DateTime>, DateTime>(src => src.EndDate)))
+                .ForMember(dest => dest.UnverifiedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.UnverifiedHitCount)))
+                .ForMember(dest => dest.HitRate, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.HitRate)))
+                .ForMember(dest => dest.PrimaryHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.PrimaryHitCount)))
+                .ForMember(dest => dest.ConfirmedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.ConfirmedHitCount)))
+                .ForMember(dest => dest.NoOfCompoundsScreened, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.NoOfCompoundsScreened)))
+                .ForMember(dest => dest.Concentration, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.Concentration)))
+                .ForMember(dest => dest.ConcentrationUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.ConcentrationUnit)))
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<ScreenRun, IValueProperty<string>, string>(src => src.Notes)))
+                .ReverseMap();
+
+
+
+
+
             /* Views */
             CreateMap<Domain.Entities.Hit, Features.Views.GetHitProperties.HitPropertiesVM>().ReverseMap();
 
@@ -46,9 +81,7 @@ namespace Screen.Application.Mappings
             CreateMap<ScreenAssociatedTargetsUpdatedEvent, UpdateScreenAssociatedTargetsCommand>().ReverseMap();
             CreateMap<ScreenRenamedEvent, RenameScreenCommand>().ReverseMap();
 
-            CreateMap<ScreenRunAddedEvent, NewScreenRunCommand>().ReverseMap();
-            CreateMap<ScreenRunUpdatedEvent, UpdateScreenRunCommand>().ReverseMap();
-            CreateMap<ScreenRunDeletedEvent, DeleteScreenRunCommand>().ReverseMap();
+
 
             CreateMap<HitCollectionCreatedEvent, NewHitCollectionCommand>().ReverseMap();
             CreateMap<HitCollectionUpdatedEvent, UpdateHitCollectionCommand>().ReverseMap();
@@ -66,8 +99,7 @@ namespace Screen.Application.Mappings
             CreateMap<Domain.Entities.Screen, ScreenUpdatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Screen, ScreenDeletedEvent>().ReverseMap();
 
-            CreateMap<Domain.Entities.ScreenRun, ScreenRunAddedEvent>().ReverseMap();
-            CreateMap<Domain.Entities.ScreenRun, ScreenRunUpdatedEvent>().ReverseMap();
+
 
             CreateMap<Domain.Entities.HitCollection, HitCollectionCreatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.HitCollection, HitCollectionUpdatedEvent>().ReverseMap();
@@ -89,22 +121,7 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.PrimaryOrgName, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.PrimaryOrgName)))
                 .ReverseMap();
 
-            CreateMap<Domain.Entities.ScreenRun, Features.Queries.ViewModels.ScreenRunVM>()
-                .ForMember(dest => dest.Library, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Library)))
-                .ForMember(dest => dest.Protocol, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Protocol)))
-                .ForMember(dest => dest.LibrarySize, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.LibrarySize)))
-                .ForMember(dest => dest.Scientist, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Scientist)))
-                .ForMember(dest => dest.StartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<DateTime>, DateTime>(src => src.StartDate)))
-                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<DateTime>, DateTime>(src => src.EndDate)))
-                .ForMember(dest => dest.UnverifiedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.UnverifiedHitCount)))
-                .ForMember(dest => dest.HitRate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.HitRate)))
-                .ForMember(dest => dest.PrimaryHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.PrimaryHitCount)))
-                .ForMember(dest => dest.ConfirmedHitCount, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.ConfirmedHitCount)))
-                .ForMember(dest => dest.NoOfCompoundsScreened, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.NoOfCompoundsScreened)))
-                .ForMember(dest => dest.Concentration, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Concentration)))
-                .ForMember(dest => dest.ConcentrationUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.ConcentrationUnit)))
-                .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.ScreenRun, IValueProperty<string>, string>(src => src.Notes)))
-                .ReverseMap();
+
 
 
             CreateMap<Domain.Entities.HitCollection, Features.Queries.ViewModels.HitCollectionVM>()

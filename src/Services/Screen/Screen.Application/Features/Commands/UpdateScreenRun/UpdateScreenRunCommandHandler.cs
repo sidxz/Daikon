@@ -17,7 +17,7 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
         private readonly IScreenRunRepository _screenRunRepository;
 
         private readonly IEventSourcingHandler<ScreenAggregate> _screenEventSourcingHandler;
-    
+
         public UpdateScreenRunCommandHandler(ILogger<UpdateScreenRunCommandHandler> logger,
             IEventSourcingHandler<ScreenAggregate> screenEventSourcingHandler,
             IScreenRunRepository screenRunRepository,
@@ -31,15 +31,18 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
 
         public async Task<Unit> Handle(UpdateScreenRunCommand request, CancellationToken cancellationToken)
         {
+            request.DateModified = DateTime.UtcNow;
+            request.IsModified = true;
 
-           var screenRunUpdatedEvent = _mapper.Map<ScreenRunUpdatedEvent>(request);
+            var screenRunUpdatedEvent = _mapper.Map<ScreenRunUpdatedEvent>(request);
+            screenRunUpdatedEvent.LastModifiedById = request.RequestorUserId;
 
             try
             {
                 var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
 
                 aggregate.UpdateScreenRun(screenRunUpdatedEvent);
-                
+
                 await _screenEventSourcingHandler.SaveAsync(aggregate);
             }
             catch (AggregateNotFoundException ex)
@@ -47,18 +50,8 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(ScreenAggregate), request.Id);
             }
-            
-
             return Unit.Value;
         }
-    
-    
-    
-    
-    
+
     }
-
-
-        
-    
 }

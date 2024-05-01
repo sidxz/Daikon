@@ -128,8 +128,8 @@ namespace Screen.Infrastructure.Query.Repositories
             ArgumentNullException.ThrowIfNull(screenRun);
             try
             {
-                _logger.LogInformation("UpdateScreenRun: Updating screenRun {ScreenRunId}, {ScreenRun}", screenRun.Id, screenRun.ToJson());
-                var result = _screenRun.ReplaceOneAsync(screenRun => screenRun.Id == screenRun.Id, screenRun);
+                _logger.LogInformation("UpdateScreenRun: Updating screenRun {ScreenRunId}, {ScreenRun}", screenRun.Id, System.Text.Json.JsonSerializer.Serialize(screenRun));
+                var result = _screenRun.ReplaceOneAsync(sr => sr.Id == screenRun.Id, screenRun);
                 return result;
             }
             catch (MongoException ex)
