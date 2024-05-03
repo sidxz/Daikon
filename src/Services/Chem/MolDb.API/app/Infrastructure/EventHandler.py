@@ -1,6 +1,6 @@
 # Handle Events received in KAFKA
 import logging
-from app.Core.EventHandlers.Screens.HitAddedEventHandler import HandleHitAddedEvent
+from app.core.EventHandlers.Screens.HitAddedEventHandler import HandleHitAddedEvent
 logger = logging.getLogger(__name__)
 
 class EventHandler:

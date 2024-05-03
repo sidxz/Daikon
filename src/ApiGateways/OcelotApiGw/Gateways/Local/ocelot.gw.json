@@ -523,7 +523,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/mol-db/molecules",
+      "UpstreamPathTemplate": "/v2/mol_db/molecules",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",

@@ -1,9 +1,9 @@
 from uuid import UUID
 from rdkit import Chem
 import logging
-from app.Core.MoleculeServices.MolecularProperties import CalculateMolecularProperties
-from app.Core.MoleculeServices.SmilesValidation import ValidateSmiles
-from app.Core.Contracts.IMoleculeRepository import IMoleculeRepository
+from app.core.MoleculeServices.MolecularProperties import CalculateMolecularProperties
+from app.core.MoleculeServices.SmilesValidation import ValidateSmiles
+from app.core.Contracts.IMoleculeRepository import IMoleculeRepository
 
 
 class MoleculeService:

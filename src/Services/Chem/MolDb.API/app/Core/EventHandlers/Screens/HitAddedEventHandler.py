@@ -1,6 +1,6 @@
 import logging
-from app.Core.MoleculeService import MoleculeService
-from app.Infrastructure.MoleculeRepository import MoleculeRepository
+from app.core.MoleculeService import MoleculeService
+from app.infrastructure.MoleculeRepository import MoleculeRepository
 
 logger = logging.getLogger(__name__)
 

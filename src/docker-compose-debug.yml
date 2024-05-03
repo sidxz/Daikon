@@ -1,6 +1,6 @@
 
 services:
-  Horizon.API:
+  Horizon-api:
     image: ${DOCKER_REGISTRY-}horizon-dev
     build:
       context: .

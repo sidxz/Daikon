@@ -1,13 +1,13 @@
 from ast import List
 from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends
-from app.Core.MoleculeService import MoleculeService
-from app.Infrastructure.MoleculeRepository import MoleculeRepository
+from app.core.MoleculeService import MoleculeService
+from app.infrastructure.MoleculeRepository import MoleculeRepository
 import logging
 from typing import List
 
 
-router = APIRouter(prefix="/api/v2/mol-db")
+router = APIRouter(prefix="/api/v2/mol_db")
 logger = logging.getLogger(__name__)
 
 

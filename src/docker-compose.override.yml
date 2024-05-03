@@ -1,428 +1,428 @@
 services:
-  Gene.API:
+  gene-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
       
       ## Event Store
-      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
 
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
       ## Kafka Producer
-      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaProducerSettings:Topic=${KafkaTopic}
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
 
       ## Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=gene-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=gene-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
       ## MongoDb Data Store
-      - GeneMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+      - GeneMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
 
-      - "GeneMongoDbSettings:DatabaseName=Gene"
-      - "GeneMongoDbSettings:GeneCollectionName=Genes"
-      - "GeneMongoDbSettings:StrainCollectionName=Strains"
-      - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
-      - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
-      - "GeneMongoDbSettings:GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
-      - "GeneMongoDbSettings:GeneHypomorphCollectionName=Hypomorphs"
-      - "GeneMongoDbSettings:GeneCrispriStrainCollectionName=CrispriStrains"
-      - "GeneMongoDbSettings:GeneResistanceMutationCollectionName=ResistanceMutations"
-      - "GeneMongoDbSettings:GeneVulnerabilityCollectionName=Vulnerabilities"
-      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
-      - "GeneMongoDbSettings:GeneExpansionPropCollectionName=GeneExpansionProps"
+      - "GeneMongoDbSettings__DatabaseName=Gene"
+      - "GeneMongoDbSettings__GeneCollectionName=Genes"
+      - "GeneMongoDbSettings__StrainCollectionName=Strains"
+      - "GeneMongoDbSettings__GeneEssentialityCollectionName=Essentialities"
+      - "GeneMongoDbSettings__GeneProteinProductionCollectionName=ProteinProductions"
+      - "GeneMongoDbSettings__GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
+      - "GeneMongoDbSettings__GeneHypomorphCollectionName=Hypomorphs"
+      - "GeneMongoDbSettings__GeneCrispriStrainCollectionName=CrispriStrains"
+      - "GeneMongoDbSettings__GeneResistanceMutationCollectionName=ResistanceMutations"
+      - "GeneMongoDbSettings__GeneVulnerabilityCollectionName=Vulnerabilities"
+      - "GeneMongoDbSettings__GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
+      - "GeneMongoDbSettings__GeneExpansionPropCollectionName=GeneExpansionProps"
 
-      - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
-      - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
-      - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
-      - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
-      - "GeneMongoDbSettings:GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
-      - "GeneMongoDbSettings:GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
-      - "GeneMongoDbSettings:GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
-      - "GeneMongoDbSettings:GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
-      - "GeneMongoDbSettings:GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
-      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
-      - "GeneMongoDbSettings:ExpansionPropRevisionCollectionName=GeneExpansionPropsRevisions"
+      - "GeneMongoDbSettings__GeneRevisionCollectionName=GenesRevisions"
+      - "GeneMongoDbSettings__StrainRevisionCollectionName=StrainsRevisions"
+      - "GeneMongoDbSettings__GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
+      - "GeneMongoDbSettings__GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
+      - "GeneMongoDbSettings__GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
+      - "GeneMongoDbSettings__GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
+      - "GeneMongoDbSettings__GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
+      - "GeneMongoDbSettings__GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
+      - "GeneMongoDbSettings__GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
+      - "GeneMongoDbSettings__GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
+      - "GeneMongoDbSettings__ExpansionPropRevisionCollectionName=GeneExpansionPropsRevisions"
 
-    ports:
-      - "8001:80"
+    # ports:
+    #   - "8001:80"
 
-  Target.API:
+  target-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
        ## Event Store
-      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
       ## Kafka Producer
-      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaProducerSettings:Topic=${KafkaTopic}
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
 
       ## Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=target-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=target-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
       ## MongoDb Data Store
-      - TargetMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+      - TargetMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
 
-      - "TargetMongoDbSettings:DatabaseName=Target"
-      - "TargetMongoDbSettings:TargetCollectionName=Targets"
-      - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
-      - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
+      - "TargetMongoDbSettings__DatabaseName=Target"
+      - "TargetMongoDbSettings__TargetCollectionName=Targets"
+      - "TargetMongoDbSettings__PromotionResponseCollectionName=PromotionResponses"
+      - "TargetMongoDbSettings__TargetRevisionCollectionName=TargetsRevisions"
 
-    ports:
-      - "8002:80"
+    # ports:
+    #   - "8002:80"
 
-  Screen.API:
+  screen-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## Event Store
-      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
 
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
       ## Kafka Producer
-      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaProducerSettings:Topic=${KafkaTopic}
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
 
       ## Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=screen-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=screen-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
 
       ## MongoDb Data Store
-      - ScreenMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "ScreenMongoDbSettings:DatabaseName=Screen"
+      - ScreenMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
+      - "ScreenMongoDbSettings__DatabaseName=Screen"
 
-      - "ScreenMongoDbSettings:ScreenCollectionName=Screens"
-      - "ScreenMongoDbSettings:ScreenRunCollectionName=ScreenRuns"
-      - "ScreenMongoDbSettings:HitCollectionCollectionName=HitCollections"
-      - "ScreenMongoDbSettings:HitCollectionName=Hits"
+      - "ScreenMongoDbSettings__ScreenCollectionName=Screens"
+      - "ScreenMongoDbSettings__ScreenRunCollectionName=ScreenRuns"
+      - "ScreenMongoDbSettings__HitCollectionCollectionName=HitCollections"
+      - "ScreenMongoDbSettings__HitCollectionName=Hits"
 
-      - "ScreenMongoDbSettings:ScreenRevisionCollectionName=ScreensRevisions"
-      - "ScreenMongoDbSettings:ScreenRunRevisionCollectionName=ScreenRunsRevisions"
-      - "ScreenMongoDbSettings:HitCollectionRevisionCollectionName=HitCollectionsRevisions"
-      - "ScreenMongoDbSettings:HitRevisionCollectionName=HitRevisions"
+      - "ScreenMongoDbSettings__ScreenRevisionCollectionName=ScreensRevisions"
+      - "ScreenMongoDbSettings__ScreenRunRevisionCollectionName=ScreenRunsRevisions"
+      - "ScreenMongoDbSettings__HitCollectionRevisionCollectionName=HitCollectionsRevisions"
+      - "ScreenMongoDbSettings__HitRevisionCollectionName=HitRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI__Url=http://MLogix.API/api/v2"
 
-    ports:
-      - "8003:80"
+    # ports:
+    #   - "8003:80"
 
-  HitAssessment.API:
+  hitassessment-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## Event Store
-      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
       ## Kafka Producer
-      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaProducerSettings:Topic=${KafkaTopic}
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
 
       ## Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=hitassessment-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=hitassessment-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
       ## MongoDb Data Store
-      - HAMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "HAMongoDbSettings:DatabaseName=HitAssessment"
+      - HAMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
+      - "HAMongoDbSettings__DatabaseName=HitAssessment"
 
-      - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
-      - "HAMongoDbSettings:HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
+      - "HAMongoDbSettings__HitAssessmentCollectionName=HitAssessments"
+      - "HAMongoDbSettings__HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
 
-      - "HAMongoDbSettings:HitAssessmentRevisionCollectionName=HitAssessmentsRevisions"
-      - "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
+      - "HAMongoDbSettings__HitAssessmentRevisionCollectionName=HitAssessmentsRevisions"
+      - "HAMongoDbSettings__HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI__Url=http://MLogix.API/api/v2"
 
-    ports:
-      - "8004:80"
+    # ports:
+    #   - "8004:80"
 
-  Project.API:
+  project-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## Event Store
-      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
       ## Kafka Producer
-      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaProducerSettings:Topic=${KafkaTopic}
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
 
       ## Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=project-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=project-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
       ## MongoDb Data Store
-      - ProjectMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+      - ProjectMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
 
-      - "ProjectMongoDbSettings:DatabaseName=Project"
+      - "ProjectMongoDbSettings__DatabaseName=Project"
 
-      - "ProjectMongoDbSettings:ProjectCollectionName=Projects"
-      - "ProjectMongoDbSettings:ProjectCompoundEvolutionCollectionName=ProjectCompoundEvolutions"
+      - "ProjectMongoDbSettings__ProjectCollectionName=Projects"
+      - "ProjectMongoDbSettings__ProjectCompoundEvolutionCollectionName=ProjectCompoundEvolutions"
 
-      - "ProjectMongoDbSettings:ProjectRevisionCollectionName=ProjectsRevisions"
-      - "ProjectMongoDbSettings:ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
+      - "ProjectMongoDbSettings__ProjectRevisionCollectionName=ProjectsRevisions"
+      - "ProjectMongoDbSettings__ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
       
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI__Url=http://MLogix.API/api/v2"
 
-    ports:
-      - "8005:80"
+    # ports:
+    #   - "8005:80"
 
-  Horizon.API:
+  horizon-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       # Neo4j
-      - HorizonNeo4jSettings:Uri=${HorizonNeo4jURI}
-      - HorizonNeo4jSettings:User=${HorizonNeo4jUser}
-      - HorizonNeo4jSettings:Password=${HorizonNeo4jPassword}
-      - "HorizonNeo4jSettings:Database=horizon"
+      - HorizonNeo4jSettings__Uri=${HorizonNeo4jURI}
+      - HorizonNeo4jSettings__User=${HorizonNeo4jUser}
+      - HorizonNeo4jSettings__Password=${HorizonNeo4jPassword}
+      - "HorizonNeo4jSettings__Database=horizon"
     
       ## Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=horizon-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=horizon-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
-    ports:
-      - "8006:80"
+    # ports:
+    #   - "8006:80"
 
-  MLogix.API:
+  mlogix-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       # Event Store
-      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
       # Kafka Producer
-      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaProducerSettings:Topic=${KafkaTopic}
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
 
       # Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=mlogix-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=mlogix-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
       # MongoDb Data Store
-      - MLxMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "MLxMongoDbSettings:DatabaseName=MoleculeLogix"
-      - "MLxMongoDbSettings:MoleculeCollectionName=Molecules"
-      - "MLxMongoDbSettings:MoleculeRevisionCollectionName=MoleculesRevisions"
+      - MLxMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
+      - "MLxMongoDbSettings__DatabaseName=MoleculeLogix"
+      - "MLxMongoDbSettings__MoleculeCollectionName=Molecules"
+      - "MLxMongoDbSettings__MoleculeRevisionCollectionName=MoleculesRevisions"
 
       # Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
+      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
 
-    ports:
-      - "8007:80"
+    # ports:
+    #   - "8007:80"
 
-  Questionnaire.API:
+  questionnaire-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## Data Store
-      - QuestionnaireMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "QuestionnaireMongoDbSettings:DatabaseName=Questionnaire"
+      - QuestionnaireMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
+      - "QuestionnaireMongoDbSettings__DatabaseName=Questionnaire"
 
-    ports:
-      - "8008:80"
+    # ports:
+    #   - "8008:80"
 
-  Comment.API:
+  comment-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## Event Store
-      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
       ## Kafka Producer
-      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaProducerSettings:Topic=${KafkaTopic}
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
 
       ## Kafka Consumer
-      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=comment-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+      - "KafkaConsumerSettings__GroupId=comment-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
       ## MongoDb Data Store
-      - CommentMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+      - CommentMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
 
-      - "CommentMongoDbSettings:DatabaseName=Comments"
+      - "CommentMongoDbSettings__DatabaseName=Comments"
 
-      - "CommentMongoDbSettings:CommentCollectionName=Comments"
-      - "CommentMongoDbSettings:CommentRevisionCollectionName=CommentsRevisions"
+      - "CommentMongoDbSettings__CommentCollectionName=Comments"
+      - "CommentMongoDbSettings__CommentRevisionCollectionName=CommentsRevisions"
 
-      - "CommentMongoDbSettings:CommentReplyCollectionName=CommentReplies"
-      - "CommentMongoDbSettings:CommentReplyRevisionCollectionName=CommentReplyRevisions"
+      - "CommentMongoDbSettings__CommentReplyCollectionName=CommentReplies"
+      - "CommentMongoDbSettings__CommentReplyRevisionCollectionName=CommentReplyRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
+      - "MLogixAPI__Url=http://MLogix.API/api/v2"
 
-    ports:
-      - "8009:80"
+    # ports:
+    #   - "8009:80"
 
-  UserStore.API:
+  userstore-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## MongoDb Data Store
-      - UserStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+      - UserStoreMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
 
-      - "UserStoreMongoDbSettings:DatabaseName=UserStore"
+      - "UserStoreMongoDbSettings__DatabaseName=UserStore"
 
-      - "UserStoreMongoDbSettings:AppOrgCollectionName=AppOrgs"
-      - "UserStoreMongoDbSettings:AppUserCollectionName=AppUsers"
-      - "UserStoreMongoDbSettings:AppRoleCollectionName=AppRoles"
-      - "UserStoreMongoDbSettings:APIResourceCollectionName=AppAPIResources"
-    ports:
-      - "8011:80"
+      - "UserStoreMongoDbSettings__AppOrgCollectionName=AppOrgs"
+      - "UserStoreMongoDbSettings__AppUserCollectionName=AppUsers"
+      - "UserStoreMongoDbSettings__AppRoleCollectionName=AppRoles"
+      - "UserStoreMongoDbSettings__APIResourceCollectionName=AppAPIResources"
+    # ports:
+    #   - "8011:80"
 
   # Ocelotapigw:
   #   container_name: ocelotapigw
   #   environment:
   #     - "ASPNETCORE_ENVIRONMENT=Cluster"
   #     - ASPNETCORE_URLS=http://+:80
-  #     - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
+  #     - "UserStoreAPI__BaseUrl=http://UserStore.API/api/v2/"
   #   ports:
   #     - "8010:80"
 
-  SimpleGW.API:
+  simplegw-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## OIDC
       - OIDCProvider=EntraID
-      - EntraID:Instance=${EntraID_Instance}
-      - EntraID:Domain=${EntraID_Domain}
-      - EntraID:TenantId=${EntraID_TenantId}
-      - EntraID:ClientId=${EntraID_ClientId}
-      - EntraID:Audience=${EntraID_Audience}
+      - EntraID__Instance=${EntraID_Instance}
+      - EntraID__Domain=${EntraID_Domain}
+      - EntraID__TenantId=${EntraID_TenantId}
+      - EntraID__ClientId=${EntraID_ClientId}
+      - EntraID__Audience=${EntraID_Audience}
 
       ## Internal API Routing
-      - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
+      - "UserStoreAPI__BaseUrl=http://UserStore.API/api/v2/"
 
-      - "EndPointRouting:gene=http://Gene.API"
-      - "EndPointRouting:gene-batch=http://Gene.API"
-      - "EndPointRouting:strain=http://Gene.API"
+      - "EndPointRouting__gene=http://Gene.API"
+      - "EndPointRouting__gene_batch=http://Gene.API"
+      - "EndPointRouting__strain=http://Gene.API"
 
-      - "EndPointRouting:target=http://Target.API"
-      - "EndPointRouting:screen=http://Screen.API"
-      - "EndPointRouting:hit-collection=http://Screen.API"
+      - "EndPointRouting__target=http://Target.API"
+      - "EndPointRouting__screen=http://Screen.API"
+      - "EndPointRouting__hit_collection=http://Screen.API"
 
-      - "EndPointRouting:hit-assessment=http://HitAssessment.API"
-      - "EndPointRouting:project=http://Project.API"
-      - "EndPointRouting:horizon=http://Horizon.API"
-      - "EndPointRouting:molecule=http://MLogix.API"
-      - "EndPointRouting:api-resources=http://UserStore.API"
-      - "EndPointRouting:app-settings=http://UserStore.API"
-      - "EndPointRouting:org=http://UserStore.API"
-      - "EndPointRouting:roles=http://UserStore.API"
-      - "EndPointRouting:user=http://UserStore.API"
-      - "EndPointRouting:questionnaire=http://Questionnaire.API"
-      - "EndPointRouting:comment=http://Comment.API"
-      - "EndPointRouting:mol-db=http://MolDb.API"
+      - "EndPointRouting__hit_assessment=http://HitAssessment.API"
+      - "EndPointRouting__project=http://Project.API"
+      - "EndPointRouting__horizon=http://Horizon.API"
+      - "EndPointRouting__molecule=http://MLogix.API"
+      - "EndPointRouting__api_resources=http://UserStore.API"
+      - "EndPointRouting__app_settings=http://UserStore.API"
+      - "EndPointRouting__org=http://UserStore.API"
+      - "EndPointRouting__roles=http://UserStore.API"
+      - "EndPointRouting__user=http://UserStore.API"
+      - "EndPointRouting__questionnaire=http://Questionnaire.API"
+      - "EndPointRouting__comment=http://Comment.API"
+      - "EndPointRouting__mol_db=http://MolDb.API"
 
-    ports:
-      - "8010:80"
+    # ports:
+    #   - "8010:80"
 
-  MolDb.API:
+  moldb-api:
     environment:
       
       # MolDb Postgres
@@ -442,5 +442,5 @@ services:
       - "KafkaConsumerSettings_EnableAutoCommit=true"
       - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
 
-    ports:
-      - "8101:80"
+    # ports:
+    #   - "8101:80"

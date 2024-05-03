@@ -1,7 +1,7 @@
 
 services:
   DKPortainer:
-    image: portainer/portainer
+    image: ${DOCKER_REGISTRY-}portainer/portainer
     container_name: dk_portainer
     ports:
       - "9000:9000"
@@ -10,7 +10,7 @@ services:
       - portainer_data:/data
 
   DKPGAdmin:
-    image: dpage/pgadmin4
+    image: ${DOCKER_REGISTRY-}dpage/pgadmin4
     container_name: dk_pgadmin
     restart: always
     environment:
@@ -32,7 +32,7 @@ services:
   #     - ALLOW_ANONYMOUS_LOGIN=yes
 
   Kafka:
-    image: bitnami/kafka
+    image: ${DOCKER_REGISTRY-}bitnami/kafka
     # depends_on:
     #   - Zookeeper
     ports:
@@ -50,7 +50,7 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
 
   EventStoreDb:
-    image: mongo
+    image: ${DOCKER_REGISTRY-}mongo
     restart: always
     ports:
       - "27017:27017"
@@ -61,7 +61,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=password
 
   MolDb_Postgres:
-    image: informaticsmatters/rdkit-cartridge-debian
+    image: ${DOCKER_REGISTRY-}informaticsmatters/rdkit-cartridge-debian
     environment:
       POSTGRES_DB: chemdb
       POSTGRES_USER: user
@@ -72,7 +72,7 @@ services:
       - "5432:5432"
 
   Neo4j:
-    image: neo4j:latest
+    image: ${DOCKER_REGISTRY-}neo4j:latest
     container_name: dk_neo4j
     ports:
       - "7474:7474" # HTTP
@@ -87,8 +87,8 @@ services:
 
 
   kafka-ui:
+    image: ${DOCKER_REGISTRY-}provectuslabs/kafka-ui:latest
     container_name: kafka-ui
-    image: provectuslabs/kafka-ui:latest
     ports:
       - 5051:8080
     environment:
