@@ -41,7 +41,7 @@ namespace HitAssessment.Infrastructure.MolDbAPI
 
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsync(_molDbApiUrl + "/mol_db/molecule/register", content);
+                HttpResponseMessage response = await _httpClient.PostAsync(_molDbApiUrl + "/mol-db/molecule/register", content);
 
 
                 if (response.IsSuccessStatusCode)
