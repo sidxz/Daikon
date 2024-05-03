@@ -1,12 +1,12 @@
 from fastapi import APIRouter, HTTPException, Depends
-from app.Core.MoleculeService import MoleculeService
-from app.Infrastructure.MoleculeRepository import MoleculeRepository
-from app.API.DTO.MoleculeUpdateRequest import MoleculeUpdateRequest
-from app.API.DTO.MoleculeCreateRequest import MoleculeCreateRequest
+from app.core.MoleculeService import MoleculeService
+from app.infrastructure.MoleculeRepository import MoleculeRepository
+from app.api.DTO.MoleculeUpdateRequest import MoleculeUpdateRequest
+from app.api.DTO.MoleculeCreateRequest import MoleculeCreateRequest
 import logging
 
 
-router = APIRouter(prefix="/api/v2/mol-db")
+router = APIRouter(prefix="/api/v2/mol_db")
 logger = logging.getLogger(__name__)
 
 

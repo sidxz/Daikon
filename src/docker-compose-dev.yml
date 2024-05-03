@@ -1,7 +1,7 @@
 
 services:
 
-  SimpleGW.API:
+  simplegw-api:
     image: ${DOCKER_REGISTRY-}simplegw-dev
     build:
       context: .
@@ -44,7 +44,7 @@ services:
     ports:
       - "8010:5010"
 
-  UserStore.API:
+  userstore-api:
     image: ${DOCKER_REGISTRY-}userstore-dev
     build:
       context: .
@@ -67,7 +67,7 @@ services:
       - "8011:5011"
   
 
-  Gene.API:
+  gene-api:
     image: ${DOCKER_REGISTRY-}gene-dev
     build:
       context: .
@@ -122,7 +122,7 @@ services:
       - "8001:5001"
 
 
-  Target.API:
+  target-api:
     image: ${DOCKER_REGISTRY-}target-dev
     build:
       context: .
@@ -158,7 +158,7 @@ services:
     ports:
       - "8002:5002"
 
-  Screen.API:
+  screen-api:
     image: ${DOCKER_REGISTRY-}screen-dev
     build:
       context: .
@@ -204,7 +204,7 @@ services:
       - "8003:5003"
 
 
-  HitAssessment.API:
+  hitassessment-api:
     image: ${DOCKER_REGISTRY-}hitassessment-dev
     build:
       context: .
@@ -245,7 +245,7 @@ services:
     ports:
       - "8004:5004"
 
-  Project.API:
+  project-api:
     image: ${DOCKER_REGISTRY-}project-dev
     build:
       context: .
@@ -286,7 +286,7 @@ services:
     ports:
       - "8005:5005"
 
-  Horizon.API:
+  horizon-api:
     image: ${DOCKER_REGISTRY-}horizon-dev
     build:
       context: .
@@ -310,7 +310,7 @@ services:
     ports:
       - "8006:5006"
 
-  MLogix.API:
+  mlogix-api:
     image: ${DOCKER_REGISTRY-}mlogix-dev
     build:
       context: .
@@ -347,7 +347,7 @@ services:
     ports:
       - "8007:5007"
 
-  Questionnaire.API:
+  questionnaire-api:
     image: ${DOCKER_REGISTRY-}questionnaire-dev
     build:
       context: .
@@ -364,7 +364,7 @@ services:
     ports:
       - "8008:5008"
 
-  MolDb.API:
+  moldb-api:
     image: ${DOCKER_REGISTRY-}moldb
     build:
       context: .

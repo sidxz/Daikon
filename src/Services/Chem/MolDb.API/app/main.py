@@ -2,9 +2,9 @@ import logging
 import os
 import uvicorn
 from fastapi import FastAPI
-from app.API import QueryController, CommandController
-from app.Infrastructure.DatabaseInitialization import InitializeDb
-from app.Infrastructure.EventConsumer import EventConsumer
+from app.api import QueryController, CommandController
+from app.infrastructure.DatabaseInitialization import InitializeDb
+from app.infrastructure.EventConsumer import EventConsumer
 
 # Configure logging
 logging.basicConfig(

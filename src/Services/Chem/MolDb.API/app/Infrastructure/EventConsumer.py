@@ -4,7 +4,7 @@ import json
 import logging
 import threading
 from app.config.KafkaConfig import KAFKA_CONFIG
-from app.Infrastructure.EventHandler import EventHandler
+from app.infrastructure.EventHandler import EventHandler
 
 logger = logging.getLogger(__name__)
 event_handler = EventHandler();
