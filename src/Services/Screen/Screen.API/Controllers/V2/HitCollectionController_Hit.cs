@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Screen.Application.Features.Commands.DeleteHit;
 using Screen.Application.Features.Commands.NewHit;
 using Screen.Application.Features.Commands.UpdateHit;
+using Screen.Application.Features.Queries.GetHit.ById;
 using Screen.Application.Features.Views.GetHitProperties;
+using Screen.Domain.Entities;
 
 namespace Screen.API.Controllers.V2
 {
@@ -170,6 +172,47 @@ namespace Screen.API.Controllers.V2
             catch (Exception ex)
             {
                 const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the hit";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        [HttpGet("hit/{hitId}", Name = "GetHit")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult<Hit>> GetHit(Guid hitId)
+        {
+            try
+            {
+                var hit = await _mediator.Send(new GetHitByIdCommand { Id = hitId });
+
+                return StatusCode(StatusCodes.Status200OK, hit);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("GetHit: ArgumentNullException {Id}", hitId);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while fetching hit";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse

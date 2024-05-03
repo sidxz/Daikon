@@ -12,6 +12,7 @@ using HitAssessment.Application.Features.Queries.GetHitAssessment;
 using HitAssessment.Application.Features.Queries.GetHitAssessmentList;
 using HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAssessmentList;
 using System.Text.Json;
+using HitAssessment.Application.Features.Batch.ImportOne;
 
 namespace HitAssessment.API.Controllers.V2
 {
@@ -41,7 +42,7 @@ namespace HitAssessment.API.Controllers.V2
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen list";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the hit assessment list";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -83,7 +84,7 @@ namespace HitAssessment.API.Controllers.V2
             }
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the hit assessment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -101,7 +102,7 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddHitAssessment([FromBody] NewHitAssessmentCommand command)
         {
-            
+
             var id = Guid.NewGuid();
             try
             {
@@ -142,7 +143,7 @@ namespace HitAssessment.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the hit assessment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
@@ -151,8 +152,6 @@ namespace HitAssessment.API.Controllers.V2
                     Message = SAFE_ERROR_MESSAGE
                 });
             }
-
-
         }
 
 
@@ -202,7 +201,7 @@ namespace HitAssessment.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the hit assessment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -250,7 +249,7 @@ namespace HitAssessment.API.Controllers.V2
 
             catch (Exception ex)
             {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen";
+                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the hit assessment";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
 
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
@@ -258,6 +257,66 @@ namespace HitAssessment.API.Controllers.V2
                     Message = SAFE_ERROR_MESSAGE
                 });
             }
+
+        }
+
+
+        [HttpPost("import-one", Name = "import-one")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> ImportHitAssessment([FromBody] ImportOneCommand command)
+        {
+
+            var id = Guid.NewGuid();
+            try
+            {
+                command.Id = command.Id == Guid.Empty ? id : command.Id;
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status201Created, new AddResponse
+                {
+                    Id = id,
+                    Message = "HitAssessment imported successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("ImportHitAssessment: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("ImportHitAssessment: Requested Resource Already Exists {Name}", ex.Message);
+                return Conflict(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while importing the hit assessment";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
+                {
+                    Id = id,
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+
 
         }
     }

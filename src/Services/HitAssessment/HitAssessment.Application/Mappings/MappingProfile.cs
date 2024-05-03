@@ -4,6 +4,7 @@ using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.HitAssessment;
 using HitAssessment.Application.DTOs.MLogixAPI;
+using HitAssessment.Application.Features.Batch.ImportOne;
 using HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.DeleteHitAssessment;
 using HitAssessment.Application.Features.Commands.NewHaCompoundEvolution;
@@ -19,6 +20,10 @@ namespace HitAssessment.Application.Mappings
     {
         public MappingProfile()
         {
+
+            /* ImportOne */
+            CreateMap<ImportOneCommand, HaCreatedEvent>().ReverseMap();
+
             /* Commands */
             CreateMap<HaCreatedEvent, NewHitAssessmentCommand>().ReverseMap();
             CreateMap<HaUpdatedEvent, UpdateHitAssessmentCommand>().ReverseMap();
