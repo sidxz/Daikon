@@ -22,41 +22,40 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             _haCollection = database.GetCollection<Domain.Entities.HitAssessment>(configuration.GetValue<string>("HAMongoDbSettings:HitAssessmentCollectionName"));
             _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
             _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
+            _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Descending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-
-
-        public async Task CreateHa(Domain.Entities.HitAssessment screen)
+        public async Task CreateHa(Domain.Entities.HitAssessment ha)
         {
 
-            ArgumentNullException.ThrowIfNull(screen);
+            ArgumentNullException.ThrowIfNull(ha);
 
             try
             {
-                _logger.LogInformation("CreateHitAssessment: Creating screen {HitAssessmentId}, {HitAssessment}", screen.Id, screen.ToJson());
-                await _haCollection.InsertOneAsync(screen);
-                await _versionHub.CommitVersion(screen);
+                _logger.LogInformation("CreateHitAssessment: Creating ha {HitAssessmentId}, {HitAssessment}", ha.Id, ha.ToJson());
+                await _haCollection.InsertOneAsync(ha);
+                await _versionHub.CommitVersion(ha);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the screen with ID {HitAssessmentId}", screen.Id);
-                throw new RepositoryException(nameof(HitAssessmentRepository), "Error creating screen", ex);
+                _logger.LogError(ex, "An error occurred while creating the ha with ID {HitAssessmentId}", ha.Id);
+                throw new RepositoryException(nameof(HitAssessmentRepository), "Error creating ha", ex);
             }
         }
 
 
         public async Task<Domain.Entities.HitAssessment> ReadHaById(Guid id)
         {
-            return await _haCollection.Find(screen => screen.Id == id).FirstOrDefaultAsync();
+            return await _haCollection.Find(ha => ha.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<Domain.Entities.HitAssessment> ReadHaByName(string name)
         {
-            return await _haCollection.Find(screen => screen.Name == name).FirstOrDefaultAsync();
+            return await _haCollection.Find(ha => ha.Name == name).FirstOrDefaultAsync();
         }
 
 
@@ -64,12 +63,12 @@ namespace HitAssessment.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _haCollection.Find(screen => true).ToListAsync();
+                return await _haCollection.Find(ha => true).ToListAsync();
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while getting the screen list");
-                throw new RepositoryException(nameof(HitAssessmentRepository), "Error getting screen list", ex);
+                _logger.LogError(ex, "An error occurred while getting the ha list");
+                throw new RepositoryException(nameof(HitAssessmentRepository), "Error getting ha list", ex);
             }
 
         }
@@ -78,32 +77,32 @@ namespace HitAssessment.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _haCollection.Find(screen => screen.StrainId == strainId).ToListAsync();
+                return await _haCollection.Find(ha => ha.StrainId == strainId).ToListAsync();
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while getting the screen list");
-                throw new RepositoryException(nameof(HitAssessmentRepository), "Error getting screen list", ex);
+                _logger.LogError(ex, "An error occurred while getting the ha list");
+                throw new RepositoryException(nameof(HitAssessmentRepository), "Error getting ha list", ex);
             }
 
         }
 
 
 
-        public async Task UpdateHa(Domain.Entities.HitAssessment screen)
+        public async Task UpdateHa(Domain.Entities.HitAssessment ha)
         {
-            ArgumentNullException.ThrowIfNull(screen);
+            ArgumentNullException.ThrowIfNull(ha);
 
             try
             {
-                _logger.LogInformation("UpdateHitAssessment: Updating screen {HitAssessmentId}, {HitAssessment}", screen.Id, screen.ToJson());
-                await _haCollection.ReplaceOneAsync(t => t.Id == screen.Id, screen);
-                await _versionHub.CommitVersion(screen);
+                _logger.LogInformation("UpdateHitAssessment: Updating ha {HitAssessmentId}, {HitAssessment}", ha.Id, ha.ToJson());
+                await _haCollection.ReplaceOneAsync(t => t.Id == ha.Id, ha);
+                await _versionHub.CommitVersion(ha);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the screen with ID {HitAssessmentId}", screen.Id);
-                throw new RepositoryException(nameof(HitAssessmentRepository), "Error updating screen", ex);
+                _logger.LogError(ex, "An error occurred while updating the ha with ID {HitAssessmentId}", ha.Id);
+                throw new RepositoryException(nameof(HitAssessmentRepository), "Error updating ha", ex);
             }
         }
 
@@ -113,22 +112,22 @@ namespace HitAssessment.Infrastructure.Query.Repositories
 
             try
             {
-                _logger.LogInformation("DeleteHitAssessment: Deleting screen {HitAssessmentId}", id);
+                _logger.LogInformation("DeleteHitAssessment: Deleting ha {HitAssessmentId}", id);
                 await _haCollection.DeleteOneAsync(t => t.Id == id);
                 await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the screen with ID {HitAssessmentId}", id);
-                throw new RepositoryException(nameof(HitAssessmentRepository), "Error deleting screen", ex);
+                _logger.LogError(ex, "An error occurred while deleting the ha with ID {HitAssessmentId}", id);
+                throw new RepositoryException(nameof(HitAssessmentRepository), "Error deleting ha", ex);
             }
         }
 
 
         public async Task<HitAssessmentRevision> GetHaRevisions(Guid Id)
         {
-            var screenRevision = await _versionHub.GetVersions(Id);
-            return screenRevision;
+            var haRevision = await _versionHub.GetVersions(Id);
+            return haRevision;
         }
     }
 }

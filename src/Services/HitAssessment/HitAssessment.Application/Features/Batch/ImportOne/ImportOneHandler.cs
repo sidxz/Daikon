@@ -67,11 +67,11 @@ namespace HitAssessment.Application.Features.Batch.ImportOne
                 {
                     var addedOnStage = ceCommand.Stage;
                     ceCommand.CompoundEvolutionId = Guid.NewGuid();
+                    ceCommand.ImportMode = true;
                     
                     if (addedOnStage != "HA")
                         continue;
 
-                    ceCommand.CompoundEvolutionId = Guid.NewGuid();
                     try
                     {
                         await _mediator.Send(ceCommand, cancellationToken);

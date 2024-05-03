@@ -37,14 +37,14 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
 
         public async Task<Unit> Handle(UpdateHaCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"Handling UpdateHaCompoundEvolutionCommand");
+            var now = DateTime.UtcNow;
+            request.DateModified = now;
+            request.IsModified = true;
+
             // fetch existing CE
-            var existingCEvo = await _haCompoundEvoRepository.ReadHaCompoundEvolutionById(request.CompoundEvolutionId);
-
-            if (existingCEvo == null)
-            {
-                throw new ResourceNotFoundException(nameof(HaCompoundEvolution), request.CompoundEvolutionId);
-            }
-
+            var existingCEvo = await _haCompoundEvoRepository.ReadHaCompoundEvolutionById(request.CompoundEvolutionId)
+                     ?? throw new ResourceNotFoundException(nameof(HaCompoundEvolution), request.CompoundEvolutionId);
             try
             {
                 var haCEUpdatedEvent = _mapper.Map<HaCompoundEvolutionUpdatedEvent>(request);
@@ -81,7 +81,7 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
             return Unit.Value;
         }
 
-        
+
     }
 
 }

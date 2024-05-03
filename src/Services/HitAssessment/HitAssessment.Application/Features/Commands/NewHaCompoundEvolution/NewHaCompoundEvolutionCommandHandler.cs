@@ -38,6 +38,10 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
         {
             try
             {
+                _logger.LogInformation($"Handling NewHaCompoundEvolutionCommand");
+                request.DateCreated = (bool)request.ImportMode ? request.DateCreated: DateTime.UtcNow;
+                request.IsModified = false;
+
                 var haCEAddedEvent = _mapper.Map<HaCompoundEvolutionAddedEvent>(request);
 
                 var aggregate = await _haEventSourcingHandler.GetByAsyncId(request.Id);

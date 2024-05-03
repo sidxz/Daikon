@@ -44,6 +44,8 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
             }
 
             var now = DateTime.UtcNow;
+            request.DateModified = now;
+            request.IsModified = true;
 
             // check if status has changed
             if (existingHitAssessment.Status != request.Status)
