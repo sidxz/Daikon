@@ -49,7 +49,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/api/v2/app_settings/global-values",
+      "DownstreamPathTemplate": "/api/v2/app-settings/global-values",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -64,7 +64,7 @@
         "AppUser-Id": "{AppUserId}"
       },
 
-      "UpstreamPathTemplate": "/v2/app_settings/global-values",
+      "UpstreamPathTemplate": "/v2/app-settings/global-values",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -73,7 +73,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/api/v2/app_settings/app-vars",
+      "DownstreamPathTemplate": "/api/v2/app-settings/app-vars",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -88,7 +88,7 @@
         "AppUser-Id": "{AppUserId}"
       },
 
-      "UpstreamPathTemplate": "/v2/app_settings/app-vars",
+      "UpstreamPathTemplate": "/v2/app-settings/app-vars",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -97,7 +97,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/api/v2/api_resources",
+      "DownstreamPathTemplate": "/api/v2/api-resources",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -112,7 +112,7 @@
         "AppUser-Id": "{AppUserId}"
       },
 
-      "UpstreamPathTemplate": "/v2/api_resources",
+      "UpstreamPathTemplate": "/v2/api-resources",
       "UpstreamHttpMethod": ["Get", "Post", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -120,7 +120,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/v2/api_resources/{id}",
+      "DownstreamPathTemplate": "/api/v2/api-resources/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -135,7 +135,7 @@
         "AppUser-Id": "{AppUserId}"
       },
 
-      "UpstreamPathTemplate": "/v2/api_resources/{id}",
+      "UpstreamPathTemplate": "/v2/api-resources/{id}",
       "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -296,7 +296,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -321,7 +321,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -346,7 +346,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -371,7 +371,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -397,7 +397,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -422,7 +422,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -448,7 +448,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -473,7 +473,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -499,7 +499,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -524,7 +524,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -550,7 +550,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -575,7 +575,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -601,7 +601,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -626,7 +626,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -652,7 +652,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -677,7 +677,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -703,7 +703,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -728,7 +728,7 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "gene-api",
+          "Host": "Gene.API",
           "Port": "80"
         }
       ],
@@ -778,7 +778,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/mol_db/molecules",
+      "UpstreamPathTemplate": "/v2/mol-db/molecules",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -804,7 +804,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/mol_db/molecule/by-id/{id}",
+      "UpstreamPathTemplate": "/v2/mol-db/molecule/by-id/{id}",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -830,7 +830,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/mol_db/molecule/find-exact/{smiles}",
+      "UpstreamPathTemplate": "/v2/mol-db/molecule/find-exact/{smiles}",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -856,7 +856,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/mol_db/molecule/find-similar/{smiles}",
+      "UpstreamPathTemplate": "/v2/mol-db/molecule/find-similar/{smiles}",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -1258,7 +1258,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/api/v2/hit_collection",
+      "DownstreamPathTemplate": "/api/v2/hit-collection",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -1274,7 +1274,7 @@
         "AppUser-Id": "{AppUserId}",
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
-      "UpstreamPathTemplate": "/v2/hit_collection",
+      "UpstreamPathTemplate": "/v2/hit-collection",
       "UpstreamHttpMethod": ["Get", "Post", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -1283,7 +1283,7 @@
     },
 
     {
-      "DownstreamPathTemplate": "/api/v2/hit_collection/{id}",
+      "DownstreamPathTemplate": "/api/v2/hit-collection/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -1300,7 +1300,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/hit_collection/{id}",
+      "UpstreamPathTemplate": "/v2/hit-collection/{id}",
       "UpstreamHttpMethod": ["Get", "Put", "Delete", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -1310,7 +1310,7 @@
 
 
     {
-      "DownstreamPathTemplate": "/api/v2/hit_collection/by-screen/{screenId}",
+      "DownstreamPathTemplate": "/api/v2/hit-collection/by-screen/{screenId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -1327,7 +1327,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/hit_collection/by-screen/{screenId}",
+      "UpstreamPathTemplate": "/v2/hit-collection/by-screen/{screenId}",
       "UpstreamHttpMethod": ["Get", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -1337,7 +1337,7 @@
 
 
     {
-      "DownstreamPathTemplate": "/api/v2/hit_collection/{id}/rename",
+      "DownstreamPathTemplate": "/api/v2/hit-collection/{id}/rename",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -1354,7 +1354,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/hit_collection/{id}/rename",
+      "UpstreamPathTemplate": "/v2/hit-collection/{id}/rename",
       "UpstreamHttpMethod": ["Put", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -1362,7 +1362,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/v2/hit_collection/{id}/update-associated-screen",
+      "DownstreamPathTemplate": "/api/v2/hit-collection/{id}/update-associated-screen",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -1379,7 +1379,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/hit_collection/{id}/update-associated-screen",
+      "UpstreamPathTemplate": "/v2/hit-collection/{id}/update-associated-screen",
       "UpstreamHttpMethod": ["Put","Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -1387,7 +1387,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/v2/hit_collection/{id}/hit",
+      "DownstreamPathTemplate": "/api/v2/hit-collection/{id}/hit",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -1404,7 +1404,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/hit_collection/{id}/hit",
+      "UpstreamPathTemplate": "/v2/hit-collection/{id}/hit",
       "UpstreamHttpMethod": ["Post", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
@@ -1412,7 +1412,7 @@
       }
     },
     {
-      "DownstreamPathTemplate": "/api/v2/hit_collection/{id}/hit/{hitId}",
+      "DownstreamPathTemplate": "/api/v2/hit-collection/{id}/hit/{hitId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -1429,7 +1429,7 @@
         "AppUser-AccessLevel": "{AppUserAccessLevel}"
       },
 
-      "UpstreamPathTemplate": "/v2/hit_collection/{id}/hit/{hitId}",
+      "UpstreamPathTemplate": "/v2/hit-collection/{id}/hit/{hitId}",
       "UpstreamHttpMethod": ["Put", "Delete", "Options"],
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "EntraID",
