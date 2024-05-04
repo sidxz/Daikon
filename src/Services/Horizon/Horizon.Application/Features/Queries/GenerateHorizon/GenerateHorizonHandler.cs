@@ -33,6 +33,8 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
                 return CreateErrorNode();
             }
 
+            _logger.LogInformation($"Root node found: {rootId}");
+
             // Query to fetch the root node and its connected nodes.
             var query = @"MATCH (root {uniId : $uniId}) <-[rel*]-(node)
                           WHERE node:Gene OR node:Target OR node:Screen OR node:HitCollection OR node:HitAssessment OR node:Project
@@ -40,6 +42,27 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
             var parameters = new Dictionary<string, object> { { "uniId", rootId } };
             var cursor = await _graphQueryRepository.RunAsync(query, parameters);
             var records = await cursor.ToListAsync(cancellationToken);
+
+            // var recordsJson = System.Text.Json.JsonSerializer.Serialize(records);
+            // _logger.LogInformation($"Fetched records: {recordsJson}");
+
+            if (records.Count == 0)
+            {
+                query = @"MATCH (root {uniId : $uniId})
+                          WHERE root:Gene OR root:Target OR root:Screen OR root:HitCollection OR root:HitAssessment OR root:Project
+                          RETURN root";
+                parameters = new Dictionary<string, object> { { "uniId", rootId } };
+                cursor = await _graphQueryRepository.RunAsync(query, parameters);
+                records = await cursor.ToListAsync(cancellationToken);
+
+                if (records.Count == 1)
+                {
+                    var singleNode = ProcessSingleRecord(records);
+                    return singleNode;
+                }
+            }
+
+            
 
             // Process the records to construct the D3Node tree.
             var rootNode = ProcessRecords(records);
@@ -50,6 +73,17 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
             }
 
             _logger.LogInformation("Horizon generation completed.");
+            return rootNode;
+        }
+
+        private D3Node ProcessSingleRecord(IList<IRecord> records)
+        {
+            if (records.Count != 1)
+            {
+                return null;
+            }
+            var rootNode = new D3Node();
+            SetRootNodeProperties(rootNode, records[0]["root"].As<INode>());
             return rootNode;
         }
 
