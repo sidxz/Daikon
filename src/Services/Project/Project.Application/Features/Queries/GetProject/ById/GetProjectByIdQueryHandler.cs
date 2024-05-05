@@ -4,9 +4,7 @@ using CQRS.Core.Exceptions;
 using Project.Application.Contracts.Persistence;
 using MediatR;
 using Project.Application.Contracts.Infrastructure;
-using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Logging;
-using Project.Domain.Entities;
 
 namespace Project.Application.Features.Queries.GetProject.ById
 {
@@ -29,8 +27,8 @@ namespace Project.Application.Features.Queries.GetProject.ById
 
         public async Task<ProjectVM> Handle(GetProjectByIdQuery request, CancellationToken cancellationToken)
         {
-            
-           // Fetch Project from db
+
+            // Fetch Project from db
             var project = await _projectRepository.ReadProjectById(request.Id);
 
             if (project == null)
@@ -42,37 +40,31 @@ namespace Project.Application.Features.Queries.GetProject.ById
             // map to project VM
             var projectVm = _mapper.Map<ProjectVM>(project, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-
             // fetch compound evolution of Project. This returns a list of compound evolutions
             var compoundEvo = await _projectCompoundEvolutionRepository.GetProjectCompoundEvolutionOfProject(request.Id);
 
-
-            // map each compound evolution to compound evolution VM
-            projectVm.CompoundEvolution = _mapper.Map<List<CompoundEvolutionVM>>(compoundEvo, opts => opts.Items["WithMeta"] = request.WithMeta);
-
-
-
-             projectVm.CompoundEvoLatestSMILES = (string)projectVm.CompoundEvolution.FirstOrDefault()?.RequestedSMILES ?? string.Empty;
-            // _logger.LogInformation("Calculated CompoundEvoLatestSMILES {CompoundEvoLatestSMILES}", projectVm.CompoundEvoLatestSMILES);
-
-            projectVm.CompoundEvoLatestMoleculeId = (Guid?)projectVm.CompoundEvolution.FirstOrDefault()?.MoleculeId ?? default(Guid);
-
-
-
-            // fetch molecule for each compound evolution
-            foreach (var evolution in projectVm.CompoundEvolution)
+            if (compoundEvo.Count >= 1)
             {
-                _logger.LogInformation("Fetching molecule for compound evolution with Molecule Id", evolution.MoleculeId);
-                try
-                {
-                    var molecule = await _mLogixAPIService.GetMoleculeById(evolution.MoleculeId);
+                // map each compound evolution to compound evolution VM
+                projectVm.CompoundEvolution = _mapper.Map<List<CompoundEvolutionVM>>(compoundEvo, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-                    evolution.Molecule = _mapper.Map<MoleculeVM>(molecule);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error fetching molecule for compound evolution with Molecule Id", evolution.MoleculeId);
+                projectVm.CompoundEvoLatestSMILES = (string)projectVm.CompoundEvolution.LastOrDefault()?.RequestedSMILES;
+                projectVm.CompoundEvoLatestMoleculeId = (Guid)projectVm.CompoundEvolution.LastOrDefault()?.MoleculeId;
 
+                // fetch molecule for each compound evolution
+                foreach (var evolution in projectVm.CompoundEvolution)
+                {
+                    try
+                    {
+                        var molecule = await _mLogixAPIService.GetMoleculeById(evolution.MoleculeId);
+
+                        evolution.Molecule = _mapper.Map<MoleculeVM>(molecule);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error fetching molecule for compound evolution with Molecule Id", evolution.MoleculeId);
+
+                    }
                 }
             }
 

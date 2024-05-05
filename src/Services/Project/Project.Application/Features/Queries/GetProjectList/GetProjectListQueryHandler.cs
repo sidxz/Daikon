@@ -36,7 +36,7 @@ namespace Project.Application.Features.Queries.GetProjectList
                 {
                     // fetch compound evolution of HA. This returns a list of compound evolutions
                     var haCompoundEvo = await _projectCompoundEvolutionRepository.GetProjectCompoundEvolutionOfProject(project.Id);
-                    var latest = haCompoundEvo.FirstOrDefault();
+                    var latest = haCompoundEvo.LastOrDefault();
                     if (latest != null)
                     {
                         project.CompoundEvoLatestSMILES = latest.RequestedSMILES;

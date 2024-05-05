@@ -30,33 +30,33 @@ namespace Project.Infrastructure.Query.Repositories
 
 
 
-        public async Task CreateProject(Domain.Entities.Project screen)
+        public async Task CreateProject(Domain.Entities.Project project)
         {
 
-            ArgumentNullException.ThrowIfNull(screen);
+            ArgumentNullException.ThrowIfNull(project);
 
             try
             {
-                _logger.LogInformation("CreateProject: Creating screen {ProjectId}, {Project}", screen.Id, screen.ToJson());
-                await _projectCollection.InsertOneAsync(screen);
-                await _versionHub.CommitVersion(screen);
+                _logger.LogInformation("CreateProject: Creating project {ProjectId}, {Project}", project.Id, project.ToJson());
+                await _projectCollection.InsertOneAsync(project);
+                await _versionHub.CommitVersion(project);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the screen with ID {ProjectId}", screen.Id);
-                throw new RepositoryException(nameof(ProjectRepository), "Error creating screen", ex);
+                _logger.LogError(ex, "An error occurred while creating the project with ID {ProjectId}", project.Id);
+                throw new RepositoryException(nameof(ProjectRepository), "Error creating project", ex);
             }
         }
 
 
         public async Task<Domain.Entities.Project> ReadProjectById(Guid id)
         {
-            return await _projectCollection.Find(screen => screen.Id == id).FirstOrDefaultAsync();
+            return await _projectCollection.Find(project => project.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task<Domain.Entities.Project> ReadProjectByName(string name)
         {
-            return await _projectCollection.Find(screen => screen.Name == name).FirstOrDefaultAsync();
+            return await _projectCollection.Find(project => project.Name == name).FirstOrDefaultAsync();
         }
 
 
@@ -64,12 +64,14 @@ namespace Project.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _projectCollection.Find(screen => true).ToListAsync();
+                return await _projectCollection.Find(project => true)
+                .SortBy(project => project.Name)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while getting the screen list");
-                throw new RepositoryException(nameof(ProjectRepository), "Error getting screen list", ex);
+                _logger.LogError(ex, "An error occurred while getting the project list");
+                throw new RepositoryException(nameof(ProjectRepository), "Error getting project list", ex);
             }
 
         }
@@ -78,32 +80,34 @@ namespace Project.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _projectCollection.Find(screen => screen.StrainId == strainId).ToListAsync();
+                return await _projectCollection.Find(project => project.StrainId == strainId)
+                .SortBy(project => project.Name)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while getting the screen list");
-                throw new RepositoryException(nameof(ProjectRepository), "Error getting screen list", ex);
+                _logger.LogError(ex, "An error occurred while getting the project list");
+                throw new RepositoryException(nameof(ProjectRepository), "Error getting project list", ex);
             }
 
         }
 
 
 
-        public async Task UpdateProject(Domain.Entities.Project screen)
+        public async Task UpdateProject(Domain.Entities.Project project)
         {
-            ArgumentNullException.ThrowIfNull(screen);
+            ArgumentNullException.ThrowIfNull(project);
 
             try
             {
-                _logger.LogInformation("UpdateProject: Updating screen {ProjectId}, {Project}", screen.Id, screen.ToJson());
-                await _projectCollection.ReplaceOneAsync(t => t.Id == screen.Id, screen);
-                await _versionHub.CommitVersion(screen);
+                _logger.LogInformation("UpdateProject: Updating project {ProjectId}, {Project}", project.Id, project.ToJson());
+                await _projectCollection.ReplaceOneAsync(t => t.Id == project.Id, project);
+                await _versionHub.CommitVersion(project);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while updating the screen with ID {ProjectId}", screen.Id);
-                throw new RepositoryException(nameof(ProjectRepository), "Error updating screen", ex);
+                _logger.LogError(ex, "An error occurred while updating the project with ID {ProjectId}", project.Id);
+                throw new RepositoryException(nameof(ProjectRepository), "Error updating project", ex);
             }
         }
 
@@ -113,22 +117,22 @@ namespace Project.Infrastructure.Query.Repositories
 
             try
             {
-                _logger.LogInformation("DeleteProject: Deleting screen {ProjectId}", id);
+                _logger.LogInformation("DeleteProject: Deleting project {ProjectId}", id);
                 await _projectCollection.DeleteOneAsync(t => t.Id == id);
                 await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
-                _logger.LogError(ex, "An error occurred while deleting the screen with ID {ProjectId}", id);
-                throw new RepositoryException(nameof(ProjectRepository), "Error deleting screen", ex);
+                _logger.LogError(ex, "An error occurred while deleting the project with ID {ProjectId}", id);
+                throw new RepositoryException(nameof(ProjectRepository), "Error deleting project", ex);
             }
         }
 
 
         public async Task<ProjectRevision> GetProjectRevisions(Guid Id)
         {
-            var screenRevision = await _versionHub.GetVersions(Id);
-            return screenRevision;
+            var projectRevision = await _versionHub.GetVersions(Id);
+            return projectRevision;
         }
     }
 }

@@ -13,7 +13,7 @@ using Project.Domain.Aggregates;
 
 namespace Project.Application.Features.Commands.UpdateProjectAssociation
 {
-    public class UpdateProjectAssociationHandler:  IRequestHandler<UpdateProjectAssociationCommand, Unit>
+    public class UpdateProjectAssociationHandler : IRequestHandler<UpdateProjectAssociationCommand, Unit>
     {
         private readonly IMapper _mapper;
         private readonly ILogger<UpdateProjectAssociationHandler> _logger;
@@ -33,6 +33,11 @@ namespace Project.Application.Features.Commands.UpdateProjectAssociation
 
         public async Task<Unit> Handle(UpdateProjectAssociationCommand request, CancellationToken cancellationToken)
         {
+            var now = DateTime.UtcNow;
+            request.DateModified = now;
+            request.IsModified = true;
+
+
             // fetch existing project
             var existingProject = await _projectRepository.ReadProjectById(request.Id);
             if (existingProject == null)
@@ -46,12 +51,6 @@ namespace Project.Application.Features.Commands.UpdateProjectAssociation
                 _logger.LogWarning("Project not changed: {Id}", request.Id);
                 throw new InvalidOperationException(nameof(Project));
             }
-
-            var now = DateTime.UtcNow;
-
-            request.DateModified = now;
-            request.IsModified = true;
-
 
             var projectAssociationUpdatedEvent = _mapper.Map<ProjectAssociationUpdatedEvent>(request);
 

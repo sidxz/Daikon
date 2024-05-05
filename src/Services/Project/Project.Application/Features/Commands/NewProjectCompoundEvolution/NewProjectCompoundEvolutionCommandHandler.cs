@@ -40,6 +40,14 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
         {
             try
             {
+                _logger.LogInformation("Handling NewProjectCompoundEvolutionCommand: {Id}", request.Id);
+                
+                // handle dates
+                var now = DateTime.UtcNow;
+                request.DateCreated = now;
+                request.IsModified = false;
+
+
                 var compoundEvoAddedEvent = _mapper.Map<ProjectCompoundEvolutionAddedEvent>(request);
 
                 var aggregate = await _projectEventSourcingHandler.GetByAsyncId(request.Id);

@@ -7,7 +7,7 @@ using Daikon.Events.Project;
 
 namespace Project.Domain.Aggregates
 {
-    public partial class ProjectAggregate: AggregateRoot
+    public partial class ProjectAggregate : AggregateRoot
     {
         private bool _active;
         private string _Name;
@@ -21,6 +21,15 @@ namespace Project.Domain.Aggregates
         /* New Project */
         public ProjectAggregate(ProjectCreatedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.Name == null)
+            {
+                throw new InvalidOperationException("Name cannot be empty.");
+            }
+
             _active = true;
             _id = @event.Id;
             _Name = @event.Name;
@@ -37,14 +46,19 @@ namespace Project.Domain.Aggregates
         }
 
         /* Update Project */
-        public void UpdateProject(ProjectUpdatedEvent ProjectUpdatedEvent)
+        public void UpdateProject(ProjectUpdatedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+
             if (!_active)
             {
                 throw new InvalidOperationException("This Project is deleted.");
             }
 
-            RaiseEvent(ProjectUpdatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(ProjectUpdatedEvent @event)
@@ -53,30 +67,40 @@ namespace Project.Domain.Aggregates
         }
 
         /* Update HA Association */
-        public void UpdateHaAssociation(ProjectAssociationUpdatedEvent ProjectAssociationUpdatedEvent)
+        public void UpdateHaAssociation(ProjectAssociationUpdatedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+
             if (!_active)
             {
                 throw new InvalidOperationException("This Project is deleted.");
             }
 
-            RaiseEvent(ProjectAssociationUpdatedEvent);
+            RaiseEvent(@event);
         }
 
         public void Apply(ProjectAssociationUpdatedEvent @event)
         {
             _id = @event.Id;
+            _compoundId = @event.CompoundId;
         }
 
         /* Delete Project */
-        public void DeleteProject(ProjectDeletedEvent ProjectDeletedEvent)
+        public void DeleteProject(ProjectDeletedEvent @event)
         {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
             if (!_active)
             {
                 throw new InvalidOperationException("This Project is already deleted.");
             }
 
-            RaiseEvent(ProjectDeletedEvent);
+            RaiseEvent(@event);
         }
         public void Apply(ProjectDeletedEvent @event)
         {

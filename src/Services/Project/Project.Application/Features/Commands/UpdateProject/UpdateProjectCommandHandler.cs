@@ -43,6 +43,8 @@ namespace Project.Application.Features.Commands.NewProject
             }
 
             var now = DateTime.UtcNow;
+            request.DateModified = now;
+            request.IsModified = true;
 
             // check if stage has changed
             if (existingProject.Stage != request.Stage)
@@ -96,10 +98,6 @@ namespace Project.Application.Features.Commands.NewProject
             {
                 request.ProjectRemovedDate = now;
             }
-
-            request.DateModified = now;
-            request.IsModified = true;
-
 
             var projectUpdatedEvent = _mapper.Map<ProjectUpdatedEvent>(request);
 

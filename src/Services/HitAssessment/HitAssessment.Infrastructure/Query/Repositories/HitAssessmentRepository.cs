@@ -63,7 +63,9 @@ namespace HitAssessment.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _haCollection.Find(ha => true).ToListAsync();
+                return await _haCollection.Find(ha => true)
+                .SortBy(ha => ha.Name)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
