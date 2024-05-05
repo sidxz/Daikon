@@ -47,8 +47,8 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
             {
                 // map each compound evolution to compound evolution VM
                 haVm.HaCompoundEvolution = _mapper.Map<List<HaCompoundEvolutionVM>>(haCompoundEvo, opts => opts.Items["WithMeta"] = request.WithMeta);
-                haVm.CompoundEvoLatestSMILES = (string)haVm.HaCompoundEvolution.FirstOrDefault()?.RequestedSMILES;
-                haVm.CompoundEvoLatestMoleculeId = (Guid)haVm.HaCompoundEvolution.FirstOrDefault()?.MoleculeId;
+                haVm.CompoundEvoLatestSMILES = (string)haVm.HaCompoundEvolution.LastOrDefault()?.RequestedSMILES;
+                haVm.CompoundEvoLatestMoleculeId = (Guid)haVm.HaCompoundEvolution.LastOrDefault()?.MoleculeId;
 
 
                 // fetch molecule for each compound evolution

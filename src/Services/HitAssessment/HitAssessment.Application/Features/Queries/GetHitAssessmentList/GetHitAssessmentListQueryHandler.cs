@@ -31,7 +31,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAsse
                 {
                     // fetch compound evolution of HA. This returns a list of compound evolutions
                     var haCompoundEvo = await _haCompoundEvoRepository.GetHaCompoundEvolutionOfHa(ha.Id);
-                    var latest = haCompoundEvo.FirstOrDefault();
+                    var latest = haCompoundEvo.LastOrDefault();
                     if (latest != null)
                     {
                         ha.CompoundEvoLatestSMILES = latest.RequestedSMILES;
