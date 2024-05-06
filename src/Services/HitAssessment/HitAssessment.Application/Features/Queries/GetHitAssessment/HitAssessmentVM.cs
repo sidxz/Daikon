@@ -37,7 +37,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
         public object StatusCompleteFailedDate { get; set; }
         public object StatusCompleteSuccessDate { get; set; }
 
-        public object TerminationDate { get; set; }
+        public object RemovalDate { get; set; }
         public object CompletionDate { get; set; }
         public object EOLDate { get; set; }
         public object H2LPredictedStartDate { get; set; }

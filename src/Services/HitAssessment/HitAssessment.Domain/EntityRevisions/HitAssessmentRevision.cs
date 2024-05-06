@@ -24,7 +24,7 @@ namespace HitAssessment.Domain.EntityRevisions
         public DVariableHistory<DateTime>? StatusCompleteFailedDate { get; set; }
         public DVariableHistory<DateTime>? StatusCompleteSuccessDate { get; set; }
 
-        public DVariableHistory<DateTime>? TerminationDate { get; set; }
+        public DVariableHistory<DateTime>? RemovalDate { get; set; }
         public DVariableHistory<DateTime>? CompletionDate { get; set; }
         public DVariableHistory<DateTime>? EOLDate { get; set; }
         public DVariableHistory<DateTime>? H2LPredictedStartDate { get; set; }

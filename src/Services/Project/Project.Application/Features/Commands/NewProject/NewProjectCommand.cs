@@ -117,7 +117,6 @@ namespace Project.Application.Features.Commands.NewProject
         public DVariable<DateTime>? ProjectRemovedDate { get; set; }
 
         public DateTime? ProjectStatusDate { get; set; }
-        public DateTime? TerminationDate { get; set; }
 
     }
 }

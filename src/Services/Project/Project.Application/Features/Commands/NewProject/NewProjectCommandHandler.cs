@@ -54,7 +54,7 @@ namespace Project.Application.Features.Commands.NewProject
                 // set HAPredictedStartDate to 10 days now if not set
                 request.H2LPredictedStart ??= new DVariable<DateTime>(now);
                 request.H2LStart ??= new DVariable<DateTime>(now);
-                request.LOPredictedStart = new DVariable<DateTime>(now.AddDays(90));
+                request.LOPredictedStart ??= new DVariable<DateTime>(now.AddDays(90));
                 
                 request.Stage ??= new DVariable<string>(nameof(ProjectStage.H2L));
                 request.IsProjectComplete ??= false;

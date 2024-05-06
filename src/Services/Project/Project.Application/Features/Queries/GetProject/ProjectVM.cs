@@ -64,7 +64,6 @@ namespace Project.Application.Features.Queries.GetProject
         public object P1PredictedStart { get; set; }
         public object P1Start { get; set; }
         public DateTime ProjectStatusDate { get; set; }
-        public DateTime TerminationDate { get; set; }
         public object CompletionDate { get; set; }
         public object ProjectRemovedDate { get; set; }
 

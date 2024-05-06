@@ -46,7 +46,8 @@ namespace Project.Application.Features.Batch
             // set HAPredictedStartDate to 10 days now if not set
             request.H2LPredictedStart ??= new DVariable<DateTime>(now);
             request.H2LStart ??= new DVariable<DateTime>(now);
-            request.LOPredictedStart = new DVariable<DateTime>(now.AddDays(90));
+
+            request.LOPredictedStart ??= new DVariable<DateTime>(now.AddDays(90));
 
             request.Stage ??= new DVariable<string>(nameof(ProjectStage.H2L));
             request.IsProjectComplete ??= false;
@@ -61,10 +62,11 @@ namespace Project.Application.Features.Batch
             foreach (var ceCommand in request.CompoundEvolutions)
             {
                 var addedOnStage = ceCommand.Stage;
+                ceCommand.Id = request.Id;
                 ceCommand.CompoundEvolutionId = Guid.NewGuid();
                 ceCommand.ImportMode = true;
 
-                if (addedOnStage != ProjectStage.H2L || addedOnStage != ProjectStage.LO || addedOnStage != ProjectStage.SP || addedOnStage != ProjectStage.IND || addedOnStage != ProjectStage.P1) 
+                if (addedOnStage == "HA" ) 
                     continue;
 
                 try

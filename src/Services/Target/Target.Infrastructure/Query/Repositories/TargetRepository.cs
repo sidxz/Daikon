@@ -64,7 +64,9 @@ namespace Target.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _targetCollection.Find(target => true).ToListAsync();
+                return await _targetCollection.Find(target => true)
+                .SortBy(target => target.Name)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {

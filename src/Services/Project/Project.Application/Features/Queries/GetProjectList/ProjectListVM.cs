@@ -36,7 +36,6 @@ namespace Project.Application.Features.Queries.GetProjectList
         public DateTime P1PredictedStart { get; set; }
         public DateTime P1Start { get; set; }
         public DateTime ProjectStatusDate { get; set; }
-        public DateTime TerminationDate { get; set; }
         public DateTime CompletionDate { get; set; }
         public DateTime ProjectRemovedDate { get; set; }
 

@@ -121,7 +121,6 @@ namespace Project.Application.Features.Batch
         public DVariable<DateTime>? ProjectRemovedDate { get; set; }
 
         public DateTime? ProjectStatusDate { get; set; }
-        public DateTime? TerminationDate { get; set; }
 
 
 

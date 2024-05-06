@@ -69,7 +69,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 else if (request.Status == nameof(HitAssessmentStatus.IncorrectMz))
                 {
                     request.StatusIncorrectMzDate = now;
-                    request.TerminationDate = now;
+                    request.RemovalDate = now;
                     request.IsHAComplete = true;
                     request.IsHASuccess = false;
                 }

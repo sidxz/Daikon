@@ -57,7 +57,7 @@ namespace HitAssessment.Application.Mappings
             .ForMember(dest => dest.StatusKnownLiabilityDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusKnownLiabilityDate)))
             .ForMember(dest => dest.StatusCompleteFailedDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusCompleteFailedDate)))
             .ForMember(dest => dest.StatusCompleteSuccessDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusCompleteSuccessDate)))
-            .ForMember(dest => dest.TerminationDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.TerminationDate)))
+            .ForMember(dest => dest.RemovalDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.RemovalDate)))
             .ForMember(dest => dest.CompletionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.CompletionDate)))
             .ForMember(dest => dest.EOLDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.EOLDate)))
             .ForMember(dest => dest.H2LPredictedStartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.H2LPredictedStartDate)))

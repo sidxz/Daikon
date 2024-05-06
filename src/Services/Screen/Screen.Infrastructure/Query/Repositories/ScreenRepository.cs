@@ -64,7 +64,9 @@ namespace Screen.Infrastructure.Query.Repositories
         {
             try
             {
-                return await _screenCollection.Find(screen => true).ToListAsync();
+                return await _screenCollection.Find(screen => true)
+                .SortBy(screen => screen.Name)
+                .ToListAsync();
             }
             catch (MongoException ex)
             {
