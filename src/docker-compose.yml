@@ -1,66 +1,77 @@
 
 services:
   userstore-api:
+    container_name: "userstore-api"
     image: ${DOCKER_REGISTRY-}userstore
     build:
       context: .
       dockerfile: Identities/UserStore/UserStore.API/Dockerfile
 
   gene-api:
+    container_name: "gene-api"
     image: ${DOCKER_REGISTRY-}gene
     build:
       context: .
       dockerfile: Services/Gene/Gene.API/Dockerfile
 
   target-api:
+    container_name: "target-api"
     image: ${DOCKER_REGISTRY-}target
     build:
       context: .
       dockerfile: Services/Target/Target.API/Dockerfile
 
   screen-api:
+    container_name: "screen-api"
     image: ${DOCKER_REGISTRY-}screen
     build:
       context: .
       dockerfile: Services/Screen/Screen.API/Dockerfile
 
   hitassessment-api:
+    container_name: "hitassessment-api"
     image: ${DOCKER_REGISTRY-}hitassessment
     build:
       context: .
       dockerfile: Services/HitAssessment/HitAssessment.API/Dockerfile
 
   project-api:
+    container_name: "project-api"
     image: ${DOCKER_REGISTRY-}project
     build:
       context: .
       dockerfile: Services/Project/Project.API/Dockerfile
   
   horizon-api:
+    container_name: "horizon-api"
     image: ${DOCKER_REGISTRY-}horizon
     build:
       context: .
       dockerfile: Services/Horizon/Horizon.API/Dockerfile
 
   mlogix-api:
+    container_name: "mlogix-api"
     image: ${DOCKER_REGISTRY-}mlogix
     build:
       context: .
       dockerfile: Services/MLogix/MLogix.API/Dockerfile
 
   moldb-api:
+    container_name: "moldb-api"
     image: ${DOCKER_REGISTRY-}moldb
     build:
       context: .
       dockerfile: Services/Chem/MolDb.API/Dockerfile
 
   questionnaire-api:
+    container_name: "questionnaire-api"
     image: ${DOCKER_REGISTRY-}questionnaire
     build:
       context: .
       dockerfile: Services/Questionnaire/Questionnaire.API/Dockerfile
 
   comment-api:
+    container_name: "comment-api"
     image: ${DOCKER_REGISTRY-}comment
     build:
       context: .
@@ -73,6 +84,7 @@ services:
   #     dockerfile: ApiGateways/OcelotApiGw/Dockerfile
   
   simplegw-api:
+    container_name: "simplegw-api"
     image: ${DOCKER_REGISTRY-}simplegw
     build:
       context: .
