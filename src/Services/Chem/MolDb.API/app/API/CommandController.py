@@ -6,7 +6,7 @@ from app.api.DTO.MoleculeCreateRequest import MoleculeCreateRequest
 import logging
 
 
-router = APIRouter(prefix="/api/v2/mol_db")
+router = APIRouter(prefix="/api/v2/mol-db")
 logger = logging.getLogger(__name__)
 
 

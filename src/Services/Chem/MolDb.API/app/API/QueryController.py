@@ -7,7 +7,7 @@ import logging
 from typing import List
 
 
-router = APIRouter(prefix="/api/v2/mol_db")
+router = APIRouter(prefix="/api/v2/mol-db")
 logger = logging.getLogger(__name__)
 
 

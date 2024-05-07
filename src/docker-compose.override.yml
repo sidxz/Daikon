@@ -1,9 +1,9 @@
 services:
-  Gene.API:
+  gene-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      
+
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
 
@@ -58,12 +58,12 @@ services:
     ports:
       - "8001:80"
 
-  Target.API:
+  target-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
-       ## Event Store
+        ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
       - "EventDatabaseSettings:CollectionName=Events"
@@ -96,7 +96,7 @@ services:
     ports:
       - "8002:80"
 
-  Screen.API:
+  screen-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -124,7 +124,6 @@ services:
       - "KafkaConsumerSettings:EnableAutoCommit=true"
       - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
-
       ## MongoDb Data Store
       - ScreenMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
       - "ScreenMongoDbSettings:DatabaseName=Screen"
@@ -140,13 +139,13 @@ services:
       - "ScreenMongoDbSettings:HitRevisionCollectionName=HitRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
       - "8003:80"
 
-  HitAssessment.API:
+  hitassessment-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -184,13 +183,13 @@ services:
       - "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
       - "8004:80"
 
-  Project.API:
+  project-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -227,15 +226,15 @@ services:
 
       - "ProjectMongoDbSettings:ProjectRevisionCollectionName=ProjectsRevisions"
       - "ProjectMongoDbSettings:ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
-      
+
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
       - "8005:80"
 
-  Horizon.API:
+  horizon-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -245,7 +244,7 @@ services:
       - HorizonNeo4jSettings:User=${HorizonNeo4jUser}
       - HorizonNeo4jSettings:Password=${HorizonNeo4jPassword}
       - "HorizonNeo4jSettings:Database=horizon"
-    
+
       ## Kafka Consumer
       - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
       - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
@@ -260,7 +259,7 @@ services:
     ports:
       - "8006:80"
 
-  MLogix.API:
+  mlogix-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -294,12 +293,12 @@ services:
       - "MLxMongoDbSettings:MoleculeRevisionCollectionName=MoleculesRevisions"
 
       # Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
+      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
 
     ports:
       - "8007:80"
 
-  Questionnaire.API:
+  questionnaire-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -311,7 +310,7 @@ services:
     ports:
       - "8008:80"
 
-  Comment.API:
+  comment-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -350,13 +349,13 @@ services:
       - "CommentMongoDbSettings:CommentReplyRevisionCollectionName=CommentReplyRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI:Url=http://MLogix.API/api/v2"
+      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
       - "8009:80"
 
-  UserStore.API:
+  userstore-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -382,7 +381,7 @@ services:
   #   ports:
   #     - "8010:80"
 
-  SimpleGW.API:
+  simplegw-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
@@ -396,35 +395,34 @@ services:
       - EntraID:Audience=${EntraID_Audience}
 
       ## Internal API Routing
-      - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
+      - "UserStoreAPI:BaseUrl=http://userstore-api/api/v2/"
 
-      - "EndPointRouting:gene=http://Gene.API"
-      - "EndPointRouting:gene-batch=http://Gene.API"
-      - "EndPointRouting:strain=http://Gene.API"
+      - "EndPointRouting:gene=http://gene-api"
+      - "EndPointRouting:gene-batch=http://gene-api"
+      - "EndPointRouting:strain=http://gene-api"
 
-      - "EndPointRouting:target=http://Target.API"
-      - "EndPointRouting:screen=http://Screen.API"
-      - "EndPointRouting:hit-collection=http://Screen.API"
+      - "EndPointRouting:target=http://target-api"
+      - "EndPointRouting:screen=http://screen-api"
+      - "EndPointRouting:hit-collection=http://screen-api"
 
-      - "EndPointRouting:hit-assessment=http://HitAssessment.API"
-      - "EndPointRouting:project=http://Project.API"
-      - "EndPointRouting:horizon=http://Horizon.API"
-      - "EndPointRouting:molecule=http://MLogix.API"
-      - "EndPointRouting:api-resources=http://UserStore.API"
-      - "EndPointRouting:app-settings=http://UserStore.API"
-      - "EndPointRouting:org=http://UserStore.API"
-      - "EndPointRouting:roles=http://UserStore.API"
-      - "EndPointRouting:user=http://UserStore.API"
-      - "EndPointRouting:questionnaire=http://Questionnaire.API"
-      - "EndPointRouting:comment=http://Comment.API"
-      - "EndPointRouting:mol-db=http://MolDb.API"
+      - "EndPointRouting:hit-assessment=http://hitassessment-api"
+      - "EndPointRouting:project=http://project-api"
+      - "EndPointRouting:horizon=http://horizon-api"
+      - "EndPointRouting:molecule=http://mlogix-api"
+      - "EndPointRouting:api-resources=http://userstore-api"
+      - "EndPointRouting:app-settings=http://userstore-api"
+      - "EndPointRouting:org=http://userstore-api"
+      - "EndPointRouting:roles=http://userstore-api"
+      - "EndPointRouting:user=http://userstore-api"
+      - "EndPointRouting:questionnaire=http://questionnaire-api"
+      - "EndPointRouting:comment=http://comment-api"
+      - "EndPointRouting:mol-db=http://moldb-api"
 
     ports:
       - "8010:80"
 
-  MolDb.API:
+  moldb-api:
     environment:
-      
       # MolDb Postgres
       - MolDbUser=${MolDbUser}
       - MolDbPassword=${MolDbPassword}
