@@ -10,25 +10,25 @@ namespace MLogix.Application.DTOs.MolDbAPI
 
 
         [JsonPropertyName("name")]
-        public string? Name { get; set; }
+        public string Name { get; set; }
 
         [JsonPropertyName("similarity")]
-        public float? Similarity { get; set; }
+        public float Similarity { get; set; }
 
         [JsonPropertyName("smiles")]
         public string Smiles { get; set; }
 
 
         [JsonPropertyName("smilesCanonical")]
-        public string? SmilesCanonical { get; set; }
+        public string SmilesCanonical { get; set; }
 
 
         [JsonPropertyName("molecularWeight")]
-        public float? MolecularWeight { get; set; }
+        public float MolecularWeight { get; set; }
 
 
         [JsonPropertyName("tpsa")]
-        public float? TPSA { get; set; }
+        public float TPSA { get; set; }
 
     }
 }

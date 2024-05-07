@@ -6,6 +6,7 @@ using Daikon.Events.MLogix;
 using MLogix.Application.DTOs.MolDbAPI;
 using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Queries.GetMolecule;
+using MLogix.Application.Features.Queries.ListMolecules;
 using MLogix.Domain.Entities;
 
 namespace MLogix.Application.Mappings
@@ -28,8 +29,10 @@ namespace MLogix.Application.Mappings
             /* Queries */
             CreateMap<Molecule, MoleculeVM>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(new MapperDVariableMetaResolver<Molecule, IValueProperty<string>, string>(src => src.Name)))
-
             .ReverseMap();
+
+            CreateMap<Molecule, MoleculeListVM>()
+                .ReverseMap();
         }
     }
 }

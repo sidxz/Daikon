@@ -81,6 +81,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     MIC = request.CompoundMIC ?? "0",
                     IC50 = request.CompoundIC50 ?? "0",
                     RequestedSMILES = request.CompoundSMILES,
+                    ImportMode = false
                 };
 
                 try
