@@ -175,8 +175,17 @@ namespace Gene.Application.Mappings
             CreateMap<Hypomorph, GeneHypomorphVM>()
                 .ForMember(dest => dest.KnockdownStrain, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.KnockdownStrain)))
                 .ForMember(dest => dest.Phenotype, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.Phenotype)))
+                .ForMember(dest => dest.GrowthDefect, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.GrowthDefect)))
+                .ForMember(dest => dest.GrowthDefectSeverity, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.GrowthDefectSeverity)))
+                .ForMember(dest => dest.KnockdownLevel, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.KnockdownLevel)))
+                .ForMember(dest => dest.EstimatedKnockdownRelativeToWT, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.EstimatedKnockdownRelativeToWT)))
+                .ForMember(dest => dest.EstimateBasedOn, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.EstimateBasedOn)))
+                .ForMember(dest => dest.SelectivelySensitizesToOnTargetInhibitors, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.SelectivelySensitizesToOnTargetInhibitors)))
+                .ForMember(dest => dest.SuitableForScreening, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.SuitableForScreening)))
+                .ForMember(dest => dest.Researcher, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.Researcher)))
+                .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.Reference)))
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.URL)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hypomorph, IValueProperty<string>, string>(src => src.Notes)));
-
 
             /* ====== ProteinActivityAssay ====== */
             // -- Commands --
@@ -266,6 +275,7 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Organization, opt => opt.MapFrom(new MapperDVariableMetaResolver<UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Organization)))
                 .ForMember(dest => dest.Method, opt => opt.MapFrom(new MapperDVariableMetaResolver<UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Method)))
                 .ForMember(dest => dest.Resolution, opt => opt.MapFrom(new MapperDVariableMetaResolver<UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Resolution)))
+                .ForMember(dest => dest.ResolutionUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.ResolutionUnit)))
                 .ForMember(dest => dest.Ligands, opt => opt.MapFrom(new MapperDVariableMetaResolver<UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Ligands)))
                 .ForMember(dest => dest.Researcher, opt => opt.MapFrom(new MapperDVariableMetaResolver<UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Researcher)))
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<UnpublishedStructuralInformation, IValueProperty<string>, string>(src => src.Reference)))

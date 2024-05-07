@@ -29,9 +29,6 @@ namespace Project.Application.EventHandlers
             _logger.LogInformation("OnEvent: ProjectCreatedEvent: {Id}", @event.Id);
             var project = _mapper.Map<Domain.Entities.Project>(@event);
             project.Id = @event.Id;
-            project.DateCreated = DateTime.UtcNow;
-            project.IsModified = false;
-
             try
             {
                 await _projectRepository.CreateProject(project);
@@ -55,10 +52,9 @@ namespace Project.Application.EventHandlers
             var project = _mapper.Map<Domain.Entities.Project>(existingProject);
             _mapper.Map(@event, project);
 
+            // Preserve the original creation date and creator
             project.DateCreated = existingProject.DateCreated;
-
-            project.DateModified = DateTime.UtcNow;
-            project.IsModified = true;
+            project.CreatedById = existingProject.CreatedById;
 
             try
             {
@@ -83,10 +79,9 @@ namespace Project.Application.EventHandlers
             var project = _mapper.Map<Domain.Entities.Project>(existingProject);
             _mapper.Map(@event, project);
 
+            // Preserve the original creation date and creator
             project.DateCreated = existingProject.DateCreated;
-
-            project.DateModified = DateTime.UtcNow;
-            project.IsModified = true;
+            project.CreatedById = existingProject.CreatedById;
 
             try
             {

@@ -44,6 +44,8 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
             }
 
             var now = DateTime.UtcNow;
+            request.DateModified = now;
+            request.IsModified = true;
 
             // check if status has changed
             if (existingHitAssessment.Status != request.Status)
@@ -67,7 +69,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 else if (request.Status == nameof(HitAssessmentStatus.IncorrectMz))
                 {
                     request.StatusIncorrectMzDate = now;
-                    request.TerminationDate = now;
+                    request.RemovalDate = now;
                     request.IsHAComplete = true;
                     request.IsHASuccess = false;
                 }

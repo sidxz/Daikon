@@ -11,6 +11,7 @@ using Project.Application.Features.Queries.GetProject.ById;
 using Project.Application.Features.Queries.GetProject;
 using Project.Application.Features.Queries.GetProjectList;
 using Project.Application.Features.Commands.UpdateProjectAssociation;
+using Project.Application.Features.Batch;
 
 
 namespace Project.API.Controllers.V2
@@ -314,6 +315,62 @@ namespace Project.API.Controllers.V2
                 });
             }
 
+        }
+
+
+        [HttpPost("import-one", Name = "import-one")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> ImportOne(ImportOneCommand command)
+        {
+            var id = Guid.NewGuid();
+
+            try
+            {
+                command.Id = command.Id == Guid.Empty ? id : command.Id;
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Project imported successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("ImportOne: ArgumentNullException");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (DuplicateEntityRequestException ex)
+            {
+                _logger.LogInformation("ImportOne: Requested Resource Already Exists {Name}", ex.Message);
+                return Conflict(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while importing the project";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
     }
 }

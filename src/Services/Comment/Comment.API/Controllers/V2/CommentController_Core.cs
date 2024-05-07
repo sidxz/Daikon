@@ -11,6 +11,7 @@ using Comment.Application.Features.Queries.GetComment;
 using Comment.Application.Features.Queries.GetComment.ById;
 using Comment.Application.Features.Queries.GetCommentList;
 using Comment.Application.Features.Queries.GetComment.ByTags;
+using Comment.Application.Features.Queries.GetMostRecent;
 
 
 namespace Comment.API.Controllers.V2
@@ -274,6 +275,29 @@ namespace Comment.API.Controllers.V2
                 });
             }
 
+        }
+
+        [HttpGet("most-recent", Name = "GetMostRecent")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(IEnumerable<CommentVM>), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<IEnumerable<CommentVM>>> GetMostRecent([FromQuery] int Count)
+        {
+            try
+            {
+                Count = Count > 0 ? Count : 5;
+                var comments = await _mediator.Send(new GetMostRecentQuery { Count = Count });
+                return Ok(comments);
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the comment list";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
     }

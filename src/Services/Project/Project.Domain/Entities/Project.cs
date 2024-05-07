@@ -63,8 +63,6 @@ namespace Project.Domain.Entities
         public DVariable<DateTime> P1PredictedStart { get; set; }
         public DVariable<DateTime> P1Start { get; set; }
         public DateTime ProjectStatusDate { get; set; }
-        public DateTime TerminationDate { get; set; }
-        public DateTime RemovalDate { get; set; }
         public DVariable<DateTime> CompletionDate { get; set; }
         public DVariable<DateTime> ProjectRemovedDate { get; set; }
 

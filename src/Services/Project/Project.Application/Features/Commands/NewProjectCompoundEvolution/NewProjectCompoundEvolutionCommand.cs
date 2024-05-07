@@ -40,5 +40,7 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? IC50Unit { get; set; }
 
+        public bool? ImportMode { get; set; }
+
     }
 }

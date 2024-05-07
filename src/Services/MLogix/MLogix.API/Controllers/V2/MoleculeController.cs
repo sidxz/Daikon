@@ -11,6 +11,8 @@ using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Queries.GetMolecule.ById;
 using MLogix.Application.Features.Queries.GetMolecule.BySMILES;
 using MLogix.Application.Features.Queries.GetMolecule.ByRegistrationId;
+using MLogix.Application.Features.Queries.ListMolecules;
+using MLogix.Application.Features.Queries.FindSimilarMolecules;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -25,6 +27,29 @@ namespace MLogix.API.Controllers.V2
         {
             _mediator = mediator;
             _logger = logger;
+        }
+
+        [HttpGet(Name = "GetAllMolecules")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAllMolecules()
+        {
+            try
+            {
+                var query = new ListMoleculesCommand { };
+                var molecules = await _mediator.Send(query);
+                return Ok(molecules);
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while fetching the molecules";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
         [HttpGet("{id}", Name = "GetMoleculeById")]
@@ -100,13 +125,45 @@ namespace MLogix.API.Controllers.V2
         {
             try
             {
-                var query = new GetMoleculeByRegIdQuery{ RegistrationId = regId};
+                var query = new GetMoleculeByRegIdQuery { RegistrationId = regId };
                 var molecule = await _mediator.Send(query);
                 return Ok(molecule);
             }
             catch (ResourceNotFoundException ex)
             {
                 _logger.LogInformation("GetMoleculeByRegistrationId: Resource Not Found {Id}", regId);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while fetching the molecule";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        [HttpGet("similar/{smiles}", Name = "FindSimilarMolecules")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> FindSimilarMolecules(string smiles, [FromQuery] double similarityThreshold = 1, [FromQuery] int maxResults = 10, [FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var query = new FindSimilarMoleculesQuery { SMILES = smiles, SimilarityThreshold = similarityThreshold, MaxResults = maxResults, WithMeta = WithMeta };
+                var molecules = await _mediator.Send(query);
+                return Ok(molecules);
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("FindSimilarMolecules: Resource Not Found {SMILES}", smiles);
                 return NotFound(new BaseResponse
                 {
                     Message = ex.Message

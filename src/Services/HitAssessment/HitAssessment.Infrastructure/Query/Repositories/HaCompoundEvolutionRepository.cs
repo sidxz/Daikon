@@ -71,7 +71,7 @@ namespace HitAssessment.Infrastructure.Query.Repositories
                 // sort by created date EvolutionDate.Value
 
                 return await _haCompoundEvoCollection.Find(haCompoundEvolution => haCompoundEvolution.HitAssessmentId == HaId)
-                .SortByDescending(haCompoundEvolution => haCompoundEvolution.EvolutionDate.Value)
+                .SortBy(haCompoundEvolution => haCompoundEvolution.EvolutionDate.Value)
                 .ToListAsync();
             }
             catch (MongoException ex)

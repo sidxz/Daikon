@@ -23,9 +23,6 @@ namespace Project.Application.EventHandlers
             // relationship between Project and ProjectCE
             compoundEvolution.ProjectId = @event.Id;
 
-            compoundEvolution.DateCreated = DateTime.UtcNow;
-            compoundEvolution.IsModified = false;
-
             try
             {
                 await _projectCompoundEvolutionRepository.CreateProjectCompoundEvolution(compoundEvolution);
@@ -51,6 +48,10 @@ namespace Project.Application.EventHandlers
             
             compoundEvolution.Id = @event.CompoundEvolutionId;
             compoundEvolution.ProjectId = @event.Id;
+
+             // Preserve the original creation date and creator
+            compoundEvolution.CreatedById = compoundEvolution.CreatedById;
+            compoundEvolution.DateCreated = compoundEvolution.DateCreated;
 
             try
             {

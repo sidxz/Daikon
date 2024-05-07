@@ -86,6 +86,19 @@ namespace Comment.Infrastructure.Query.Repositories
             }
         }
 
+        public async Task<List<Domain.Entities.Comment>> ListMostRecent(int count)
+        {
+            try
+            {
+                return await _commentCollection.Find(_ => true).SortByDescending(comment => comment.DateCreated).Limit(count).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the comment list");
+                throw new RepositoryException(nameof(CommentRepository), "Error getting comment list", ex);
+            }
+        }
+
         public async Task<List<Domain.Entities.Comment>> ListByResourceId(Guid resourceId)
         {
             try

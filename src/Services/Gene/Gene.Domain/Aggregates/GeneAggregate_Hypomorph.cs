@@ -28,10 +28,7 @@ namespace Gene.Domain.Aggregates
             {
                 throw new Exception("Hypomorph already exists.");
             }
-            if (string.IsNullOrWhiteSpace(@event.KnockdownStrain))
-            {
-                throw new InvalidOperationException($"The value of hypomorph knockdown strain cannot be null or whitespace");
-            }
+            
 
             RaiseEvent(@event);
         }
@@ -67,10 +64,7 @@ namespace Gene.Domain.Aggregates
             {
                 throw new InvalidOperationException("Hypomorph does not exist.");
             }
-            if (string.IsNullOrWhiteSpace(@event.KnockdownStrain))
-            {
-                throw new InvalidOperationException($" The value of hypomorph classification cannot be null or whitespace");
-            }
+            
 
             RaiseEvent(@event);
         }

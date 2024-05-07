@@ -10,8 +10,8 @@ namespace MLogix.Application.Features.Queries.GetMolecule
         public Dictionary<string, string> Ids { get; set; }
         public float Similarity { get; set; }
         public string Smiles { get; set; }
-        public string? SmilesCanonical { get; set; }
-        public float? MolecularWeight { get; set; }
-        public float? TPSA { get; set; }
+        public string SmilesCanonical { get; set; }
+        public float MolecularWeight { get; set; }
+        public float TPSA { get; set; }
     }
 }

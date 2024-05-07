@@ -39,5 +39,7 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? IC50Unit { get; set; }
 
+        public bool? ImportMode { get; set; }
+
     }
 }

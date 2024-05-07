@@ -46,7 +46,7 @@ namespace Daikon.Events.HitAssessment
         public DVariable<DateTime>? StatusCompleteFailedDate { get; set; }
         public DVariable<DateTime>? StatusCompleteSuccessDate { get; set; }
 
-        public DVariable<DateTime>? TerminationDate { get; set; }
+        public DVariable<DateTime>? RemovalDate { get; set; }
         public DVariable<DateTime>? CompletionDate { get; set; }
         public DVariable<DateTime>? EOLDate { get; set; }
         public DVariable<DateTime>? H2LPredictedStartDate { get; set; }

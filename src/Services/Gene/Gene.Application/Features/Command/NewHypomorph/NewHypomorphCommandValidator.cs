@@ -6,9 +6,9 @@ namespace Gene.Application.Features.Command.NewHypomorph
     {
         public NewHypomorphCommandValidator()
         {
-            RuleFor(e => e.KnockdownStrain)
-            .NotEmpty().WithMessage("{KnockdownStrain} is required")
-            .NotNull();
+            // RuleFor(e => e.KnockdownStrain)
+            // .NotEmpty().WithMessage("{KnockdownStrain} is required")
+            // .NotNull();
         }
     }
 }

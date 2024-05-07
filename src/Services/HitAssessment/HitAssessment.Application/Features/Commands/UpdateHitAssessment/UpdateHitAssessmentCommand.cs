@@ -78,7 +78,7 @@ namespace HitAssessment.Application.Features.Commands.UpdateHitAssessment
 
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
-        public DVariable<DateTime>? TerminationDate { get; set; }
+        public DVariable<DateTime>? RemovalDate { get; set; }
 
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]

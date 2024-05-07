@@ -43,27 +43,31 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
             // fetch compound evolution of HA. This returns a list of compound evolutions
             var haCompoundEvo = await _haCompoundEvoRepository.GetHaCompoundEvolutionOfHa(request.Id);
 
-            // map each compound evolution to compound evolution VM
-            haVm.HaCompoundEvolution = _mapper.Map<List<HaCompoundEvolutionVM>>(haCompoundEvo, opts => opts.Items["WithMeta"] = request.WithMeta);
-            haVm.CompoundEvoLatestSMILES = (string)haVm.HaCompoundEvolution.FirstOrDefault()?.RequestedSMILES;
-            haVm.CompoundEvoLatestMoleculeId = (Guid)haVm.HaCompoundEvolution.FirstOrDefault()?.MoleculeId;
-
-
-            // fetch molecule for each compound evolution
-            foreach (var evolution in haVm.HaCompoundEvolution)
+            if (haCompoundEvo.Count >= 1)
             {
-                try
-                {
-                    var molecule = await _mLogixAPIService.GetMoleculeById(evolution.MoleculeId);
+                // map each compound evolution to compound evolution VM
+                haVm.HaCompoundEvolution = _mapper.Map<List<HaCompoundEvolutionVM>>(haCompoundEvo, opts => opts.Items["WithMeta"] = request.WithMeta);
+                haVm.CompoundEvoLatestSMILES = (string)haVm.HaCompoundEvolution.LastOrDefault()?.RequestedSMILES;
+                haVm.CompoundEvoLatestMoleculeId = (Guid)haVm.HaCompoundEvolution.LastOrDefault()?.MoleculeId;
 
-                    evolution.Molecule = _mapper.Map<MoleculeVM>(molecule);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error fetching molecule for compound evolution with Molecule Id", evolution.MoleculeId);
 
+                // fetch molecule for each compound evolution
+                foreach (var evolution in haVm.HaCompoundEvolution)
+                {
+                    try
+                    {
+                        var molecule = await _mLogixAPIService.GetMoleculeById(evolution.MoleculeId);
+
+                        evolution.Molecule = _mapper.Map<MoleculeVM>(molecule);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error fetching molecule for compound evolution with Molecule Id", evolution.MoleculeId);
+
+                    }
                 }
             }
+
 
 
 

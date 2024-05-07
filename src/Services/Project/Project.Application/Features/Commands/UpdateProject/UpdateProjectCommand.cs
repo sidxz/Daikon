@@ -111,8 +111,6 @@ namespace Project.Application.Features.Commands.UpdateProject
 
         public DateTime? ProjectStatusDate { get; set; }
 
-        public DateTime? TerminationDate { get; set; }
-
 
     }
 }

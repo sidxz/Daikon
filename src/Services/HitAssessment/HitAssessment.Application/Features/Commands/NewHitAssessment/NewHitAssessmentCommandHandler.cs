@@ -38,11 +38,11 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         {
             try
             {
-                // serialize the request to json and log
-                var requestJson = JsonSerializer.Serialize(request);
-                _logger.LogInformation($"Handling NewHitAssessmentCommand: {requestJson}");
-
-
+                 // handle dates
+                var now = DateTime.UtcNow;
+                request.DateCreated = now;
+                request.IsModified = false;
+                
                 // check if name exists
                 var existingHitAssessment = await _haRepository.ReadHaByName(request.Name);
                 if (existingHitAssessment != null)
@@ -51,9 +51,8 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     throw new InvalidOperationException("HitAssessment name already exists");
                 }
 
-                // handle dates
-                var now = DateTime.UtcNow;
-                request.DateCreated = now;
+               
+
                 request.StatusLastModifiedDate = now;
                 // set HAPredictedStartDate to 10 days now if not set
                 request.HaPredictedStartDate ??= new DVariable<DateTime>(now.AddDays(10));
@@ -82,6 +81,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     MIC = request.CompoundMIC ?? "0",
                     IC50 = request.CompoundIC50 ?? "0",
                     RequestedSMILES = request.CompoundSMILES,
+                    ImportMode = false
                 };
 
                 try

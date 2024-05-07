@@ -29,9 +29,6 @@ namespace HitAssessment.Application.EventHandlers
             _logger.LogInformation("OnEvent: HitAssessmentCreatedEvent: {Id}", @event.Id);
             var ha = _mapper.Map<Domain.Entities.HitAssessment>(@event);
             ha.Id = @event.Id;
-            ha.DateCreated = DateTime.UtcNow;
-            ha.IsModified = false;
-
             try
             {
                 await _haRepository.CreateHa(ha);
@@ -45,17 +42,19 @@ namespace HitAssessment.Application.EventHandlers
         public async Task OnEvent(HaUpdatedEvent @event)
         {
             _logger.LogInformation("OnEvent: HitAssessmentUpdatedEvent: {Id}", @event.Id);
-            var existingHitAssessment = await _haRepository.ReadHaById(@event.Id);
+            var existingHa = await _haRepository.ReadHaById(@event.Id);
 
-            if (existingHitAssessment == null)
+            if (existingHa == null)
             {
                 throw new EventHandlerException(nameof(EventHandler), $"HitAssessmentUpdatedEvent Error updating ha {@event.Id}", new Exception("HitAssessment not found"));
             }
 
-            var ha = _mapper.Map<Domain.Entities.HitAssessment>(@event);
-            ha.DateCreated = existingHitAssessment.DateCreated;
-            ha.DateModified = DateTime.UtcNow;
-            ha.IsModified = true;
+            var ha = _mapper.Map<Domain.Entities.HitAssessment>(existingHa);
+            _mapper.Map(@event, ha);
+
+            // Preserve the original creation date and creator
+            ha.DateCreated = existingHa.DateCreated;
+            ha.CreatedById = existingHa.CreatedById;
 
             try
             {
