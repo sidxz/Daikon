@@ -22,6 +22,9 @@ namespace Gene.Application.Features.Command.UpdateUnpublishedStructuralInformati
         public DVariable<string>? Resolution { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? ResolutionUnit { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Ligands { get; set; }
         
         [JsonConverter(typeof(DVariableJsonConverter<string>))]

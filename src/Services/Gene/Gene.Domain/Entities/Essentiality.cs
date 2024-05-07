@@ -15,6 +15,5 @@ namespace Gene.Domain.Entities
         public DVariable<string>? Reference { get; set; }
         public DVariable<string>? Note { get; set; }
 
-
     }
 }

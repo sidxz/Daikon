@@ -7,9 +7,6 @@ namespace Gene.Application.Features.Command.UpdateHypomorph
     {
         public UpdateHypomorphCommandValidator()
         {
-             RuleFor(e => e.KnockdownStrain)
-            .NotEmpty().WithMessage("{KnockdownStrain} is required")
-            .NotNull();
 
         }
     }

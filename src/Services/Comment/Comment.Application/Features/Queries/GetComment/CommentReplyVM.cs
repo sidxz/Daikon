@@ -6,7 +6,7 @@ using CQRS.Core.Domain;
 
 namespace Comment.Application.Features.Queries.GetComment
 {
-    public class CommentReplyVM :DocMetadata
+    public class CommentReplyVM : DocMetadata
     {
         public Guid Id { get; set; }
         public Guid CommentId { get; set; }

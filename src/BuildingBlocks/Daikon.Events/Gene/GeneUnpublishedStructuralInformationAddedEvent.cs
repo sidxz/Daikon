@@ -17,6 +17,7 @@ namespace Daikon.Events.Gene
         public required DVariable<string> Organization { get; set; }
         public DVariable<string>? Method { get; set; }
         public DVariable<string>? Resolution { get; set; }
+        public DVariable<string>? ResolutionUnit { get; set; }
 
         public DVariable<string>? Ligands { get; set; }
         public DVariable<string>? Researcher { get; set; }
