@@ -7,6 +7,7 @@ namespace Comment.Application.Contracts.Persistence
         Task Create(Domain.Entities.Comment comment);
         Task<Domain.Entities.Comment> ReadById(Guid id);
         Task<List<Domain.Entities.Comment>> ListAll();
+        Task<List<Domain.Entities.Comment>> ListMostRecent(int count);
         Task<List<Domain.Entities.Comment>> ListByResourceId(Guid resourceId);
         Task<List<Domain.Entities.Comment>> ListByUserId(Guid userId);
         Task<List<Domain.Entities.Comment>> ListByTags(List<string> tags);
