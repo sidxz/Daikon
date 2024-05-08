@@ -261,11 +261,12 @@ namespace HitAssessment.API.Controllers.V2
 
         }
 
-        [HttpPost("rename", Name = "RenameHitAssessment")]
+        [HttpPut("{id}/rename", Name = "RenameHitAssessment")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> RenameHitAssessment([FromBody] RenameHitAssessmentCommand command)
+        public async Task<ActionResult> RenameHitAssessment(Guid id, [FromBody] RenameHitAssessmentCommand command)
         {
+            command.Id = id;
             try
             {
                 await _mediator.Send(command);

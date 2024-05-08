@@ -318,11 +318,12 @@ namespace Project.API.Controllers.V2
 
         }
 
-        [HttpPost("rename", Name = "RenameProject")]
+        [HttpPut("{id}/rename", Name = "RenameProject")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> RenameProject(RenameProjectCommand command)
+        public async Task<ActionResult> RenameProject(Guid id, RenameProjectCommand command)
         {
+            command.Id = id;
             try
             {
                 await _mediator.Send(command);
