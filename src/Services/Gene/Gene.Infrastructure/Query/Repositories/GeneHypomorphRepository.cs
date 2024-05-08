@@ -25,6 +25,9 @@ namespace Gene.Infrastructure.Query.Repositories
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneHypomorphCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "Hypomorph");
 
+            _hypomorphCollection.Indexes.CreateOne
+                (new CreateIndexModel<Hypomorph>(Builders<Hypomorph>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
+                
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -10,7 +10,6 @@ namespace HitAssessment.Application.Features.Commands.UpdateHitAssessment
     public class UpdateHitAssessmentCommand : BaseCommand, IRequest<Unit>
     {
         public Guid? StrainId { get; set; }
-        public string Name { get; set; }
         public string? HaType { get; set; }
         public string? LegacyId { get; set; }
 

@@ -25,6 +25,8 @@ namespace Gene.Infrastructure.Query.Repositories
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneProteinActivityAssayCollectionName") ?? 
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "ProteinActivityAssay");
 
+            _proteinActivityAssayCollection.Indexes.CreateOne
+                (new CreateIndexModel<ProteinActivityAssay>(Builders<ProteinActivityAssay>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

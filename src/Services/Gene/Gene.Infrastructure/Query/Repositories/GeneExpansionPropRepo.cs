@@ -23,6 +23,10 @@ namespace Gene.Infrastructure.Query.Repositories
             _expansionPropCollection = database.GetCollection<GeneExpansionProp>(
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneExpansionPropCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "GeneExpansionProp");
+            
+            _expansionPropCollection.Indexes.CreateOne
+                (new CreateIndexModel<GeneExpansionProp>(Builders<GeneExpansionProp>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
+                
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 

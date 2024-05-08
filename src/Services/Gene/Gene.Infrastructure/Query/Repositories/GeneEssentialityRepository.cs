@@ -24,6 +24,9 @@ namespace Gene.Infrastructure.Query.Repositories
             _essentialityCollection = database.GetCollection<Essentiality>(
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneEssentialityCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "Essentiality");
+            
+            _essentialityCollection.Indexes.CreateOne
+                (new CreateIndexModel<Essentiality>(Builders<Essentiality>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 

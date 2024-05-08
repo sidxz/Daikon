@@ -22,6 +22,8 @@ namespace Gene.Infrastructure.Query.Repositories
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _geneCollection = database.GetCollection<Domain.Entities.Gene>(configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName"));
             _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.AccessionNumber), new CreateIndexOptions { Unique = true }));
+            _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.StrainId), new CreateIndexOptions { Unique = false }));
+            _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.DateCreated), new CreateIndexOptions { Unique = false }));
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

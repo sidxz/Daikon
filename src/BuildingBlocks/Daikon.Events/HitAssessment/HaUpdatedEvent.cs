@@ -12,7 +12,6 @@ namespace Daikon.Events.HitAssessment
         }
 
         public Guid? StrainId { get; set; }
-        public string Name { get; set; }
         public string? HaType { get; set; }
         public string? LegacyId { get; set; }
         public DVariable<string> Description { get; set; }

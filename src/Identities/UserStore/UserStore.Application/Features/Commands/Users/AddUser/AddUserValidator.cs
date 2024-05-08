@@ -21,11 +21,11 @@ namespace UserStore.Application.Features.Commands.Users.AddUser
 
             RuleFor(command => command.FirstName)
                 .NotEmpty().WithMessage("FirstName is required.")
-                .MaximumLength(50).WithMessage("FirstName must not exceed 50 characters.");
+                .MaximumLength(500).WithMessage("FirstName must not exceed 500 characters.");
 
             RuleFor(command => command.LastName)
                 .NotEmpty().WithMessage("LastName is required.")
-                .MaximumLength(50).WithMessage("LastName must not exceed 50 characters.");
+                .MaximumLength(500).WithMessage("LastName must not exceed 500 characters.");
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Horizon.Application.Contracts.Persistance
         Task CreateConstraintsAsync();
         Task Create(HitAssessment hitAssessment);
         Task Update(HitAssessment hitAssessment);
+        Task Rename(HitAssessment hitAssessment);
         Task Delete(string hitAssessmentId);
     }
 }

@@ -24,7 +24,9 @@ namespace Gene.Infrastructure.Query.Repositories
             _resistanceMutationCollection = database.GetCollection<ResistanceMutation>(
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneResistanceMutationCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "ResistanceMutation");
-
+            _resistanceMutationCollection.Indexes.CreateOne
+                (new CreateIndexModel<ResistanceMutation>(Builders<ResistanceMutation>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
+                
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

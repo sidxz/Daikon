@@ -20,6 +20,7 @@ namespace Gene.Infrastructure.Query.Repositories
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _strainCollection = database.GetCollection<Strain>(configuration.GetValue<string>("GeneMongoDbSettings:StrainCollectionName"));
             _strainCollection.Indexes.CreateOne(new CreateIndexModel<Strain>(Builders<Strain>.IndexKeys.Ascending(g => g.Name), new CreateIndexOptions { Unique = true }));
+            _strainCollection.Indexes.CreateOne(new CreateIndexModel<Strain>(Builders<Strain>.IndexKeys.Ascending(g => g.DateCreated), new CreateIndexOptions { Unique = false }));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

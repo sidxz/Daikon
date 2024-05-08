@@ -41,9 +41,11 @@ namespace HitAssessment.Infrastructure
 
             BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
+
             BsonClassMap.RegisterClassMap<HaCreatedEvent>();
             BsonClassMap.RegisterClassMap<HaUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HaDeletedEvent>();
+            BsonClassMap.RegisterClassMap<HaRenamedEvent>();
 
             BsonClassMap.RegisterClassMap<HaCompoundEvolutionAddedEvent>();
             BsonClassMap.RegisterClassMap<HaCompoundEvolutionUpdatedEvent>();

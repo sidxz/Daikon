@@ -152,6 +152,21 @@ namespace Horizon.Infrastructure.Repositories
             }
 
         }
+
+        public Task Rename(HitAssessment hitAssessment)
+        {
+            var query = @"
+                MATCH (ha:HitAssessment { uniId: $uniId})
+                SET ha.name = $name
+            ";
+            var parameters = new
+            {
+                uniId = hitAssessment.UniId,
+                name = hitAssessment.Name
+            };
+
+            return _driver.ExecutableQuery(query).WithParameters(parameters).ExecuteAsync();
+        }
         public Task Delete(string hitAssessmentId)
         {
             var query = @"
@@ -176,7 +191,6 @@ namespace Horizon.Infrastructure.Repositories
                 var query = @"
                 MATCH (ha:HitAssessment { uniId: $uniId})
                 SET 
-                    ha.name = $name, 
                     ha.status = $status, 
                     ha.orgId = $orgId, 
                     ha.isHAComplete = $isHAComplete, 
@@ -187,7 +201,6 @@ namespace Horizon.Infrastructure.Repositories
                 var parameters = new
                 {
                     uniId = hitAssessment.HitAssessmentId,
-                    name = hitAssessment.Name,
                     status = hitAssessment.Status,
                     orgId = hitAssessment.OrgId,
                     isHAComplete = hitAssessment.IsHAComplete,

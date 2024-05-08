@@ -25,6 +25,8 @@ namespace Gene.Infrastructure.Query.Repositories
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCrispriStrainCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "CrispriStrain");
 
+            _crispriStrainCollection.Indexes.CreateOne
+                (new CreateIndexModel<CrispriStrain>(Builders<CrispriStrain>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
