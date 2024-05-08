@@ -42,6 +42,7 @@ namespace Project.Infrastructure
             BsonClassMap.RegisterClassMap<ProjectCreatedEvent>();
             BsonClassMap.RegisterClassMap<ProjectUpdatedEvent>();
             BsonClassMap.RegisterClassMap<ProjectDeletedEvent>();
+            BsonClassMap.RegisterClassMap<ProjectRenamedEvent>();
 
             BsonClassMap.RegisterClassMap<ProjectCompoundEvolutionAddedEvent>();
             BsonClassMap.RegisterClassMap<ProjectCompoundEvolutionUpdatedEvent>();

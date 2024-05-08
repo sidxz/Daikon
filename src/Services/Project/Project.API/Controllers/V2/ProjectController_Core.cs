@@ -12,6 +12,7 @@ using Project.Application.Features.Queries.GetProject;
 using Project.Application.Features.Queries.GetProjectList;
 using Project.Application.Features.Commands.UpdateProjectAssociation;
 using Project.Application.Features.Batch;
+using Project.Application.Features.Commands.RenameProject;
 
 
 namespace Project.API.Controllers.V2
@@ -315,6 +316,58 @@ namespace Project.API.Controllers.V2
                 });
             }
 
+        }
+
+        [HttpPost("rename", Name = "RenameProject")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> RenameProject(RenameProjectCommand command)
+        {
+            try
+            {
+                await _mediator.Send(command);
+
+                return StatusCode(StatusCodes.Status200OK, new BaseResponse
+                {
+                    Message = "Project renamed successfully",
+                });
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("RenameProject: ArgumentNullException");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("RenameProject: Requested Resource Not Found {Id}", command.Id);
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while renaming the project";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
         }
 
 

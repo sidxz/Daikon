@@ -8,6 +8,7 @@ namespace Project.Application.EventHandlers
         Task OnEvent(ProjectCreatedEvent @event);
         Task OnEvent(ProjectUpdatedEvent @event);
         Task OnEvent(ProjectDeletedEvent @event);
+        Task OnEvent(ProjectRenamedEvent @event);
 
         Task OnEvent(ProjectAssociationUpdatedEvent @event);
 

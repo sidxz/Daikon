@@ -93,6 +93,33 @@ namespace Project.Application.EventHandlers
             }
         }
 
+        public async Task OnEvent(ProjectRenamedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: ProjectRenamedEvent: {Id}", @event.Id);
+            var existingProject = await _projectRepository.ReadProjectById(@event.Id);
+
+            if (existingProject == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ProjectRenamedEvent Error renaming project {@event.Id}", new Exception("Project not found"));
+            }
+
+            var project = _mapper.Map<Domain.Entities.Project>(existingProject);
+            _mapper.Map(@event, project);
+
+            // Preserve the original creation date and creator
+            project.DateCreated = existingProject.DateCreated;
+            project.CreatedById = existingProject.CreatedById;
+
+            try
+            {
+                await _projectRepository.UpdateProject(project);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"ProjectRenamedEvent Error renaming project {@event.Id}", ex);
+            }
+        }
+
         public async Task OnEvent(ProjectDeletedEvent @event)
         {
             _logger.LogInformation("OnEvent: ProjectDeletedEvent: {Id}", @event.Id);

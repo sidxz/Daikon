@@ -36,6 +36,7 @@ namespace Project.Infrastructure.Query.Converters
                 "ProjectCreatedEvent" => JsonSerializer.Deserialize<ProjectCreatedEvent>(json, options),
                 "ProjectUpdatedEvent" => JsonSerializer.Deserialize<ProjectUpdatedEvent>(json, options),
                 "ProjectDeletedEvent" => JsonSerializer.Deserialize<ProjectDeletedEvent>(json, options),
+                "ProjectRenamedEvent" => JsonSerializer.Deserialize<ProjectRenamedEvent>(json, options),
                 "ProjectCompoundEvolutionAddedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionAddedEvent>(json, options),
                 "ProjectCompoundEvolutionUpdatedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionUpdatedEvent>(json, options),
                 "ProjectCompoundEvolutionDeletedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionDeletedEvent>(json, options),
