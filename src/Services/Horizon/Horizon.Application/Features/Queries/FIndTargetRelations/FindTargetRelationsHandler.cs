@@ -72,7 +72,7 @@ namespace Horizon.Application.Features.Queries.FIndTargetRelations
                     highestRelationship = "Screen";
                     break;
                 case 3:
-                    highestRelationship = "HitCollection";
+                    highestRelationship = "Screen";
                     break;
                 case 4:
                     highestRelationship = "HitAssessment";
