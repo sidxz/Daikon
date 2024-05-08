@@ -46,14 +46,14 @@ namespace Horizon.Application.Handlers
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), "ProjectCreatedEvent Error creating hit assessment", ex);
+                throw new EventHandlerException(nameof(EventHandler), "ProjectCreatedEvent Error creating project", ex);
             }
         }
 
         public Task OnEvent(ProjectUpdatedEvent @event)
         {
             _logger.LogInformation($"Horizon: ProjectUpdatedEvent: {@event.Id}");
-            
+
             var project = new Project
             {
                 UniId = @event.Id.ToString(),
@@ -75,7 +75,31 @@ namespace Horizon.Application.Handlers
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), "ProjectUpdatedEvent Error updating hit assessment", ex);
+                throw new EventHandlerException(nameof(EventHandler), "ProjectUpdatedEvent Error updating project", ex);
+            }
+        }
+
+        public Task OnEvent(ProjectRenamedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: ProjectRenamedEvent: {@event.Id}");
+            var project = new Project
+            {
+                UniId = @event.Id.ToString(),
+                ProjectId = @event.Id.ToString(),
+                Name = @event.Name,
+                DateCreated = @event.DateCreated,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified,
+                IsDraft = @event.IsDraft
+            };
+
+            try
+            {
+                return _graphRepository.Rename(project);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "ProjectRenamedEvent Error updating project", ex);
             }
         }
 
@@ -83,7 +107,7 @@ namespace Horizon.Application.Handlers
         public Task OnEvent(ProjectAssociationUpdatedEvent @event)
         {
             _logger.LogInformation($"Horizon: ProjectAssociationUpdatedEvent: {@event.Id}");
-            
+
             var project = new Project
             {
                 UniId = @event.Id.ToString(),
@@ -105,7 +129,7 @@ namespace Horizon.Application.Handlers
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), "ProjectUpdatedEvent Error updating hit assessment", ex);
+                throw new EventHandlerException(nameof(EventHandler), "ProjectUpdatedEvent Error updating project", ex);
             }
         }
 
@@ -119,7 +143,7 @@ namespace Horizon.Application.Handlers
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), "ProjectDeletedEvent Error deleting hit assessment", ex);
+                throw new EventHandlerException(nameof(EventHandler), "ProjectDeletedEvent Error deleting project", ex);
             }
         }
     }
