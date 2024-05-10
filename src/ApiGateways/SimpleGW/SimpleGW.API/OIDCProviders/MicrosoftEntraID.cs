@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
 
 namespace SimpleGW.OIDCProviders
 {
@@ -18,12 +19,12 @@ namespace SimpleGW.OIDCProviders
             }
 
             /* Dump configuration to console for debugging */
-            // Console.WriteLine($"EntraID Instance: {entraIdConfig["Instance"]}");
-            // Console.WriteLine($"EntraID Domain: {entraIdConfig["Domain"]}");
-            // Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
-            // Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
-            // Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
-            
+            Console.WriteLine($"EntraID Instance: {entraIdConfig["Instance"]}");
+            Console.WriteLine($"EntraID Domain: {entraIdConfig["Domain"]}");
+            Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
+            Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
+            Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
+
             var requiredConfigs = new[] { "Instance", "Domain", "TenantId", "Audience", "ClientId" };
             foreach (var configKey in requiredConfigs)
             {
@@ -43,7 +44,19 @@ namespace SimpleGW.OIDCProviders
                 configuration.Bind(options);
                 options.Authority = $"{entraIdConfig["Instance"]}{entraIdConfig["TenantId"]}";
                 options.Audience = entraIdConfig["Audience"];
-                options.TokenValidationParameters.ValidateAudience = false;
+                // options.TokenValidationParameters.ValidateAudience = false;
+                // Enable issuer validation explicitly
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = $"{entraIdConfig["Instance"]}{entraIdConfig["TenantId"]}", // Adjust as necessary
+                    ValidateAudience = true, // Consider enabling audience validation
+                    ValidAudience = entraIdConfig["Audience"],
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+
 
                 options.Events = new JwtBearerEvents
                 {
@@ -61,7 +74,7 @@ namespace SimpleGW.OIDCProviders
                             logger.LogDebug($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
                             foreach (var claim in claimsIdentity.Claims)
                             {
-                                //Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
+                                Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
                             }
                         }
                         return Task.CompletedTask;
