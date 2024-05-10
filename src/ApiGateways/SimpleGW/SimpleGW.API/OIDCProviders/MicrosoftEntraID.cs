@@ -49,14 +49,17 @@ namespace SimpleGW.OIDCProviders
                 // Enable issuer validation explicitly
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = true,
+                    ValidateIssuer = false,
                     ValidIssuer = entraIdConfig["Issuer"],
-                    ValidateAudience = false, // Consider enabling audience validation
+                    ValidateAudience = false,
                     ValidAudience = entraIdConfig["Audience"],
                     ValidateLifetime = false,
                     ValidateIssuerSigningKey = false,
                     ClockSkew = TimeSpan.Zero
                 };
+
+                Console.WriteLine("EntraID Configuration: {options}");
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(options));
 
 
                 options.Events = new JwtBearerEvents
