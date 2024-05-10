@@ -9,6 +9,7 @@ using HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.DeleteHitAssessment;
 using HitAssessment.Application.Features.Commands.NewHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.NewHitAssessment;
+using HitAssessment.Application.Features.Commands.RenameHitAssessment;
 using HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.UpdateHitAssessment;
 using HitAssessment.Application.Features.Queries.GetHitAssessment;
@@ -30,11 +31,13 @@ namespace HitAssessment.Application.Mappings
             CreateMap<HaCreatedEvent, NewHitAssessmentCommand>().ReverseMap();
             CreateMap<HaUpdatedEvent, UpdateHitAssessmentCommand>().ReverseMap();
             CreateMap<HaDeletedEvent, DeleteHitAssessmentCommand>().ReverseMap();
+            CreateMap<HaRenamedEvent, RenameHitAssessmentCommand>().ReverseMap();
 
 
             CreateMap<HaCreatedEvent, Domain.Entities.HitAssessment>().ReverseMap();
             CreateMap<HaUpdatedEvent, Domain.Entities.HitAssessment>().ReverseMap();
             CreateMap<HaDeletedEvent, Domain.Entities.HitAssessment>().ReverseMap();
+            CreateMap<HaRenamedEvent, Domain.Entities.HitAssessment>().ReverseMap();
 
 
             // -- Batch --

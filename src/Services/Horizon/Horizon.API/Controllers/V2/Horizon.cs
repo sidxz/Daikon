@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Horizon.Application.Features.Queries.FindRelatedTarget;
+using Horizon.Application.Features.Queries.FIndTargetRelations;
 using Horizon.Application.Features.Queries.GenerateHorizon;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -110,6 +111,51 @@ namespace Horizon.API.Controllers.V2
             catch (Exception ex)
             {
                 const string SAFE_ERROR_MESSAGE = "An error occurred while finding the related target";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        [HttpGet("list-target-relations")]
+        [MapToApiVersion("2.0")]
+        public async Task<IActionResult> ListTargetRelations()
+        {
+            try
+            {
+                var targetRelations = await _mediator.Send(new ListAllTargetRelationsCommand{});
+
+                return Ok(targetRelations);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("ListTargetRelations: ArgumentNullException ");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (ResourceNotFoundException ex)
+            {
+                _logger.LogInformation("ListTargetRelations: Requested Resource Not Found");
+                return NotFound(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while finding the target relations";
                 _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
                 return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
                 {

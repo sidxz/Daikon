@@ -171,8 +171,6 @@ namespace Horizon.Infrastructure.Repositories
         {
             try
             {
-
-
                 _logger.LogInformation("Updating Project with UniId: {UniId}", project.UniId);
                 var json = System.Text.Json.JsonSerializer.Serialize(project);
                 _logger.LogInformation(json);
@@ -208,6 +206,35 @@ namespace Horizon.Infrastructure.Repositories
             {
                 _logger.LogError(ex, "Error in Update");
                 throw new RepositoryException(nameof(ProjectRepo), "Error Updating Project In Graph", ex);
+            }
+        }
+
+        public async Task Rename(Project project)
+        {
+            try
+            {
+                _logger.LogInformation("Renaming Project with UniId: {UniId}", project.UniId);
+                var query = @"
+                MATCH (p:Project { uniId: $uniId})
+                SET 
+                    p.name = $name,
+                    p.isModified = $isModified,
+                    p.dateModified = $dateModified
+            ";
+                var parameters = new
+                {
+                    uniId = project.ProjectId,
+                    name = project.Name,
+                    isModified = project.IsModified,
+                    dateModified = project.DateModified
+                };
+
+                var (queryResults, _) = await _driver.ExecutableQuery(query).WithParameters(parameters).ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Rename");
+                throw new RepositoryException(nameof(ProjectRepo), "Error Renaming Project In Graph", ex);
             }
         }
 

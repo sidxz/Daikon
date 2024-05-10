@@ -15,6 +15,7 @@ using Project.Application.DTOs.MLogixAPI;
 using Project.Domain.Entities;
 using Project.Application.Features.Commands.UpdateProjectAssociation;
 using Project.Application.Features.Batch;
+using Project.Application.Features.Commands.RenameProject;
 
 namespace Project.Application.Mappings
 {
@@ -31,11 +32,13 @@ namespace Project.Application.Mappings
             CreateMap<ProjectCreatedEvent, NewProjectCommand>().ReverseMap();
             CreateMap<ProjectUpdatedEvent, UpdateProjectCommand>().ReverseMap();
             CreateMap<ProjectDeletedEvent, DeleteProjectCommand>().ReverseMap();
+             CreateMap<ProjectRenamedEvent, RenameProjectCommand>().ReverseMap();
             CreateMap<ProjectAssociationUpdatedEvent, UpdateProjectAssociationCommand>().ReverseMap();
 
             CreateMap<ProjectCreatedEvent, Domain.Entities.Project>().ReverseMap();
             CreateMap<ProjectUpdatedEvent, Domain.Entities.Project>().ReverseMap();
             CreateMap<ProjectDeletedEvent, Domain.Entities.Project>().ReverseMap();
+            CreateMap<ProjectRenamedEvent, Domain.Entities.Project>().ReverseMap();
             CreateMap<ProjectAssociationUpdatedEvent, Domain.Entities.Project>().ReverseMap();
 
              // -- Batch --

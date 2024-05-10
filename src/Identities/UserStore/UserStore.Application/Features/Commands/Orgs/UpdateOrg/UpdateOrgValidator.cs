@@ -10,7 +10,7 @@ namespace UserStore.Application.Features.Commands.Orgs.UpdateOrg
            
             RuleFor(command => command.Name)
                 .NotEmpty().WithMessage("Name is required.")
-                .MaximumLength(50).WithMessage("Name must not exceed 50 characters.");
+                .MaximumLength(500).WithMessage("Name must not exceed 50 characters.");
 
             RuleFor(command => command.Alias)
                 .NotEmpty().WithMessage("Alias is required.")

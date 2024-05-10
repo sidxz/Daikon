@@ -66,6 +66,33 @@ namespace HitAssessment.Application.EventHandlers
             }
         }
 
+        public async Task OnEvent(HaRenamedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: HitAssessmentRenamedEvent: {Id}", @event.Id);
+            var existingHa = await _haRepository.ReadHaById(@event.Id);
+
+            if (existingHa == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"HitAssessmentRenamedEvent Error renaming ha {@event.Id}", new Exception("HitAssessment not found"));
+            }
+
+            var ha = _mapper.Map<Domain.Entities.HitAssessment>(existingHa);
+            _mapper.Map(@event, ha);
+            
+            // Preserve the original creation date and creator
+            ha.DateCreated = existingHa.DateCreated;
+            ha.CreatedById = existingHa.CreatedById;
+
+            try
+            {
+                await _haRepository.UpdateHa(ha);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"HitAssessmentRenamedEvent Error renaming ha {@event.Id}", ex);
+            }
+        }
+
         public async Task OnEvent(HaDeletedEvent @event)
         {
             _logger.LogInformation("OnEvent: HitAssessmentDeletedEvent: {Id}", @event.Id);

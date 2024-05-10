@@ -24,7 +24,8 @@ namespace Gene.Infrastructure.Query.Repositories
             _unpublishedStructuralInformationCollection = database.GetCollection<UnpublishedStructuralInformation>(
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "UnpublishedStructuralInformation");
-
+            _unpublishedStructuralInformationCollection.Indexes.CreateOne
+                (new CreateIndexModel<UnpublishedStructuralInformation>(Builders<UnpublishedStructuralInformation>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

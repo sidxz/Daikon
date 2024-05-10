@@ -139,8 +139,8 @@ services:
       - "ScreenMongoDbSettings:HitRevisionCollectionName=HitRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
-      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+      - "MolDbAPI:Url=http://localhost:8101/api/v2/mol-db"
+      - "MLogixAPI:Url=http://localhost:8007/api/v2"
 
     ports:
       - "8003:80"
@@ -183,8 +183,8 @@ services:
       - "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
-      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+      - "MolDbAPI:Url=http://localhost:8101/api/v2/mol-db"
+      - "MLogixAPI:Url=http://localhost:8007/api/v2"
 
     ports:
       - "8004:80"
@@ -228,8 +228,8 @@ services:
       - "ProjectMongoDbSettings:ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
-      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+      - "MolDbAPI:Url=http://localhost:8101/api/v2/mol-db"
+      - "MLogixAPI:Url=http://localhost:8007/api/v2"
 
     ports:
       - "8005:80"
@@ -293,7 +293,7 @@ services:
       - "MLxMongoDbSettings:MoleculeRevisionCollectionName=MoleculesRevisions"
 
       # Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
+      - "MolDbAPI:Url=http://localhost:8101/api/v2/mol-db"
 
     ports:
       - "8007:80"
@@ -349,8 +349,8 @@ services:
       - "CommentMongoDbSettings:CommentReplyRevisionCollectionName=CommentReplyRevisions"
 
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
-      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+      - "MolDbAPI:Url=http://localhost:8101/api/v2/mol-db"
+      - "MLogixAPI:Url=http://localhost:8007/api/v2"
 
     ports:
       - "8009:80"
@@ -395,28 +395,28 @@ services:
       - EntraID:Audience=${EntraID_Audience}
 
       ## Internal API Routing
-      - "UserStoreAPI:BaseUrl=http://userstore-api/api/v2/"
+      - "UserStoreAPI:BaseUrl=http://localhost:8011/api/v2/"
 
-      - "EndPointRouting:gene=http://gene-api"
-      - "EndPointRouting:gene-batch=http://gene-api"
-      - "EndPointRouting:strain=http://gene-api"
+      - "EndPointRouting:gene=http://localhost:8001"
+      - "EndPointRouting:gene-batch=http://localhost:8001"
+      - "EndPointRouting:strain=http://localhost:8001"
 
-      - "EndPointRouting:target=http://target-api"
-      - "EndPointRouting:screen=http://screen-api"
-      - "EndPointRouting:hit-collection=http://screen-api"
+      - "EndPointRouting:target=http://localhost:8002"
+      - "EndPointRouting:screen=http://localhost:8003"
+      - "EndPointRouting:hit-collection=http://localhost:8003"
 
-      - "EndPointRouting:hit-assessment=http://hitassessment-api"
-      - "EndPointRouting:project=http://project-api"
-      - "EndPointRouting:horizon=http://horizon-api"
-      - "EndPointRouting:molecule=http://mlogix-api"
-      - "EndPointRouting:api-resources=http://userstore-api"
-      - "EndPointRouting:app-settings=http://userstore-api"
-      - "EndPointRouting:org=http://userstore-api"
-      - "EndPointRouting:roles=http://userstore-api"
-      - "EndPointRouting:user=http://userstore-api"
-      - "EndPointRouting:questionnaire=http://questionnaire-api"
-      - "EndPointRouting:comment=http://comment-api"
-      - "EndPointRouting:mol-db=http://moldb-api"
+      - "EndPointRouting:hit-assessment=http://localhost:8004"
+      - "EndPointRouting:project=http://localhost:8005"
+      - "EndPointRouting:horizon=http://localhost:8006"
+      - "EndPointRouting:molecule=http://http://localhost:8007"
+      - "EndPointRouting:api-resources=http://localhost:8011"
+      - "EndPointRouting:app-settings=http://localhost:8011"
+      - "EndPointRouting:org=http://localhost:8011"
+      - "EndPointRouting:roles=http://localhost:8011"
+      - "EndPointRouting:user=http://localhost:8011"
+      - "EndPointRouting:questionnaire=http://localhost:8008"
+      - "EndPointRouting:comment=http://localhost:8009"
+      - "EndPointRouting:mol-db=http://localhost:8101"
 
     ports:
       - "8010:80"

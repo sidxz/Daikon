@@ -22,6 +22,7 @@ namespace Comment.Infrastructure.Query.Repositories
             var database = client.GetDatabase(configuration.GetValue<string>("CommentMongoDbSettings:DatabaseName"));
             _commentReplyCollection = database.GetCollection<CommentReply>(configuration.GetValue<string>("CommentMongoDbSettings:CommentReplyCollectionName"));
             _commentReplyCollection.Indexes.CreateOne(new CreateIndexModel<CommentReply>(Builders<CommentReply>.IndexKeys.Ascending(t => t.CommentId), new CreateIndexOptions { Unique = false }));
+            _commentReplyCollection.Indexes.CreateOne(new CreateIndexModel<CommentReply>(Builders<CommentReply>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 

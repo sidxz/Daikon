@@ -69,6 +69,7 @@ namespace Horizon.Infrastructure.Query.Converters
                 "HaCreatedEvent" => JsonSerializer.Deserialize<HaCreatedEvent>(json, options),
                 "HaUpdatedEvent" => JsonSerializer.Deserialize<HaUpdatedEvent>(json, options),
                 "HaDeletedEvent" => JsonSerializer.Deserialize<HaDeletedEvent>(json, options),
+                "HaRenamedEvent" => JsonSerializer.Deserialize<HaRenamedEvent>(json, options),
                 "HaCompoundEvolutionAddedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionAddedEvent>(json, options),
                 "HaCompoundEvolutionUpdatedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionUpdatedEvent>(json, options),
                 "HaCompoundEvolutionDeletedEvent" => JsonSerializer.Deserialize<HaCompoundEvolutionDeletedEvent>(json, options),
@@ -76,6 +77,7 @@ namespace Horizon.Infrastructure.Query.Converters
                 "ProjectCreatedEvent" => JsonSerializer.Deserialize<ProjectCreatedEvent>(json, options),
                 "ProjectUpdatedEvent" => JsonSerializer.Deserialize<ProjectUpdatedEvent>(json, options),
                 "ProjectDeletedEvent" => JsonSerializer.Deserialize<ProjectDeletedEvent>(json, options),
+                "ProjectRenamedEvent" => JsonSerializer.Deserialize<ProjectRenamedEvent>(json, options),
                 "ProjectAssociationUpdatedEvent" => JsonSerializer.Deserialize<ProjectAssociationUpdatedEvent>(json, options),
                 
                 

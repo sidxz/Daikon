@@ -51,12 +51,11 @@ namespace Horizon.Application.Handlers
 
         public Task OnEvent(HaUpdatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: HaUpdatedEvent: {@event.Id} {@event.Name}");
+            _logger.LogInformation($"Horizon: HaUpdatedEvent: {@event.Id}");
             var hitAssessment = new HitAssessment
             {
                 UniId = @event.Id.ToString(),
                 HitAssessmentId = @event.Id.ToString(),
-                Name = @event.Name,
                 Status = @event.Status,
                 IsHAComplete = @event.IsHAComplete,
                 IsHASuccess = @event.IsHASuccess,
@@ -74,6 +73,28 @@ namespace Horizon.Application.Handlers
             catch (RepositoryException ex)
             {
                 throw new EventHandlerException(nameof(EventHandler), "HaUpdatedEvent Error updating hit assessment", ex);
+            }
+        }
+
+        public Task OnEvent(HaRenamedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: HaRenamedEvent: {@event.Id} {@event.Name}");
+            var hitAssessment = new HitAssessment
+            {
+                UniId = @event.Id.ToString(),
+                HitAssessmentId = @event.Id.ToString(),
+                Name = @event.Name,
+                DateModified = @event.DateModified,
+                IsModified = @event.IsModified
+            };
+
+            try
+            {
+                return _graphRepository.Rename(hitAssessment);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "HaRenamedEvent Error renaming hit assessment", ex);
             }
         }
 

@@ -64,7 +64,6 @@ namespace HitAssessment.Domain.Aggregates
             }
 
             // HaUpdatedEvent doesn't allow name or HitId to be changed.
-            @event.Name = _Name;
             @event.CompoundId = _compoundId;
             @event.HitId = _hitId;
 
@@ -74,6 +73,34 @@ namespace HitAssessment.Domain.Aggregates
         public void Apply(HaUpdatedEvent @event)
         {
             _id = @event.Id;
+        }
+
+        /* Rename Hit Assessment */
+        public void RenameHa(HaRenamedEvent @event)
+        {
+            if (@event.Id == Guid.Empty)
+            {
+                throw new InvalidOperationException("Event Id cannot be empty.");
+            }
+            if (@event.Name == null)
+            {
+                throw new InvalidOperationException("Name cannot be empty.");
+            }
+            if (@event.Name == _Name)
+            {
+                throw new InvalidOperationException("Name cannot be the same.");
+            }
+            if (!_active)
+            {
+                throw new InvalidOperationException("This Hit Assessment is deleted.");
+            }
+
+            RaiseEvent(@event);
+        }
+
+        public void Apply(HaRenamedEvent @event)
+        {
+            _Name = @event.Name;
         }
 
         /* Delete Hit Assessment */

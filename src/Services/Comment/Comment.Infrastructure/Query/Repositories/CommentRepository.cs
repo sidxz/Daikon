@@ -36,6 +36,9 @@ namespace Comment.Infrastructure.Query.Repositories
             _commentCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Comment>(
             Builders<Domain.Entities.Comment>.IndexKeys.Ascending(t => t.Subscribers), new CreateIndexOptions { Unique = false }));
 
+            _commentCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Comment>(
+            Builders<Domain.Entities.Comment>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
+
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
