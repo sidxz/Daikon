@@ -49,7 +49,7 @@ namespace SimpleGW.OIDCProviders
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = $"{entraIdConfig["Instance"]}/{entraIdConfig["TenantId"]}",
+                    ValidIssuer = $"{entraIdConfig["Issuer"]}",
                     ValidateAudience = true, // Consider enabling audience validation
                     ValidAudience = entraIdConfig["Audience"],
                     ValidateLifetime = true,
