@@ -51,10 +51,10 @@ namespace SimpleGW.OIDCProviders
                 {
                     ValidateIssuer = true,
                     ValidIssuer = entraIdConfig["Issuer"],
-                    ValidateAudience = true, // Consider enabling audience validation
+                    ValidateAudience = false, // Consider enabling audience validation
                     ValidAudience = entraIdConfig["Audience"],
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = false,
+                    ValidateIssuerSigningKey = false,
                     ClockSkew = TimeSpan.Zero
                 };
 
