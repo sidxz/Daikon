@@ -17,6 +17,10 @@ namespace SimpleGW.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            var jsonPrint = System.Text.Json.JsonSerializer.Serialize(context.User);
+            _logger.LogInformation("AuthenticationValidatorMiddleware : JSON");
+            _logger.LogInformation(jsonPrint);
+
             // Your auth validation logic here
             if (context.User.Identity?.IsAuthenticated == true)
             {
