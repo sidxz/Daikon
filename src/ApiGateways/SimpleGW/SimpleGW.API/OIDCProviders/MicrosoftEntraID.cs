@@ -24,6 +24,7 @@ namespace SimpleGW.OIDCProviders
             Console.WriteLine($"EntraID TenantId: {entraIdConfig["TenantId"]}");
             Console.WriteLine($"EntraID Audience: {entraIdConfig["Audience"]}");
             Console.WriteLine($"EntraID ClientId: {entraIdConfig["ClientId"]}");
+            Console.WriteLine($"EntraID Issuer: {entraIdConfig["Issuer"]}");
 
             var requiredConfigs = new[] { "Instance", "Domain", "TenantId", "Audience", "ClientId" };
             foreach (var configKey in requiredConfigs)
@@ -49,7 +50,7 @@ namespace SimpleGW.OIDCProviders
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = $"{entraIdConfig["Issuer"]}",
+                    ValidIssuer = entraIdConfig["Issuer"],
                     ValidateAudience = true, // Consider enabling audience validation
                     ValidAudience = entraIdConfig["Audience"],
                     ValidateLifetime = true,
