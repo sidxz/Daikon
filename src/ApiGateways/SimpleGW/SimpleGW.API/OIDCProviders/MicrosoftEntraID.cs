@@ -35,11 +35,7 @@ namespace SimpleGW.OIDCProviders
                     throw new InvalidOperationException($"EntraID configuration key '{configKey}' is missing or empty.");
                 }
             }
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 configuration.Bind(options);
