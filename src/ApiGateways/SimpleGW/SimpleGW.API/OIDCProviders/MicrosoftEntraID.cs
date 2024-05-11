@@ -39,7 +39,7 @@ namespace SimpleGW.OIDCProviders
             .AddJwtBearer(options =>
             {
                 configuration.Bind(options);
-                options.Authority = $"{entraIdConfig["Instance"]}{entraIdConfig["TenantId"]}";
+                options.Authority = $"{entraIdConfig["Instance"]}{entraIdConfig["TenantId"]}/v2.0/";
                 options.Audience = entraIdConfig["Audience"];
                 // options.TokenValidationParameters.ValidateAudience = false;
                 // Enable issuer validation explicitly
