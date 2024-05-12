@@ -10,7 +10,7 @@ namespace SimpleGW.OIDCProviders
         public static void Configure(IServiceCollection services, IConfiguration configuration, ILogger logger)
         {
             // Microsoft Entra ID Configuration
-            var entraIdConfig = configuration.GetSection("AzureAd"); // Use AzureAd section as recommended
+            var entraIdConfig = configuration.GetSection("EntraID"); // Use AzureAd section as recommended
             if (!entraIdConfig.Exists())
             {
                 logger.LogWarning("AzureAd configuration section is missing.");
@@ -37,7 +37,7 @@ namespace SimpleGW.OIDCProviders
 
             // Configure Microsoft Identity Web to use Azure AD
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(configuration, "AzureAd");
+                    .AddMicrosoftIdentityWebApi(configuration, "EntraID");
 
             // Configure event handlers and default authorization policy
             services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
