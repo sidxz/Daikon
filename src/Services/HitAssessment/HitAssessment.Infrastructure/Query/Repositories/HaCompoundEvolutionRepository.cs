@@ -23,7 +23,13 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             var database = client.GetDatabase(configuration.GetValue<string>("HAMongoDbSettings:DatabaseName"));
             _haCompoundEvoCollection = database.GetCollection<HaCompoundEvolution>(configuration.GetValue<string>("HAMongoDbSettings:HaCompoundEvolutionCollectionName"));
             _haCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<HaCompoundEvolution>(Builders<HaCompoundEvolution>.IndexKeys.Ascending(t => t.HitAssessmentId), new CreateIndexOptions { Unique = false }));
+            
 
+            _haCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<HaCompoundEvolution>(Builders<HaCompoundEvolution>.IndexKeys.Descending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
+            _haCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<HaCompoundEvolution>(
+                                                Builders<HaCompoundEvolution>.IndexKeys.Descending(t => t.EvolutionDate.Value),
+                                                new CreateIndexOptions { Unique = false }));
+                                                
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

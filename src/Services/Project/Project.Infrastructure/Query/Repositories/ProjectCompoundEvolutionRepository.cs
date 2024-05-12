@@ -23,7 +23,7 @@ namespace Project.Infrastructure.Query.Repositories
             var database = client.GetDatabase(configuration.GetValue<string>("ProjectMongoDbSettings:DatabaseName"));
             _projectCompoundEvoCollection = database.GetCollection<ProjectCompoundEvolution>(configuration.GetValue<string>("ProjectMongoDbSettings:ProjectCompoundEvolutionCollectionName"));
             _projectCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<ProjectCompoundEvolution>(Builders<ProjectCompoundEvolution>.IndexKeys.Ascending(t => t.ProjectId), new CreateIndexOptions { Unique = false }));
-
+            _projectCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<ProjectCompoundEvolution>(Builders<ProjectCompoundEvolution>.IndexKeys.Descending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
             _projectCompoundEvoCollection.Indexes.CreateOne(new CreateIndexModel<ProjectCompoundEvolution>(
                                                 Builders<ProjectCompoundEvolution>.IndexKeys.Descending(t => t.EvolutionDate.Value),
                                                 new CreateIndexOptions { Unique = false }));
