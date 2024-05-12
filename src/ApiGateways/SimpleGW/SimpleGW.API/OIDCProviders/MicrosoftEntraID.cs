@@ -41,16 +41,17 @@ namespace SimpleGW.OIDCProviders
                 configuration.Bind(options);
                 options.Authority = $"{entraIdConfig["Instance"]}{entraIdConfig["TenantId"]}/v2.0/";
                 options.Audience = entraIdConfig["Audience"];
+                options.TokenValidationParameters.ValidAudience = entraIdConfig["ClientId"];
                 // options.TokenValidationParameters.ValidateAudience = false;
                 // Enable issuer validation explicitly
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuer = false,
+                    ValidateIssuer = true,
                     ValidIssuer = entraIdConfig["Issuer"],
-                    ValidateAudience = false,
+                    ValidateAudience = true,
                     ValidAudience = entraIdConfig["Audience"],
-                    ValidateLifetime = false,
-                    ValidateIssuerSigningKey = false,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
                     ClockSkew = TimeSpan.Zero
                 };
 
