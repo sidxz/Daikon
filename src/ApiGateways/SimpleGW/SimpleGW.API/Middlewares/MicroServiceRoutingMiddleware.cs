@@ -27,7 +27,7 @@ namespace SimpleGW.API.Middlewares
                 if (pathSegments != null && pathSegments.Length > 1)
                 {
                     var microserviceName = pathSegments[1].ToLower(); // Convert to lowercase for case-insensitive comparison
-                    _logger.LogInformation($"Extracted microservice name: {microserviceName}");
+                    //_logger.LogInformation($"Extracted microservice name: {microserviceName}");
 
                     var endPointRouting = _configuration.GetSection("EndPointRouting").Get<Dictionary<string, string>>();
 
@@ -37,7 +37,7 @@ namespace SimpleGW.API.Middlewares
 
                         if (routes.TryGetValue(microserviceName, out var targetEndpoint))
                         {
-                            _logger.LogInformation($"Routing {context.Request.Path.Value} to {targetEndpoint}");
+                            //_logger.LogInformation($"Routing {context.Request.Path.Value} to {targetEndpoint}");
                             context.Items["Microservice"] = targetEndpoint; // Set the microservice endpoint
                         }
                         else

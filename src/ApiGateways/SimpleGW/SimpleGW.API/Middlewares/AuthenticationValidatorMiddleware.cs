@@ -17,15 +17,15 @@ namespace SimpleGW.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var jsonPrint = System.Text.Json.JsonSerializer.Serialize(context.User.Identity);
-            _logger.LogInformation("AuthenticationValidatorMiddleware : JSON");
-            _logger.LogInformation(jsonPrint);
+            // var jsonPrint = System.Text.Json.JsonSerializer.Serialize(context.User.Identity);
+            // _logger.LogInformation("AuthenticationValidatorMiddleware : JSON");
+            // _logger.LogInformation(jsonPrint);
 
             // Your auth validation logic here
             if (context.User.Identity?.IsAuthenticated == true)
             {
                 var emailClaim = context.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
-                _logger.LogInformation("AuthenticationValidatorMiddleware : User is authenticated SSO Email Claim : {email}", emailClaim);
+                //_logger.LogInformation("AuthenticationValidatorMiddleware : User is authenticated SSO Email Claim : {email}", emailClaim);
                 await _next(context); // Continue to next middleware
             }
             else
