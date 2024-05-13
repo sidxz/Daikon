@@ -44,6 +44,7 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
                 
                 // handle dates
                 var now = DateTime.UtcNow;
+                request.ImportMode ??= false;
                 request.DateCreated = (bool)request.ImportMode ? request.DateCreated: now;
                 request.IsModified = false;
 
