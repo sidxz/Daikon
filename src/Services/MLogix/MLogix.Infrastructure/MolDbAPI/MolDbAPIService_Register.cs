@@ -1,6 +1,7 @@
 
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.DTOs.MolDbAPI;
@@ -13,11 +14,12 @@ namespace MLogix.Infrastructure.MolDbAPI
         private readonly ILogger<MolDbAPIService> _logger;
         private readonly string _molDbApiUrl;
         private readonly JsonSerializerOptions _jsonOptions;
-        public MolDbAPIService(ILogger<MolDbAPIService> logger)
+        public MolDbAPIService(ILogger<MolDbAPIService> logger, IConfiguration configuration)
         {
             _httpClient = new HttpClient();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _molDbApiUrl = Environment.GetEnvironmentVariable("MolDbAPI:Url") ?? throw new ArgumentNullException(nameof(_molDbApiUrl));
+            //_molDbApiUrl = Environment.GetEnvironmentVariable("MolDbAPI:Url") ?? throw new ArgumentNullException(nameof(_molDbApiUrl));
+            _molDbApiUrl = configuration["MolDbAPI:Url"] ?? throw new ArgumentNullException(nameof(_molDbApiUrl));
             _jsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using HitAssessment.Application.Contracts.Infrastructure;
 using HitAssessment.Application.DTOs.MLogixAPI;
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
 
 namespace HitAssessment.Infrastructure.MLogixAPI
 {
@@ -16,11 +17,11 @@ namespace HitAssessment.Infrastructure.MLogixAPI
         private readonly IMapper _mapper;
 
         private readonly JsonSerializerOptions _jsonOptions;
-        public MLogixAPIService(ILogger<MLogixAPIService> logger, IMapper mapper)
+        public MLogixAPIService(ILogger<MLogixAPIService> logger, IMapper mapper, IConfiguration configuration)
         {
             _httpClient = new HttpClient();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _MLogixApiUrl = Environment.GetEnvironmentVariable("MLogixAPI:Url") ?? throw new ArgumentNullException(nameof(_MLogixApiUrl));
+            _MLogixApiUrl = configuration["MLogixAPI:Url"] ?? throw new ArgumentNullException(nameof(_MLogixApiUrl));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _jsonOptions = new JsonSerializerOptions
             {

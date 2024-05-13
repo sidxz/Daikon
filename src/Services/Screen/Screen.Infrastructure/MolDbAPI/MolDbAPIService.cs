@@ -1,6 +1,7 @@
 
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.DTOs.MolDbAPI;
@@ -12,11 +13,11 @@ namespace Screen.Infrastructure.MolDbAPI
         private readonly HttpClient _httpClient;
         private readonly ILogger<MolDbAPIService> _logger;
         private readonly string _molDbApiUrl;
-        public MolDbAPIService(ILogger<MolDbAPIService> logger)
+        public MolDbAPIService(ILogger<MolDbAPIService> logger, IConfiguration configuration)
         {
             _httpClient = new HttpClient();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _molDbApiUrl = Environment.GetEnvironmentVariable("MolDbAPI:Url") ?? throw new ArgumentNullException(nameof(_molDbApiUrl));
+            _molDbApiUrl = configuration["MolDbAPI:Url"] ?? throw new ArgumentNullException(nameof(_molDbApiUrl));
         }
 
         public async Task<Guid> RegisterCompound(string name, string initialCompoundStructure)

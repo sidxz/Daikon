@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using HitAssessment.Application.Contracts.Infrastructure;
 using HitAssessment.Application.DTOs.MolDbAPI;
+using Microsoft.Extensions.Configuration;
 
 namespace HitAssessment.Infrastructure.MolDbAPI
 {
@@ -12,11 +13,11 @@ namespace HitAssessment.Infrastructure.MolDbAPI
         private readonly HttpClient _httpClient;
         private readonly ILogger<MolDbAPIService> _logger;
         private readonly string _molDbApiUrl;
-        public MolDbAPIService(ILogger<MolDbAPIService> logger)
+        public MolDbAPIService(ILogger<MolDbAPIService> logger, IConfiguration configuration)
         {
             _httpClient = new HttpClient();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _molDbApiUrl = Environment.GetEnvironmentVariable("MolDbAPI:Url") ?? throw new ArgumentNullException(nameof(_molDbApiUrl));
+            _molDbApiUrl = configuration["MolDbAPI:Url"] ?? throw new ArgumentNullException(nameof(_molDbApiUrl));
         }
 
         public async Task<Guid> RegisterCompound(string name, string initialCompoundStructure)
