@@ -37,7 +37,7 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task CreateConstraintsAsync()
         {
-           try
+            try
             {
                 var query = @"
                     CREATE CONSTRAINT target_uniId_unique IF NOT EXISTS FOR (t:Target) REQUIRE t.uniId IS UNIQUE;
@@ -191,9 +191,28 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-        public Task DeleteTarget(string targetId)
+        public async Task DeleteTarget(string targetId)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("DeleteTarget(): Deleting target with id {targetId}", targetId);
+
+            try
+            {
+                var query = @"
+                     MATCH (t:Target {uniId: $uniId})
+                        DETACH DELETE t
+                ";
+                var (queryResults, _) = await _driver
+                             .ExecutableQuery(query).WithParameters(new
+                             {
+                                 uniId = targetId,
+                             }).ExecuteAsync()
+                             ;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in DeleteTarget");
+                throw new RepositoryException(nameof(GraphRepositoryForTarget), "Error Deleting Target From Graph", ex);
+            }
         }
 
         public async Task RenameTarget(string targetId, string newName)

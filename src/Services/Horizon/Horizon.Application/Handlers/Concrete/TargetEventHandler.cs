@@ -106,7 +106,14 @@ namespace Horizon.Application.Query.Handlers
         public Task OnEvent(TargetDeletedEvent @event)
         {
             _logger.LogInformation($"Horizon: TargetDeletedEvent: {@event.Id} {@event.Name}");
-            throw new NotImplementedException();
+            try
+            {
+                return _graphRepository.DeleteTarget(@event.Id.ToString());
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "TargetDeletedEvent Error deleting target", ex);
+            }
         }
 
         public async Task OnEvent(TargetRenamedEvent @event)
