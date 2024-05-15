@@ -33,8 +33,8 @@ namespace SimpleGW.API.Middlewares
                 if (entraObjectIdentifierClaim?.Value != null)
                 {
                     // entraObjectIdentifierClaim hints that the OAuth2 provider is Microsoft Entra ID
-                    // _logger.LogInformation("User will be authorized with either entraObjectId or EmailClaim: {entraObjectId} or {email}",
-                    //                     entraObjectIdentifierClaim.Value, emailClaim?.Value);
+                    _logger.LogInformation("User will be authorized with either entraObjectId or EmailClaim: {entraObjectId} or {email}",
+                                        entraObjectIdentifierClaim.Value, emailClaim?.Value);
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var userStoreService = scope.ServiceProvider.GetRequiredService<IUserStoreAPIService>();
