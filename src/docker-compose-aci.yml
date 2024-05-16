@@ -1,67 +1,104 @@
-
 services:
+  moldb-postgres:
+    image: ${DOCKER_REGISTRY-}informaticsmatters/rdkit-cartridge-debian
+    container_name: moldb-postgres
+    environment:
+      POSTGRES_DB: ${MolDbDatabase}
+      POSTGRES_USER: ${MolDbUser} 
+      POSTGRES_PASSWORD: ${MolDbPassword}
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - moldb-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  neo4j:
+    image: ${DOCKER_REGISTRY-}neo4j:latest
+    container_name: dk-neo4j
+    ports:
+      - "7474:7474" # HTTP
+      - "7687:7687" # Bolt
+    volumes:
+      - neo4j-data:/data
+      - neo4j-import:/var/lib/neo4j/import
+      - neo4j-logs:/logs
+      - neo4j-plugins:/plugins
+    environment:
+      - NEO4J_AUTH=${HorizonNeo4jUser}/${HorizonNeo4jPassword}
+
   userstore-api:
     image: ${DOCKER_REGISTRY-}userstore
+    container_name: userstore-api
     build:
       context: .
       dockerfile: Identities/UserStore/UserStore.API/Dockerfile
 
   gene-api:
     image: ${DOCKER_REGISTRY-}gene
+    container_name: gene-api
     build:
       context: .
       dockerfile: Services/Gene/Gene.API/Dockerfile
 
   target-api:
     image: ${DOCKER_REGISTRY-}target
+    container_name: target-api
     build:
       context: .
       dockerfile: Services/Target/Target.API/Dockerfile
 
   screen-api:
     image: ${DOCKER_REGISTRY-}screen
+    container_name: screen-api
     build:
       context: .
       dockerfile: Services/Screen/Screen.API/Dockerfile
 
   hitassessment-api:
     image: ${DOCKER_REGISTRY-}hitassessment
+    container_name: hitassessment-api
     build:
       context: .
       dockerfile: Services/HitAssessment/HitAssessment.API/Dockerfile
 
   project-api:
     image: ${DOCKER_REGISTRY-}project
+    container_name: project-api
     build:
       context: .
       dockerfile: Services/Project/Project.API/Dockerfile
   
   horizon-api:
     image: ${DOCKER_REGISTRY-}horizon
+    container_name: horizon-api
     build:
       context: .
       dockerfile: Services/Horizon/Horizon.API/Dockerfile
 
   mlogix-api:
     image: ${DOCKER_REGISTRY-}mlogix
+    container_name: mlogix-api
     build:
       context: .
       dockerfile: Services/MLogix/MLogix.API/Dockerfile
 
   moldb-api:
     image: ${DOCKER_REGISTRY-}moldb
+    container_name: moldb-api
     build:
       context: .
       dockerfile: Services/Chem/MolDb.API/Dockerfile
 
   questionnaire-api:
     image: ${DOCKER_REGISTRY-}questionnaire
+    container_name: questionnaire-api
     build:
       context: .
       dockerfile: Services/Questionnaire/Questionnaire.API/Dockerfile
 
   comment-api:
     image: ${DOCKER_REGISTRY-}comment
+    container_name: comment-api
     build:
       context: .
       dockerfile: Services/Comment/Comment.API/Dockerfile
@@ -74,6 +111,14 @@ services:
   
   simplegw-api:
     image: ${DOCKER_REGISTRY-}simplegw
+    container_name: simplegw-api
     build:
       context: .
       dockerfile: ApiGateways/SimpleGW/SimpleGW.API/Dockerfile
+
+volumes:
+  moldb-data:
+  neo4j-data:
+  neo4j-import:
+  neo4j-logs:
+  neo4j-plugins:
