@@ -1,41 +1,21 @@
 
 services:
-  DKPortainer:
-    image: portainer/portainer
-    container_name: dk_portainer
-    ports:
-      - "9000:9000"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer_data:/data
 
   DKPGAdmin:
     image: dpage/pgadmin4
     container_name: dk_pgadmin
     restart: always
     environment:
-      - PGADMIN_DEFAULT_EMAIL=sid@tamu.edu
-      - PGADMIN_DEFAULT_PASSWORD=admin1234
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     volumes:
       - pgadmin_data:/root/.pgadmin
 
-  # Zookeeper:
-  #   image: bitnami/zookeeper
-  #   restart: always
-  #   ports:
-  #     - "2181:2181"
-  #   volumes:
-  #     - "zookeeper_data:/bitnami"
-  #   environment:
-  #     - ALLOW_ANONYMOUS_LOGIN=yes
-
   Kafka:
     container_name: "kafka"
     image: bitnami/kafka
-    # depends_on:
-    #   - Zookeeper
     ports:
       - "9092:9092"
     restart: always
@@ -59,16 +39,16 @@ services:
     volumes:
       - "eventdb_mongo_data:/data/db"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
 
   MolDb_Postgres:
     container_name: "molddb-postgres"
     image: informaticsmatters/rdkit-cartridge-debian
     environment:
       POSTGRES_DB: chemdb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - MolDb_data:/var/lib/postgresql/data
     ports:
@@ -86,7 +66,7 @@ services:
       - neo4j_logs:/logs
       - neo4j_plugins:/plugins
     environment:
-      - NEO4J_AUTH=neo4j/1k5SPVHJ4FZ9
+      - NEO4J_AUTH=${NEO4J_AUTH}
 
 
   kafka-ui:
