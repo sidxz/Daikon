@@ -135,5 +135,18 @@ namespace UserStore.Infrastructure.Repositories
                 throw new RepositoryException(nameof(AppUserRepository), "Error updating user", ex);
             }
         }
+
+        public Task<List<AppUser>> GetUsersByRole(Guid roleId)
+        {
+            ArgumentNullException.ThrowIfNull(roleId);
+            try {
+                return _appUserCollection.Find(user => user.AppRoleIds.Contains(roleId)).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the users with role ID {RoleId}", roleId);
+                throw new RepositoryException(nameof(AppUserRepository), "Error getting users by role", ex);
+            }
+        }
     }
 }
