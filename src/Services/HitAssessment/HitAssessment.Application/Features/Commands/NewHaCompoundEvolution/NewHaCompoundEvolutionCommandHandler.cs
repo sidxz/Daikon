@@ -39,6 +39,8 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
             try
             {
                 _logger.LogInformation($"Handling NewHaCompoundEvolutionCommand");
+                // check if request.ImportMode is null, if it is, set it to false
+                request.ImportMode ??= false;
                 request.DateCreated = (bool)request.ImportMode ? request.DateCreated: DateTime.UtcNow;
                 request.IsModified = false;
 

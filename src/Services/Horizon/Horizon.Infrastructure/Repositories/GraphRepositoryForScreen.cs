@@ -65,7 +65,7 @@ namespace Horizon.Infrastructure.Repositories
                                         s.screenType = $screenType,
                                         s.method = $method,
                                         s.status = $status,
-                                        s.primaryOrgName = $primaryOrgName
+                                        s.primaryOrgId = $primaryOrgId
                             ON MATCH SET  
                                         s.name = $name,
                                         s.screenType = $screenType,

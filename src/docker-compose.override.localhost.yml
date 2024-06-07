@@ -1,3 +1,4 @@
+
 services:
   gene-api:
     environment:
@@ -243,7 +244,7 @@ services:
       - HorizonNeo4jSettings:Uri=${HorizonNeo4jURI}
       - HorizonNeo4jSettings:User=${HorizonNeo4jUser}
       - HorizonNeo4jSettings:Password=${HorizonNeo4jPassword}
-      - "HorizonNeo4jSettings:Database=horizon"
+      - "HorizonNeo4jSettings:Database=neo4j"
 
       ## Kafka Consumer
       - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}

@@ -22,7 +22,8 @@ namespace Project.Infrastructure.Query.Repositories
             _projectCollection = database.GetCollection<Domain.Entities.Project>(configuration.GetValue<string>("ProjectMongoDbSettings:ProjectCollectionName"));
             _projectCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Project>(Builders<Domain.Entities.Project>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
             _projectCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Project>(Builders<Domain.Entities.Project>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
-
+            _projectCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Project>(Builders<Domain.Entities.Project>.IndexKeys.Descending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
+            
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

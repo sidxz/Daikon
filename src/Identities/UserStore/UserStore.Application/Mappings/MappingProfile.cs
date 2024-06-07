@@ -8,6 +8,7 @@ using UserStore.Application.Features.Commands.Roles.UpdateRole;
 using UserStore.Application.Features.Commands.Users.AddUser;
 using UserStore.Application.Features.Commands.Users.UpdateUser;
 using UserStore.Application.Features.Queries.APIResources.ListAPIResources;
+using UserStore.Application.Features.Queries.Roles.GetRole.VMs;
 using UserStore.Application.Features.Queries.Users.GetUser.VMs;
 using UserStore.Domain.Entities;
 
@@ -30,6 +31,8 @@ namespace UserStore.Application.Mappings
 
             CreateMap<AppRole, AddRoleCommand>().ReverseMap();
             CreateMap<AppRole, UpdateRoleCommand>().ReverseMap();
+            CreateMap<AppRole, AppRoleVM>().ReverseMap();
+            CreateMap<AppRole, UpdateRoleDTO>().ReverseMap();
         }
         
     }

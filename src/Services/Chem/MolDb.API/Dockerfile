@@ -27,3 +27,4 @@ COPY ["Services/Chem/MolDb.API/", "/app/"]
 
 # CMD should use the binaries from the Conda environment
 CMD ["uvicorn", "app.main:app", "--host", "localhost", "--port", "8101"] 
+

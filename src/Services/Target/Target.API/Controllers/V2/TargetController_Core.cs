@@ -29,11 +29,20 @@ namespace Target.API.Controllers.V2
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        private void LogRequestHeaders()
+        {
+            foreach (var header in HttpContext.Request.Headers)
+            {
+                _logger.LogInformation($"{header.Key}: {header.Value}");
+            }
+        }
+
         [HttpGet(Name = "GetTargets")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(TargetsListVM), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<TargetsListVM>> GetTargets([FromQuery] bool WithMeta = false)
         {
+            LogRequestHeaders();
             try
             {
                 var targets = await _mediator.Send(new GetTargetsListQuery { WithMeta = WithMeta });

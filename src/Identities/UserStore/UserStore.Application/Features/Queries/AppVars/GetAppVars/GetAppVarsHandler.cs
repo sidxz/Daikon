@@ -30,7 +30,7 @@ namespace UserStore.Application.Features.Queries.AppVars.GetAppVars
 
                 // Consolidate dictionary creation
                 var appOrgsDict = appOrgs.ToDictionary(x => x.Id, x => new { x.Name, x.Alias });
-                var appRolesDict = appRoles.ToDictionary(x => x.Id, x => x.Name);
+                var appRolesDict = appRoles.ToDictionary(x => x.Id, x => x.NormalizedName);
                 var appUsersDict = appUsers.ToDictionary(x => x.Id, x => new { x.Email, FullName = x.FirstName + " " + x.LastName });
 
                 var dto = new GetAppVarsDTO
