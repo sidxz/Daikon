@@ -76,4 +76,4 @@ app.include_router(CommandController.router)
 
 # Run the application
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=80)
+    uvicorn.run(app, host="localhost", port=8101)

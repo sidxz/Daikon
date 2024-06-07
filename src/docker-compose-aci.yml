@@ -1,17 +1,4 @@
 services:
-  moldb-postgres:
-    image: ${DOCKER_REGISTRY-}informaticsmatters/rdkit-cartridge-debian
-    container_name: moldb-postgres
-    environment:
-      POSTGRES_DB: ${MolDbDatabase}
-      POSTGRES_USER: ${MolDbUser} 
-      POSTGRES_PASSWORD: ${MolDbPassword}
-      PGDATA: /var/lib/postgresql/data
-    volumes:
-      - moldb-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
   neo4j:
     image: ${DOCKER_REGISTRY-}neo4j:latest
     container_name: dk-neo4j
