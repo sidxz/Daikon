@@ -3,6 +3,7 @@ using AutoMapper;
 using CQRS.Core.Handlers;
 using Daikon.Events.MLogix;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.Contracts.Persistence;
@@ -17,21 +18,28 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
         private readonly IMapper _mapper;
         private readonly ILogger<RegisterMoleculeHandler> _logger;
         private readonly IMoleculeRepository _moleculeRepository;
-
         private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler;
         private readonly IMolDbAPIService _molDbAPIService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public RegisterMoleculeHandler(IMapper mapper, ILogger<RegisterMoleculeHandler> logger, IMoleculeRepository moleculeRepository, IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler, IMolDbAPIService molDbAPIService)
+
+        public RegisterMoleculeHandler(IMapper mapper, ILogger<RegisterMoleculeHandler> logger, 
+        IMoleculeRepository moleculeRepository, IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler, 
+        IMolDbAPIService molDbAPIService, IHttpContextAccessor httpContextAccessor)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
             _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
             _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         public async Task<RegisterMoleculeResponseDTO> Handle(RegisterMoleculeCommand request, CancellationToken cancellationToken)
         {
+            var headers = _httpContextAccessor.HttpContext.Request.Headers
+                        .ToDictionary(h => h.Key, h => h.Value.ToString());
+
             var registerMoleculeResponseDTO = new RegisterMoleculeResponseDTO();
             // check if smiles is blank throw exception
             if (string.IsNullOrEmpty(request.RequestedSMILES))
@@ -43,7 +51,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             MoleculeDTO registrationReq;
             try
             {
-                registrationReq = await _molDbAPIService.RegisterCompound(request.Name ?? "UnNamed", request.RequestedSMILES);
+                registrationReq = await _molDbAPIService.RegisterCompound(request.Name ?? "UnNamed", request.RequestedSMILES, headers);
             }
             catch (Exception ex)
             {

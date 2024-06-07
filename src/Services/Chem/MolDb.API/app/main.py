@@ -4,7 +4,6 @@ import uvicorn
 from fastapi import FastAPI
 from app.api import QueryController, CommandController
 from app.infrastructure.DatabaseInitialization import InitializeDb
-from app.infrastructure.EventConsumer import EventConsumer
 
 # Configure logging
 logging.basicConfig(
@@ -76,4 +75,4 @@ app.include_router(CommandController.router)
 
 # Run the application
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8101)
+    uvicorn.run(app, host="0.0.0.0", port=8101)

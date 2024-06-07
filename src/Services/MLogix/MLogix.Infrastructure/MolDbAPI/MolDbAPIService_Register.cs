@@ -27,7 +27,7 @@ namespace MLogix.Infrastructure.MolDbAPI
             };
         }
 
-        public async Task<MoleculeDTO> RegisterCompound(string name, string initialCompoundStructure)
+        public async Task<MoleculeDTO> RegisterCompound(string name, string initialCompoundStructure, IDictionary<string, string> headers)
         {
             _logger.LogInformation("+++++++++++++++++++++++++++++++++++++++++REGISTER COMPOUND+++++++++++++++++++++++++++++++++++++++++++++++");
             if (string.IsNullOrEmpty(initialCompoundStructure))
@@ -40,9 +40,13 @@ namespace MLogix.Infrastructure.MolDbAPI
             };
 
             var content = new StringContent(JsonSerializer.Serialize(compoundData, _jsonOptions), Encoding.UTF8, "application/json");
-
+            foreach (var header in headers)
+            {
+                content.Headers.Add(header.Key, header.Value);
+            }
             try
             {
+
                 HttpResponseMessage response = await _httpClient.PostAsync(_molDbApiUrl + "/molecule/register", content);
 
 

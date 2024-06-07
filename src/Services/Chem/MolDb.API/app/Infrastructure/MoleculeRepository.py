@@ -1,5 +1,5 @@
 from uuid import UUID
-from app.infrastructure.database import GetDbPool
+from app.infrastructure.Database import GetDbPool
 from app.dto.Molecule import Molecule
 from app.dto.SimilarMolecule import SimilarMolecule
 from app.core.Contracts.IMoleculeRepository import IMoleculeRepository
