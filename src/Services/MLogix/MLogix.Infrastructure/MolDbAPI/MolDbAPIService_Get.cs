@@ -13,10 +13,7 @@ namespace MLogix.Infrastructure.MolDbAPI
             try {
                 string apiUrl = $"{_molDbApiUrl}/molecule/find-exact/{smiles}";
                 var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value);
-                }
+                request.AddHeaders(headers);
                 HttpResponseMessage response = await _httpClient.SendAsync(request);
                 
 
@@ -46,10 +43,7 @@ namespace MLogix.Infrastructure.MolDbAPI
            try {
                 string apiUrl = $"{_molDbApiUrl}/molecule/find-similar/{smiles}?threshold={similarityThreshold}&limit={maxResults}";
                 var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value);
-                }
+                request.AddHeaders(headers);
                 HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
@@ -78,10 +72,7 @@ namespace MLogix.Infrastructure.MolDbAPI
             try {
                 string apiUrl = $"{_molDbApiUrl}/molecule/by-id/{id}";
                 var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value);
-                }
+                request.AddHeaders(headers);
                 HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
@@ -110,10 +101,7 @@ namespace MLogix.Infrastructure.MolDbAPI
             try {
                 string apiUrl = $"{_molDbApiUrl}/molecule/by-smiles/{smiles}";
                 var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value);
-                }
+                request.AddHeaders(headers);
                 HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
@@ -142,10 +130,7 @@ namespace MLogix.Infrastructure.MolDbAPI
         {
             try {
                 var request = new HttpRequestMessage(HttpMethod.Get, _molDbApiUrl + "/molecules");
-                foreach (var header in headers)
-                {
-                    request.Headers.Add(header.Key, header.Value);
-                }
+                request.AddHeaders(headers);
 
                 HttpResponseMessage response = await _httpClient.SendAsync(request);
 
