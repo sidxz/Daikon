@@ -1,8 +1,8 @@
 
-using Amazon.Auth.AccessControlPolicy;
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.Contracts.Persistence;
@@ -17,23 +17,29 @@ namespace MLogix.Application.Features.Queries.FindSimilarMolecules
         private readonly ILogger<FindSimilarMoleculesHandler> _logger;
 
         private readonly IMolDbAPIService _molDbAPIService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-        public FindSimilarMoleculesHandler(IMoleculeRepository moleculeRepository, IMapper mapper, ILogger<FindSimilarMoleculesHandler> logger, IMolDbAPIService molDbAPIService)
+        public FindSimilarMoleculesHandler(IMoleculeRepository moleculeRepository,
+            IMapper mapper, ILogger<FindSimilarMoleculesHandler> logger,
+            IMolDbAPIService molDbAPIService, IHttpContextAccessor httpContextAccessor)
         {
             _moleculeRepository = moleculeRepository;
             _mapper = mapper;
             _logger = logger;
             _molDbAPIService = molDbAPIService;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<List<MoleculeVM>> Handle(FindSimilarMoleculesQuery request, CancellationToken cancellationToken)
         {
+            var headers = _httpContextAccessor.HttpContext.Request.Headers
+                        .ToDictionary(h => h.Key, h => h.Value.ToString());
             try
             {
                 _logger.LogInformation("FindSimilarMolecules for SMILES: {0} with threshold: {1} and max results: {2}", request.SMILES, request.SimilarityThreshold, request.MaxResults);
 
                 var res = new List<MoleculeVM>();
-                var molDbMolecules = await _molDbAPIService.FindSimilar(request.SMILES, (float)request.SimilarityThreshold, request.MaxResults);
+                var molDbMolecules = await _molDbAPIService.FindSimilar(request.SMILES, (float)request.SimilarityThreshold, request.MaxResults, headers);
 
                 foreach (var molDbMolecule in molDbMolecules)
                 {
