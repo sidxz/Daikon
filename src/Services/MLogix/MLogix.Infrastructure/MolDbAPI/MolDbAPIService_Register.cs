@@ -40,14 +40,16 @@ namespace MLogix.Infrastructure.MolDbAPI
             };
 
             var content = new StringContent(JsonSerializer.Serialize(compoundData, _jsonOptions), Encoding.UTF8, "application/json");
-            foreach (var header in headers)
+            var request = new HttpRequestMessage(HttpMethod.Post, _molDbApiUrl + "/molecule/register")
             {
-                content.Headers.Add(header.Key, header.Value);
-            }
+                Content = content
+            };
+            request.AddHeaders(headers);
+            
             try
             {
 
-                HttpResponseMessage response = await _httpClient.PostAsync(_molDbApiUrl + "/molecule/register", content);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
 
                 if (response.IsSuccessStatusCode)
