@@ -18,12 +18,12 @@ namespace SimpleGW.OIDCProviders
             }
 
             /* Dump configuration to console for debugging */
-            // Console.WriteLine($"AzureAd Instance: {entraIdConfig["Instance"]}");
-            // Console.WriteLine($"AzureAd Domain: {entraIdConfig["Domain"]}");
-            // Console.WriteLine($"AzureAd TenantId: {entraIdConfig["TenantId"]}");
-            // Console.WriteLine($"AzureAd Audience: {entraIdConfig["Audience"]}");
-            // Console.WriteLine($"AzureAd ClientId: {entraIdConfig["ClientId"]}");
-            // Console.WriteLine($"AzureAd Issuer: {entraIdConfig["Issuer"]}");
+            Console.WriteLine($"AzureAd Instance: {entraIdConfig["Instance"]}");
+            Console.WriteLine($"AzureAd Domain: {entraIdConfig["Domain"]}");
+            Console.WriteLine($"AzureAd TenantId: {entraIdConfig["TenantId"]}");
+            Console.WriteLine($"AzureAd Audience: {entraIdConfig["Audience"]}");
+            Console.WriteLine($"AzureAd ClientId: {entraIdConfig["ClientId"]}");
+            Console.WriteLine($"AzureAd Issuer: {entraIdConfig["Issuer"]}");
 
             var requiredConfigs = new[] { "Instance", "Domain", "TenantId", "Audience", "ClientId" };
             foreach (var configKey in requiredConfigs)
@@ -56,10 +56,10 @@ namespace SimpleGW.OIDCProviders
                         if (claimsIdentity != null)
                         {
                             logger.LogDebug($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
-                            // foreach (var claim in claimsIdentity.Claims)
-                            // {
-                            //     Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
-                            // }
+                            foreach (var claim in claimsIdentity.Claims)
+                            {
+                                Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
+                            }
                         }
                         return Task.CompletedTask;
                     }
