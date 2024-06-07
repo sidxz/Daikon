@@ -56,10 +56,10 @@ namespace SimpleGW.OIDCProviders
                         if (claimsIdentity != null)
                         {
                             logger.LogDebug($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
-                            // foreach (var claim in claimsIdentity.Claims)
-                            // {
-                            //     Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
-                            // }
+                            foreach (var claim in claimsIdentity.Claims)
+                            {
+                                Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
+                            }
                         }
                         return Task.CompletedTask;
                     }
