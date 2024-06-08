@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace MLogix.Infrastructure
+namespace CQRS.Core.Infrastructure
 {
     public static class HttpRequestMessageExtensions
     {
         public static void AddHeaders(this HttpRequestMessage request, IDictionary<string, string> headers)
         {
-           
+
             if (headers.TryGetValue("Authorization", out var authorization))
             {
                 request.Headers.Add("Authorization", authorization);
@@ -37,16 +37,5 @@ namespace MLogix.Infrastructure
             }
         }
     }
-
-    public static class HttpContextExtensions
-    {
-        public static IDictionary<string, string> GetSpecificHeaders(this HttpContext context, params string[] headerNames)
-        {
-            return context.Request.Headers
-                .Where(h => headerNames.Contains(h.Key.ToLower()))
-                .ToDictionary(h => h.Key, h => h.Value.ToString());
-        }
-    }
-
 
 }
