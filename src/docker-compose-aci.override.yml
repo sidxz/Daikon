@@ -141,7 +141,7 @@ services:
       - "ScreenMongoDbSettings__HitRevisionCollectionName=HitRevisions"
 
       ## Internal APIs
-      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db"
+      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db" #Todo: Remove
       - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
     ports:
@@ -185,7 +185,6 @@ services:
       - "HAMongoDbSettings__HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
 
       ## Internal APIs
-      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db"
       - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
     ports:
@@ -230,7 +229,7 @@ services:
       - "ProjectMongoDbSettings__ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
       
       ## Internal APIs
-      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db"
+      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db" #TODO: Remove
       - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
     ports:
@@ -295,7 +294,7 @@ services:
       - "MLxMongoDbSettings__MoleculeRevisionCollectionName=MoleculesRevisions"
 
       # Internal APIs
-      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db"
+      - "MolDbAPI__Url=https://daikon2-prd-moldb.azurewebsites.net/api/v2/mol-db"
 
     ports:
       - "8007:80"
@@ -351,7 +350,6 @@ services:
       - "CommentMongoDbSettings__CommentReplyRevisionCollectionName=CommentReplyRevisions"
 
       ## Internal APIs
-      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db"
       - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
     ports:
@@ -418,7 +416,7 @@ services:
       - "EndPointRouting__user=http://localhost:8011"
       - "EndPointRouting__questionnaire=http://localhost:8008"
       - "EndPointRouting__comment=http://localhost:8009"
-      - "EndPointRouting__mol_db=http://localhost:8101"
+      - "EndPointRouting__mol_db=https://daikon2-prd-moldb.azurewebsites.net"
 
     ports:
       - "8010:80"
@@ -444,5 +442,5 @@ services:
       - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
 
     ports:
-      - "8101:80"
+      - "8101:8101"
 
