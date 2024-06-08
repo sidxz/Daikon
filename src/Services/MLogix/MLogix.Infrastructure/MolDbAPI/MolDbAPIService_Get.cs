@@ -3,7 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.DTOs.MolDbAPI;
-
+using CQRS.Core.Infrastructure;
 namespace MLogix.Infrastructure.MolDbAPI
 {
     public partial class MolDbAPIService : IMolDbAPIService

@@ -18,18 +18,16 @@ namespace HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution
         private readonly IHaCompoundEvolutionRepository _haCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<HaAggregate> _haEventSourcingHandler;
-        private readonly IMolDbAPIService _molDbAPIService;
 
         public DeleteHaCompoundEvolutionCommandHandler(ILogger<DeleteHaCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<HaAggregate> haEventSourcingHandler,
             IHaCompoundEvolutionRepository haCompoundEvoRepository,
-            IMapper mapper, IMolDbAPIService molDbAPIService)
+            IMapper mapper )
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _haCompoundEvoRepository = haCompoundEvoRepository ?? throw new ArgumentNullException(nameof(haCompoundEvoRepository));
             _haEventSourcingHandler = haEventSourcingHandler ?? throw new ArgumentNullException(nameof(haEventSourcingHandler));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
 
         }
 

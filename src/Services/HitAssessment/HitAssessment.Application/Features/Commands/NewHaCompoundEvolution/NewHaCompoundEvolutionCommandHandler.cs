@@ -25,7 +25,7 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
             IEventSourcingHandler<HaAggregate> haEventSourcingHandler,
             IHaCompoundEvolutionRepository haCompoundEvoRepository,
             IMLogixAPIService mLogixAPIService,
-            IMapper mapper, IMolDbAPIService molDbAPIService)
+            IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
