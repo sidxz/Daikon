@@ -51,16 +51,16 @@ namespace SimpleGW.OIDCProviders
                     },
                     OnTokenValidated = context =>
                     {
-                        logger.LogDebug("Token validated.");
-                        var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
-                        if (claimsIdentity != null)
-                        {
-                            logger.LogDebug($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
-                            foreach (var claim in claimsIdentity.Claims)
-                            {
-                                Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
-                            }
-                        }
+                        // logger.LogDebug("Token validated.");
+                        // var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
+                        // if (claimsIdentity != null)
+                        // {
+                        //     logger.LogDebug($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
+                        //     foreach (var claim in claimsIdentity.Claims)
+                        //     {
+                        //         Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");
+                        //     }
+                        // }
                         return Task.CompletedTask;
                     }
                 };

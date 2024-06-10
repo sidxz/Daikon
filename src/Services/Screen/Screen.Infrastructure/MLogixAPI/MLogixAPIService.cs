@@ -2,11 +2,13 @@
 using System.Text;
 using System.Text.Json;
 using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Infrastructure.DTOs;
 using Screen.Application.DTOs.MLogixAPI;
+using CQRS.Core.Infrastructure;
 
 namespace Screen.Infrastructure.MLogixAPI
 {
@@ -16,15 +18,16 @@ namespace Screen.Infrastructure.MLogixAPI
         private readonly ILogger<MLogixAPIService> _logger;
         private readonly string _MLogixApiUrl;
         private readonly IMapper _mapper;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly JsonSerializerOptions _jsonOptions;
-        public MLogixAPIService(ILogger<MLogixAPIService> logger, IMapper mapper, IConfiguration configuration)
+        public MLogixAPIService(ILogger<MLogixAPIService> logger, IMapper mapper, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = new HttpClient();
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             // _MLogixApiUrl = Environment.GetEnvironmentVariable("MLogixAPI:Url") ?? throw new ArgumentNullException(nameof(_MLogixApiUrl));
             _MLogixApiUrl = configuration["MLogixAPI:Url"] ?? throw new ArgumentNullException(nameof(_MLogixApiUrl));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _jsonOptions = new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -38,11 +41,20 @@ namespace Screen.Infrastructure.MLogixAPI
             if (string.IsNullOrEmpty(registerMoleculeRequest.RequestedSMILES))
                 throw new ArgumentNullException(nameof(registerMoleculeRequest.RequestedSMILES));
 
+            var headers = _httpContextAccessor.HttpContext.Request.Headers
+                        .ToDictionary(h => h.Key, h => h.Value.ToString());
+
+
             var content = new StringContent(JsonSerializer.Serialize(registerMoleculeRequest, _jsonOptions), Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage(HttpMethod.Post, _MLogixApiUrl + "/molecule/")
+            {
+                Content = content
+            };
+            request.AddHeaders(headers);
 
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsync(_MLogixApiUrl + "/molecule/", content);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
 
                 if (response.IsSuccessStatusCode)
@@ -72,7 +84,13 @@ namespace Screen.Infrastructure.MLogixAPI
             _logger.LogInformation("GetMoleculeById()");
             try
             {
-                HttpResponseMessage response = await _httpClient.GetAsync(_MLogixApiUrl + "/molecule/" + id);
+                string apiUrl = $"{_MLogixApiUrl}/molecule/{id}";
+                var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                var headers = _httpContextAccessor.HttpContext.Request.Headers
+                        .ToDictionary(h => h.Key, h => h.Value.ToString());
+
+                request.AddHeaders(headers);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -93,8 +111,6 @@ namespace Screen.Infrastructure.MLogixAPI
                 return null;
             }
             return null;
-
-
         }
     }
 }
