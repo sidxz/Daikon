@@ -35,6 +35,8 @@ namespace Screen.Infrastructure
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
 
+            services.AddHttpContextAccessor();
+
             /* MongoDb */
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
             ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
