@@ -12,6 +12,11 @@ namespace Daikon.Shared
         {
             return new
             {
+                AppVersion = new
+                {
+                    Version = "2.0.1",
+                    Name = "Atacama"
+                },
                 AppTarget = new
                 {
                     TargetTypes = TargetType.GetTargetTypes()

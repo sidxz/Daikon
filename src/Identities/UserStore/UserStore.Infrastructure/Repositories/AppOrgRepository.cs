@@ -113,6 +113,20 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
+        public async Task<List<AppOrg>> GetOrgsListExcludeInternal()
+        {
+            try
+            {
+                _logger.LogInformation("GetOrgsListExcludeInternal: Getting orgs list");
+                return await _appOrgCollection.Find(org => org.IsInternal == false).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the orgs list");
+                throw new RepositoryException(nameof(AppOrgRepository), "Error getting orgs list", ex);
+            }
+        }
+
         public async Task UpdateOrg(AppOrg org)
         {
             ArgumentNullException.ThrowIfNull(org);

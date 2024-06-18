@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using UserStore.Application.Features.Commands.Orgs.AddOrg;
 using UserStore.Application.Features.Commands.Orgs.DeleteOrg;
+using UserStore.Application.Features.Commands.Orgs.UpdateOrg;
 using UserStore.Application.Features.Queries.Orgs.GetOrg.ById;
 using UserStore.Application.Features.Queries.Orgs.ListOrgs;
 using UserStore.Domain.Entities;
@@ -130,7 +131,7 @@ namespace UserStore.API.Controllers.V2
         [HttpPut("{id}")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UpdateOrg(Guid id, [FromBody] AddOrgCommand command)
+        public async Task<IActionResult> UpdateOrg(Guid id, [FromBody] UpdateOrgCommand command)
         {
             try
             {
