@@ -10,6 +10,7 @@ namespace UserStore.Application.Contracts.Persistence
         Task<AppOrg> GetOrgByName(string name);
         Task<AppOrg> GetOrgByAlias(string alias);
         Task<List<AppOrg>> GetOrgsList();
+        Task <List<AppOrg>> GetOrgsListExcludeInternal();
         Task UpdateOrg(AppOrg org);
         Task DeleteOrg(Guid id);
     }
