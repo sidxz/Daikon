@@ -1,5 +1,4 @@
 
-using Amazon.Auth.AccessControlPolicy;
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using MediatR;
