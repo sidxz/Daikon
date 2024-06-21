@@ -46,7 +46,8 @@ namespace MLogix.Application.Features.Queries.FindSimilarMolecules
                     var molecule = await _moleculeRepository.GetMoleculeByRegistrationId(molDbMolecule.Id);
                     var moleculeVm = _mapper.Map<MoleculeVM>(molecule, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-                    moleculeVm.Smiles = molDbMolecule.Smiles;
+                    //moleculeVm.Smiles = molDbMolecule.Smiles;
+                    moleculeVm.Smiles = molecule.RequestedSMILES;
                     moleculeVm.SmilesCanonical = molDbMolecule.SmilesCanonical;
                     moleculeVm.MolecularWeight = (float)Math.Round(molDbMolecule.MolecularWeight, 2);
                     moleculeVm.TPSA = (float)Math.Round(molDbMolecule.TPSA, 2);

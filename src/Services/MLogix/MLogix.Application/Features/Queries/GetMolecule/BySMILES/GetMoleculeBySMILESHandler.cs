@@ -48,7 +48,8 @@ namespace MLogix.Application.Features.Queries.GetMolecule.BySMILES
                 }
 
                 var moleculeVm = _mapper.Map<MoleculeVM>(molecule, opts => opts.Items["WithMeta"] = request.WithMeta);
-                moleculeVm.Smiles = molDbMolecule.Smiles;
+                //moleculeVm.Smiles = molDbMolecule.Smiles;
+                moleculeVm.Smiles = molecule.RequestedSMILES;
                 moleculeVm.SmilesCanonical = molDbMolecule.SmilesCanonical;
                 moleculeVm.MolecularWeight = molDbMolecule.MolecularWeight;
                 moleculeVm.TPSA = molDbMolecule.TPSA;

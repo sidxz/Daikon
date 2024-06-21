@@ -34,9 +34,9 @@ namespace Horizon.Application.Query.Handlers
                 Product = @event.Product,
                 FunctionalCategory = @event.FunctionalCategory,
 
-                DateCreated = @event.DateCreated,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                DateCreated = @event?.DateCreated ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? false,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -54,14 +54,14 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: StrainCreatedEvent: {@event.Id} {@event.Name}");
             var strain = new Strain
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 StrainId = @event.Id.ToString(),
 
                 Name = @event.Name,
                 Organism = @event.Organism,
-                DateCreated = @event.DateCreated,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                DateCreated = @event?.DateCreated ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -80,17 +80,16 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: GeneUpdatedEvent: {@event.Id}");
             var gene = new Gene
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 GeneId = @event.Id.ToString(),
 
                 Name = @event.Name,
                 Product = @event.Product,
                 FunctionalCategory = @event.FunctionalCategory,
 
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -109,15 +108,15 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: StrainUpdatedEvent: {@event.Id} {@event.Name}");
             var strain = new Strain
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 StrainId = @event.Id.ToString(),
-                
+
                 Name = @event.Name,
                 Organism = @event.Organism,
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try

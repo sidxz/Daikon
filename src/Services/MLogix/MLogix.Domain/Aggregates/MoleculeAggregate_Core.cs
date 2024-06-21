@@ -37,8 +37,8 @@ namespace MLogix.Domain.Aggregates
             if (!_active)
                 throw new InvalidOperationException("Molecule is not active");
 
-            // No changes to registration id
-            @event.RegistrationId = _registrationId;
+            // Allow changes to registration id
+            _registrationId = @event.RegistrationId;
 
             RaiseEvent(@event);
         }
