@@ -30,10 +30,9 @@ namespace MLogix.Application.EventHandlers
             _logger.LogInformation("MoleculeCreatedEvent received for molecule {moleculeId}", @event.Id);
             var molecule = _mapper.Map<Molecule>(@event);
             molecule.Id = @event.Id;
-            molecule.DateCreated = @event.DateCreated;
-            molecule.IsModified = false;
 
-            try {
+            try
+            {
                 await _moleculeRepository.NewMolecule(molecule);
             }
             catch (Exception ex)
@@ -44,9 +43,31 @@ namespace MLogix.Application.EventHandlers
 
         }
 
-        public Task OnEvent(MoleculeUpdatedEvent @event)
+        public async Task OnEvent(MoleculeUpdatedEvent @event)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation("OnEvent: MoleculeUpdatedEvent: {Id}", @event.Id);
+            var existingMolecule = await _moleculeRepository.GetMoleculeById(@event.Id);
+
+            if (existingMolecule == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"MoleculeUpdatedEvent Error updating molecule with id @event.Id", new Exception("Molecule not found"));
+            }
+
+            var molecule = _mapper.Map<Molecule>(existingMolecule);
+            _mapper.Map(@event, molecule);
+
+            // Preserve the original creation date and creator
+            molecule.DateCreated = existingMolecule.DateCreated;
+            molecule.CreatedById = existingMolecule.CreatedById;
+
+            try
+            {
+                await _moleculeRepository.UpdateMolecule(molecule);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "MoleculeUpdatedEvent Error updating molecule with id @event.Id", ex);
+            }
         }
 
         public Task OnEvent(MoleculeDeletedEvent @event)

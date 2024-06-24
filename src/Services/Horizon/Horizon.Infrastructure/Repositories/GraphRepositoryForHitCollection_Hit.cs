@@ -12,14 +12,14 @@ namespace Horizon.Infrastructure.Repositories
 
         public async Task AddHit(Hit hit)
         {
-            _logger.LogInformation("AddHit(): Adding hit with id {HitId} and MoleculeId {MoleculeId} MoleculeRegId {MoleculeRegId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.MoleculeId, hit.MoleculeRegistrationId, hit.HitCollectionId);
+            _logger.LogInformation("AddHit(): Adding hit with id {HitId} and MoleculeId {MoleculeId} and hitCollectionId {hitCollectionId}", hit.HitId, hit.MoleculeId, hit.HitCollectionId);
 
             try
             {
-                if (!string.IsNullOrEmpty(hit.MoleculeRegistrationId))
+                if (!string.IsNullOrEmpty(hit.MoleculeId))
                 {
                     var mergeMoleculeQuery = @"
-                        MERGE (m:Molecule {registrationId: $moleculeRegistrationId})
+                        MERGE (m:Molecule {uniId: $moleculeId})
                         WITH m
                         MATCH (hc:HitCollection {uniId: $hitCollectionId})
                         MERGE (hc)-[:HIT_MOLECULE {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES}]->(m)
@@ -29,7 +29,7 @@ namespace Horizon.Infrastructure.Repositories
                              .ExecutableQuery(mergeMoleculeQuery).WithParameters(new
                              {
                                  hitId = hit.HitId,
-                                 moleculeRegistrationId = hit.MoleculeRegistrationId,
+                                 moleculeId = hit.MoleculeId,
                                  hitCollectionId = hit.HitCollectionId,
                                  library = hit.Library,
                                  requestedSMILES = hit.RequestedSMILES

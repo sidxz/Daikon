@@ -67,15 +67,48 @@ namespace Horizon.Infrastructure.Repositories
             _logger.LogInformation("Adding Molecule to Graph with RegistrationId: {RegistrationId}", molecule.RegistrationId);
 
             var mergeMolQuery = @"
-                     MERGE (m:Molecule { registrationId: $registrationId })
+                     MERGE (m:Molecule { uniId: $uniId })
                             ON CREATE SET
-                                        m.uniId = $uniId,
+                                        m.registrationId = $registrationId,
                                         m.mLogixId = $mLogixId,
                                         m.name = $name,
                                         m.requestedSMILES = $requestedSMILES,
                                         m.smilesCanonical = $smilesCanonical
                             ON MATCH SET  
-                                        m.uniId = $uniId,
+                                        m.registrationId = $registrationId,
+                                        m.mLogixId = $mLogixId,
+                                        m.name = $name,
+                                        m.requestedSMILES = $requestedSMILES,
+                                        m.smilesCanonical = $smilesCanonical
+                ";
+
+            var (queryResults, _) = await _driver
+                         .ExecutableQuery(mergeMolQuery).WithParameters(new
+                         {
+                             uniId = molecule.UniId,
+                             mLogixId = molecule.MLogixId,
+                             registrationId = molecule.RegistrationId,
+                             name = molecule.Name,
+                             requestedSMILES = molecule.RequestedSMILES,
+                             smilesCanonical = molecule.SmilesCanonical,
+                         }).ExecuteAsync()
+                         ;
+        }
+
+        public async Task UpdateMolecule(Molecule molecule)
+        {
+            _logger.LogInformation("Updating Molecule in Graph with UniId: {UniId}", molecule.UniId);
+
+            var mergeMolQuery = @"
+                     MERGE (m:Molecule { uniId: $uniId })
+                            ON CREATE SET
+                                        m.registrationId = $registrationId,
+                                        m.mLogixId = $mLogixId,
+                                        m.name = $name,
+                                        m.requestedSMILES = $requestedSMILES,
+                                        m.smilesCanonical = $smilesCanonical
+                            ON MATCH SET
+                                        m.registrationId = $registrationId,
                                         m.mLogixId = $mLogixId,
                                         m.name = $name,
                                         m.requestedSMILES = $requestedSMILES,

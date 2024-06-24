@@ -32,11 +32,11 @@ namespace Horizon.Application.Handlers
                 HitCollectionId = @event.HitCollectionId.ToString(),
                 PrimaryMoleculeId = @event.CompoundId.ToString(),
                 AssociatedMoleculeIds = @event.AssociatedHitIds.Keys.ToList(),
-                OrgId = @event.PrimaryOrgId.ToString(),
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                OrgId = @event?.PrimaryOrgId?.ToString() ?? "",
+
+                DateCreated = @event?.DateCreated ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? false,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -59,11 +59,11 @@ namespace Horizon.Application.Handlers
                 Status = @event.Status,
                 IsHAComplete = @event.IsHAComplete,
                 IsHASuccess = @event.IsHASuccess,
-                OrgId = @event.PrimaryOrgId.ToString(),
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                OrgId = @event?.PrimaryOrgId?.ToString() ?? "",
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -84,8 +84,10 @@ namespace Horizon.Application.Handlers
                 UniId = @event.Id.ToString(),
                 HitAssessmentId = @event.Id.ToString(),
                 Name = @event.Name,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified
+                
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
