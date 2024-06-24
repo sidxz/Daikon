@@ -19,22 +19,42 @@ namespace Horizon.Application.Handlers
 
         public Task OnEvent(MoleculeCreatedEvent @event)
         {
-            _logger.LogInformation($"Horizon: MoleculeCreatedEvent: {@event.RegistrationId} {@event.Name}");
+            _logger.LogInformation($"Horizon: MoleculeCreatedEvent: {@event.Id} {@event.Name}");
             var molecule = new Molecule
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 RegistrationId = @event.RegistrationId.ToString(),
                 MLogixId = @event.Id.ToString(),
                 Name = @event.Name,
                 RequestedSMILES = @event.RequestedSMILES,
                 SmilesCanonical = @event.SmilesCanonical,
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+
+                DateCreated = @event?.DateCreated ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             return _graphRepository.AddMolecule(molecule);
+        }
+
+        public Task OnEvent(MoleculeUpdatedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: MoleculeUpdatedEvent: {@event.Id} {@event.Name}");
+            var molecule = new Molecule
+            {
+                UniId = @event.Id.ToString(),
+                RegistrationId = @event.RegistrationId.ToString(),
+                MLogixId = @event.Id.ToString(),
+                Name = @event.Name,
+                RequestedSMILES = @event.RequestedSMILES,
+                SmilesCanonical = @event.SmilesCanonical,
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
+            };
+
+            return _graphRepository.UpdateMolecule(molecule);
         }
     }
 }

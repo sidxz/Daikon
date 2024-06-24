@@ -26,19 +26,18 @@ namespace Horizon.Application.Handlers
                 {
                     UniId = @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
-                    StrainId = @event.StrainId.ToString(),
+                    StrainId = @event.StrainId?.ToString() ?? "",
 
                     Name = @event.Name,
-                    AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
-                    ScreenType = @event.ScreenType,
-                    Method = @event.Method,
-                    Status = @event.Status,
-                    PrimaryOrgId = @event.PrimaryOrgId.ToString(),
+                    AssociatedTargetsId = @event.AssociatedTargets?.Keys.ToList() ?? [],
+                    ScreenType = @event?.ScreenType ?? "",
+                    Method = @event?.Method ?? "",
+                    Status = @event?.Status ?? "",
+                    PrimaryOrgId = @event?.PrimaryOrgId?.ToString() ?? "",
 
-                    DateCreated = @event.DateCreated,
-                    DateModified = @event.DateModified,
-                    IsModified = @event.IsModified,
-                    IsDraft = @event.IsDraft
+                    DateCreated = @event?.DateCreated ?? DateTime.Now,
+                    IsModified = @event?.IsModified ?? false,
+                    IsDraft = @event?.IsDraft ?? false
                 };
 
                 await _graphRepository.AddScreen(screen);
@@ -59,19 +58,18 @@ namespace Horizon.Application.Handlers
                 {
                     UniId = @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
-                    StrainId = @event.StrainId.ToString(),
+                    StrainId = @event.StrainId?.ToString() ?? "",
 
                     Name = @event.Name,
-                    AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
-                    ScreenType = @event.ScreenType,
-                    Method = @event.Method,
-                    Status = @event.Status,
-                    PrimaryOrgId = @event.PrimaryOrgId.ToString(),
+                    AssociatedTargetsId = @event.AssociatedTargets?.Keys.ToList() ?? [],
+                    ScreenType = @event?.ScreenType ?? "",
+                    Method = @event?.Method ?? "",
+                    Status = @event?.Status ?? "",
+                    PrimaryOrgId = @event?.PrimaryOrgId?.ToString() ?? "",
 
-                    DateCreated = @event.DateCreated,
-                    DateModified = @event.DateModified,
-                    IsModified = @event.IsModified,
-                    IsDraft = @event.IsDraft
+                    DateModified = @event?.DateModified ?? DateTime.Now,
+                    IsModified = @event?.IsModified ?? true,
+                    IsDraft = @event?.IsDraft ?? false
                 };
 
                 await _graphRepository.UpdateScreen(screen);
@@ -93,11 +91,11 @@ namespace Horizon.Application.Handlers
                     UniId = @event.Id.ToString(),
                     ScreenId = @event.Id.ToString(),
                     Name = @event.Name,
-                    AssociatedTargetsId = @event.AssociatedTargets.Keys.ToList(),
-                    DateCreated = @event.DateCreated,
-                    DateModified = @event.DateModified,
-                    IsModified = @event.IsModified,
-                    IsDraft = @event.IsDraft
+                    AssociatedTargetsId = @event.AssociatedTargets?.Keys.ToList() ?? [],
+
+                    DateModified = @event?.DateModified ?? DateTime.Now,
+                    IsModified = @event?.IsModified ?? true,
+                    IsDraft = @event?.IsDraft ?? false
                 };
 
                 await _graphRepository.UpdateAssociatedTargetsOfScreen(screen);

@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends
 from app.core.MoleculeService import MoleculeService
 from app.infrastructure.MoleculeRepository import MoleculeRepository
@@ -48,7 +49,7 @@ async def create_molecule(
 
 @router.put("/molecule/{molecule_id}", tags=["Commands"])
 async def update_molecule(
-    molecule_id: int,
+    molecule_id: UUID,
     request: MoleculeUpdateRequest,
     molecule_service: MoleculeService = Depends(get_molecule_service),
 ) -> dict:
@@ -56,7 +57,7 @@ async def update_molecule(
     Update an existing molecule.
 
     Args:
-        molecule_id (int): The ID of the molecule to update.
+        molecule_id (UUID): The ID of the molecule to update.
         request (MoleculeUpdateRequest): The request model containing updated molecule data.
 
     Returns:
@@ -77,14 +78,14 @@ async def update_molecule(
 
 @router.delete("/molecule/{molecule_id}", tags=["Commands"])
 async def delete_molecule(
-    molecule_id: int,
+    molecule_id: UUID,
     molecule_service: MoleculeService = Depends(get_molecule_service),
 ) -> dict:
     """
     Delete an existing molecule.
 
     Args:
-        molecule_id (int): The ID of the molecule to delete.
+        molecule_id (UUID): The ID of the molecule to delete.
 
     Returns:
         dict: The deleted molecule.

@@ -5,6 +5,7 @@ using CQRS.Core.Resolvers;
 using Daikon.Events.MLogix;
 using MLogix.Application.DTOs.MolDbAPI;
 using MLogix.Application.Features.Commands.RegisterMolecule;
+using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.GetMolecule;
 using MLogix.Application.Features.Queries.ListMolecules;
 using MLogix.Domain.Entities;
@@ -22,9 +23,13 @@ namespace MLogix.Application.Mappings
 
             CreateMap<MoleculeDTO, MoleculeDTO>().ReverseMap();
 
+            CreateMap<UpdateMoleculeResponseDTO, MoleculeUpdatedEvent>()
+                .ReverseMap();
+
 
             /* Events */
             CreateMap<Molecule, MoleculeCreatedEvent>().ReverseMap();
+            CreateMap<Molecule, MoleculeUpdatedEvent>().ReverseMap();
 
             /* Queries */
             CreateMap<Molecule, MoleculeVM>()

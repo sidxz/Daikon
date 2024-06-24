@@ -49,7 +49,8 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ById
 
                 if (molDbMolecule != null)
                 {
-                    moleculeVm.Smiles = molDbMolecule.Smiles;
+                    //moleculeVm.Smiles = molDbMolecule.Smiles;
+                    moleculeVm.Smiles = molecule.RequestedSMILES;
                     moleculeVm.SmilesCanonical = molDbMolecule.SmilesCanonical;
                     moleculeVm.MolecularWeight = molDbMolecule.MolecularWeight;
                     moleculeVm.TPSA = molDbMolecule.TPSA;

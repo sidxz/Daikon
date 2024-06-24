@@ -40,6 +40,9 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             var headers = _httpContextAccessor.HttpContext.Request.Headers
                         .ToDictionary(h => h.Key, h => h.Value.ToString());
 
+            request.DateCreated = DateTime.UtcNow;
+            request.IsModified = false;            
+
             var registerMoleculeResponseDTO = new RegisterMoleculeResponseDTO();
             // check if smiles is blank throw exception
             if (string.IsNullOrEmpty(request.RequestedSMILES))
@@ -91,6 +94,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             try
             {
                 var newMoleculeCreatedEvent = _mapper.Map<MoleculeCreatedEvent>(request);
+                
                 newMoleculeCreatedEvent.RegistrationId = registrationReq.Id;
                 newMoleculeCreatedEvent.RequestedSMILES = request.RequestedSMILES;
                 newMoleculeCreatedEvent.Synonyms = request.Synonyms != null ? new List<string>(request.Synonyms) : [];

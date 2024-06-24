@@ -1,4 +1,5 @@
 
+using System.Net;
 using MLogix.Application.DTOs.MolDbAPI;
 
 namespace MLogix.Application.Contracts.Infrastructure
@@ -12,6 +13,8 @@ namespace MLogix.Application.Contracts.Infrastructure
 
         public Task<MoleculeDTO> FindExact(string smiles, IDictionary<string, string> headers);
         public Task<List<MoleculeDTO>> FindSimilar(string smiles, float similarityThreshold, int maxResults, IDictionary<string, string> headers);
+
+        public Task<HttpStatusCode> DeleteMoleculeById(Guid id, IDictionary<string, string> headers);
 
     }
 }

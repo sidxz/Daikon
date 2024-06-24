@@ -41,17 +41,27 @@ namespace MLogix.Application.Features.Queries.FindSimilarMolecules
                 var res = new List<MoleculeVM>();
                 var molDbMolecules = await _molDbAPIService.FindSimilar(request.SMILES, (float)request.SimilarityThreshold, request.MaxResults, headers);
 
+                _logger.LogInformation("Found {0} similar molecules", molDbMolecules.Count);
+
                 foreach (var molDbMolecule in molDbMolecules)
                 {
-                    var molecule = await _moleculeRepository.GetMoleculeByRegistrationId(molDbMolecule.Id);
-                    var moleculeVm = _mapper.Map<MoleculeVM>(molecule, opts => opts.Items["WithMeta"] = request.WithMeta);
+                    try
+                    {
+                        var molecule = await _moleculeRepository.GetMoleculeByRegistrationId(molDbMolecule.Id);
+                        var moleculeVm = _mapper.Map<MoleculeVM>(molecule, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-                    moleculeVm.Smiles = molDbMolecule.Smiles;
-                    moleculeVm.SmilesCanonical = molDbMolecule.SmilesCanonical;
-                    moleculeVm.MolecularWeight = (float)Math.Round(molDbMolecule.MolecularWeight, 2);
-                    moleculeVm.TPSA = (float)Math.Round(molDbMolecule.TPSA, 2);
-                    moleculeVm.Similarity = (float)Math.Round(molDbMolecule.Similarity, 2);
-                    res.Add(moleculeVm);
+                        //moleculeVm.Smiles = molDbMolecule.Smiles;
+                        moleculeVm.Smiles = molecule.RequestedSMILES ?? molDbMolecule.Smiles ?? "";
+                        moleculeVm.SmilesCanonical = molDbMolecule.SmilesCanonical;
+                        moleculeVm.MolecularWeight = (float)Math.Round(molDbMolecule.MolecularWeight, 2);
+                        moleculeVm.TPSA = (float)Math.Round(molDbMolecule.TPSA, 2);
+                        moleculeVm.Similarity = (float)Math.Round(molDbMolecule.Similarity, 2);
+                        res.Add(moleculeVm);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error in processing molecule with ID: {0}", molDbMolecule.Id);
+                    }
                 }
                 return res;
             }
