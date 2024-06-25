@@ -97,11 +97,13 @@ namespace Horizon.Application.Features.Calculation
                 return node.Values["x"].As<INode>().Properties["uniId"].As<string>();
             }
 
-            // At this point, root is NOT a gene or target node. So, search for any connected node as the root.
+            // At this point, root is NOT a gene or target node. So, search for any valid connected node as the root.
             _logger.LogInformation("Search for any connected node as the root....");
 
-            string anyRootQuery = @"MATCH (i {uniId: $uniqueId}) -[*]-> (x) RETURN x";
-            node = await FindNodeAsync(uniqueId, anyRootQuery);
+            string anyRootQuery = @"MATCH (i {uniId: $uniqueId}) -[*]-> (x) 
+            WHERE x:Gene OR x:Target OR x:Screen OR x:HitAssessment OR x:Project
+            RETURN x";
+            node = await FindLastNodeAsync(uniqueId, anyRootQuery);
             if (node != null)
             {
                 // This is a connected node, so return it as root
@@ -137,6 +139,21 @@ namespace Horizon.Application.Features.Calculation
             if (firstNode != null)
             {
                 return firstNode;
+            }
+
+            // Return null if no root node is found.
+            return null;
+        }
+        private async Task<IRecord> FindLastNodeAsync(string uniqueId, string query)
+        {
+            var parameters = new Dictionary<string, object> { { "uniqueId", uniqueId } };
+            var cursor = await _graphQueryRepository.RunAsync(query, parameters);
+            var records = await cursor.ToListAsync();
+            var lastNode = records.LastOrDefault();
+
+            if (lastNode != null)
+            {
+                return lastNode;
             }
 
             // Return null if no root node is found.
