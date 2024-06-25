@@ -8,6 +8,7 @@ using Project.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Project.Domain.Entities;
+using System.Text.Json.Nodes;
 
 
 namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
@@ -36,42 +37,27 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
 
         public async Task<Unit> Handle(UpdateProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
+
+            var now = DateTime.UtcNow;
+            request.DateModified = now;
+            request.IsModified = true;
+
+            // log stage
+            // _logger.LogInformation("++++++++++++++++++++  UpdateProjectCompoundEvolutionCommand: {CompoundEvolutionId} {Stage}", request.CompoundEvolutionId, request.Stage);
             // fetch existing CE
-            var existingCEvo = await _projectCompoundEvoRepository.ReadProjectCompoundEvolutionById(request.CompoundEvolutionId);
-
-            if (existingCEvo == null)
-            {
-                throw new ResourceNotFoundException(nameof(ProjectCompoundEvolution), request.CompoundEvolutionId);
-            }
-
+            var existingCEvo = await _projectCompoundEvoRepository.ReadProjectCompoundEvolutionById(request.CompoundEvolutionId)
+                        ?? throw new ResourceNotFoundException(nameof(ProjectCompoundEvolution), request.CompoundEvolutionId);
             try
             {
-                var now = DateTime.UtcNow;
-                request.DateModified = now;
-                request.IsModified = true;
+
                 var compoundEvoUpdatedEvent = _mapper.Map<ProjectCompoundEvolutionUpdatedEvent>(request);
 
                 var aggregate = await _projectEventSourcingHandler.GetByAsyncId(request.Id);
 
-                // TODO (Future option) : check if molecule has been updated then register it
-                // if (request.RequestedSMILES != existingCEvo.RequestedSMILES)
-                // {
-                //     if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
-                //     {
-                //         _logger.LogInformation("Will try to register molecule ...");
-                //         await RegisterMoleculeAndAssignToEvent(request, compoundEvoUpdatedEvent);
-                //     }
-                //     else
-                //     {
-                //         throw new ArgumentNullException(nameof(request.RequestedSMILES));
-                //     }
-                // }
-                // else
-                // {
-                //     compoundEvoUpdatedEvent.MoleculeId = existingCEvo.MoleculeId;
-                // }
-
                 aggregate.UpdateCompoundEvolution(compoundEvoUpdatedEvent);
+
+                // _logger.LogInformation("------------JSON--------------");
+                // _logger.LogInformation(System.Text.Json.JsonSerializer.Serialize(compoundEvoUpdatedEvent));
 
                 await _projectEventSourcingHandler.SaveAsync(aggregate);
             }

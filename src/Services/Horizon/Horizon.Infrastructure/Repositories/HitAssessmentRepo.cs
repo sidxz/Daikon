@@ -11,7 +11,7 @@ using Neo4j.Driver;
 
 namespace Horizon.Infrastructure.Repositories
 {
-    public class HitAssessmentRepo : IHitAssessmentRepo
+    public partial class HitAssessmentRepo : IHitAssessmentRepo
     {
 
         private readonly IDriver _driver;

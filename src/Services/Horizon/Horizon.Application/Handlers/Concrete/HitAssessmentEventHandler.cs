@@ -84,7 +84,7 @@ namespace Horizon.Application.Handlers
                 UniId = @event.Id.ToString(),
                 HitAssessmentId = @event.Id.ToString(),
                 Name = @event.Name,
-                
+
                 DateModified = @event?.DateModified ?? DateTime.Now,
                 IsModified = @event?.IsModified ?? true,
                 IsDraft = @event?.IsDraft ?? false
@@ -114,23 +114,61 @@ namespace Horizon.Application.Handlers
 
         public Task OnEvent(HaCompoundEvolutionAddedEvent @event)
         {
-            // TODO Implement
-            //throw new NotImplementedException();
-            return Task.CompletedTask;
+            var compoundEvolution = new HACompoundEvolution
+            {
+                UniId = @event.Id.ToString(),
+                HitAssessmentId = @event.Id.ToString(),
+                CompoundEvolutionId = @event.CompoundEvolutionId.ToString(),
+                MoleculeId = @event.MoleculeId.ToString(),
+                Stage = @event.Stage ?? "HA",
+                DateCreated = @event.DateCreated ?? DateTime.Now,
+                IsModified = @event.IsModified ?? false,
+                IsDraft = @event.IsDraft ?? false
+            };
+
+            try
+            {
+                return _graphRepository.AddHaCEvo(compoundEvolution);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "HaCompoundEvolutionAddedEvent Error adding ha compound evolution", ex);
+            }
         }
 
         public Task OnEvent(HaCompoundEvolutionUpdatedEvent @event)
         {
-            // TODO Implement
-            return Task.CompletedTask;
-            //throw new NotImplementedException();
+            var compoundEvolution = new HACompoundEvolution
+            {
+                UniId = @event.Id.ToString(),
+                HitAssessmentId = @event.Id.ToString(),
+                CompoundEvolutionId = @event.CompoundEvolutionId.ToString(),
+                Stage = @event.Stage ?? "HA",
+                DateModified = @event.DateModified ?? DateTime.Now,
+                IsModified = @event.IsModified ?? true,
+                IsDraft = @event.IsDraft ?? false
+            };
+
+            try
+            {
+                return _graphRepository.UpdateHaCEvo(compoundEvolution);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "HaCompoundEvolutionUpdatedEvent Error updating ha compound evolution", ex);
+            }
         }
 
         public Task OnEvent(HaCompoundEvolutionDeletedEvent @event)
         {
-            // TODO Implement
-            return Task.CompletedTask;
-            //throw new NotImplementedException();
+            try
+            {
+                return _graphRepository.DeleteHaCEvo(@event.CompoundEvolutionId.ToString());
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "HaCompoundEvolutionDeletedEvent Error deleting ha compound evolution", ex);
+            }
         }
     }
 }

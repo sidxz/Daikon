@@ -81,6 +81,10 @@ namespace Horizon.Infrastructure.Query.Converters
                 "ProjectDeletedEvent" => JsonSerializer.Deserialize<ProjectDeletedEvent>(json, options),
                 "ProjectRenamedEvent" => JsonSerializer.Deserialize<ProjectRenamedEvent>(json, options),
                 "ProjectAssociationUpdatedEvent" => JsonSerializer.Deserialize<ProjectAssociationUpdatedEvent>(json, options),
+                "ProjectCompoundEvolutionAddedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionAddedEvent>(json, options),
+                "ProjectCompoundEvolutionUpdatedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionUpdatedEvent>(json, options),
+                "ProjectCompoundEvolutionDeletedEvent" => JsonSerializer.Deserialize<ProjectCompoundEvolutionDeletedEvent>(json, options),
+                
                 
                 
                 

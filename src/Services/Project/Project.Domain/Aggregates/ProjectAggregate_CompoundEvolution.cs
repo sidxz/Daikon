@@ -13,7 +13,7 @@ namespace Project.Domain.Aggregates
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This Hit Assessment is deleted.");
+                throw new InvalidOperationException("This Project is deleted.");
             }
             if (@event.Id == Guid.Empty)
             {
@@ -52,7 +52,7 @@ namespace Project.Domain.Aggregates
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This Hit Assessment is deleted.");
+                throw new InvalidOperationException("This Project is deleted.");
             }
             if (@event.Id == Guid.Empty)
             {
@@ -88,7 +88,7 @@ namespace Project.Domain.Aggregates
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This Hit Assessment is deleted.");
+                throw new InvalidOperationException("This Project is deleted.");
             }
             if (@event.CompoundEvolutionId == Guid.Empty)
             {
