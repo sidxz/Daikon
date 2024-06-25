@@ -114,9 +114,26 @@ namespace Horizon.Application.Handlers
 
         public Task OnEvent(HaCompoundEvolutionAddedEvent @event)
         {
-            // TODO Implement
-            //throw new NotImplementedException();
-            return Task.CompletedTask;
+            var compoundEvolution = new HACompoundEvolution
+            {
+                UniId = @event.Id.ToString(),
+                HitAssessmentId = @event.Id.ToString(),
+                CompoundEvolutionId = @event.CompoundEvolutionId.ToString(),
+                MoleculeId = @event.MoleculeId.ToString(),
+                Stage = @event.Stage ?? "HA",
+                DateCreated = @event.DateCreated ?? DateTime.Now,
+                IsModified = @event.IsModified ?? false,
+                IsDraft = @event.IsDraft ?? false
+            };
+
+            try
+            {
+                return _graphRepository.AddHaCEvo(compoundEvolution);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "HaCompoundEvolutionAddedEvent Error adding ha compound evolution", ex);
+            }
         }
 
         public Task OnEvent(HaCompoundEvolutionUpdatedEvent @event)
