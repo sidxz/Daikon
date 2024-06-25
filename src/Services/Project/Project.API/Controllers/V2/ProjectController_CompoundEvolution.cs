@@ -11,7 +11,7 @@ namespace Project.API.Controllers.V2
 {
     public partial class ProjectController : ControllerBase
     {
-        [HttpPost("{projectId}/compound-evolution/" , Name = "AddCompoundEvolution")]
+        [HttpPost("{projectId}/compound-evolution/", Name = "AddCompoundEvolution")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddCompoundEvolution(Guid projectId, NewProjectCompoundEvolutionCommand command)
@@ -23,7 +23,7 @@ namespace Project.API.Controllers.V2
                 command.CompoundEvolutionId = compoundEvolutionId;
                 var response = await _mediator.Send(command);
                 return StatusCode(StatusCodes.Status201Created, response);
-                
+
             }
             catch (ArgumentNullException ex)
             {
@@ -78,9 +78,9 @@ namespace Project.API.Controllers.V2
 
             try
             {
-                command.Id = id;
+                command.Id = projectId;
                 command.CompoundEvolutionId = id;
-                
+
                 await _mediator.Send(command);
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
@@ -133,11 +133,15 @@ namespace Project.API.Controllers.V2
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteCompoundEvolution(Guid id)
+        public async Task<ActionResult> DeleteCompoundEvolution(Guid projectId, Guid id)
         {
             try
             {
-                await _mediator.Send(new DeleteProjectCompoundEvolutionCommand { CompoundEvolutionId = id });
+                await _mediator.Send(new DeleteProjectCompoundEvolutionCommand
+                {
+                    Id = projectId,
+                    CompoundEvolutionId = id
+                });
 
                 return StatusCode(StatusCodes.Status200OK, new BaseResponse
                 {

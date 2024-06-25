@@ -12,5 +12,9 @@ namespace Horizon.Application.Handlers
         Task OnEvent(ProjectRenamedEvent @event);
         Task OnEvent(ProjectAssociationUpdatedEvent @event);
 
+        Task OnEvent(ProjectCompoundEvolutionAddedEvent @event);
+        Task OnEvent(ProjectCompoundEvolutionUpdatedEvent @event);
+        Task OnEvent(ProjectCompoundEvolutionDeletedEvent @event);
+
     }
 }

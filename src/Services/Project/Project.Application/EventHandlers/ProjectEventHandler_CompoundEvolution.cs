@@ -2,6 +2,7 @@
 using CQRS.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 using Daikon.Events.Project;
+using Project.Domain.Entities;
 
 namespace Project.Application.EventHandlers
 {
@@ -12,7 +13,7 @@ namespace Project.Application.EventHandlers
         {
             _logger.LogInformation("OnEvent: ProjectCompoundEvolutionAddedEvent: ProjectId {Id}, ProjectCEId {CompoundEvolutionId}", @event.Id, @event.CompoundEvolutionId);
 
-            var compoundEvolution = _mapper.Map<Domain.Entities.ProjectCompoundEvolution>(@event);
+            var compoundEvolution = _mapper.Map<ProjectCompoundEvolution>(@event);
 
             // Override compoundEvolution.Id to be the same as compoundEvolution.CompoundEvolutionId 
             // as @event.Id refers to Project (Aggregate Id) which is auto-mapped by the mapper
@@ -43,8 +44,8 @@ namespace Project.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating ha compound evolution {@event.CompoundEvolutionId} for ProjectCompoundEvolutionUpdatedEvent", new Exception("Project compound evolution not found"));
             }
 
-            var compoundEvolution = _mapper.Map<Domain.Entities.ProjectCompoundEvolution>(existingProjectCompoundEvolution);
-            compoundEvolution = _mapper.Map<Domain.Entities.ProjectCompoundEvolution>(@event);
+            var compoundEvolution = _mapper.Map<ProjectCompoundEvolution>(existingProjectCompoundEvolution);
+            _mapper.Map(@event, compoundEvolution);
             
             compoundEvolution.Id = @event.CompoundEvolutionId;
             compoundEvolution.ProjectId = @event.Id;
@@ -65,15 +66,15 @@ namespace Project.Application.EventHandlers
 
         public async Task OnEvent(ProjectCompoundEvolutionDeletedEvent @event)
         {
-            _logger.LogInformation("OnEvent: ProjectCompoundEvolutionDeletedEvent: {Id}", @event.Id);
+            _logger.LogInformation("OnEvent: ProjectCompoundEvolutionDeletedEvent: {Id}", @event.CompoundEvolutionId);
 
             try
             {
-                await _projectCompoundEvolutionRepository.DeleteProjectCompoundEvolution(@event.Id);
+                await _projectCompoundEvolutionRepository.DeleteProjectCompoundEvolution(@event.CompoundEvolutionId);
             }
             catch (RepositoryException ex)
             {
-                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting ha compound evolution {@event.Id} for ProjectCompoundEvolutionDeletedEvent", ex);
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting ha compound evolution {@event.CompoundEvolutionId} for ProjectCompoundEvolutionDeletedEvent", ex);
             }
         }
     }
