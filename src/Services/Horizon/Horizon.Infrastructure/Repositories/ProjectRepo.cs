@@ -7,7 +7,7 @@ using Neo4j.Driver;
 
 namespace Horizon.Infrastructure.Repositories
 {
-    public class ProjectRepo : IProjectRepo
+    public partial class ProjectRepo : IProjectRepo
     {
 
         private readonly IDriver _driver;

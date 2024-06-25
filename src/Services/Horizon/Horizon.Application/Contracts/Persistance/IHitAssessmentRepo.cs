@@ -11,5 +11,9 @@ namespace Horizon.Application.Contracts.Persistance
         Task Update(HitAssessment hitAssessment);
         Task Rename(HitAssessment hitAssessment);
         Task Delete(string hitAssessmentId);
+
+        Task AddHaCEvo(HACompoundEvolution haCompoundEvolution);
+        Task UpdateHaCEvo(HACompoundEvolution haCompoundEvolution);
+        Task DeleteHaCEvo(string compoundEvoId);
     }
 }

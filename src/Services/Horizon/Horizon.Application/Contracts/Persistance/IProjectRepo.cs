@@ -14,5 +14,9 @@ namespace Horizon.Application.Contracts.Persistance
         Task Rename(Project project);
         Task Delete(string projectId);
         Task UpdateHitAssessmentAssociation(Project project);
+
+        Task AddProjectCEvo(ProjectCompoundEvolution projectCompoundEvolution);
+        Task UpdateProjectCEvo(ProjectCompoundEvolution projectCompoundEvolution);
+        Task DeleteProjectCEvo(string compoundEvoId);
     }
 }

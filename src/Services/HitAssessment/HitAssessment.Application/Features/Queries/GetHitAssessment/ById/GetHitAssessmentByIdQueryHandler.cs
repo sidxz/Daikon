@@ -67,6 +67,10 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
                     }
                 }
             }
+            else
+            {
+                haVm.HaCompoundEvolution = [];
+            }
 
 
 

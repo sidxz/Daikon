@@ -67,6 +67,9 @@ namespace Project.Application.Features.Queries.GetProject.ById
                     }
                 }
             }
+            else {
+                projectVm.CompoundEvolution = new List<CompoundEvolutionVM>();
+            }
 
             // Finally return the complete HA VM
             return projectVm;
