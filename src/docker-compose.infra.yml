@@ -62,32 +62,32 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
 
-  # MolDb_Postgres:
-  #   container_name: "moldb-postgres"
-  #   image: informaticsmatters/rdkit-cartridge-debian
-  #   environment:
-  #     POSTGRES_DB: chemdb
-  #     POSTGRES_USER: user
-  #     POSTGRES_PASSWORD: password
-  #   volumes:
-  #     - MolDb_data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-
   MolDb_Postgres:
     container_name: "moldb-postgres"
-    image: ${DOCKER_REGISTRY-}rdkit-catridge
-    build:
-      context: .
-      dockerfile: docker-rdkit/Dockerfile-debian-rdkit-catridge
+    image: informaticsmatters/rdkit-cartridge-debian
     environment:
       POSTGRES_DB: chemdb
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     volumes:
-      - moldb-data:/var/lib/postgresql/data
+      - MolDb_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  # MolDb_Postgres:
+  #   container_name: "moldb-postgres"
+  #   image: ${DOCKER_REGISTRY-}rdkit-catridge
+  #   build:
+  #     context: .
+  #     dockerfile: docker-rdkit/Dockerfile-debian-rdkit-catridge
+  #   environment:
+  #     POSTGRES_DB: chemdb
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #   volumes:
+  #     - moldb-data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
 
   Neo4j:
     image: neo4j:latest
