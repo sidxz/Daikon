@@ -70,7 +70,7 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     volumes:
-      - MolDb_data:/var/lib/postgresql/data
+      - moldb_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
@@ -85,7 +85,7 @@ services:
   #     POSTGRES_USER: user
   #     POSTGRES_PASSWORD: password
   #   volumes:
-  #     - moldb-data:/var/lib/postgresql/data
+  #     - moldb_data:/var/lib/postgresql/data
   #   ports:
   #     - "5432:5432"
 
@@ -115,7 +115,7 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: Kafka:9092
 volumes:
   portainer_data:
-  moldb-data:
+  moldb_data:
   pgadmin_data:
   eventdb_mongo_data:
   kafka_data:
