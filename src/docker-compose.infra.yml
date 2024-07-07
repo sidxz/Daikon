@@ -23,7 +23,7 @@ services:
 
   Kafka:
     container_name: "kafka"
-    image: bitnami/kafka:3.3.2
+    image: bitnami/kafka:3.7
     # depends_on:
     #   - Zookeeper
     ports:
@@ -80,7 +80,7 @@ services:
   #     - "5432:5432"
 
   Neo4j:
-    image: neo4j:4.4.35-community
+    image: neo4j:5.21-community
     container_name: dk_neo4j
     ports:
       - "7474:7474" # HTTP
