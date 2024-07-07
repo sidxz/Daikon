@@ -140,3 +140,25 @@ async def register_molecule(
         except Exception as e:
             logger.error(f"Failed to create molecule: {e}", exc_info=True)
             raise HTTPException(status_code=400, detail=str(e))
+
+# Recalculate fingerprints for all molecules in the database
+@router.post("/molecule/recalculate-fingerprints", tags=["Commands"])
+async def recalculate_fingerprints(
+    molecule_service: MoleculeService = Depends(get_molecule_service),
+) -> dict:
+    """
+    Recalculate fingerprints for all molecules in the database.
+
+    Returns:
+        dict: The result of the operation.
+
+    Raises:
+        HTTPException: If there is an error recalculating fingerprints.
+    """
+    logger.info("Recalculating fingerprints for all molecules")
+    try:
+        await molecule_service.recalculateFingerprints()
+        return {"message": "Fingerprints recalculated successfully."}
+    except Exception as e:
+        logger.error(f"Failed to recalculate fingerprints: {e}", exc_info=True)
+        raise HTTPException(status_code=400, detail=str(e))

@@ -11,6 +11,7 @@
     "mlogix",
     "OIDC",
     "PMID",
-    "Progressibility"
+    "Progressibility",
+    "rdkit"
   ]
 }
