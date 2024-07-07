@@ -21,19 +21,9 @@ services:
     volumes:
       - pgadmin_data:/root/.pgadmin
 
-  # Zookeeper:
-  #   image: bitnami/zookeeper
-  #   restart: always
-  #   ports:
-  #     - "2181:2181"
-  #   volumes:
-  #     - "zookeeper_data:/bitnami"
-  #   environment:
-  #     - ALLOW_ANONYMOUS_LOGIN=yes
-
   Kafka:
     container_name: "kafka"
-    image: bitnami/kafka
+    image: bitnami/kafka:3.3.2
     # depends_on:
     #   - Zookeeper
     ports:
@@ -52,7 +42,7 @@ services:
 
   EventStoreDb:
     container_name: "eventstoredb"
-    image: mongo
+    image: mongo:jammy
     restart: always
     ports:
       - "27017:27017"
@@ -64,7 +54,7 @@ services:
 
   MolDb_Postgres:
     container_name: "moldb-postgres"
-    image: informaticsmatters/rdkit-cartridge-debian
+    image: informaticsmatters/rdkit-cartridge-debian:Release_2024_03_3
     environment:
       POSTGRES_DB: chemdb
       POSTGRES_USER: user
@@ -90,7 +80,7 @@ services:
   #     - "5432:5432"
 
   Neo4j:
-    image: neo4j:latest
+    image: neo4j:4.4.35-community
     container_name: dk_neo4j
     ports:
       - "7474:7474" # HTTP

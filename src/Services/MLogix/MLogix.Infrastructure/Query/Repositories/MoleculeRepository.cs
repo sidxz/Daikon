@@ -25,12 +25,29 @@ namespace MLogix.Infrastructure.Query.Repositories
             var client = new MongoClient(configuration.GetValue<string>("MLxMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("MLxMongoDbSettings:DatabaseName"));
             _moleculeCollection = database.GetCollection<Molecule>(configuration.GetValue<string>("MLxMongoDbSettings:MoleculeCollectionName"));
-            _moleculeCollection.Indexes.CreateOne(new CreateIndexModel<Molecule>(Builders<Molecule>.IndexKeys.Ascending(t => t.RegistrationId), new CreateIndexOptions { Unique = true }));
-            _moleculeCollection.Indexes.CreateOne(new CreateIndexModel<Molecule>(Builders<Molecule>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false, Sparse = true }));
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
+            var registrationIdIndexExists = _moleculeCollection.Indexes.List().ToList().Any(index => index["name"] == "RegistrationId_1");
+            if (!registrationIdIndexExists)
+            {
+                _moleculeCollection.Indexes.CreateOne(
+                    new CreateIndexModel<Molecule>(
+                        Builders<Molecule>.IndexKeys.Ascending(t => t.RegistrationId),
+                        new CreateIndexOptions { Unique = true }));
+            }
+
+            var nameIndexExists = _moleculeCollection.Indexes.List().ToList().Any(index => index["name"] == "Name_1");
+            if (!nameIndexExists)
+            {
+                _moleculeCollection.Indexes.CreateOne(
+                    new CreateIndexModel<Molecule>(
+                        Builders<Molecule>.IndexKeys.Ascending(t => t.Name),
+                        new CreateIndexOptions { Unique = false, Sparse = true }));
+            }
+
+            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
 
         public async Task NewMolecule(Molecule molecule)
         {
