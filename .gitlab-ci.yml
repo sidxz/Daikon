@@ -25,7 +25,7 @@ build:
       - SERVICE: "gene-api"
         DOCKERFILE: "Services/Gene/Gene.API/Dockerfile"
       - SERVICE: "target-api"
-        DOCKERFILE: "src/Services/Target/Target.API/Dockerfile"
+        DOCKERFILE: "Services/Target/Target.API/Dockerfile"
       - SERVICE: "screen-api"
         DOCKERFILE: "Services/Screen/Screen.API/Dockerfile"
       - SERVICE: "hitassessment-api"
