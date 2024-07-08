@@ -27,6 +27,7 @@ namespace SimpleGW.API.Middlewares
             try
             {
                 var entraObjectIdentifierClaim = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier");
+                var oidcSubClaim = context.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
                 var emailClaim = context.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress");
 
                 // 1. Entra Object Identifier Claim
@@ -72,8 +73,36 @@ namespace SimpleGW.API.Middlewares
                     }
                 }
 
-                // 2. OIDC Sub Claim TODO: Add support for other OIDC providers
+                // 2. OIDC Sub Claim
+                else if (oidcSubClaim?.Value != null)
+                {
+                    // oidcSubClaim hints that the OAuth2 provider is not Microsoft Entra ID
+                    _logger.LogInformation("User will be authorized with OIDC Sub Claim: {oidcSub}", oidcSubClaim.Value);
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var userStoreService = scope.ServiceProvider.GetRequiredService<IUserStoreAPIService>();
+                        var validateUserAccessResponse = await userStoreService.Validate(oidcSub: oidcSubClaim.Value, entraObjectId: null, email: emailClaim?.Value);
+                        if (validateUserAccessResponse.IsValid)
+                        {
+                            _logger.LogInformation("UserProfileEnricherMiddleware : User is authorized");
+                            context.Request.Headers.Append("AppUser-Id", validateUserAccessResponse?.AppUserId.ToString());
+                            context.Request.Headers.Append("AppUser-Email", validateUserAccessResponse?.NormalizedEmail);
+                            context.Request.Headers.Append("AppUser-FullName", validateUserAccessResponse?.FirstName + " " + validateUserAccessResponse?.LastName);
+                            context.Request.Headers.Append("AppOrg-Id", validateUserAccessResponse?.AppOrgId.ToString());
 
+                            await _next(context); // Continue to next middleware
+                            return;
+                        }
+                        else
+                        {
+                            _logger.LogError("UserProfileEnricherMiddleware: User validation failed");
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            context.Response.ContentType = "application/json";
+                            await context.Response.WriteAsync(JsonSerializer.Serialize(new { message = "User validation failed" }));
+                            return; // Ensure no further code in this middleware is executed after this point
+                        }
+                    }
+                }
 
                 // 3. No valid claims Fail the request with 401
                 // If entraObjectIdentifierClaim is null or other conditions for authorization are not met
