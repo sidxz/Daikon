@@ -4,7 +4,9 @@ import uvicorn
 from fastapi import FastAPI
 from app.api import QueryController, CommandController
 from app.infrastructure.DatabaseInitialization import InitializeDb
+from dotenv import load_dotenv
 
+load_dotenv()
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
