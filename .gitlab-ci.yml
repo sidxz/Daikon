@@ -6,32 +6,6 @@ services:
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_TAG_BASE: "$CI_REGISTRY/sid/daikon-backend"
-  CONTAINERS:
-    - "userstore-api"
-    - "gene-api"
-    - "target-api"
-    - "screen-api"
-    - "hitassessment-api"
-    - "project-api"
-    - "horizon-api"
-    - "mlogix-api"
-    - "moldb-api"
-    - "questionnaire-api"
-    - "comment-api"
-    - "simplegw-api"
-  DOCKERFILES:
-    userstore-api: "src/Identities/UserStore/UserStore.API/Dockerfile"
-    gene-api: "src/Services/Gene/Gene.API/Dockerfile"
-    target-api: "src/Services/Target/Target.API/Dockerfile"
-    screen-api: "src/Services/Screen/Screen.API/Dockerfile"
-    hitassessment-api: "src/Services/HitAssessment/HitAssessment.API/Dockerfile"
-    project-api: "src/Services/Project/Project.API/Dockerfile"
-    horizon-api: "src/Services/Horizon/Horizon.API/Dockerfile"
-    mlogix-api: "src/Services/MLogix/MLogix.API/Dockerfile"
-    moldb-api: "src/Services/Chem/MolDb.API/Dockerfile"
-    questionnaire-api: "src/Services/Questionnaire/Questionnaire.API/Dockerfile"
-    comment-api: "src/Services/Comment/Comment.API/Dockerfile"
-    simplegw-api: "src/ApiGateways/SimpleGW/SimpleGW.API/Dockerfile"
 
 before_script:
   - docker info
@@ -41,24 +15,53 @@ stages:
   - build
   - push
 
-build:
+.build_template: &build_template
   stage: build
   script:
-    - |
-      for service in ${CONTAINERS[@]}; do
-        docker build -t ${IMAGE_TAG_BASE}-${service}:$CI_COMMIT_REF_NAME -f ${DOCKERFILES[$service]} .
-      done
+    - docker build -t ${IMAGE_TAG_BASE}-${SERVICE}:$CI_COMMIT_REF_NAME -f ${DOCKERFILE} .
   only:
     - lab-main
 
-push:
+.push_template: &push_template
   stage: push
   script:
     - docker info
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - |
-      for service in ${CONTAINERS[@]}; do
-        docker push ${IMAGE_TAG_BASE}-${service}:$CI_COMMIT_REF_NAME
-      done
+    - docker push ${IMAGE_TAG_BASE}-${SERVICE}:$CI_COMMIT_REF_NAME
   only:
     - lab-main
+
+build_and_push:
+  parallel:
+    matrix:
+      - SERVICE: "userstore-api"
+        DOCKERFILE: "src/Identities/UserStore/UserStore.API/Dockerfile"
+      - SERVICE: "gene-api"
+        DOCKERFILE: "src/Services/Gene/Gene.API/Dockerfile"
+      - SERVICE: "target-api"
+        DOCKERFILE: "src/Services/Target/Target.API/Dockerfile"
+      - SERVICE: "screen-api"
+        DOCKERFILE: "src/Services/Screen/Screen.API/Dockerfile"
+      - SERVICE: "hitassessment-api"
+        DOCKERFILE: "src/Services/HitAssessment/HitAssessment.API/Dockerfile"
+      - SERVICE: "project-api"
+        DOCKERFILE: "src/Services/Project/Project.API/Dockerfile"
+      - SERVICE: "horizon-api"
+        DOCKERFILE: "src/Services/Horizon/Horizon.API/Dockerfile"
+      - SERVICE: "mlogix-api"
+        DOCKERFILE: "src/Services/MLogix/MLogix.API/Dockerfile"
+      - SERVICE: "moldb-api"
+        DOCKERFILE: "src/Services/Chem/MolDb.API/Dockerfile"
+      - SERVICE: "questionnaire-api"
+        DOCKERFILE: "src/Services/Questionnaire/Questionnaire.API/Dockerfile"
+      - SERVICE: "comment-api"
+        DOCKERFILE: "src/Services/Comment/Comment.API/Dockerfile"
+      - SERVICE: "simplegw-api"
+        DOCKERFILE: "src/ApiGateways/SimpleGW/SimpleGW.API/Dockerfile"
+
+  include:
+    - job: build
+      <<: *build_template
+
+    - job: push
+      <<: *push_template
