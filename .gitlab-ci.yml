@@ -45,7 +45,7 @@ build:
       # - SERVICE: "simplegw-api"
       #   DOCKERFILE: "ApiGateways/SimpleGW/SimpleGW.API/Dockerfile"
   script:
-        - docker build -t ${IMAGE_TAG_BASE}-${SERVICE}:$CI_COMMIT_REF_NAME -f ${DOCKERFILE} .
+        - docker build -t ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME -f ${DOCKERFILE} .
   only:
     - lab-main
 
@@ -68,6 +68,6 @@ push:
   script:
     - docker info
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - docker push ${IMAGE_TAG_BASE}-${SERVICE}:$CI_COMMIT_REF_NAME
+    - docker push ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME
   only:
     - lab-main
