@@ -1,5 +1,12 @@
-
 services:
+  DKPortainer:
+    image: portainer/portainer
+    container_name: dk_portainer
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
 
   DKPGAdmin:
     image: dpage/pgadmin4
@@ -15,7 +22,7 @@ services:
 
   Kafka:
     container_name: "kafka"
-    image: bitnami/kafka
+    image: bitnami/kafka:3.7
     ports:
       - "9092:9092"
     restart: always
@@ -32,7 +39,7 @@ services:
 
   EventStoreDb:
     container_name: "eventstoredb"
-    image: mongo
+    image: mongo:jammy
     restart: always
     ports:
       - "27017:27017"
@@ -43,19 +50,34 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
 
   MolDb_Postgres:
-    container_name: "molddb-postgres"
-    image: informaticsmatters/rdkit-cartridge-debian
+    container_name: "moldb-postgres"
+    image: informaticsmatters/rdkit-cartridge-debian:Release_2024_03_3
     environment:
       POSTGRES_DB: chemdb
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - MolDb_data:/var/lib/postgresql/data
+      - moldb_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
+  # MolDb_Postgres:
+  #   container_name: "moldb-postgres"
+  #   image: ${DOCKER_REGISTRY-}rdkit-catridge
+  #   build:
+  #     context: .
+  #     dockerfile: docker-rdkit/Dockerfile-debian-rdkit-catridge
+  #   environment:
+  #     POSTGRES_DB: chemdb
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - moldb_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
   Neo4j:
-    image: neo4j:latest
+    image: neo4j:5.21-community
     container_name: dk_neo4j
     ports:
       - "7474:7474" # HTTP
@@ -68,19 +90,18 @@ services:
     environment:
       - NEO4J_AUTH=${NEO4J_AUTH}
 
-
   kafka-ui:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     ports:
       - 5051:8080
     environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
+      DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: Kafka:9092
 volumes:
   portainer_data:
-  MolDb_data:
+  moldb_data:
   pgadmin_data:
   eventdb_mongo_data:
   kafka_data:

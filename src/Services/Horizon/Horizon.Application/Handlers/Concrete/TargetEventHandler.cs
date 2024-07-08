@@ -23,7 +23,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: TargetCreatedEvent: {@event.Id} {@event.Name}");
             var target = new Target
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 TargetId = @event.Id.ToString(),
                 StrainId = @event.StrainId.ToString(),
 
@@ -32,10 +32,9 @@ namespace Horizon.Application.Query.Handlers
                 TargetType = @event.TargetType,
                 Bucket = @event.Bucket,
 
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                DateCreated = @event?.DateCreated ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -53,7 +52,7 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: TargetUpdatedEvent: {@event.Id} {@event.Name}");
             var target = new Target
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 TargetId = @event.Id.ToString(),
                 StrainId = @event.StrainId.ToString(),
 
@@ -62,10 +61,9 @@ namespace Horizon.Application.Query.Handlers
                 TargetType = @event.TargetType,
                 Bucket = @event.Bucket,
 
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -83,15 +81,15 @@ namespace Horizon.Application.Query.Handlers
             _logger.LogInformation($"Horizon: TargetAssociatedGenesUpdatedEvent: {@event.Id} {@event.Name}");
             var target = new Target
             {
-                UniId =  @event.Id.ToString(),
+                UniId = @event.Id.ToString(),
                 TargetId = @event.Id.ToString(),
                 Name = @event.Name,
                 GeneAccessionNumbers = @event.AssociatedGenes.Values.ToList(),
                 TargetType = @event.TargetType,
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
             try
             {

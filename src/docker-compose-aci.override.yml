@@ -1,3 +1,4 @@
+
 services:
   gene-api:
     environment:
@@ -55,8 +56,8 @@ services:
       - "GeneMongoDbSettings__GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
       - "GeneMongoDbSettings__ExpansionPropRevisionCollectionName=GeneExpansionPropsRevisions"
 
-    # ports:
-    #   - "8001:80"
+    ports:
+      - "8001:80"
 
   target-api:
     environment:
@@ -93,8 +94,8 @@ services:
       - "TargetMongoDbSettings__PromotionResponseCollectionName=PromotionResponses"
       - "TargetMongoDbSettings__TargetRevisionCollectionName=TargetsRevisions"
 
-    # ports:
-    #   - "8002:80"
+    ports:
+      - "8002:80"
 
   screen-api:
     environment:
@@ -140,11 +141,11 @@ services:
       - "ScreenMongoDbSettings__HitRevisionCollectionName=HitRevisions"
 
       ## Internal APIs
-      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI__Url=http://MLogix.API/api/v2"
+      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db" #Todo: Remove
+      - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
-    # ports:
-    #   - "8003:80"
+    ports:
+      - "8003:80"
 
   hitassessment-api:
     environment:
@@ -184,11 +185,10 @@ services:
       - "HAMongoDbSettings__HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
 
       ## Internal APIs
-      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI__Url=http://MLogix.API/api/v2"
+      - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
-    # ports:
-    #   - "8004:80"
+    ports:
+      - "8004:80"
 
   project-api:
     environment:
@@ -229,11 +229,11 @@ services:
       - "ProjectMongoDbSettings__ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
       
       ## Internal APIs
-      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI__Url=http://MLogix.API/api/v2"
+      - "MolDbAPI__Url=http://localhost:8101/api/v2/mol-db" #TODO: Remove
+      - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
-    # ports:
-    #   - "8005:80"
+    ports:
+      - "8005:80"
 
   horizon-api:
     environment:
@@ -257,8 +257,8 @@ services:
       - "KafkaConsumerSettings__EnableAutoCommit=true"
       - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
 
-    # ports:
-    #   - "8006:80"
+    ports:
+      - "8006:80"
 
   mlogix-api:
     environment:
@@ -294,10 +294,10 @@ services:
       - "MLxMongoDbSettings__MoleculeRevisionCollectionName=MoleculesRevisions"
 
       # Internal APIs
-      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
+      - "MolDbAPI__Url=https://daikon2-prd-moldb.azurewebsites.net/api/v2/mol-db"
 
-    # ports:
-    #   - "8007:80"
+    ports:
+      - "8007:80"
 
   questionnaire-api:
     environment:
@@ -308,8 +308,8 @@ services:
       - QuestionnaireMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
       - "QuestionnaireMongoDbSettings__DatabaseName=Questionnaire"
 
-    # ports:
-    #   - "8008:80"
+    ports:
+      - "8008:80"
 
   comment-api:
     environment:
@@ -350,11 +350,10 @@ services:
       - "CommentMongoDbSettings__CommentReplyRevisionCollectionName=CommentReplyRevisions"
 
       ## Internal APIs
-      - "MolDbAPI__Url=http://MolDb.API/api/v2/mol-db"
-      - "MLogixAPI__Url=http://MLogix.API/api/v2"
+      - "MLogixAPI__Url=http://localhost:8007/api/v2"
 
-    # ports:
-    #   - "8009:80"
+    ports:
+      - "8009:80"
 
   userstore-api:
     environment:
@@ -370,15 +369,15 @@ services:
       - "UserStoreMongoDbSettings__AppUserCollectionName=AppUsers"
       - "UserStoreMongoDbSettings__AppRoleCollectionName=AppRoles"
       - "UserStoreMongoDbSettings__APIResourceCollectionName=AppAPIResources"
-    # ports:
-    #   - "8011:80"
+    ports:
+      - "8011:80"
 
   # Ocelotapigw:
   #   container_name: ocelotapigw
   #   environment:
   #     - "ASPNETCORE_ENVIRONMENT=Cluster"
   #     - ASPNETCORE_URLS=http://+:80
-  #     - "UserStoreAPI__BaseUrl=http://UserStore.API/api/v2/"
+  #     - "UserStoreAPI__BaseUrl=http://localhost:8011/api/v2/"
   #   ports:
   #     - "8010:80"
 
@@ -396,31 +395,31 @@ services:
       - EntraID__Audience=${EntraID_Audience}
 
       ## Internal API Routing
-      - "UserStoreAPI__BaseUrl=http://UserStore.API/api/v2/"
+      - "UserStoreAPI__BaseUrl=http://localhost:8011/api/v2/"
 
-      - "EndPointRouting__gene=http://Gene.API"
-      - "EndPointRouting__gene_batch=http://Gene.API"
-      - "EndPointRouting__strain=http://Gene.API"
+      - "EndPointRouting__gene=http://localhost:8001"
+      - "EndPointRouting__gene_batch=http://localhost:8001"
+      - "EndPointRouting__strain=http://localhost:8001"
 
-      - "EndPointRouting__target=http://Target.API"
-      - "EndPointRouting__screen=http://Screen.API"
-      - "EndPointRouting__hit_collection=http://Screen.API"
+      - "EndPointRouting__target=http://localhost:8002"
+      - "EndPointRouting__screen=http://localhost:8003"
+      - "EndPointRouting__hit_collection=http://localhost:8003"
 
-      - "EndPointRouting__hit_assessment=http://HitAssessment.API"
-      - "EndPointRouting__project=http://Project.API"
-      - "EndPointRouting__horizon=http://Horizon.API"
-      - "EndPointRouting__molecule=http://MLogix.API"
-      - "EndPointRouting__api_resources=http://UserStore.API"
-      - "EndPointRouting__app_settings=http://UserStore.API"
-      - "EndPointRouting__org=http://UserStore.API"
-      - "EndPointRouting__roles=http://UserStore.API"
-      - "EndPointRouting__user=http://UserStore.API"
-      - "EndPointRouting__questionnaire=http://Questionnaire.API"
-      - "EndPointRouting__comment=http://Comment.API"
-      - "EndPointRouting__mol_db=http://MolDb.API"
+      - "EndPointRouting__hit-assessment=http://localhost:8004"
+      - "EndPointRouting__project=http://localhost:8005"
+      - "EndPointRouting__horizon=http://localhost:8006"
+      - "EndPointRouting__molecule=http://localhost:8007"
+      - "EndPointRouting__api_resources=http://localhost:8011"
+      - "EndPointRouting__app_settings=http://localhost:8011"
+      - "EndPointRouting__org=http://localhost:8011"
+      - "EndPointRouting__roles=http://localhost:8011"
+      - "EndPointRouting__user=http://localhost:8011"
+      - "EndPointRouting__questionnaire=http://localhost:8008"
+      - "EndPointRouting__comment=http://localhost:8009"
+      - "EndPointRouting__mol_db=https://daikon2-prd-moldb.azurewebsites.net"
 
-    # ports:
-    #   - "8010:80"
+    ports:
+      - "8010:80"
 
   moldb-api:
     environment:
@@ -442,5 +441,6 @@ services:
       - "KafkaConsumerSettings_EnableAutoCommit=true"
       - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
 
-    # ports:
-    #   - "8101:80"
+    ports:
+      - "8101:8101"
+

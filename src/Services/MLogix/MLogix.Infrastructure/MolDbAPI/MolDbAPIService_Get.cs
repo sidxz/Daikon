@@ -3,22 +3,40 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.DTOs.MolDbAPI;
-
+using CQRS.Core.Infrastructure;
 namespace MLogix.Infrastructure.MolDbAPI
 {
     public partial class MolDbAPIService : IMolDbAPIService
     {
-       public async Task<MoleculeDTO> FindExact(string smiles)
+        public async Task<MoleculeDTO> FindExact(string smiles, IDictionary<string, string> headers)
         {
-            try {
-                HttpResponseMessage response = await _httpClient.GetAsync(_molDbApiUrl + "/molecule/find-exact/" + smiles);
+            try
+            {
+                string decodedSmiles = Uri.UnescapeDataString(smiles);
+                string encodedSmiles = Uri.EscapeDataString(decodedSmiles);
+
+                string apiUrl = $"{_molDbApiUrl}/molecule/find-exact?smiles={encodedSmiles}";
+                var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                request.AddHeaders(headers);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
 
                 if (response.IsSuccessStatusCode)
                 {
                     string result = await response.Content.ReadAsStringAsync();
-                    var resultMolecule = JsonSerializer.Deserialize<MoleculeDTO>(result, _jsonOptions);
-                    _logger.LogInformation("Molecule found by SMILES: {MoleculeId}", resultMolecule?.Id);
-                    return resultMolecule;
+
+                    try
+                    {
+                        var resultMolecule = JsonSerializer.Deserialize<MoleculeDTO>(result, _jsonOptions);
+                        _logger.LogInformation("Molecule found by SMILES: {MoleculeId}", resultMolecule?.Id);
+                        return resultMolecule;
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Error deserializing JSON response");
+                        return null;
+                    }
+
                 }
                 else
                 {
@@ -34,18 +52,36 @@ namespace MLogix.Infrastructure.MolDbAPI
             }
         }
 
-        public async Task<List<MoleculeDTO>> FindSimilar(string smiles, float similarityThreshold, int maxResults)
+        public async Task<List<MoleculeDTO>> FindSimilar(string smiles, float similarityThreshold, int maxResults, IDictionary<string, string> headers)
         {
-           try {
-                string apiUrl = $"{_molDbApiUrl}/molecule/find-similar/{smiles}?threshold={similarityThreshold}&limit={maxResults}";
-                HttpResponseMessage response = await _httpClient.GetAsync(apiUrl);
+            try
+            {
+                //_logger.LogInformation("Finding similar molecules to: {SMILES} with threshold: {Threshold} and max results: {MaxResults}", smiles, similarityThreshold, maxResults);
+                string decodedSmiles = Uri.UnescapeDataString(smiles);
+                string encodedSmiles = Uri.EscapeDataString(decodedSmiles);
+
+                string apiUrl = $"{_molDbApiUrl}/molecule/find-similar?smiles={encodedSmiles}&threshold={similarityThreshold}&limit={maxResults}";
+                //_logger.LogInformation("---->>>> API URL: {ApiUrl}", apiUrl);
+                var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                request.AddHeaders(headers);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
                     string result = await response.Content.ReadAsStringAsync();
-                    var resultMolecules = JsonSerializer.Deserialize<List<MoleculeDTO>>(result, _jsonOptions);
-                    _logger.LogInformation("Molecules found similar to: {SMILES}", smiles);
-                    return resultMolecules;
+                    // _logger.LogInformation("Raw result: {Result}", result);
+                    try
+                    {
+                        var resultMolecules = JsonSerializer.Deserialize<List<MoleculeDTO>>(result, _jsonOptions);
+                        _logger.LogInformation("Molecules found similar to: {SMILES}", smiles);
+                        return resultMolecules;
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Error deserializing JSON response");
+                        return null;
+                    }
+
                 }
                 else
                 {
@@ -61,10 +97,14 @@ namespace MLogix.Infrastructure.MolDbAPI
             }
         }
 
-        public async Task<MoleculeDTO> GetMoleculeById(Guid id)
+        public async Task<MoleculeDTO> GetMoleculeById(Guid id, IDictionary<string, string> headers)
         {
-            try {
-                HttpResponseMessage response = await _httpClient.GetAsync(_molDbApiUrl + "/molecule/by-id/" + id);
+            try
+            {
+                string apiUrl = $"{_molDbApiUrl}/molecule/by-id/{id}";
+                var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                request.AddHeaders(headers);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -87,10 +127,17 @@ namespace MLogix.Infrastructure.MolDbAPI
             }
         }
 
-        public async Task<MoleculeDTO> GetMoleculeBySMILES(string smiles)
+        public async Task<MoleculeDTO> GetMoleculeBySMILES(string smiles, IDictionary<string, string> headers)
         {
-            try {
-                HttpResponseMessage response = await _httpClient.GetAsync(_molDbApiUrl + "/molecule/by-smiles/" + smiles);
+            try
+            {
+                string decodedSmiles = Uri.UnescapeDataString(smiles);
+                string encodedSmiles = Uri.EscapeDataString(decodedSmiles);
+                
+                string apiUrl = $"{_molDbApiUrl}/molecule/by-smiles?smiles={encodedSmiles}";
+                var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                request.AddHeaders(headers);
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -111,13 +158,17 @@ namespace MLogix.Infrastructure.MolDbAPI
                 _logger.LogError(ex, "Error in GetMoleculeBySMILES");
                 return null;
             }
-                
+
         }
 
-        public async Task<List<MoleculeDTO>> ListMolecules()
+        public async Task<List<MoleculeDTO>> ListMolecules(IDictionary<string, string> headers)
         {
-            try {
-                HttpResponseMessage response = await _httpClient.GetAsync(_molDbApiUrl + "/molecules");
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, _molDbApiUrl + "/molecules");
+                request.AddHeaders(headers);
+
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
 
                 if (response.IsSuccessStatusCode)

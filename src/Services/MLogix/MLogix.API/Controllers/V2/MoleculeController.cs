@@ -13,6 +13,7 @@ using MLogix.Application.Features.Queries.GetMolecule.BySMILES;
 using MLogix.Application.Features.Queries.GetMolecule.ByRegistrationId;
 using MLogix.Application.Features.Queries.ListMolecules;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
+using MLogix.Application.Features.Commands.UpdateMolecule;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -227,6 +228,45 @@ namespace MLogix.API.Controllers.V2
                 return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
                 {
                     Id = id,
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+        [HttpPut("{id}", Name = "UpdateMolecule")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> UpdateMolecule(Guid id, [FromBody] UpdateMoleculeCommand command)
+        {
+            try
+            {
+                command.Id = id;
+                var updateMoleculeResponseDTO = await _mediator.Send(command);
+                return Ok(updateMoleculeResponseDTO);
+            }
+            catch (ArgumentNullException ex)
+            {
+                _logger.LogInformation("UpdateMolecule: ArgumentNullException {Id}", id);
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the molecule";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
                     Message = SAFE_ERROR_MESSAGE
                 });
             }

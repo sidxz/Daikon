@@ -17,6 +17,7 @@ namespace MLogix.Application
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
             services.AddMediatR(typeof(RegisterMoleculeCommand).Assembly);
             services.AddValidatorsFromAssembly(typeof(RegisterMoleculeValidator).Assembly);
+            services.AddHttpContextAccessor();
 
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));

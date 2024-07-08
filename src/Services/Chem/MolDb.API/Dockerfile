@@ -26,4 +26,5 @@ RUN conda run -n myenv pip install fastapi[all] uvicorn psycopg2-binary asyncpg 
 COPY ["Services/Chem/MolDb.API/", "/app/"]
 
 # CMD should use the binaries from the Conda environment
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8101"] 
+

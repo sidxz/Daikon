@@ -20,7 +20,6 @@ using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
 using HitAssessment.Domain.EntityRevisions;
 using HitAssessment.Infrastructure.MLogixAPI;
-using HitAssessment.Infrastructure.MolDbAPI;
 using HitAssessment.Infrastructure.Query.Consumers;
 using HitAssessment.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -34,6 +33,8 @@ namespace HitAssessment.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+
+            services.AddHttpContextAccessor();
 
               /* MongoDb */
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
@@ -130,7 +131,7 @@ namespace HitAssessment.Infrastructure
             services.AddHostedService<ConsumerHostedService>();
 
             /* MolDb API */
-            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
+            
             services.AddScoped<IMLogixAPIService, MLogixAPIService>();
 
             return services;

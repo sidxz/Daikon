@@ -11,6 +11,8 @@ namespace UserStore.Application.Contracts.Persistence
         Task<AppUser> GetUserByOIDCSub(string OIDCSub);
         Task<AppUser> GetUserByEntraObjectId(string EntraObjectId);
         Task<List<AppUser>> GetUsersList();
+
+        Task<List<AppUser>> GetUsersByRole(Guid roleId);
         Task UpdateUser(AppUser user);
         Task DeleteUser(Guid id);
     }

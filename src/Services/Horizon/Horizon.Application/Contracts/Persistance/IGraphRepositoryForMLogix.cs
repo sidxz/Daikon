@@ -8,5 +8,6 @@ namespace Horizon.Application.Contracts.Persistance
         Task CreateIndexesAsync();
         Task CreateConstraintsAsync();
         Task AddMolecule(Molecule molecule);
+        Task UpdateMolecule(Molecule molecule);
     }
 }

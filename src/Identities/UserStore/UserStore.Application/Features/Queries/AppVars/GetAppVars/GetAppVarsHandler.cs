@@ -25,18 +25,22 @@ namespace UserStore.Application.Features.Queries.AppVars.GetAppVars
             try
             {
                 var appOrgs = await _appOrgRepository.GetOrgsList();
+                var appOrgsVisible = await _appOrgRepository.GetOrgsListExcludeInternal();
                 var appRoles = await _appRoleRepository.GetRolesList();
                 var appUsers = await _appUserRepository.GetUsersList();
 
                 // Consolidate dictionary creation
                 var appOrgsDict = appOrgs.ToDictionary(x => x.Id, x => new { x.Name, x.Alias });
-                var appRolesDict = appRoles.ToDictionary(x => x.Id, x => x.Name);
+                var appOrfsVisibleDict = appOrgsVisible.ToDictionary(x => x.Id, x => new { x.Name, x.Alias });
+                var appRolesDict = appRoles.ToDictionary(x => x.Id, x => x.NormalizedName);
                 var appUsersDict = appUsers.ToDictionary(x => x.Id, x => new { x.Email, FullName = x.FirstName + " " + x.LastName });
 
                 var dto = new GetAppVarsDTO
                 {
                     Orgs = appOrgsDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Name),
                     OrgsAlias = appOrgsDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Alias),
+                    OrgsVisible = appOrfsVisibleDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Name),
+                    OrgsAliasVisible = appOrfsVisibleDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Alias),
                     Roles = appRolesDict,
                     UserEmails = appUsersDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Email),
                     UserNames = appUsersDict.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.FullName)

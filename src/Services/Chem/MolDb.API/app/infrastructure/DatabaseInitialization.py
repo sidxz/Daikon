@@ -1,4 +1,4 @@
-from app.infrastructure.database import GetDbPool
+from app.infrastructure.Database import GetDbPool
 
 
 async def InitializeDb():

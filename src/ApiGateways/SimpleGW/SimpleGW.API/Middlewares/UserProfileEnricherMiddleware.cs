@@ -48,6 +48,17 @@ namespace SimpleGW.API.Middlewares
                             context.Request.Headers.Append("AppUser-FullName", validateUserAccessResponse?.FirstName + " " + validateUserAccessResponse?.LastName);
                             context.Request.Headers.Append("AppOrg-Id", validateUserAccessResponse?.AppOrgId.ToString());
 
+                            // Convert List<Guid> to comma-separated string safely
+                            if (validateUserAccessResponse.AppRoleIds != null && validateUserAccessResponse.AppRoleIds.Any())
+                            {
+                                var roleIdsString = string.Join(",", validateUserAccessResponse.AppRoleIds);
+                                context.Request.Headers.Append("AppRole-Ids", roleIdsString);
+                            }
+                            else
+                            {
+                                context.Request.Headers.Append("AppRole-Ids", string.Empty);
+                            }
+
                             await _next(context); // Continue to next middleware
                             return;
                         }

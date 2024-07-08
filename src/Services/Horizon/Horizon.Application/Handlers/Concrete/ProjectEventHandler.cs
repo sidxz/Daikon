@@ -33,11 +33,11 @@ namespace Horizon.Application.Handlers
                 IsProjectRemoved = @event.IsProjectRemoved,
                 PrimaryMoleculeId = @event.CompoundId.ToString(),
                 HitMoleculeId = @event.HitCompoundId.ToString(),
-                OrgId = @event.PrimaryOrgId.ToString(),
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                OrgId = @event.PrimaryOrgId?.ToString() ?? "",
+
+                DateCreated = @event?.DateCreated ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -62,11 +62,11 @@ namespace Horizon.Application.Handlers
                 Stage = @event.Stage,
                 IsProjectComplete = @event.IsProjectComplete,
                 IsProjectRemoved = @event.IsProjectRemoved,
-                OrgId = @event.PrimaryOrgId.ToString(),
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                OrgId = @event.PrimaryOrgId?.ToString() ?? "",
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -87,10 +87,10 @@ namespace Horizon.Application.Handlers
                 UniId = @event.Id.ToString(),
                 ProjectId = @event.Id.ToString(),
                 Name = @event.Name,
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -117,10 +117,9 @@ namespace Horizon.Application.Handlers
                 PrimaryMoleculeId = @event.CompoundId.ToString(),
                 HitMoleculeId = @event.HitCompoundId.ToString(),
 
-                DateCreated = @event.DateCreated,
-                DateModified = @event.DateModified,
-                IsModified = @event.IsModified,
-                IsDraft = @event.IsDraft
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
             };
 
             try
@@ -144,6 +143,65 @@ namespace Horizon.Application.Handlers
             catch (RepositoryException ex)
             {
                 throw new EventHandlerException(nameof(EventHandler), "ProjectDeletedEvent Error deleting project", ex);
+            }
+        }
+
+        public Task OnEvent(ProjectCompoundEvolutionAddedEvent @event)
+        {
+            var projectCompoundEvolution = new ProjectCompoundEvolution
+            {
+                UniId = @event.Id.ToString(),
+                ProjectId = @event.Id.ToString(),
+                CompoundEvolutionId = @event.CompoundEvolutionId.ToString(),
+                MoleculeId = @event.MoleculeId.ToString(),
+                Stage = @event.Stage ?? "Unknown",
+                DateCreated = @event.DateCreated ?? DateTime.Now,
+                IsModified = @event.IsModified ?? false,
+                IsDraft = @event.IsDraft ?? false
+            };
+
+            try
+            {
+                return _graphRepository.AddProjectCEvo(projectCompoundEvolution);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "ProjectCompoundEvolutionAddedEvent Error adding project compound evolution", ex);
+            }
+        }
+
+        public Task OnEvent(ProjectCompoundEvolutionUpdatedEvent @event)
+        {
+            var projectCompoundEvolution = new ProjectCompoundEvolution
+            {
+                UniId = @event.Id.ToString(),
+                ProjectId = @event.Id.ToString(),
+                CompoundEvolutionId = @event.CompoundEvolutionId.ToString(),
+                Stage = @event.Stage ?? "Unknown",
+                DateModified = @event.DateModified ?? DateTime.Now,
+                IsModified = @event.IsModified ?? true,
+                IsDraft = @event.IsDraft ?? false
+            };
+
+            try
+            {
+                return _graphRepository.UpdateProjectCEvo(projectCompoundEvolution);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "ProjectCompoundEvolutionUpdatedEvent Error updating project compound evolution", ex);
+            }
+        }
+
+        public Task OnEvent(ProjectCompoundEvolutionDeletedEvent @event)
+        {
+            try
+            {
+                return _graphRepository.DeleteProjectCEvo(@event.CompoundEvolutionId.ToString());
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "ProjectCompoundEvolutionDeletedEvent Error deleting project compound evolution", ex);
             }
         }
     }

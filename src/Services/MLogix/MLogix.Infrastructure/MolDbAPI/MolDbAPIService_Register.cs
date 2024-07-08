@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.DTOs.MolDbAPI;
-
+using CQRS.Core.Infrastructure;
 namespace MLogix.Infrastructure.MolDbAPI
 {
     public partial class MolDbAPIService : IMolDbAPIService
@@ -27,7 +27,7 @@ namespace MLogix.Infrastructure.MolDbAPI
             };
         }
 
-        public async Task<MoleculeDTO> RegisterCompound(string name, string initialCompoundStructure)
+        public async Task<MoleculeDTO> RegisterCompound(string name, string initialCompoundStructure, IDictionary<string, string> headers)
         {
             _logger.LogInformation("+++++++++++++++++++++++++++++++++++++++++REGISTER COMPOUND+++++++++++++++++++++++++++++++++++++++++++++++");
             if (string.IsNullOrEmpty(initialCompoundStructure))
@@ -40,10 +40,16 @@ namespace MLogix.Infrastructure.MolDbAPI
             };
 
             var content = new StringContent(JsonSerializer.Serialize(compoundData, _jsonOptions), Encoding.UTF8, "application/json");
-
+            var request = new HttpRequestMessage(HttpMethod.Post, _molDbApiUrl + "/molecule/register")
+            {
+                Content = content
+            };
+            request.AddHeaders(headers);
+            
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsync(_molDbApiUrl + "/molecule/register", content);
+
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
 
 
                 if (response.IsSuccessStatusCode)

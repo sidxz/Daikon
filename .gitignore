@@ -396,8 +396,9 @@ FodyWeavers.xsd
 *.msp
 
 # Environment files
-.env*
 
+.env
+.env.*
 # JetBrains Rider
 *.sln.iml
 

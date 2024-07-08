@@ -293,7 +293,7 @@ services:
       - "MLxMongoDbSettings:MoleculeRevisionCollectionName=MoleculesRevisions"
 
       # Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
+      - "MolDbAPI:Url=http://moldb-api:8101/api/v2/mol-db"
 
     ports:
       - "8007:80"
@@ -449,4 +449,4 @@ services:
       - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
 
     ports:
-      - "8101:80"
+      - "8101:8101"
