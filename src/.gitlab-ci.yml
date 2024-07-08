@@ -1,0 +1,64 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG_BASE: "$CI_REGISTRY/sid/daikon-backend"
+  CONTAINERS:
+    - "userstore-api"
+    - "gene-api"
+    - "target-api"
+    - "screen-api"
+    - "hitassessment-api"
+    - "project-api"
+    - "horizon-api"
+    - "mlogix-api"
+    - "moldb-api"
+    - "questionnaire-api"
+    - "comment-api"
+    - "simplegw-api"
+  DOCKERFILES:
+    userstore-api: "Identities/UserStore/UserStore.API/Dockerfile"
+    gene-api: "Services/Gene/Gene.API/Dockerfile"
+    target-api: "Services/Target/Target.API/Dockerfile"
+    screen-api: "Services/Screen/Screen.API/Dockerfile"
+    hitassessment-api: "Services/HitAssessment/HitAssessment.API/Dockerfile"
+    project-api: "Services/Project/Project.API/Dockerfile"
+    horizon-api: "Services/Horizon/Horizon.API/Dockerfile"
+    mlogix-api: "Services/MLogix/MLogix.API/Dockerfile"
+    moldb-api: "Services/Chem/MolDb.API/Dockerfile"
+    questionnaire-api: "Services/Questionnaire/Questionnaire.API/Dockerfile"
+    comment-api: "Services/Comment/Comment.API/Dockerfile"
+    simplegw-api: "ApiGateways/SimpleGW/SimpleGW.API/Dockerfile"
+
+before_script:
+  - docker info
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+
+stages:
+  - build
+  - push
+
+build:
+  stage: build
+  script:
+    - |
+      for service in ${CONTAINERS[@]}; do
+        docker build -t ${IMAGE_TAG_BASE}-${service}:$CI_COMMIT_REF_NAME -f ${DOCKERFILES[$service]} .
+      done
+  only:
+    - lab-main
+
+push:
+  stage: push
+  script:
+    - docker info
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - |
+      for service in ${CONTAINERS[@]}; do
+        docker push ${IMAGE_TAG_BASE}-${service}:$CI_COMMIT_REF_NAME
+      done
+  only:
+    - lab-main

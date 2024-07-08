@@ -372,15 +372,6 @@ services:
     ports:
       - "8011:80"
 
-  # Ocelotapigw:
-  #   container_name: ocelotapigw
-  #   environment:
-  #     - "ASPNETCORE_ENVIRONMENT=Cluster"
-  #     - ASPNETCORE_URLS=http://+:80
-  #     - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
-  #   ports:
-  #     - "8010:80"
-
   simplegw-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
