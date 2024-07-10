@@ -372,35 +372,26 @@ services:
     ports:
       - "8011:80"
 
-  # Ocelotapigw:
-  #   container_name: ocelotapigw
-  #   environment:
-  #     - "ASPNETCORE_ENVIRONMENT=Cluster"
-  #     - ASPNETCORE_URLS=http://+:80
-  #     - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
-  #   ports:
-  #     - "8010:80"
-
   simplegw-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
       ## OIDC
-      # - OIDCProvider=EntraID
-      # - EntraID:Instance=${EntraID_Instance}
-      # - EntraID:Domain=${EntraID_Domain}
-      # - EntraID:TenantId=${EntraID_TenantId}
-      # - EntraID:ClientId=${EntraID_ClientId}
-      # - EntraID:Audience=${EntraID_Audience}
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
 
       ## OIDC
-      - OIDCProvider=KeyCloak
-      - KeyCloak:Instance=${Keycloak_Instance}
-      - KeyCloak:TenantId=${Keycloak_Realm}
-      - KeyCloak:ClientId=${Keycloak_ClientId}
-      - KeyCloak:Audience=${Keycloak_Audience}
-      - KeyCloak:Authority=${Keycloak_Authority}
+      # - OIDCProvider=KeyCloak
+      # - KeyCloak:Instance=${Keycloak_Instance}
+      # - KeyCloak:TenantId=${Keycloak_Realm}
+      # - KeyCloak:ClientId=${Keycloak_ClientId}
+      # - KeyCloak:Audience=${Keycloak_Audience}
+      # - KeyCloak:Authority=${Keycloak_Authority}
 
       ## Internal API Routing
       - "UserStoreAPI:BaseUrl=http://userstore-api/api/v2/"

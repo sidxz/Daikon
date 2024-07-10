@@ -1,0 +1,73 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  IMAGE_TAG_BASE: "$CI_REGISTRY/sid/daikon"
+
+before_script:
+  - cd src
+  - docker info
+  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+
+stages:
+  - build
+  - push
+
+build:
+  stage: build
+  parallel:
+    matrix:
+      - SERVICE: "userstore-api"
+        DOCKERFILE: "Identities/UserStore/UserStore.API/Dockerfile"
+      - SERVICE: "gene-api"
+        DOCKERFILE: "Services/Gene/Gene.API/Dockerfile"
+      - SERVICE: "target-api"
+        DOCKERFILE: "Services/Target/Target.API/Dockerfile"
+      - SERVICE: "screen-api"
+        DOCKERFILE: "Services/Screen/Screen.API/Dockerfile"
+      - SERVICE: "hitassessment-api"
+        DOCKERFILE: "Services/HitAssessment/HitAssessment.API/Dockerfile"
+      - SERVICE: "project-api"
+        DOCKERFILE: "Services/Project/Project.API/Dockerfile"
+      - SERVICE: "horizon-api"
+        DOCKERFILE: "Services/Horizon/Horizon.API/Dockerfile"
+      - SERVICE: "mlogix-api"
+        DOCKERFILE: "Services/MLogix/MLogix.API/Dockerfile"
+      - SERVICE: "moldb-api"
+        DOCKERFILE: "Services/Chem/MolDb.API/Dockerfile"
+      - SERVICE: "questionnaire-api"
+        DOCKERFILE: "Services/Questionnaire/Questionnaire.API/Dockerfile"
+      - SERVICE: "comment-api"
+        DOCKERFILE: "Services/Comment/Comment.API/Dockerfile"
+      - SERVICE: "simplegw-api"
+        DOCKERFILE: "ApiGateways/SimpleGW/SimpleGW.API/Dockerfile"
+  script:
+        - docker build -t ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME -f ${DOCKERFILE} .
+  only:
+    - lab-main
+
+push:
+  stage: push
+  parallel:
+    matrix:
+      - SERVICE: "userstore-api"
+      - SERVICE: "gene-api"
+      - SERVICE: "target-api"
+      - SERVICE: "screen-api"
+      - SERVICE: "hitassessment-api"
+      - SERVICE: "project-api"
+      - SERVICE: "horizon-api"
+      - SERVICE: "mlogix-api"
+      - SERVICE: "moldb-api"
+      - SERVICE: "questionnaire-api"
+      - SERVICE: "comment-api"
+      - SERVICE: "simplegw-api"
+  script:
+    - docker info
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - docker push ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME
+  only:
+    - lab-main
