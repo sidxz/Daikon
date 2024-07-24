@@ -143,6 +143,7 @@ namespace Target.API.Controllers.V2
                 {
                     try
                     {
+                        command.Id = command.TargetId;
                         await _mediator.Send(command);
                         resp.Success.Add(command.TargetId);
                     }
