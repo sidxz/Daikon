@@ -10,11 +10,76 @@ using Target.Application.Features.Commands.AddOrUpdateToxicology;
 using Target.Application.Features.Commands.AddToxicology;
 using Target.Application.Features.Commands.DeleteToxicology;
 using Target.Application.Features.Commands.UpdateToxicology;
+using Target.Application.Features.Queries.GetToxicology.ByTargetId;
+using Target.Application.Features.Queries.GetToxicologyList;
 
 namespace Target.API.Controllers.V2
 {
     public partial class TargetController : ControllerBase
     {
+        [HttpGet("{id}/toxicology", Name = "GetToxicologyByTarget")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> GetToxicologyByTarget(Guid id, [FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var toxicologies = await _mediator.Send(new GetToxicologyByTargetQuery { TargetId = id, WithMeta = WithMeta });
+
+                return Ok(toxicologies);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while fetching the toxicology";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
+
+        [HttpGet("toxicology", Name = "GetToxicologyList")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> GetToxicologyList([FromQuery] bool WithMeta = false)
+        {
+            try
+            {
+                var toxicologies = await _mediator.Send(new GetToxicologyListQuery { WithMeta = WithMeta });
+
+                return Ok(toxicologies);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while fetching the toxicology";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
         [HttpPost("{id}/toxicology/add-update", Name = "AddOrToxicology")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -76,7 +141,8 @@ namespace Target.API.Controllers.V2
             {
                 foreach (var command in commands)
                 {
-                    try {
+                    try
+                    {
                         await _mediator.Send(command);
                         resp.Success.Add(command.TargetId);
                     }

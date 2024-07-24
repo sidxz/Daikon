@@ -17,6 +17,7 @@ using Target.Application.Features.Commands.RenameTarget;
 using Target.Application.Features.Commands.SubmitTPQ;
 using Target.Application.Features.Commands.UpdateToxicology;
 using Target.Application.Features.Commands.UpdateTPQ;
+using Target.Application.Features.Queries.CommonVMs;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTargetsList;
 
@@ -82,6 +83,13 @@ namespace Target.Application.Mappings
             CreateMap<AddOrUpdateToxicologyCommand, UpdateToxicologyCommand>().ReverseMap();
 
 
+            CreateMap<Domain.Entities.Toxicology, ToxicologyVM>()
+            .ForMember(dest => dest.Impact, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Impact)))
+            .ForMember(dest => dest.ImpactPriority, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<bool>, bool>(src => src.ImpactPriority)))
+            .ForMember(dest => dest.Likelihood, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Likelihood)))
+            .ForMember(dest => dest.LikelihoodPriority, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<bool>, bool>(src => src.LikelihoodPriority)))
+            .ForMember(dest => dest.Note, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Note)))
+            .ReverseMap();
 
 
 
