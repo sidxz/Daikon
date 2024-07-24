@@ -62,6 +62,54 @@ namespace Target.API.Controllers.V2
             }
         }
 
+        [HttpPost("toxicology/batch-add-update-toxicity", Name = "BatchAddOrUpdateToxicology")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> BatchAddOrUpdateToxicology(IEnumerable<AddOrUpdateToxicologyCommand> commands)
+        {
+            var resp = new BatchResponse
+            {
+                Success = new List<Guid>(),
+                Failed = new List<Guid>()
+            };
+            try
+            {
+                foreach (var command in commands)
+                {
+                    try {
+                        await _mediator.Send(command);
+                        resp.Success.Add(command.TargetId);
+                    }
+                    catch (Exception ex)
+                    {
+                        resp.Failed.Add(command.TargetId);
+                    }
+                }
+
+                return Ok(resp);
+            }
+
+            catch (InvalidOperationException ex)
+            {
+                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
+                return BadRequest(new BaseResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (Exception ex)
+            {
+                const string SAFE_ERROR_MESSAGE = "An error occurred while adding or updating the toxicology";
+                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
+                {
+                    Message = SAFE_ERROR_MESSAGE
+                });
+            }
+        }
+
         [HttpPost("{id}/toxicology", Name = "AddToxicology")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
