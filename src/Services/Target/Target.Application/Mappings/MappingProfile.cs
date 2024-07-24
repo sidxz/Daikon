@@ -84,6 +84,7 @@ namespace Target.Application.Mappings
 
 
             CreateMap<Domain.Entities.Toxicology, ToxicologyVM>()
+            .ForMember(dest => dest.Topic, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Topic)))
             .ForMember(dest => dest.Impact, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Impact)))
             .ForMember(dest => dest.ImpactPriority, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<bool>, bool>(src => src.ImpactPriority)))
             .ForMember(dest => dest.Likelihood, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Likelihood)))
