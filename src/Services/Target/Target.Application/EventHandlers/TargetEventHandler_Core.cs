@@ -14,17 +14,20 @@ namespace Target.Application.EventHandlers
         private readonly ITargetRepository _targetRepository;
 
         private readonly IPQResponseRepository _pqResponseRepository;
+
+        private readonly IToxicologyRepo _toxicologyRepo;
         private ILogger<TargetEventHandler> _logger;
 
         private IMapper _mapper;
 
-        public TargetEventHandler(ITargetRepository targetRepository, IPQResponseRepository pqResponseRepository,
+        public TargetEventHandler(ITargetRepository targetRepository, IPQResponseRepository pqResponseRepository, IToxicologyRepo toxicologyRepo,
             ILogger<TargetEventHandler> logger, IMapper mapper)
         {
             _targetRepository = targetRepository;
             _logger = logger;
             _mapper = mapper;
             _pqResponseRepository = pqResponseRepository;
+            _toxicologyRepo = toxicologyRepo;
         }
 
         public async Task OnEvent(TargetCreatedEvent @event)
@@ -108,6 +111,7 @@ namespace Target.Application.EventHandlers
             try
             {
                 await _targetRepository.DeleteTarget(existingTarget);
+                await _toxicologyRepo.DeleteByTargetId(@event.Id);
             }
             catch (RepositoryException ex)
             {

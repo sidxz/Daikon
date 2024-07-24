@@ -5,7 +5,7 @@ using CQRS.Core.Comparators;
 using Daikon.Shared.Constants.AppTarget;
 namespace Target.Domain.Aggregates
 {
-    public class TargetAggregate : AggregateRoot
+    public partial class TargetAggregate : AggregateRoot
     {
         private bool _active;
         private string _Name;

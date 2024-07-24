@@ -89,9 +89,12 @@ services:
       - TargetMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
 
       - "TargetMongoDbSettings:DatabaseName=Target"
+
       - "TargetMongoDbSettings:TargetCollectionName=Targets"
       - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
       - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
+      - "TargetMongoDbSettings:TargetToxicologyCollectionName=TargetToxicologies"
+      - "TargetMongoDbSettings:TargetToxicologyRevisionCollectionName=TargetToxicologiesRevisions"
 
     ports:
       - "8002:80"
