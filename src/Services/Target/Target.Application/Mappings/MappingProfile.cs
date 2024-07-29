@@ -9,10 +9,15 @@ using Target.Application.Features.Command.DeleteTarget;
 using Target.Application.Features.Command.NewTarget;
 using Target.Application.Features.Command.UpdateTarget;
 using Target.Application.Features.Command.UpdateTargetAssociatedGenes;
+using Target.Application.Features.Commands.AddOrUpdateToxicology;
+using Target.Application.Features.Commands.AddToxicology;
 using Target.Application.Features.Commands.ApproveTarget;
+using Target.Application.Features.Commands.DeleteToxicology;
 using Target.Application.Features.Commands.RenameTarget;
 using Target.Application.Features.Commands.SubmitTPQ;
+using Target.Application.Features.Commands.UpdateToxicology;
 using Target.Application.Features.Commands.UpdateTPQ;
+using Target.Application.Features.Queries.CommonVMs;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTargetsList;
 
@@ -23,42 +28,21 @@ namespace Target.Application.Mappings
         public MappingProfile()
         {
 
-            // Command to Command
-            CreateMap<NewTargetCommand, ApproveTargetCommand>().ReverseMap();
-            CreateMap<ImportOneCommand, ApproveTargetCommand>().ReverseMap();
-            CreateMap<ImportOneCommand, SubmitTPQCommand>().ReverseMap();
-            
-            // Event to Command
-            CreateMap<TargetCreatedEvent, NewTargetCommand >().ReverseMap();
+
+            //=== Target Core ===
+
+            CreateMap<Domain.Entities.Target, Domain.Entities.Target>();
+
+            CreateMap<TargetCreatedEvent, NewTargetCommand>().ReverseMap();
             CreateMap<TargetUpdatedEvent, UpdateTargetCommand>().ReverseMap();
-            CreateMap<TargetAssociatedGenesUpdatedEvent, UpdateTargetAssociatedGenesCommand>().ReverseMap();
             CreateMap<TargetDeletedEvent, DeleteTargetCommand>().ReverseMap();
             CreateMap<TargetRenamedEvent, RenameTargetCommand>().ReverseMap();
 
-            CreateMap<TargetPromotionQuestionnaireSubmittedEvent, SubmitTPQCommand>().ReverseMap();
-            CreateMap<TargetPromotionQuestionnaireUpdatedEvent, UpdateTPQCommand>().ReverseMap();
-
-            // Command to Domain
-            CreateMap<NewTargetCommand, Domain.Entities.Target>().ReverseMap();
-            CreateMap<UpdateTargetCommand, Domain.Entities.Target>().ReverseMap();
-            CreateMap<UpdateTargetAssociatedGenesCommand, Domain.Entities.Target>().ReverseMap();
-            CreateMap<RenameTargetCommand, Domain.Entities.Target>().ReverseMap();
-
-            CreateMap<SubmitTPQCommand, Domain.Entities.PQResponse>().ReverseMap();
-            CreateMap<UpdateTPQCommand, Domain.Entities.PQResponse>().ReverseMap();
-
-            // Event to Domain
-            CreateMap<TargetUpdatedEvent, Domain.Entities.Target>().ReverseMap();
             CreateMap<TargetCreatedEvent, Domain.Entities.Target>().ReverseMap();
+            CreateMap<TargetUpdatedEvent, Domain.Entities.Target>().ReverseMap();
+            CreateMap<TargetDeletedEvent, Domain.Entities.Target>().ReverseMap();
+            CreateMap<TargetRenamedEvent, Domain.Entities.Target>().ReverseMap();
 
-            CreateMap<TargetPromotionQuestionnaireSubmittedEvent, Domain.Entities.PQResponse>().ReverseMap();
-            CreateMap<TargetPromotionQuestionnaireUpdatedEvent, Domain.Entities.PQResponse>().ReverseMap();
-
-          
-
-
-
-            // Queries
             CreateMap<Domain.Entities.Target, TargetVM>()
             .ForMember(dest => dest.Bucket, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Bucket)))
             .ForMember(dest => dest.ImpactScore, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<double>, double>(src => src.ImpactScore)))
@@ -79,11 +63,66 @@ namespace Target.Application.Mappings
             .ForMember(dest => dest.Enablement, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Enablement)))
             .ForMember(dest => dest.Strategy, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Strategy)))
             .ForMember(dest => dest.Challenges, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Challenges)))
-
             .ReverseMap();
 
             CreateMap<Domain.Entities.Target, TargetsListVM>();
 
+
+            // === Toxicology ===
+            CreateMap<Domain.Entities.Toxicology, Domain.Entities.Toxicology>();
+
+            CreateMap<TargetToxicologyAddedEvent, AddToxicologyCommand>().ReverseMap();
+            CreateMap<TargetToxicologyUpdatedEvent, UpdateToxicologyCommand>().ReverseMap();
+            CreateMap<TargetToxicologyDeletedEvent, DeleteToxicologyCommand>().ReverseMap();
+
+            CreateMap<TargetToxicologyAddedEvent, Domain.Entities.Toxicology>().ReverseMap();
+            CreateMap<TargetToxicologyUpdatedEvent, Domain.Entities.Toxicology>().ReverseMap();
+            CreateMap<TargetToxicologyDeletedEvent, Domain.Entities.Toxicology>().ReverseMap();
+
+            CreateMap<AddOrUpdateToxicologyCommand, AddToxicologyCommand>().ReverseMap();
+            CreateMap<AddOrUpdateToxicologyCommand, UpdateToxicologyCommand>().ReverseMap();
+
+
+            CreateMap<Domain.Entities.Toxicology, ToxicologyVM>()
+            .ForMember(dest => dest.Topic, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Topic)))
+            .ForMember(dest => dest.Impact, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Impact)))
+            .ForMember(dest => dest.ImpactPriority, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<bool>, bool>(src => src.ImpactPriority)))
+            .ForMember(dest => dest.Likelihood, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Likelihood)))
+            .ForMember(dest => dest.LikelihoodPriority, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<bool>, bool>(src => src.LikelihoodPriority)))
+            .ForMember(dest => dest.Note, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Toxicology, IValueProperty<string>, string>(src => src.Note)))
+            .ReverseMap();
+
+
+
+
+            // ==== OTHERS ====
+            // Command to Command
+            CreateMap<NewTargetCommand, ApproveTargetCommand>().ReverseMap();
+            CreateMap<ImportOneCommand, ApproveTargetCommand>().ReverseMap();
+            CreateMap<ImportOneCommand, SubmitTPQCommand>().ReverseMap();
+
+            // Event to Command
+
+            CreateMap<TargetAssociatedGenesUpdatedEvent, UpdateTargetAssociatedGenesCommand>().ReverseMap();
+
+
+            CreateMap<TargetPromotionQuestionnaireSubmittedEvent, SubmitTPQCommand>().ReverseMap();
+            CreateMap<TargetPromotionQuestionnaireUpdatedEvent, UpdateTPQCommand>().ReverseMap();
+
+            // Command to Domain
+            CreateMap<NewTargetCommand, Domain.Entities.Target>().ReverseMap();
+            CreateMap<UpdateTargetCommand, Domain.Entities.Target>().ReverseMap();
+            CreateMap<UpdateTargetAssociatedGenesCommand, Domain.Entities.Target>().ReverseMap();
+            CreateMap<RenameTargetCommand, Domain.Entities.Target>().ReverseMap();
+
+            CreateMap<SubmitTPQCommand, Domain.Entities.PQResponse>().ReverseMap();
+            CreateMap<UpdateTPQCommand, Domain.Entities.PQResponse>().ReverseMap();
+
+            // Event to Domain
+
+
+            CreateMap<TargetPromotionQuestionnaireSubmittedEvent, Domain.Entities.PQResponse>().ReverseMap();
+            CreateMap<TargetPromotionQuestionnaireUpdatedEvent, Domain.Entities.PQResponse>().ReverseMap();
 
 
         }

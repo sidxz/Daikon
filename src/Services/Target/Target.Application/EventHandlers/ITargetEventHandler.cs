@@ -13,5 +13,9 @@ namespace Target.Application.EventHandlers
         Task OnEvent(TargetPromotionQuestionnaireSubmittedEvent @event);
         Task OnEvent(TargetPromotionQuestionnaireUpdatedEvent @event);
         Task OnEvent(TargetPromotionQuestionnaireDeletedEvent @event);
+
+        Task OnEvent(TargetToxicologyAddedEvent @event);
+        Task OnEvent(TargetToxicologyUpdatedEvent @event);
+        Task OnEvent(TargetToxicologyDeletedEvent @event);
     }
 }

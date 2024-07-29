@@ -1,0 +1,26 @@
+
+using CQRS.Core.Domain;
+
+namespace Target.Domain.Entities
+{
+    public class Toxicology : BaseEntity
+    {
+        public Guid TargetId { get; set; }
+        public Guid ToxicologyId { get; set; }
+        public required DVariable<string> Topic { get; set; }
+        public DVariable<string> Impact { get; set; }
+        public DVariable<bool> ImpactPriority { get; set; }
+        public DVariable<string> Likelihood { get; set; }
+        public DVariable<bool> LikelihoodPriority { get; set; }
+        public DVariable<string> Note { get; set; }
+
+        public Toxicology()
+        {
+            Impact = new DVariable<string>() { Value = default! };
+            ImpactPriority = new DVariable<bool>() { Value = default! };
+            Likelihood = new DVariable<string>() { Value = default! };
+            LikelihoodPriority = new DVariable<bool>() { Value = default! };
+            Note = new DVariable<string>() { Value = default! };
+        }
+    }
+}

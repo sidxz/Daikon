@@ -135,7 +135,7 @@ async def find_similar_molecule(
     smiles: str,
     request: Request,
     threshold: float = 0.8,  # Default value set to 0.8
-    limit: int = 10,  # Default value set to return 10 results
+    limit: int = 30,  # Default value set to return 10 results
     molecule_service: MoleculeService = Depends(get_molecule_service),
 ) -> List[dict]:
     """

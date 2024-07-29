@@ -41,6 +41,7 @@ namespace Questionnaire.Application.Features.Commands.UpdateQuestionnaire
                 {
                     // if option id is not set then set it
                     if (possibleAns.Id == Guid.Empty) possibleAns.Id = Guid.NewGuid();
+                    if (possibleAns.QuestionId == Guid.Empty) possibleAns.QuestionId = question.Id;
                 }
             }
 
