@@ -76,12 +76,6 @@ services:
     build:
       context: .
       dockerfile: Services/Comment/Comment.API/Dockerfile
-
-  # Ocelotapigw:
-  #   image: ${DOCKER_REGISTRY-}ocelotapigw
-  #   build:
-  #     context: .
-  #     dockerfile: ApiGateways/OcelotApiGw/Dockerfile
   
   simplegw-api:
     container_name: "simplegw-api"

@@ -11,6 +11,16 @@ class MoleculeService:
         self.molecule_repository = molecule_repository
         self.logger = logging.getLogger(__name__)
 
+    async def recalculateFingerprints(self):
+        """
+        Recalculate fingerprints for all molecules in the database.
+        """
+        try:
+            await self.molecule_repository.recalculate_fingerprints()
+        except Exception as e:
+            self.logger.error(f"Error recalculating fingerprints: {e}", exc_info=True)
+            raise
+
     async def createMolecule(self, name: str, smiles: str):
         """
         Create a molecule with the given name and SMILES representation.
@@ -28,7 +38,6 @@ class MoleculeService:
         except ValueError as e:
             self.logger.error(f"Invalid SMILES string: {e}", exc_info=True)
             raise
-
 
         # Calculate Canonical SMILES
         smiles_canonical = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), True)
@@ -75,7 +84,6 @@ class MoleculeService:
         except ValueError as e:
             self.logger.error(f"Invalid SMILES string: {e}", exc_info=True)
             raise
-
 
         # Calculate Canonical SMILES
         smiles_canonical = Chem.MolToSmiles(Chem.MolFromSmiles(smiles), True)

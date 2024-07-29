@@ -89,9 +89,12 @@ services:
       - TargetMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
 
       - "TargetMongoDbSettings:DatabaseName=Target"
+
       - "TargetMongoDbSettings:TargetCollectionName=Targets"
       - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
       - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
+      - "TargetMongoDbSettings:TargetToxicologyCollectionName=TargetToxicologies"
+      - "TargetMongoDbSettings:TargetToxicologyRevisionCollectionName=TargetToxicologiesRevisions"
 
     ports:
       - "8002:80"
@@ -372,15 +375,6 @@ services:
     ports:
       - "8011:80"
 
-  # Ocelotapigw:
-  #   container_name: ocelotapigw
-  #   environment:
-  #     - "ASPNETCORE_ENVIRONMENT=Cluster"
-  #     - ASPNETCORE_URLS=http://+:80
-  #     - "UserStoreAPI:BaseUrl=http://UserStore.API/api/v2/"
-  #   ports:
-  #     - "8010:80"
-
   simplegw-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -393,6 +387,14 @@ services:
       - EntraID:TenantId=${EntraID_TenantId}
       - EntraID:ClientId=${EntraID_ClientId}
       - EntraID:Audience=${EntraID_Audience}
+
+      ## OIDC
+      # - OIDCProvider=KeyCloak
+      # - KeyCloak:Instance=${Keycloak_Instance}
+      # - KeyCloak:TenantId=${Keycloak_Realm}
+      # - KeyCloak:ClientId=${Keycloak_ClientId}
+      # - KeyCloak:Audience=${Keycloak_Audience}
+      # - KeyCloak:Authority=${Keycloak_Authority}
 
       ## Internal API Routing
       - "UserStoreAPI:BaseUrl=http://userstore-api/api/v2/"

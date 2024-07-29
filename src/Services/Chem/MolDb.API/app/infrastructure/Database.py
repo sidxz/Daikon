@@ -30,6 +30,12 @@ async def GetDbPool():
             HOST = get_env_variable("MolDbHost")
             PORT = get_env_variable("MolDbPort")
             DATABASE = get_env_variable("MolDbDatabase")
+            
+            print(f"USER: {USER}")
+            print(f"HOST: {HOST}")
+            print(f"PORT: {PORT}")
+            print(f"DATABASE: {DATABASE}")
+            
 
             db_pool = await asyncpg.create_pool(
                 user=USER, password=PASSWORD, host=HOST, port=PORT, database=DATABASE

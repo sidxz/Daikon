@@ -11,6 +11,8 @@
     "mlogix",
     "OIDC",
     "PMID",
-    "Progressibility"
+    "Progressibility",
+    "rdkit",
+    "toxicologies"
   ]
 }

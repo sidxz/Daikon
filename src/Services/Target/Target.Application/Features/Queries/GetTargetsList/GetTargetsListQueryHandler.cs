@@ -34,7 +34,7 @@ namespace Target.Application.Features.Queries.GetTargetsList
             }
             catch (RepositoryException ex)
             {
-                throw new Exception("Error in Gene Repository", ex);
+                throw new Exception("Error in Target Repository", ex);
             }
 
 

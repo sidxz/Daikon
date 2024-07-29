@@ -1,8 +1,7 @@
 # Start with a Miniconda3 base image
-FROM continuumio/miniconda3
+FROM python:3.8-slim
 
 WORKDIR /app
-
 
 # Set the user to root to install packages
 USER root
@@ -12,19 +11,19 @@ RUN apt-get update && apt-get install -y \
     cmake \
     flex \
     bison \
-    libboost-all-dev
+    libboost-all-dev \
+    pipenv
 
-# Create a Conda environment and install necessary packages
-RUN conda create -n myenv python=3.8
-RUN echo "source activate myenv" > ~/.bashrc
-ENV PATH /opt/conda/envs/myenv/bin:$PATH
+# Create a virtual environment and install necessary packages using Pipenv
+COPY ["Services/Chem/MolDb.API/Pipfile", "/app/"]
+COPY ["Services/Chem/MolDb.API/Pipfile.lock", "/app/"]
 
-# Install RDKit and other Python packages using Conda
-RUN conda install -c conda-forge -n myenv rdkit
-RUN conda run -n myenv pip install fastapi[all] uvicorn psycopg2-binary asyncpg marshmallow confluent_kafka
+RUN pipenv install --deploy
+
+# Install numpy explicitly
+RUN pipenv run pip install numpy
 
 COPY ["Services/Chem/MolDb.API/", "/app/"]
 
-# CMD should use the binaries from the Conda environment
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8101"] 
-
+# CMD should use the binaries from the virtual environment created by Pipenv
+CMD ["pipenv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8101"]
