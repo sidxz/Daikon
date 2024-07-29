@@ -12,6 +12,7 @@
     "OIDC",
     "PMID",
     "Progressibility",
-    "rdkit"
+    "rdkit",
+    "toxicologies"
   ]
 }

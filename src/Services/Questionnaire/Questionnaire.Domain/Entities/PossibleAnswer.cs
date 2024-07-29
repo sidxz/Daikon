@@ -14,5 +14,6 @@ namespace Questionnaire.Domain.Entities
         public string? Color { get; set; }
         public string? Icon { get; set; }
         public bool? IsInverted { get; set; }
+        public double? Weight { get; set; }
     }
 }

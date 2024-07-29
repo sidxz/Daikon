@@ -33,7 +33,7 @@ namespace Target.Infrastructure
         {
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
             ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
-            
+
             /* Command */
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<TargetCreatedEvent>();
@@ -44,6 +44,10 @@ namespace Target.Infrastructure
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireSubmittedEvent>();
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireUpdatedEvent>();
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireDeletedEvent>();
+
+            BsonClassMap.RegisterClassMap<TargetToxicologyAddedEvent>();
+            BsonClassMap.RegisterClassMap<TargetToxicologyUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<TargetToxicologyDeletedEvent>();
 
             /* Event Database */
             var eventDatabaseSettings = new EventDatabaseSettings
@@ -59,16 +63,15 @@ namespace Target.Infrastructure
             services.AddScoped<IEventStore<TPQuestionnaireAggregate>, EventStore<TPQuestionnaireAggregate>>();
 
 
-
             /* Kafka Producer */
             var kafkaProducerSettings = new KafkaProducerSettings
             {
-                BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers") 
+                BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers")
                                             ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers)),
-                Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic") 
+                Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic")
                                             ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic)),
 
-                SecurityProtocol = Enum.Parse<SecurityProtocol>(configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol")?? ""),
+                SecurityProtocol = Enum.Parse<SecurityProtocol>(configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol") ?? ""),
                 SaslMechanism = SaslMechanism.Plain,
                 SaslUsername = "$ConnectionString",
                 SaslPassword = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString"),
@@ -96,6 +99,7 @@ namespace Target.Infrastructure
             /* Query */
             services.AddScoped<ITargetRepository, TargetRepository>();
             services.AddScoped<IPQResponseRepository, PQResponseRepository>();
+            services.AddScoped<IToxicologyRepo, ToxicologyRepo>();
 
             /* Version Store */
             var targetVersionStoreSettings = new VersionDatabaseSettings<TargetRevision>
@@ -107,6 +111,16 @@ namespace Target.Infrastructure
             services.AddSingleton<IVersionDatabaseSettings<TargetRevision>>(targetVersionStoreSettings);
             services.AddScoped<IVersionStoreRepository<TargetRevision>, VersionStoreRepository<TargetRevision>>();
             services.AddScoped<IVersionHub<TargetRevision>, VersionHub<TargetRevision>>();
+
+            var toxicologyVersionStoreSettings = new VersionDatabaseSettings<ToxicologyRevision>
+            {
+                ConnectionString = configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ToxicologyRevision>.ConnectionString)),
+                DatabaseName = configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ToxicologyRevision>.DatabaseName)),
+                CollectionName = configuration.GetValue<string>("TargetMongoDbSettings:TargetToxicologyRevisionCollectionName") ?? "TargetToxicologiesRevisions"
+            };
+            services.AddSingleton<IVersionDatabaseSettings<ToxicologyRevision>>(toxicologyVersionStoreSettings);
+            services.AddScoped<IVersionStoreRepository<ToxicologyRevision>, VersionStoreRepository<ToxicologyRevision>>();
+            services.AddScoped<IVersionHub<ToxicologyRevision>, VersionHub<ToxicologyRevision>>();
 
             /* Consumers */
             services.AddScoped<IEventConsumer, TargetEventConsumer>(); // Depends on IKafkaConsumerSettings; Takes care of both gene and strain events
