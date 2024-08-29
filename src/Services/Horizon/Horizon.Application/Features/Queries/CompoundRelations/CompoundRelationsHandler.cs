@@ -50,12 +50,24 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                         NodeName = node.Properties["name"].As<string>(),
                     };
 
+                    vm.NodeProperties["relationship"] = relation.Type.ToLower().Replace("_", " ");
+
+
+
                     // Add any additional properties from the node
                     foreach (var property in node.Properties)
                     {
                         if (!vm.GetType().GetProperties().Any(p => p.Name.Equals(property.Key, StringComparison.OrdinalIgnoreCase)))
                         {
-                            vm.NodeProperties[property.Key] = property.Value;
+                            // Check if the property value is not null or whitespace before adding it
+                            if (property.Value is string strValue && !string.IsNullOrWhiteSpace(strValue))
+                            {
+                                vm.NodeProperties[property.Key] = strValue;
+                            }
+                            else if (!(property.Value is string)) // Add non-string properties as they are
+                            {
+                                vm.NodeProperties[property.Key] = property.Value;
+                            }
                         }
                     }
 
@@ -74,6 +86,7 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                             vm.NodeProperties["screenId"] = screenNode.Properties["uniId"].As<string>();
                             vm.NodeProperties["screenType"] = screenNode.Properties["screenType"].As<string>();
                             vm.NodeProperties["screenStatus"] = screenNode.Properties["status"].As<string>();
+                            vm.NodeProperties["orgId"] = screenNode.Properties["primaryOrgId"].As<string>();
                         }
                     }
 
