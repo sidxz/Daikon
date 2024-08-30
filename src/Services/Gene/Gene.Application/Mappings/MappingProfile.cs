@@ -308,7 +308,9 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.CrisprEss, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.CrisprEss)))
                 .ForMember(dest => dest.HighConfidenceVulnerabilityCall, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.HighConfidenceVulnerabilityCall)))
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Reference)))
-                .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.URL)));
+                .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.URL)))
+                .ForMember(dest => dest.Score, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Score)))
+                .ForMember(dest => dest.Certain, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Certain)));
         }
     }
 }

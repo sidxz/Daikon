@@ -18,7 +18,7 @@ namespace Horizon.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class Horizon : ControllerBase
+    public partial class Horizon : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly ILogger<Horizon> _logger;
