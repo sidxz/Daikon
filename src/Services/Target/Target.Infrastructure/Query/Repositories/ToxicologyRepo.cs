@@ -24,6 +24,10 @@ namespace Target.Infrastructure.Query.Repositories
                 (configuration.GetValue<string>("TargetMongoDbSettings:TargetToxicologyCollectionName") ?? "TargetToxicologies");
             _toxicologyCollection.Indexes.CreateOne
                 (new CreateIndexModel<Toxicology>(Builders<Toxicology>.IndexKeys.Ascending(t => t.TargetId), new CreateIndexOptions { Unique = false }));
+                
+            _toxicologyCollection.Indexes.CreateOne
+                (new CreateIndexModel<Toxicology>(Builders<Toxicology>.IndexKeys.Ascending(t => t.Topic), new CreateIndexOptions { Unique = false }));
+
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
