@@ -90,3 +90,5 @@ app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
 // Map Controllers
 app.MapControllers();
+
+app.Run();
