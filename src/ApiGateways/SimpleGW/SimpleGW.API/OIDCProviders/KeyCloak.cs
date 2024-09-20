@@ -19,11 +19,11 @@ namespace SimpleGW.OIDCProviders
             if (!keyCloakConfig.Exists()) return;
 
             // Dump configuration to console for debugging purposes
-            Console.WriteLine($"KeyCloak Instance: {keyCloakConfig["Instance"]}");
-            Console.WriteLine($"KeyCloak Realm: {keyCloakConfig["Realm"]}");
-            Console.WriteLine($"KeyCloak Authority: {keyCloakConfig["Authority"]}");
-            Console.WriteLine($"KeyCloak Audience: {keyCloakConfig["Audience"]}");
-            Console.WriteLine($"KeyCloak ClientId: {keyCloakConfig["ClientId"]}");
+            // Console.WriteLine($"KeyCloak Instance: {keyCloakConfig["Instance"]}");
+            // Console.WriteLine($"KeyCloak Realm: {keyCloakConfig["Realm"]}");
+            // Console.WriteLine($"KeyCloak Authority: {keyCloakConfig["Authority"]}");
+            // Console.WriteLine($"KeyCloak Audience: {keyCloakConfig["Audience"]}");
+            // Console.WriteLine($"KeyCloak ClientId: {keyCloakConfig["ClientId"]}");
 
             services.AddAuthentication(options =>
             {
@@ -60,7 +60,7 @@ namespace SimpleGW.OIDCProviders
                         var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
                         if (claimsIdentity != null)
                         {
-                            Console.WriteLine($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
+                            //Console.WriteLine($"ClaimsIdentity is authenticated: {claimsIdentity.IsAuthenticated}");
                             // foreach (var claim in claimsIdentity.Claims)
                             // {
                             //     Console.WriteLine($"Claim type: {claim.Type}, value: {claim.Value}");

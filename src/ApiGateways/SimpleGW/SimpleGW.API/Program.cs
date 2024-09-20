@@ -10,7 +10,6 @@ var loggerFactory = LoggerFactory.Create(loggingBuilder =>
     loggingBuilder.AddDebug();
 });
 var logger = loggerFactory.CreateLogger<Program>();
-
 try
 {
     // Select the OIDC provider based on the settings
@@ -54,6 +53,7 @@ try
     app.UseAuthorization();
     app.UseCors("AllowAll");
 
+    app.UseMiddleware<RequestTimingMiddleware>();
     app.UseMiddleware<AuthenticationValidatorMiddleware>();
     app.UseMiddleware<UserProfileEnricherMiddleware>();
     app.UseMiddleware<MicroServiceRoutingMiddleware>();

@@ -23,7 +23,7 @@ namespace SimpleGW.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
-            _logger.LogInformation("UserProfileEnricherMiddleware : Enriching user profile");
+            //_logger.LogInformation("UserProfileEnricherMiddleware : Enriching user profile");
             try
             {
                 var entraObjectIdentifierClaim = context.User.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier");
@@ -34,15 +34,15 @@ namespace SimpleGW.API.Middlewares
                 if (entraObjectIdentifierClaim?.Value != null)
                 {
                     // entraObjectIdentifierClaim hints that the OAuth2 provider is Microsoft Entra ID
-                    _logger.LogInformation("User will be authorized with either entraObjectId or EmailClaim: {entraObjectId} or {email}",
-                                        entraObjectIdentifierClaim.Value, emailClaim?.Value);
+                    // _logger.LogInformation("User will be authorized with either entraObjectId or EmailClaim: {entraObjectId} or {email}",
+                    //                     entraObjectIdentifierClaim.Value, emailClaim?.Value);
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var userStoreService = scope.ServiceProvider.GetRequiredService<IUserStoreAPIService>();
                         var validateUserAccessResponse = await userStoreService.Validate(oidcSub: null, entraObjectId: entraObjectIdentifierClaim.Value, email: emailClaim?.Value);
                         if (validateUserAccessResponse.IsValid)
                         {
-                            _logger.LogInformation("UserProfileEnricherMiddleware : User is authorized");
+                            //_logger.LogInformation("UserProfileEnricherMiddleware : User is authorized");
                             context.Request.Headers.Append("AppUser-Id", validateUserAccessResponse?.AppUserId.ToString());
                             context.Request.Headers.Append("AppUser-Email", validateUserAccessResponse?.NormalizedEmail);
                             context.Request.Headers.Append("AppUser-FullName", validateUserAccessResponse?.FirstName + " " + validateUserAccessResponse?.LastName);
@@ -64,7 +64,7 @@ namespace SimpleGW.API.Middlewares
                         }
                         else
                         {
-                            _logger.LogError("UserProfileEnricherMiddleware: User validation failed");
+                            _logger.LogWarning("UserProfileEnricherMiddleware: User validation failed");
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                             context.Response.ContentType = "application/json";
                             await context.Response.WriteAsync(JsonSerializer.Serialize(new { message = "User validation failed" }));
@@ -77,14 +77,14 @@ namespace SimpleGW.API.Middlewares
                 else if (oidcSubClaim?.Value != null)
                 {
                     // oidcSubClaim hints that the OAuth2 provider is not Microsoft Entra ID
-                    _logger.LogInformation("User will be authorized with OIDC Sub Claim: {oidcSub}", oidcSubClaim.Value);
+                    //_logger.LogInformation("User will be authorized with OIDC Sub Claim: {oidcSub}", oidcSubClaim.Value);
                     using (var scope = _serviceProvider.CreateScope())
                     {
                         var userStoreService = scope.ServiceProvider.GetRequiredService<IUserStoreAPIService>();
                         var validateUserAccessResponse = await userStoreService.Validate(oidcSub: oidcSubClaim.Value, entraObjectId: null, email: emailClaim?.Value);
                         if (validateUserAccessResponse.IsValid)
                         {
-                            _logger.LogInformation("UserProfileEnricherMiddleware : User is authorized");
+                            //_logger.LogInformation("UserProfileEnricherMiddleware : User is authorized");
                             context.Request.Headers.Append("AppUser-Id", validateUserAccessResponse?.AppUserId.ToString());
                             context.Request.Headers.Append("AppUser-Email", validateUserAccessResponse?.NormalizedEmail);
                             context.Request.Headers.Append("AppUser-FullName", validateUserAccessResponse?.FirstName + " " + validateUserAccessResponse?.LastName);
@@ -95,7 +95,7 @@ namespace SimpleGW.API.Middlewares
                         }
                         else
                         {
-                            _logger.LogError("UserProfileEnricherMiddleware: User validation failed");
+                            _logger.LogWarning("UserProfileEnricherMiddleware: User validation failed");
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                             context.Response.ContentType = "application/json";
                             await context.Response.WriteAsync(JsonSerializer.Serialize(new { message = "User validation failed" }));
@@ -106,7 +106,7 @@ namespace SimpleGW.API.Middlewares
 
                 // 3. No valid claims Fail the request with 401
                 // If entraObjectIdentifierClaim is null or other conditions for authorization are not met
-                _logger.LogError("UserProfileEnricherMiddleware: Missing or invalid claims");
+                _logger.LogWarning("UserProfileEnricherMiddleware: Missing or invalid claims");
                 context.Response.ContentType = "application/json";
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 await context.Response.WriteAsync(JsonSerializer.Serialize(new { message = "Missing or invalid claims" }));

@@ -29,7 +29,7 @@ namespace SimpleGW.API.Middlewares
             }
 
             var targetUrl = $"{microservice}/api{context.Request.Path.Value}{context.Request.QueryString}";
-            _logger.LogInformation($"Forwarding request to {targetUrl}");
+            //_logger.LogInformation($"Forwarding request to {targetUrl}");
 
             try
             {
