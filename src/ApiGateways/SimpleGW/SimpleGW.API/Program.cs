@@ -41,6 +41,8 @@ try
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddHttpClient();
+    builder.Services.AddMemoryCache();
+
 
     builder.Services.AddScoped<IUserStoreAPIService, UserStoreAPIService>();
 
