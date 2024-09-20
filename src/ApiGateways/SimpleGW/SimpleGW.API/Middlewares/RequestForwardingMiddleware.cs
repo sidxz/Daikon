@@ -71,7 +71,7 @@ namespace SimpleGW.API.Middlewares
                     await responseStream.CopyToAsync(context.Response.Body, context.RequestAborted);
                 }
 
-                _logger.LogInformation($"Request to {targetUrl} successfully forwarded and response received.");
+                //_logger.LogInformation($"Request to {targetUrl} successfully forwarded and response received.");
             }
             catch (HttpRequestException httpEx)
             {

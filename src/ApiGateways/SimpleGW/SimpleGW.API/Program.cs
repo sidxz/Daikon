@@ -1,4 +1,5 @@
 
+using Microsoft.IdentityModel.Logging;
 using SimpleGW.API.Middlewares;
 using SimpleGW.Contracts.Infrastructure;
 using SimpleGW.OIDCProviders;
@@ -10,6 +11,13 @@ var loggerFactory = LoggerFactory.Create(loggingBuilder =>
     loggingBuilder.AddDebug();
 });
 var logger = loggerFactory.CreateLogger<Program>();
+
+// Disable logging of PII (Personally Identifiable Information)
+IdentityModelEventSource.ShowPII = false;
+builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+builder.Logging.AddFilter("IdentityModelEventSource.ShowPII", LogLevel.Warning);
+
+
 try
 {
     // Select the OIDC provider based on the settings
