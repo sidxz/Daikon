@@ -1,6 +1,5 @@
 
 using System.Net;
-using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Project.Application.Features.Commands.DeleteProjectCompoundEvolution;
 using Project.Application.Features.Commands.NewProjectCompoundEvolution;
@@ -18,51 +17,9 @@ namespace Project.API.Controllers.V2
         {
             command.Id = projectId;
             var compoundEvolutionId = Guid.NewGuid();
-            try
-            {
-                command.CompoundEvolutionId = compoundEvolutionId;
-                var response = await _mediator.Send(command);
-                return StatusCode(StatusCodes.Status201Created, response);
-
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("AddCompoundEvolution: ArgumentNullException {Id}", compoundEvolutionId);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddCompoundEvolution: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the Compound Evolution";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = compoundEvolutionId,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+            command.CompoundEvolutionId = compoundEvolutionId;
+            var response = await _mediator.Send(command);
+            return StatusCode(StatusCodes.Status201Created, response);
 
         }
 
@@ -75,58 +32,17 @@ namespace Project.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateCompoundEvolution(Guid projectId, Guid id, UpdateProjectCompoundEvolutionCommand command)
         {
+            command.Id = projectId;
+            command.CompoundEvolutionId = id;
 
-            try
+            await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                command.Id = projectId;
-                command.CompoundEvolutionId = id;
-
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Project Compound Evolution updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("UpdateCompoundEvolution: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateCompoundEvolution: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the Compound Evolution";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Project compound evolution updated successfully",
+            });
 
         }
-
 
 
         [HttpDelete("{projectId}/compound-evolution/{id}", Name = "DeleteCompoundEvolution")]
@@ -135,47 +51,16 @@ namespace Project.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteCompoundEvolution(Guid projectId, Guid id)
         {
-            try
+            await _mediator.Send(new DeleteProjectCompoundEvolutionCommand
             {
-                await _mediator.Send(new DeleteProjectCompoundEvolutionCommand
-                {
-                    Id = projectId,
-                    CompoundEvolutionId = id
-                });
+                Id = projectId,
+                CompoundEvolutionId = id
+            });
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Project Compound Evolution deleted successfully",
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("DeleteProject: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the Compound Evolution";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Project compound evolution deleted successfully",
+            });
 
         }
     }
