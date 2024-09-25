@@ -25,6 +25,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 using Confluent.Kafka;
+using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
+using MLogix.Infrastructure.DaikonChemVault;
 
 namespace MLogix.Infrastructure
 {
@@ -108,6 +110,7 @@ namespace MLogix.Infrastructure
 
             /* MolDb API */
             services.AddScoped<IMolDbAPIService, MolDbAPIService>();
+            services.AddScoped<IMoleculeAPI, MoleculeAPI>();
 
             return services;
         }

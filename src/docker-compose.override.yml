@@ -58,6 +58,9 @@ services:
     ports:
       - "8001:80"
 
+    networks:
+      - daikon-be-net
+
   target-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -98,6 +101,9 @@ services:
 
     ports:
       - "8002:80"
+
+    networks:
+      - daikon-be-net
 
   screen-api:
     environment:
@@ -147,6 +153,8 @@ services:
 
     ports:
       - "8003:80"
+    networks:
+      - daikon-be-net
 
   hitassessment-api:
     environment:
@@ -191,6 +199,8 @@ services:
 
     ports:
       - "8004:80"
+    networks:
+      - daikon-be-net
 
   project-api:
     environment:
@@ -236,6 +246,8 @@ services:
 
     ports:
       - "8005:80"
+    networks:
+      - daikon-be-net
 
   horizon-api:
     environment:
@@ -261,6 +273,8 @@ services:
 
     ports:
       - "8006:80"
+    networks:
+      - daikon-be-net
 
   mlogix-api:
     environment:
@@ -297,9 +311,12 @@ services:
 
       # Internal APIs
       - "MolDbAPI:Url=http://moldb-api:8101/api/v2/mol-db"
+      - "DaikonChemVault:Url=http://daikon_chem_vault_api:10001"
 
     ports:
       - "8007:80"
+    networks:
+      - daikon-be-net
 
   questionnaire-api:
     environment:
@@ -312,6 +329,8 @@ services:
 
     ports:
       - "8008:80"
+    networks:
+      - daikon-be-net
 
   comment-api:
     environment:
@@ -357,6 +376,8 @@ services:
 
     ports:
       - "8009:80"
+    networks:
+      - daikon-be-net
 
   userstore-api:
     environment:
@@ -374,6 +395,8 @@ services:
       - "UserStoreMongoDbSettings:APIResourceCollectionName=AppAPIResources"
     ports:
       - "8011:80"
+    networks:
+      - daikon-be-net
 
   simplegw-api:
     environment:
@@ -422,6 +445,8 @@ services:
 
     ports:
       - "8010:80"
+    networks:
+      - daikon-be-net
 
   moldb-api:
     environment:
@@ -444,3 +469,10 @@ services:
 
     ports:
       - "8101:8101"
+    networks:
+      - daikon-be-net
+
+networks:
+  daikon-be-net:
+    name: daikon-be-net
+    external: true
