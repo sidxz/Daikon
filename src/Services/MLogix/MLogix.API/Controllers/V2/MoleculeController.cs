@@ -10,6 +10,7 @@ using MLogix.Application.Features.Queries.ListMolecules;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
 using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSubstructures;
+using MLogix.Application.Features.Queries.GetMolecule.ByName;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -66,6 +67,17 @@ namespace MLogix.API.Controllers.V2
             return Ok(molecule);
 
         }
+
+        [HttpGet("by-name", Name = "GetMoleculesByName")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> FindMoleculesByName([FromQuery] GetByNameQuery query)
+        {
+            var molecules = await _mediator.Send(query);
+            return Ok(molecules);
+        }
+
 
         [HttpGet("similar", Name = "FindSimilarMolecules")]
         [MapToApiVersion("2.0")]

@@ -73,5 +73,54 @@ namespace MLogix.Infrastructure.DaikonChemVault
                 return null;
             }
         }
+
+
+        public async Task<List<MoleculeBase>> FindByName(string name, int limit, IDictionary<string, string> headers)
+        {
+            try
+            {
+                // Build the base query parameters
+                var queryParams = new Dictionary<string, object>
+                {
+                    { "name", name },
+                    { "limit", limit }
+                };
+
+                // Build the query string
+                string queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value.ToString())}"));
+                string apiUrl = $"{_apiBaseUrl}/molecules/by-name?{queryString}";
+
+                var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+                request.AddHeaders(headers);
+
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string result = await response.Content.ReadAsStringAsync();
+                    try
+                    {
+                        var resultMolecules = JsonSerializer.Deserialize<List<MoleculeBase>>(result, _jsonOptions);
+                        _logger.LogInformation("Molecules found similar to: {name}", name);
+                        return resultMolecules;
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError(ex, "Error deserializing JSON response");
+                        return null;
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to find similar molecules with name. Status Code: {StatusCode}", response.StatusCode);
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in find by name");
+                return null;
+            }
+        }
     }
 }
