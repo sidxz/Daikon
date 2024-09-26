@@ -56,7 +56,7 @@ namespace MLogix.Application.Features.Queries.FindSimilarMolecules
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in FindBySMILES");
+                _logger.LogError(ex, "Error in FindSimilarMolecules");
             }
 
             throw new ResourceNotFoundException(nameof(FindSimilarMoleculesHandler), request.SMILES);
