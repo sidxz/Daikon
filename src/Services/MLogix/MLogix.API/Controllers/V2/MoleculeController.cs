@@ -66,16 +66,14 @@ namespace MLogix.API.Controllers.V2
 
         }
 
-        [HttpGet("similar/{smiles}", Name = "FindSimilarMolecules")]
+        [HttpGet("similar", Name = "FindSimilarMolecules")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> FindSimilarMolecules(string smiles, [FromQuery] double similarityThreshold = 1, [FromQuery] int maxResults = 10, [FromQuery] bool WithMeta = false)
+        public async Task<IActionResult> FindSimilarMolecules([FromQuery] FindSimilarMoleculesQuery query)
         {
-            var query = new FindSimilarMoleculesQuery { SMILES = smiles, SimilarityThreshold = similarityThreshold, MaxResults = maxResults, WithMeta = WithMeta };
             var molecules = await _mediator.Send(query);
             return Ok(molecules);
-
         }
 
         [HttpPost(Name = "RegisterMolecule")]

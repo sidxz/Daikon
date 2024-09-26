@@ -27,10 +27,10 @@ namespace MLogix.Application.Features.Queries.FindSimilarMolecules
                         .ToDictionary(h => h.Key, h => h.Value.ToString());
             try
             {
-                _logger.LogInformation("FindSimilarMolecules for SMILES: {0} with threshold: {1} and max results: {2}", request.SMILES, request.SimilarityThreshold, request.MaxResults);
+                _logger.LogInformation("FindSimilarMolecules for SMILES: {0} with threshold: {1} and limit: {2}", request.SMILES, request.Threshold, request.Limit);
 
                 var res = new List<SimilarMoleculeVM>();
-                var vaultMolecules = await _iMoleculeAPI.FindSimilar(request.SMILES, (float)request.SimilarityThreshold, request.MaxResults, headers);
+                var vaultMolecules = await _iMoleculeAPI.FindSimilar(request, headers);
 
                 _logger.LogInformation("Found {0} similar molecules", vaultMolecules.Count);
 

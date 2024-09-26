@@ -1,37 +1,68 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CQRS.Core.Infrastructure;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.DTOs.DaikonChemVault;
+using MLogix.Application.Features.Queries.Filters;
+using MLogix.Application.Features.Queries.FindSimilarMolecules;
 
 namespace MLogix.Infrastructure.DaikonChemVault
 {
     public partial class MoleculeAPI
     {
-        public async Task<List<SimilarMolecule>> FindSimilar(string smiles, float similarityThreshold, int maxResults, IDictionary<string, string> headers)
+        public async Task<List<SimilarMolecule>> FindSimilar(FindSimilarMoleculesQuery query, IDictionary<string, string> headers)
         {
             try
             {
-                //_logger.LogInformation("Finding similar molecules to: {SMILES} with threshold: {Threshold} and max results: {MaxResults}", smiles, similarityThreshold, maxResults);
-                string decodedSmiles = Uri.UnescapeDataString(smiles);
-                string encodedSmiles = Uri.EscapeDataString(decodedSmiles);
+                // string decodedSmiles = Uri.UnescapeDataString(query.SMILES);
+                // string encodedSmiles = Uri.EscapeDataString(decodedSmiles);
+                
+                // Build the base query parameters
+                var queryParams = new Dictionary<string, object>
+                {
+                    { "smiles", query.SMILES },
+                    { "threshold", query.Threshold },
+                    { "limit", query.Limit }
+                };
 
-                string apiUrl = $"{_apiBaseUrl}/molecules/similarity?smiles={encodedSmiles}&threshold={similarityThreshold}&limit={maxResults}";
+                // Use reflection to add non-null properties from BaseQueryWithConditionFilters
+                var filters = typeof(BaseQueryWithConditionFilters)
+                    .GetProperties()
+                    .Where(p => p.GetValue(query) != null);
+
+                foreach (var filter in filters)
+                {
+                    object value = filter.GetValue(query);
+
+                    // Check if the property has a JsonPropertyName attribute
+                    var jsonPropertyName = filter.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name;
+                    string name = jsonPropertyName ?? filter.Name;
+
+                    // Add to query params
+                    queryParams.Add(name, value);
+                }
+
+                // Build the query string
+                string queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value.ToString())}"));
+                string apiUrl = $"{_apiBaseUrl}/molecules/similarity?{queryString}";
+
                 var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
                 request.AddHeaders(headers);
+
                 HttpResponseMessage response = await _httpClient.SendAsync(request);
 
                 if (response.IsSuccessStatusCode)
                 {
                     string result = await response.Content.ReadAsStringAsync();
-                    // _logger.LogInformation("Raw result: {Result}", result);
                     try
                     {
                         var resultMolecules = JsonSerializer.Deserialize<List<SimilarMolecule>>(result, _jsonOptions);
-                        _logger.LogInformation("Molecules found similar to: {SMILES}", smiles);
+                        _logger.LogInformation("Molecules found similar to: {SMILES}", query.SMILES);
                         return resultMolecules;
                     }
                     catch (JsonException ex)
@@ -39,11 +70,9 @@ namespace MLogix.Infrastructure.DaikonChemVault
                         _logger.LogError(ex, "Error deserializing JSON response");
                         return null;
                     }
-
                 }
                 else
                 {
-                    // Handle non-success status code
                     _logger.LogWarning("Failed to find similar molecules. Status Code: {StatusCode}", response.StatusCode);
                     return null;
                 }
