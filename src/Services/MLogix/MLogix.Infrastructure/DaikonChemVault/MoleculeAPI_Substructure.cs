@@ -1,15 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using CQRS.Core.Infrastructure;
+
 using Microsoft.Extensions.Logging;
 using MLogix.Application.DTOs.DaikonChemVault;
-using MLogix.Application.Features.Queries.Filters;
-using MLogix.Application.Features.Queries.FindSimilarMolecules;
 using MLogix.Application.Features.Queries.FindSubstructures;
 
 namespace MLogix.Infrastructure.DaikonChemVault
