@@ -4,10 +4,8 @@ using CQRS.Core.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.Contracts.Persistence;
-using MLogix.Application.Features.Queries.GetMolecule;
 
 namespace MLogix.Application.Features.Queries.FindSimilarMolecules
 {

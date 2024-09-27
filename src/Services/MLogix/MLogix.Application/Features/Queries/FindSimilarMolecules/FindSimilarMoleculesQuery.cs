@@ -1,8 +1,6 @@
 
-using CQRS.Core.Query;
 using MediatR;
 using MLogix.Application.Features.Queries.Filters;
-using MLogix.Application.Features.Queries.GetMolecule;
 
 namespace MLogix.Application.Features.Queries.FindSimilarMolecules
 {
