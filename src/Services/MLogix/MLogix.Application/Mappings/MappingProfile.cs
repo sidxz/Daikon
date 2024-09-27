@@ -43,6 +43,8 @@ namespace MLogix.Application.Mappings
             CreateMap<MoleculeBase, MoleculeVM>().ReverseMap();
             CreateMap<Molecule, SimilarMoleculeVM>().ReverseMap();
             CreateMap<SimilarMolecule, SimilarMoleculeVM>().ReverseMap();
+
+            CreateMap<RegisterMoleculeResponseDTO, MoleculeBase>().ReverseMap();
         }
     }
 }

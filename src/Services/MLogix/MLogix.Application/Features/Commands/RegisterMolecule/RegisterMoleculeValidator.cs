@@ -9,7 +9,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
         public RegisterMoleculeValidator()
         {
             
-            RuleFor(p => p.RequestedSMILES)
+            RuleFor(p => p.SMILES)
                 .NotEmpty().WithMessage("SMILES is required.")
                 .NotNull();
         }

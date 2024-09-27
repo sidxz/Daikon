@@ -1,5 +1,6 @@
 
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CQRS.Core.Infrastructure;
@@ -28,12 +29,17 @@ namespace MLogix.Infrastructure.DaikonChemVault
             };
         }
 
-        private async Task<T> SendRequestAsync<T>(string apiUrl, HttpMethod method, IDictionary<string, string> headers)
+        private async Task<T> SendRequestAsync<T>(string apiUrl, HttpMethod method, IDictionary<string, string> headers, object content = null)
         {
             try
             {
                 var request = new HttpRequestMessage(method, apiUrl);
                 request.AddHeaders(headers);
+                // Only add content for methods that support a body (POST, PUT, PATCH, etc.)
+                if (content != null && (method == HttpMethod.Post || method == HttpMethod.Put || method.Method == "PATCH"))
+                {
+                    request.Content = new StringContent(JsonSerializer.Serialize(content, _jsonOptions), Encoding.UTF8, "application/json");
+                }
 
                 HttpResponseMessage response = await _httpClient.SendAsync(request);
 

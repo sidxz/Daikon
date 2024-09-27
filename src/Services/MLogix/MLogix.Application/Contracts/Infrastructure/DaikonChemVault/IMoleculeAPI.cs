@@ -1,5 +1,6 @@
 
 using MLogix.Application.DTOs.DaikonChemVault;
+using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
 using MLogix.Application.Features.Queries.FindSubstructures;
 
@@ -12,5 +13,6 @@ namespace MLogix.Application.Contracts.Infrastructure.DaikonChemVault
         public Task<List<SimilarMolecule>> FindSimilar(FindSimilarMoleculesQuery query, IDictionary<string, string> headers);
         public Task<List<MoleculeBase>> FindSubstructure(FindSubstructuresQuery query, IDictionary<string, string> headers);
         public Task<List<MoleculeBase>> FindByName(string name, int limit, IDictionary<string, string> headers);
+        public Task<MoleculeBase> Register(RegisterMoleculeCommand registerMoleculeCommand, IDictionary<string, string> headers);
     }
 }
