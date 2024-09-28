@@ -10,30 +10,25 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure;
+using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.Contracts.Persistence;
+using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.DTOs.MolDbAPI;
+using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Domain.Aggregates;
 
 namespace MLogix.Application.Features.Commands.UpdateMolecule
 {
-    public class UpdateMoleculeHandler : IRequestHandler<UpdateMoleculeCommand, UpdateMoleculeResponseDTO>
+    public class UpdateMoleculeHandler(IMapper mapper, ILogger<UpdateMoleculeHandler> logger,
+    IMoleculeRepository moleculeRepository, IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler,
+    IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor) : IRequestHandler<UpdateMoleculeCommand, UpdateMoleculeResponseDTO>
     {
-        private readonly IMapper _mapper;
-        private readonly ILogger<UpdateMoleculeHandler> _logger;
-        private readonly IMoleculeRepository _moleculeRepository;
-        private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler;
-        private readonly IMolDbAPIService _molDbAPIService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-        public UpdateMoleculeHandler(IMapper mapper, ILogger<UpdateMoleculeHandler> logger, IMoleculeRepository moleculeRepository, IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler, IMolDbAPIService molDbAPIService, IHttpContextAccessor httpContextAccessor)
-        {
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
-            _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
-            _molDbAPIService = molDbAPIService ?? throw new ArgumentNullException(nameof(molDbAPIService));
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        }
+        private readonly IMapper _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        private readonly ILogger<UpdateMoleculeHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        private readonly IMoleculeRepository _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
+        private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
+        private readonly IMoleculeAPI _iMoleculeAPI = iMoleculeAPI ?? throw new ArgumentNullException(nameof(IMoleculeAPI));
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
 
         public async Task<UpdateMoleculeResponseDTO> Handle(UpdateMoleculeCommand request, CancellationToken cancellationToken)
         {
@@ -49,7 +44,7 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
             // check if smiles is blank throw exception
             if (string.IsNullOrEmpty(request.RequestedSMILES))
             {
-                throw new InvalidOperationException("SMILES cannot be blank");
+                throw new InvalidOperationException("SMILES is required");
             }
 
             var registerMoleculeResponseDTO = new UpdateMoleculeResponseDTO();
@@ -60,7 +55,6 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 Name = request.Name ?? existingMolecule.Name ?? "UnNamed",
                 RequestedSMILES = request.RequestedSMILES,
                 Synonyms = request.Synonyms ?? [],
-                Ids = request.Ids ?? [],
                 RegistrationId = existingMolecule.RegistrationId,
                 LastModifiedById = request.RequestorUserId
             };
@@ -70,11 +64,21 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
             if (existingMolecule.RequestedSMILES != request.RequestedSMILES)
             {
 
+                _logger.LogInformation("SMILES is different from the existing molecule, then call MolDB to update the molecule");
                 // register molecule in MolDB
-                MoleculeDTO registrationReq;
+                MoleculeBase registrationRes;
                 try
                 {
-                    registrationReq = await _molDbAPIService.RegisterCompound(request.Name ?? "UnNamed", request.RequestedSMILES, headers);
+                    var registrationReq = new RegisterMoleculeCommand()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = request.Name ?? "Untitled",
+                        SMILES = request.RequestedSMILES,
+                        DateCreated = DateTime.UtcNow,
+                        IsModified = false
+                    };
+
+                    registrationRes = await _iMoleculeAPI.Register(registrationReq, headers);
                 }
                 catch (Exception ex)
                 {
@@ -82,15 +86,15 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                     throw new InvalidOperationException("An error occurred while registering the molecule in MolDB");
                 }
 
-                if (registrationReq == null)
+                if (registrationRes == null)
                 {
                     _logger.LogError("An error occurred while registering the molecule in MolDB");
                     throw new InvalidOperationException("An error occurred while registering the molecule in MolDB");
                 }
 
                 // now check if molecule already exists in our system
-                var newRegisteredMolecule = await _moleculeRepository.GetMoleculeByRegistrationId(registrationReq.Id);
-                
+                var newRegisteredMolecule = await _moleculeRepository.GetMoleculeByRegistrationId(registrationRes.Id);
+
 
                 // if molecule already exists in our system and is not the same molecule, reject the update
                 // The same molecule can be returned from MolDB if the requested SMILES resolves to same canonical SMILES
@@ -107,28 +111,30 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
 
                 // Delete the existing molecule in molDB
                 if (newRegisteredMolecule == null || existingMolecule.RegistrationId != newRegisteredMolecule.RegistrationId)
-                try
-                {
-                    await _molDbAPIService.DeleteMoleculeById(existingMolecule.RegistrationId, headers);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An error occurred while deleting the molecule in MolDB");
-                    throw new InvalidOperationException("An error occurred while deleting the molecule in MolDB");
-                }
+                    try
+                    {
+                        await _iMoleculeAPI.Delete(existingMolecule.RegistrationId, headers);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "An error occurred while deleting the molecule in MolDB");
+                        throw new InvalidOperationException("An error occurred while deleting the molecule in MolDB");
+                    }
 
                 // update the registrationId in the event
-                moleculeUpdatedEvent.RegistrationId = registrationReq.Id;
-                moleculeUpdatedEvent.SmilesCanonical = registrationReq.SmilesCanonical;
+                moleculeUpdatedEvent.RegistrationId = registrationRes.Id;
+                moleculeUpdatedEvent.SmilesCanonical = registrationRes.SmilesCanonical;
             }
             else
             {
                 // if SMILES is the same, then get the canonical SMILES from MolDB
+                // Update name and synonyms of molecule in ChemVault
 
                 try
                 {
-                    var molDbMolecule = await _molDbAPIService.GetMoleculeById(existingMolecule.RegistrationId, headers);
-                    moleculeUpdatedEvent.SmilesCanonical = molDbMolecule.SmilesCanonical;
+
+                    var vaultMolecule = await _iMoleculeAPI.Update(existingMolecule.RegistrationId, request, headers);
+                    moleculeUpdatedEvent.SmilesCanonical = vaultMolecule.SmilesCanonical;
                 }
                 catch (Exception ex)
                 {
