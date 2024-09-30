@@ -8,6 +8,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
     {
         public string? Name { get; set; }
         public string SMILES { get; set; }
+        public string? Synonyms { get; set; }
 
     }
 }

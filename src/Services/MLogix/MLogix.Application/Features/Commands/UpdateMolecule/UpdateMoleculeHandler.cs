@@ -47,14 +47,13 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 throw new InvalidOperationException("SMILES is required");
             }
 
-            var registerMoleculeResponseDTO = new UpdateMoleculeResponseDTO();
+            var updateMoleculeResponseDTO = new UpdateMoleculeResponseDTO();
 
             var moleculeUpdatedEvent = new MoleculeUpdatedEvent
             {
                 Id = existingMolecule.Id,
                 Name = request.Name ?? existingMolecule.Name ?? "UnNamed",
                 RequestedSMILES = request.RequestedSMILES,
-                Synonyms = request.Synonyms ?? [],
                 RegistrationId = existingMolecule.RegistrationId,
                 LastModifiedById = request.RequestorUserId
             };
@@ -124,6 +123,13 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 // update the registrationId in the event
                 moleculeUpdatedEvent.RegistrationId = registrationRes.Id;
                 moleculeUpdatedEvent.SmilesCanonical = registrationRes.SmilesCanonical;
+
+                // return response
+                updateMoleculeResponseDTO = _mapper.Map<UpdateMoleculeResponseDTO>(registrationRes);
+                updateMoleculeResponseDTO.WasAlreadyRegistered = false;
+                // fix Ids
+                updateMoleculeResponseDTO.RegistrationId = registrationRes.Id;
+                updateMoleculeResponseDTO.Id = request.Id;
             }
             else
             {
@@ -135,6 +141,13 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
 
                     var vaultMolecule = await _iMoleculeAPI.Update(existingMolecule.RegistrationId, request, headers);
                     moleculeUpdatedEvent.SmilesCanonical = vaultMolecule.SmilesCanonical;
+
+                    // return response
+                    updateMoleculeResponseDTO = _mapper.Map<UpdateMoleculeResponseDTO>(vaultMolecule);
+                    updateMoleculeResponseDTO.WasAlreadyRegistered = true;
+                    // fix Ids
+                    updateMoleculeResponseDTO.RegistrationId = vaultMolecule.Id;
+                    updateMoleculeResponseDTO.Id = request.Id;
                 }
                 catch (Exception ex)
                 {
@@ -146,7 +159,7 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
 
             try
             {
-                var aggregate = await _moleculeEventSourcingHandler.GetByAsyncId(request.Id);
+                var aggregate = await _moleculeEventSourcingHandler.GetByAsyncId(existingMolecule.Id);
                 aggregate.UpdateMolecule(moleculeUpdatedEvent);
                 await _moleculeEventSourcingHandler.SaveAsync(aggregate);
             }
@@ -156,7 +169,7 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 throw new ResourceNotFoundException(nameof(MoleculeAggregate), request.Id);
             }
 
-            return _mapper.Map<UpdateMoleculeResponseDTO>(moleculeUpdatedEvent);
+            return updateMoleculeResponseDTO;
 
         }
     }

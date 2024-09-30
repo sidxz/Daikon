@@ -27,6 +27,7 @@ using MongoDB.Bson.Serialization;
 using Confluent.Kafka;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Infrastructure.DaikonChemVault;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MLogix.Infrastructure
 {
@@ -34,6 +35,11 @@ namespace MLogix.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+
+            var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+            ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
+
+            /* Event Database */
             BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<MoleculeCreatedEvent>();
