@@ -1,13 +1,17 @@
 
+using Project.Domain.Entities;
+using Project.Domain.EntityRevisions;
+
 namespace Project.Application.Contracts.Persistence
 {
     public interface IProjectCompoundEvolutionRepository
     {
-        Task CreateProjectCompoundEvolution(Domain.Entities.ProjectCompoundEvolution projectCompoundEvolution);
-        Task<Domain.Entities.ProjectCompoundEvolution> ReadProjectCompoundEvolutionById(Guid id);
-        Task<List<Domain.Entities.ProjectCompoundEvolution>> GetProjectCompoundEvolutionOfProject(Guid ProjectId);
-        Task UpdateProjectCompoundEvolution(Domain.Entities.ProjectCompoundEvolution projectCompoundEvolution);
+        Task CreateProjectCompoundEvolution(ProjectCompoundEvolution projectCompoundEvolution);
+        Task<ProjectCompoundEvolution> ReadProjectCompoundEvolutionById(Guid id);
+        Task<List<ProjectCompoundEvolution>> GetProjectCompoundEvolutionOfProject(Guid ProjectId);
+        public Task<Dictionary<Guid, List<ProjectCompoundEvolution>>> GetProjectCompoundEvolutionsOfProjects(List<Guid> projectIDs);
+        Task UpdateProjectCompoundEvolution(ProjectCompoundEvolution projectCompoundEvolution);
         Task DeleteProjectCompoundEvolution(Guid id);
-        Task<Domain.EntityRevisions.ProjectCompoundEvolutionRevision> GetProjectCompoundEvolutionRevisions(Guid Id);
+        Task<ProjectCompoundEvolutionRevision> GetProjectCompoundEvolutionRevisions(Guid Id);
     }
 }
