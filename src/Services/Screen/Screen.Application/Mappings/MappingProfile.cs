@@ -148,8 +148,6 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.IsStructureDisclosed, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Hit, IValueProperty<bool>, bool>(src => src.IsStructureDisclosed)))
                 .ReverseMap();
 
-            CreateMap<Contracts.Infrastructure.DTOs.GetMoleculesResultDTO, Features.Queries.ViewModels.MoleculeVM>();
-
         }
 
     }

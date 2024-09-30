@@ -12,6 +12,7 @@ using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
+using Daikon.Shared.APIClients.MLogix;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
@@ -19,12 +20,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 using Screen.Domain.EntityRevisions;
-using Screen.Infrastructure.MLogixAPI;
-using Screen.Infrastructure.MolDbAPI;
 using Screen.Infrastructure.Query.Consumers;
 using Screen.Infrastructure.Query.Repositories;
 
@@ -171,8 +169,7 @@ namespace Screen.Infrastructure
             services.AddHostedService<ConsumerHostedService>();
 
             /* MolDb API */
-            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
-            services.AddScoped<IMLogixAPIService, MLogixAPIService>();
+            services.AddScoped<IMLogixAPI, MLogixAPI>();
 
             return services;
         }

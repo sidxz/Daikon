@@ -1,9 +1,8 @@
 
-using Amazon.Runtime.Internal.Util;
 using AutoMapper;
+using Daikon.Shared.APIClients.MLogix;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
 using Screen.Application.Features.Queries.ViewModels;
 
@@ -16,10 +15,10 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
         private readonly IHitRepository _hitRepository;
         private readonly ILogger<GetHitCollectionByIdQueryHandler> _logger;
 
-        private readonly IMLogixAPIService _mLogixAPIService;
+        private readonly IMLogixAPI _mLogixAPIService;
 
         public GetHitCollectionByIdQueryHandler(IMapper mapper, IHitCollectionRepository hitCollectionRepository,
-            IHitRepository hitRepository, ILogger<GetHitCollectionByIdQueryHandler> logger, IMLogixAPIService mLogixAPIService)
+            IHitRepository hitRepository, ILogger<GetHitCollectionByIdQueryHandler> logger, IMLogixAPI mLogixAPIService)
         {
             _mapper = mapper;
             _hitCollectionRepository = hitCollectionRepository;
@@ -38,12 +37,7 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
             var hits = await _hitRepository.GetHitsListByHitCollectionId(hitCollection.Id);
 
             hitCollectionVm.Hits = _mapper.Map<List<HitVM>>(hits, opts => opts.Items["WithMeta"] = request.WithMeta);
-            _logger.LogInformation("************** REQUESTOR");
-            if (request.RequestorUserId == Guid.Empty)
-            {
-                _logger.LogInformation("RequestorUserId is empty");
-            }
-            _logger.LogInformation(request.RequestorUserId.ToString());
+
             foreach (var hit in hitCollectionVm.Hits)
             {
                 if (hit.Voters.TryGetValue(request.RequestorUserId.ToString(), out var usersVote))
@@ -66,7 +60,7 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
                 {
                     var molecule = await _mLogixAPIService.GetMoleculeById(hit.MoleculeId);
 
-                    hit.Molecule = _mapper.Map<MoleculeVM>(molecule);
+                    hit.Molecule = molecule;
                 }
                 catch (Exception ex)
                 {
