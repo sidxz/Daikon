@@ -1,4 +1,5 @@
 
+using Daikon.Shared.VM.MLogix;
 using HitAssessment.Application.Features.Queries.GetHitAssessment;
 
 namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
