@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
@@ -9,11 +6,9 @@ using Daikon.Events.MLogix;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.Contracts.Persistence;
 using MLogix.Application.DTOs.DaikonChemVault;
-using MLogix.Application.DTOs.MolDbAPI;
 using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Domain.Aggregates;
 

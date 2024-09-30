@@ -56,12 +56,12 @@ services:
       context: .
       dockerfile: Services/MLogix/MLogix.API/Dockerfile
 
-  moldb-api:
-    container_name: "moldb-api"
-    image: ${DOCKER_REGISTRY-}moldb
-    build:
-      context: .
-      dockerfile: Services/Chem/MolDb.API/Dockerfile
+  # moldb-api:
+  #   container_name: "moldb-api"
+  #   image: ${DOCKER_REGISTRY-}moldb
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Chem/MolDb.API/Dockerfile
 
   questionnaire-api:
     container_name: "questionnaire-api"

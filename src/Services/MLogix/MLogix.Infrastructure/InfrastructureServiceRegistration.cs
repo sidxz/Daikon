@@ -14,11 +14,9 @@ using Daikon.EventStore.Stores;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
-using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.Contracts.Persistence;
 using MLogix.Domain.Aggregates;
 using MLogix.Domain.EntityRevisions;
-using MLogix.Infrastructure.MolDbAPI;
 using MLogix.Infrastructure.Query.Consumers;
 using MLogix.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -115,7 +113,6 @@ namespace MLogix.Infrastructure
             services.AddHostedService<ConsumerHostedService>();
 
             /* MolDb API */
-            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
             services.AddScoped<IMoleculeAPI, MoleculeAPI>();
 
             return services;

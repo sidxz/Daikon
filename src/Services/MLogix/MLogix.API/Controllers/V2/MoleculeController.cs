@@ -6,7 +6,6 @@ using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Queries.GetMolecule.ById;
 using MLogix.Application.Features.Queries.GetMolecule.BySMILES;
 using MLogix.Application.Features.Queries.GetMolecule.ByRegistrationId;
-using MLogix.Application.Features.Queries.ListMolecules;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
 using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSubstructures;
@@ -19,17 +18,6 @@ namespace MLogix.API.Controllers.V2
     public partial class MoleculeController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
-
-        [HttpGet(Name = "GetAllMolecules")]
-        [MapToApiVersion("2.0")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAllMolecules()
-        {
-            var query = new ListMoleculesCommand { };
-            var molecules = await _mediator.Send(query);
-            return Ok(molecules);
-
-        }
 
         [HttpGet("{id}", Name = "GetMoleculeById")]
         [MapToApiVersion("2.0")]

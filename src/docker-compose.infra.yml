@@ -57,19 +57,19 @@ services:
     networks:
       - daikon-be-net
 
-  MolDb_Postgres:
-    container_name: "moldb-postgres"
-    image: informaticsmatters/rdkit-cartridge-debian:Release_2024_03_3
-    environment:
-      POSTGRES_DB: chemdb
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - moldb_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - daikon-be-net
+  # MolDb_Postgres:
+  #   container_name: "moldb-postgres"
+  #   image: informaticsmatters/rdkit-cartridge-debian:Release_2024_03_3
+  #   environment:
+  #     POSTGRES_DB: chemdb
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - moldb_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - daikon-be-net
 
   # MolDb_Postgres:
   #   container_name: "moldb-postgres"
@@ -116,7 +116,7 @@ services:
 
 volumes:
   portainer_data:
-  moldb_data:
+  # moldb_data:
   pgadmin_data:
   eventdb_mongo_data:
   kafka_data:

@@ -448,29 +448,29 @@ services:
     networks:
       - daikon-be-net
 
-  moldb-api:
-    environment:
-      # MolDb Postgres
-      - MolDbUser=${MolDbUser}
-      - MolDbPassword=${MolDbPassword}
-      - MolDbHost=${MolDbHost}
-      - MolDbPort=${MolDbPort}
-      - MolDbDatabase=${MolDbDatabase}
+  # moldb-api:
+  #   environment:
+  #     # MolDb Postgres
+  #     - MolDbUser=${MolDbUser}
+  #     - MolDbPassword=${MolDbPassword}
+  #     - MolDbHost=${MolDbHost}
+  #     - MolDbPort=${MolDbPort}
+  #     - MolDbDatabase=${MolDbDatabase}
 
-      # Kafka Consumer
-      - KafkaConsumerSettings_BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings_ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings_SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings_Topics=${KafkaConsumerTopics}
-      - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
-      - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings_EnableAutoCommit=true"
-      - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
+  #     # Kafka Consumer
+  #     - KafkaConsumerSettings_BootstrapServers=${KafkaBootstrapServers}
+  #     - KafkaConsumerSettings_ConnectionString=${KafkaConnectionString}
+  #     - KafkaConsumerSettings_SecurityProtocol=${KafkaSecurityProtocol}
+  #     - KafkaConsumerSettings_Topics=${KafkaConsumerTopics}
+  #     - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
+  #     - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
+  #     - "KafkaConsumerSettings_EnableAutoCommit=true"
+  #     - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
 
-    ports:
-      - "8101:8101"
-    networks:
-      - daikon-be-net
+  #   ports:
+  #     - "8101:8101"
+  #   networks:
+  #     - daikon-be-net
 
 networks:
   daikon-be-net:
