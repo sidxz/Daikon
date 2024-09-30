@@ -2,7 +2,6 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.Project;
-using Project.Application.Contracts.Infrastructure;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using MediatR;
@@ -20,19 +19,16 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
         private readonly IProjectCompoundEvolutionRepository _projectCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<ProjectAggregate> _projectEventSourcingHandler;
-        private readonly IMLogixAPIService _mLogixAPIService;
 
         public UpdateProjectCompoundEvolutionCommandHandler(ILogger<UpdateProjectCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<ProjectAggregate> projectEventSourcingHandler,
             IProjectCompoundEvolutionRepository projectCompoundEvoRepository,
-            IMapper mapper, IMLogixAPIService mLogixAPIService)
+            IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _projectCompoundEvoRepository = projectCompoundEvoRepository ?? throw new ArgumentNullException(nameof(projectCompoundEvoRepository));
             _projectEventSourcingHandler = projectEventSourcingHandler ?? throw new ArgumentNullException(nameof(projectEventSourcingHandler));
-            _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
-
         }
 
         public async Task<Unit> Handle(UpdateProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)

@@ -3,8 +3,8 @@ using AutoMapper;
 using Project.Application.Contracts.Persistence;
 using MediatR;
 using CQRS.Core.Exceptions;
-using Project.Application.Contracts.Infrastructure;
 using Microsoft.Extensions.Logging;
+using Daikon.Shared.APIClients.MLogix;
 
 
 namespace Project.Application.Features.Queries.GetProjectList
@@ -13,11 +13,13 @@ namespace Project.Application.Features.Queries.GetProjectList
     {
         private readonly IProjectRepository _projectRepository;
         private readonly IProjectCompoundEvolutionRepository _projectCompoundEvolutionRepository;
-        private readonly IMLogixAPIService _mLogixAPIService;
+        private readonly IMLogixAPI _mLogixAPIService;
         private readonly IMapper _mapper;
         private readonly ILogger<GetProjectListQueryHandler> _logger;
 
-        public GetProjectListQueryHandler(IProjectRepository projectRepository, IProjectCompoundEvolutionRepository projectCompoundEvolutionRepository, IMLogixAPIService mLogixAPIService, IMapper mapper, ILogger<GetProjectListQueryHandler> logger)
+        public GetProjectListQueryHandler(IProjectRepository projectRepository, 
+        IProjectCompoundEvolutionRepository projectCompoundEvolutionRepository, 
+        IMLogixAPI mLogixAPIService, IMapper mapper, ILogger<GetProjectListQueryHandler> logger)
         {
             _projectRepository = projectRepository ?? throw new ArgumentNullException(nameof(projectRepository));
             _projectCompoundEvolutionRepository = projectCompoundEvolutionRepository ?? throw new ArgumentNullException(nameof(projectCompoundEvolutionRepository));
