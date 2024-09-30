@@ -1,5 +1,5 @@
 
-namespace MLogix.Application.Features.Queries.GetMolecule
+namespace Daikon.Shared.VM.MLogix
 {
     public class MoleculeVM
     {

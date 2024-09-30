@@ -1,11 +1,11 @@
 
 using AutoMapper;
 using Daikon.Events.MLogix;
+using Daikon.Shared.VM.MLogix;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
-using MLogix.Application.Features.Queries.GetMolecule;
 using MLogix.Domain.Entities;
 
 namespace MLogix.Application.Mappings

@@ -1,4 +1,5 @@
 
+using Daikon.Shared.VM.MLogix;
 using MLogix.Application.Features.Queries.GetMolecule;
 
 namespace MLogix.Application.Features.Queries.FindSimilarMolecules
