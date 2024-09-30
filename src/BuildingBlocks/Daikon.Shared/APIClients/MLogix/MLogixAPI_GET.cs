@@ -12,5 +12,13 @@ namespace Daikon.Shared.APIClients.MLogix
             var molecule = await SendRequestAsync<MoleculeVM>(apiUrl, HttpMethod.Get);
             return molecule;
         }
+
+        public async Task<List<MoleculeVM>> GetMoleculesByIds(List<Guid> Ids)
+        {
+            string idsQuery = string.Join("&", Ids.Select(id => $"ids={id}"));
+            string apiUrl = $"{_apiBaseUrl}/molecule/by-ids?{idsQuery}";
+            var molecules = await SendRequestAsync<List<MoleculeVM>>(apiUrl, HttpMethod.Get);
+            return molecules;
+        }
     }
 }
