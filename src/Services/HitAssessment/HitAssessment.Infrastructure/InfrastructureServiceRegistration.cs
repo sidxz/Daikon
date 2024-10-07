@@ -12,14 +12,13 @@ using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
+using Daikon.Shared.APIClients.MLogix;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
-using HitAssessment.Application.Contracts.Infrastructure;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
 using HitAssessment.Domain.EntityRevisions;
-using HitAssessment.Infrastructure.MLogixAPI;
 using HitAssessment.Infrastructure.Query.Consumers;
 using HitAssessment.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -132,7 +131,7 @@ namespace HitAssessment.Infrastructure
 
             /* MolDb API */
             
-            services.AddScoped<IMLogixAPIService, MLogixAPIService>();
+            services.AddScoped<IMLogixAPI, MLogixAPI>();
 
             return services;
         }

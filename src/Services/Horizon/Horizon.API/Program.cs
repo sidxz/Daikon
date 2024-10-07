@@ -6,6 +6,8 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Horizon.Application;
 using Horizon.Infrastructure;
+using MediatR;
+using CQRS.Core.Middlewares;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -29,22 +31,28 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllers();
 
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add Swagger and OpenAPI support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 builder.Services.AddSwaggerGen();
 
-/* ------------------------------------------------- */
-/* Add Application and Infrastructure services. */
+// Register application and infrastructure services
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
+
+
+// HttpContext accessor for accessing HttpContext in services
+builder.Services.AddHttpContextAccessor();
+
+// Inject User Id in Command and Query
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestorIdBehavior<,>));
+
 
 
 var app = builder.Build();
 
 
 
-app.MapControllers();
 
 // Print the environment name to the console.
 Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
@@ -62,6 +70,12 @@ if (app.Environment.IsDevelopment())
         }
     });
 }
+
+// Add the custom global error handling middleware
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+
+// Map Controllers
+app.MapControllers();
 
 //app.UseHttpsRedirection();
 

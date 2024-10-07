@@ -1,5 +1,6 @@
 
 using CQRS.Core.Domain;
+using Daikon.Shared.VM.MLogix;
 
 namespace Project.Application.Features.Queries.GetProject
 {

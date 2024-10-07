@@ -3,7 +3,6 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.HitAssessment;
-using HitAssessment.Application.DTOs.MLogixAPI;
 using HitAssessment.Application.Features.Batch.ImportOne;
 using HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.DeleteHitAssessment;
@@ -95,8 +94,8 @@ namespace HitAssessment.Application.Mappings
             .ReverseMap();
 
 
-            CreateMap<RegisterMoleculeResponseDTO, MoleculeVM>().ReverseMap();
-            CreateMap<GetMoleculesResultDTO, MoleculeVM>().ReverseMap();
+            // CreateMap<RegisterMoleculeResponseDTO, MoleculeVM>().ReverseMap();
+            
         }
     }
 }

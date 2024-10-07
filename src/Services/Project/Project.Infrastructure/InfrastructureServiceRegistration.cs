@@ -14,7 +14,6 @@ using Daikon.EventStore.Stores;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
-using Project.Application.Contracts.Infrastructure;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using Project.Domain.EntityRevisions;
@@ -23,9 +22,9 @@ using Project.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
-using Project.Infrastructure.MLogixAPI;
 using MongoDB.Bson.Serialization.Conventions;
 using Confluent.Kafka;
+using Daikon.Shared.APIClients.MLogix;
 
 namespace Project.Infrastructure
 {
@@ -132,7 +131,7 @@ namespace Project.Infrastructure
             services.AddHostedService<ConsumerHostedService>();
 
             /* MolDb API */
-            services.AddScoped<IMLogixAPIService, MLogixAPIService>();
+            services.AddScoped<IMLogixAPI, MLogixAPI>();
 
             return services;
         }

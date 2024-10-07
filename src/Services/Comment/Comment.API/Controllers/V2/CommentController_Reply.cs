@@ -17,53 +17,15 @@ namespace Comment.API.Controllers.V2
         {
             command.Id = commentId;
             var commentReplyId = Guid.NewGuid();
-            try
-            {
-                command.ReplyId = commentReplyId;
-                await _mediator.Send(command);
+            command.ReplyId = commentReplyId;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = commentReplyId,
-                    Message = "Comment Reply added successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                _logger.LogInformation("AddCommentReply: ArgumentNullException {Id}", commentReplyId);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
+                Id = commentReplyId,
+                Message = "Reply added successfully",
+            });
 
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddCommentReply: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the Comment Reply";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
         }
 
         [HttpPut("{commentId}/reply/{id}", Name = "UpdateCommentReply")]
@@ -74,50 +36,12 @@ namespace Comment.API.Controllers.V2
             command.Id = commentId;
             command.CommentId = commentId;
             command.ReplyId = id;
-            try
-            {
-                await _mediator.Send(command);
+            await _mediator.Send(command);
 
-                return Ok(new BaseResponse
-                {
-                    Message = "Comment Reply updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return Ok(new BaseResponse
             {
-                _logger.LogInformation("UpdateCommentReply: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateCompoundEvolution: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the Compound Evolution";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Reply updated successfully",
+            });
         }
 
         [HttpDelete("{commentId}/reply/{id}", Name = "DeleteCommentReply")]
@@ -133,46 +57,13 @@ namespace Comment.API.Controllers.V2
                 ReplyId = id,
                 Id = commentId,
             };
-            
 
-            try
-            {
-                await _mediator.Send(command);
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Message = "Comment Reply deleted successfully",
-                });
-            }
-            catch (ResourceNotFoundException ex)
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                _logger.LogInformation("DeleteCommentReply: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the Compound Evolution";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Reply deleted successfully",
+            });
         }
-
     }
-
 }

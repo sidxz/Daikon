@@ -1,14 +1,14 @@
 
-using CQRS.Core.Query;
 using MediatR;
-using MLogix.Application.Features.Queries.GetMolecule;
+using MLogix.Application.Features.Queries.Filters;
 
 namespace MLogix.Application.Features.Queries.FindSimilarMolecules
 {
-    public class FindSimilarMoleculesQuery : BaseQuery, IRequest<List<MoleculeVM>>
+    public class FindSimilarMoleculesQuery : BaseQueryWithConditionFilters, IRequest<List<SimilarMoleculeVM>>
     {
         public string SMILES { get; set; }
-        public double SimilarityThreshold { get; set; }
-        public int MaxResults { get; set; }
+        public double Threshold { get; set; } = 0.9;
+        public int Limit { get; set; } = 100;
+
     }
 }

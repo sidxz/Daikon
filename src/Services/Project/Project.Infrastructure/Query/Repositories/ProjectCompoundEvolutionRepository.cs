@@ -85,6 +85,37 @@ namespace Project.Infrastructure.Query.Repositories
         }
 
 
+        public async Task<Dictionary<Guid, List<ProjectCompoundEvolution>>> GetProjectCompoundEvolutionsOfProjects(List<Guid> projectIDs)
+        {
+            ArgumentNullException.ThrowIfNull(projectIDs);
+            if (projectIDs.Count == 0)
+                throw new ArgumentException("The list of HaIds cannot be empty.", nameof(projectIDs));
+
+            try
+            {
+                _logger.LogInformation("GetProjectCompoundEvolutionsOfProjects: Getting CompoundEvolutions for multiple projectIDs");
+
+                // Find all CompoundEvolutions that match any of the provided projectIDs
+                var projectCompoundEvolutions = await _projectCompoundEvoCollection.Find
+                        (projectCompoundEvolution => projectIDs.Contains(projectCompoundEvolution.ProjectId))
+                    .SortBy(projectCompoundEvolution => projectCompoundEvolution.EvolutionDate.Value)
+                    .ToListAsync();
+
+                // Group the results by HaId
+                var result = projectCompoundEvolutions
+                    .GroupBy(projectCompoundEvolution => projectCompoundEvolution.ProjectId)
+                    .ToDictionary(group => group.Key, group => group.ToList());
+
+                return result;
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting the GetProjectCompoundEvolutionsOfProjects for multiple HaIds");
+                throw new RepositoryException(nameof(ProjectCompoundEvolutionRepository), "Error getting ProjectCompoundEvolutionsOfProjects for multiple HaIds", ex);
+            }
+        }
+
+
 
         public async Task<ProjectCompoundEvolution> ReadProjectCompoundEvolutionById(Guid id)
         {

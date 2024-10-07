@@ -1,4 +1,5 @@
 
+using Microsoft.IdentityModel.Logging;
 using SimpleGW.API.Middlewares;
 using SimpleGW.Contracts.Infrastructure;
 using SimpleGW.OIDCProviders;
@@ -10,6 +11,12 @@ var loggerFactory = LoggerFactory.Create(loggingBuilder =>
     loggingBuilder.AddDebug();
 });
 var logger = loggerFactory.CreateLogger<Program>();
+
+// Disable logging of PII (Personally Identifiable Information)
+IdentityModelEventSource.ShowPII = false;
+builder.Logging.AddFilter("System.Net.Http.HttpClient", LogLevel.Warning);
+builder.Logging.AddFilter("IdentityModelEventSource.ShowPII", LogLevel.Warning);
+
 
 try
 {
@@ -34,6 +41,8 @@ try
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddHttpClient();
+    builder.Services.AddMemoryCache();
+
 
     builder.Services.AddScoped<IUserStoreAPIService, UserStoreAPIService>();
 
@@ -54,6 +63,7 @@ try
     app.UseAuthorization();
     app.UseCors("AllowAll");
 
+    app.UseMiddleware<RequestTimingMiddleware>();
     app.UseMiddleware<AuthenticationValidatorMiddleware>();
     app.UseMiddleware<UserProfileEnricherMiddleware>();
     app.UseMiddleware<MicroServiceRoutingMiddleware>();

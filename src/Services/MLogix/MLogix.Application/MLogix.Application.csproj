@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\CQRS.Core\CQRS.Core.csproj" />
     <ProjectReference Include="..\MLogix.Domain\MLogix.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.Shared\Daikon.Shared.csproj" />
   </ItemGroup>
 
 </Project>

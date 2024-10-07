@@ -15,54 +15,14 @@ namespace Target.API.Controllers.V2
         public async Task<IActionResult> ImportOne([FromBody] ImportOneCommand command)
         {
             var id = Guid.NewGuid();
-            try
-            {
-                command.Id = command.Id == Guid.Empty ? id : command.Id;
-                await _mediator.Send(command);
+            command.Id = command.Id == Guid.Empty ? id : command.Id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "Target added successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                _logger.LogInformation("AddTarget: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddTarget: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the target";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = id,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Id = id,
+                Message = "Target added successfully",
+            });
         }
     }
 }

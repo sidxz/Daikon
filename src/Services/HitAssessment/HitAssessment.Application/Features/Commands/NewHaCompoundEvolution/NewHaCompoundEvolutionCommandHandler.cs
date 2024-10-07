@@ -2,10 +2,9 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.HitAssessment;
-using HitAssessment.Application.Contracts.Infrastructure;
+using Daikon.Shared.APIClients.MLogix;
+using Daikon.Shared.DTO.MLogix;
 using HitAssessment.Application.Contracts.Persistence;
-using HitAssessment.Application.DTOs.MLogixAPI;
-using HitAssessment.Application.Features.Queries.GetHitAssessment;
 using HitAssessment.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -20,11 +19,11 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
         private readonly IHaCompoundEvolutionRepository _haCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<HaAggregate> _haEventSourcingHandler;
-        private readonly IMLogixAPIService _mLogixAPIService;
+        private readonly IMLogixAPI _mLogixAPIService;
         public NewHaCompoundEvolutionCommandHandler(ILogger<NewHaCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<HaAggregate> haEventSourcingHandler,
             IHaCompoundEvolutionRepository haCompoundEvoRepository,
-            IMLogixAPIService mLogixAPIService,
+            IMLogixAPI mLogixAPIService,
             IMapper mapper)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -90,15 +89,16 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
         {
             try
             {
-                var mLogiXResponse = await _mLogixAPIService.RegisterCompound(new RegisterMoleculeRequest
+                var mLogiXResponse = await _mLogixAPIService.RegisterMolecule(new RegisterMoleculeDTO
                 {
                     Name = request.MoleculeName,
-                    RequestedSMILES = request.RequestedSMILES
+                    SMILES = request.RequestedSMILES
                 });
 
                 eventToAdd.MoleculeId = mLogiXResponse.Id;
+
                 response.MoleculeId = mLogiXResponse.Id;
-                response.Molecule = _mapper.Map<MoleculeVM>(mLogiXResponse);
+                response.Molecule = mLogiXResponse;
             }
             catch (Exception ex)
             {

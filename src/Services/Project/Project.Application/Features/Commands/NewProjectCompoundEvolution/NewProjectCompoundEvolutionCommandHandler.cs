@@ -2,14 +2,14 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.Project;
-using Project.Application.Contracts.Infrastructure;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Project.Application.Features.Commands.NewHaCompoundEvolution;
-using Project.Application.DTOs.MLogixAPI;
-using Project.Application.Features.Queries.GetProject;
+using Daikon.Shared.APIClients.MLogix;
+using Daikon.Shared.DTO.MLogix;
+using Daikon.Shared.VM.MLogix;
 
 
 namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
@@ -21,12 +21,12 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
         private readonly IProjectCompoundEvolutionRepository _projectCompoundEvoRepository;
 
         private readonly IEventSourcingHandler<ProjectAggregate> _projectEventSourcingHandler;
-        private readonly IMLogixAPIService _mLogixAPIService;
+        private readonly IMLogixAPI _mLogixAPIService;
 
         public NewProjectCompoundEvolutionCommandHandler(ILogger<NewProjectCompoundEvolutionCommandHandler> logger,
             IEventSourcingHandler<ProjectAggregate> projectEventSourcingHandler,
             IProjectCompoundEvolutionRepository projectCompoundEvoRepository,
-            IMapper mapper, IMLogixAPIService mLogixAPIService)
+            IMapper mapper, IMLogixAPI mLogixAPIService)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -93,10 +93,10 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
         {
             try
             {
-                var mLogiXResponse = await _mLogixAPIService.RegisterCompound(new RegisterMoleculeRequest
+                var mLogiXResponse = await _mLogixAPIService.RegisterMolecule(new RegisterMoleculeDTO
                 {
                     Name = request.MoleculeName,
-                    RequestedSMILES = request.RequestedSMILES
+                    SMILES = request.RequestedSMILES
                 });
 
                 eventToAdd.MoleculeId = mLogiXResponse.Id;
@@ -110,5 +110,4 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
             }
         }
     }
-
 }

@@ -31,7 +31,7 @@ namespace SimpleGW.API.Middlewares
             else
             {
                 // Respond with an error, e.g., Status Code Unauthorized
-                _logger.LogInformation("AuthenticationValidatorMiddleware : User is not authenticated");
+                _logger.LogWarning("AuthenticationValidatorMiddleware : User is not authenticated");
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                 return;
             }
