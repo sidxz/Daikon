@@ -2,7 +2,6 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.HitAssessment;
-using HitAssessment.Application.Contracts.Infrastructure;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
 using MediatR;
@@ -16,7 +15,6 @@ namespace HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution
         private readonly IMapper _mapper;
         private readonly ILogger<DeleteHaCompoundEvolutionCommandHandler> _logger;
         private readonly IHaCompoundEvolutionRepository _haCompoundEvoRepository;
-
         private readonly IEventSourcingHandler<HaAggregate> _haEventSourcingHandler;
 
         public DeleteHaCompoundEvolutionCommandHandler(ILogger<DeleteHaCompoundEvolutionCommandHandler> logger,

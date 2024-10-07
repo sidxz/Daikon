@@ -1,5 +1,5 @@
 
-using Project.Application.Features.Queries.GetProject;
+using Daikon.Shared.VM.MLogix;
 
 namespace Project.Application.Features.Commands.NewHaCompoundEvolution
 {

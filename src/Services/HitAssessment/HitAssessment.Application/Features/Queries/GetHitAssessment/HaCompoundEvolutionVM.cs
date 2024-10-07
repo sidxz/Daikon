@@ -1,5 +1,6 @@
 
 using CQRS.Core.Domain;
+using Daikon.Shared.VM.MLogix;
 
 namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 {

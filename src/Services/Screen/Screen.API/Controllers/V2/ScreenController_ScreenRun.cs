@@ -1,6 +1,5 @@
 
 using System.Net;
-using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Screen.Application.Features.Commands.DeleteScreenRun;
@@ -16,50 +15,15 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> AddScreenRun(Guid screenId, NewScreenRunCommand command)
         {
-            command.Id = screenId;    
+            command.Id = screenId;
             command.ScreenRunId = Guid.NewGuid();
-            try
+            await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = command.ScreenRunId,
-                    Message = "Screen Run added successfully",
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("screenRunId: Requested Resource Already Exists {Id}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the screen run";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = command.ScreenRunId,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
-
+                Id = command.ScreenRunId,
+                Message = "Screen run added successfully",
+            });
         }
 
 
@@ -70,52 +34,12 @@ namespace Screen.API.Controllers.V2
         {
             command.Id = screenId;
             command.ScreenRunId = screenRunId;
+            await _mediator.Send(command);
 
-            try
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Screen Run updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("UpdateScreenRun: ArgumentNullException {Id}", screenRunId);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("screenRunId: Requested Resource Already Exists {Id}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the screen run";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Screen run updated successfully",
+            });
         }
 
 
@@ -124,43 +48,12 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> DeleteScreenRun(Guid screenId, Guid screenRunId)
         {
-            try
-            {
-                await _mediator.Send(new DeleteScreenRunCommand { Id = screenId, ScreenRunId = screenRunId });
+            await _mediator.Send(new DeleteScreenRunCommand { Id = screenId, ScreenRunId = screenRunId });
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Screen Run deleted successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("DeleteScreenRun: ArgumentNullException {Id}", screenRunId);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen run";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Screen run deleted successfully",
+            });
         }
     }
 }

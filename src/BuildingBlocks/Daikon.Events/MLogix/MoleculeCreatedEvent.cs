@@ -14,7 +14,6 @@ namespace Daikon.Events.MLogix
         public Guid RegistrationId { get; set; }
         public string RequestedSMILES { get; set; }
         public string SmilesCanonical { get; set; }
-        public List<string> Synonyms   { get; set; }
         public Dictionary<string, string> Ids { get; set; }
 
     }

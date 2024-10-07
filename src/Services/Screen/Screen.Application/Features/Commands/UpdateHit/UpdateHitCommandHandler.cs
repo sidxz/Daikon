@@ -5,10 +5,8 @@ using Daikon.Events.Screens;
 using Daikon.Shared.Constants.AppScreen;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
-using Screen.Domain.Entities;
 
 
 namespace Screen.Application.Features.Commands.UpdateHit
@@ -55,12 +53,7 @@ namespace Screen.Application.Features.Commands.UpdateHit
                 }
 
                 var hitUpdatedEvent = _mapper.Map<HitUpdatedEvent>(request);
-                _logger.LogInformation($"Updating Hit: {request.Id}");
-                _logger.LogInformation(request.ToJson());
-                _logger.LogInformation(request.VoteToAdd.ToJson());
-                _logger.LogInformation(hitUpdatedEvent.ToJson());
-                _logger.LogInformation(hitUpdatedEvent.VoteToAdd.ToJson());
-
+               
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
 

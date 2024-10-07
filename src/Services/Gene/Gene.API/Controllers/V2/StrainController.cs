@@ -1,8 +1,6 @@
 
 using System.Net;
-using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
-
 using Gene.Application.Features.Command.DeleteStrain;
 using Gene.Application.Features.Command.NewStrain;
 using Gene.Application.Features.Command.UpdateStrain;
@@ -18,40 +16,18 @@ namespace Gene.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class StrainController : ControllerBase
+    public class StrainController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<StrainController> _logger;
-
-        public StrainController(IMediator mediator, ILogger<StrainController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        private readonly IMediator _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [HttpGet(Name = "GetStrainsList")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(List<StrainsListVM>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<List<StrainsListVM>>> GetStrainsList()
         {
-            try
-            {
-                var strainsList = await _mediator.Send(new GetStrainsListQuery());
-                return Ok(strainsList);
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the strains list";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+            var strainsList = await _mediator.Send(new GetStrainsListQuery());
+            return Ok(strainsList);
         }
-
-
 
 
         [HttpGet("{id}", Name = "GetStrainDefault")]
@@ -61,38 +37,8 @@ namespace Gene.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<StrainVM>> GetStrainById(Guid id)
         {
-            try
-            {
-                var strain = await _mediator.Send(new GetStrainByIdQuery { Id = id});
-                return Ok(strain);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetStrainById: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the strain";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+            var strain = await _mediator.Send(new GetStrainByIdQuery { Id = id });
+            return Ok(strain);
         }
 
 
@@ -102,38 +48,8 @@ namespace Gene.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<StrainVM>> GetStrainByName(string name)
         {
-            try
-            {
-                var strain = await _mediator.Send(new GetStrainByNameQuery { Name = name });
-                return Ok(strain);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetStrainByName: Requested Resource Not Found {name}", name);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the strain";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+            var strain = await _mediator.Send(new GetStrainByNameQuery { Name = name });
+            return Ok(strain);
         }
 
         [HttpPost(Name = "AddStrain")]
@@ -142,51 +58,15 @@ namespace Gene.API.Controllers.V2
         public async Task<ActionResult> AddStrain(NewStrainCommand command)
         {
             var id = Guid.NewGuid();
-            try
+            command.Id = id;
+            await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                command.Id = id;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "Strain added successfully",
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddStrain: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the strain";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = id,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
-
+                Id = id,
+                Message = "Strain added successfully",
+            });
         }
-
-
 
         [HttpPut("{id}", Name = "UpdateStrain")]
         [MapToApiVersion("2.0")]
@@ -195,45 +75,13 @@ namespace Gene.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateStrain(Guid id, UpdateStrainCommand command)
         {
-            try
+            command.Id = id;
+            await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                command.Id = id;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Strain updated successfully",
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateStrain: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the strain";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "Strain updated successfully",
+            });
         }
 
 
@@ -243,52 +91,12 @@ namespace Gene.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteStrain(Guid id)
         {
-            try
-            {
-                await _mediator.Send(new DeleteStrainCommand { Id = id });
+            await _mediator.Send(new DeleteStrainCommand { Id = id });
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Strain deleted successfully",
-                });
-            }
-
-            catch (ResourceCannotBeDeletedException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("DeleteStrain: Requested Resource Cannot Be Deleted {Id}", id);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("DeleteGene: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the gene";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Strain deleted successfully",
+            });
 
         }
     }

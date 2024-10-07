@@ -29,7 +29,7 @@ namespace SimpleGW.API.Middlewares
             }
 
             var targetUrl = $"{microservice}/api{context.Request.Path.Value}{context.Request.QueryString}";
-            _logger.LogInformation($"Forwarding request to {targetUrl}");
+            //_logger.LogInformation($"Forwarding request to {targetUrl}");
 
             try
             {
@@ -71,7 +71,7 @@ namespace SimpleGW.API.Middlewares
                     await responseStream.CopyToAsync(context.Response.Body, context.RequestAborted);
                 }
 
-                _logger.LogInformation($"Request to {targetUrl} successfully forwarded and response received.");
+                //_logger.LogInformation($"Request to {targetUrl} successfully forwarded and response received.");
             }
             catch (HttpRequestException httpEx)
             {

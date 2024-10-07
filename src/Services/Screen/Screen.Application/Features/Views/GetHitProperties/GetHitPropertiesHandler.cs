@@ -1,11 +1,9 @@
 
 using AutoMapper;
-using CQRS.Core.Exceptions;
+using Daikon.Shared.APIClients.MLogix;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
-using Screen.Domain.Entities;
 
 namespace Screen.Application.Features.Views.GetHitProperties
 {
@@ -17,9 +15,11 @@ namespace Screen.Application.Features.Views.GetHitProperties
         private readonly IHitRepository _hitRepository;
         private readonly ILogger<GetHitPropertiesHandler> _logger;
 
-        private readonly IMLogixAPIService _mLogixAPIService;
+        private readonly IMLogixAPI _mLogixAPIService;
 
-        public GetHitPropertiesHandler(IMapper mapper, IScreenRepository screenRepository, IHitCollectionRepository hitCollectionRepository, IHitRepository hitRepository, ILogger<GetHitPropertiesHandler> logger, IMLogixAPIService mLogixAPIService)
+        public GetHitPropertiesHandler(IMapper mapper, IScreenRepository screenRepository, 
+        IHitCollectionRepository hitCollectionRepository, IHitRepository hitRepository, 
+        ILogger<GetHitPropertiesHandler> logger, IMLogixAPI mLogixAPIService)
         {
             _mapper = mapper;
             _screenRepository = screenRepository;

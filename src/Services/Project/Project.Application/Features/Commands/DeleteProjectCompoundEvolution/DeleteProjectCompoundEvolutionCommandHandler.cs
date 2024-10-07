@@ -2,7 +2,6 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using Daikon.Events.Project;
-using Project.Application.Contracts.Infrastructure;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
 using MediatR;
@@ -16,7 +15,6 @@ namespace Project.Application.Features.Commands.DeleteProjectCompoundEvolution
         private readonly IMapper _mapper;
         private readonly ILogger<DeleteProjectCompoundEvolutionCommandHandler> _logger;
         private readonly IProjectCompoundEvolutionRepository _projectCompoundEvoRepository;
-
         private readonly IEventSourcingHandler<ProjectAggregate> _projectEventSourcingHandler;
 
         public DeleteProjectCompoundEvolutionCommandHandler(ILogger<DeleteProjectCompoundEvolutionCommandHandler> logger,

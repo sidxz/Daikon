@@ -4,70 +4,57 @@ using CQRS.Core.Exceptions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using MLogix.Application.Contracts.Infrastructure;
+using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.Contracts.Persistence;
-using MLogix.Application.Features.Queries.GetMolecule;
 
 namespace MLogix.Application.Features.Queries.FindSimilarMolecules
 {
-    public class FindSimilarMoleculesHandler : IRequestHandler<FindSimilarMoleculesQuery, List<MoleculeVM>>
+    public class FindSimilarMoleculesHandler(IMoleculeRepository moleculeRepository,
+        IMapper mapper, ILogger<FindSimilarMoleculesHandler> logger,
+        IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor) : IRequestHandler<FindSimilarMoleculesQuery, List<SimilarMoleculeVM>>
     {
-        private readonly IMoleculeRepository _moleculeRepository;
-        private readonly IMapper _mapper;
-        private readonly ILogger<FindSimilarMoleculesHandler> _logger;
+        private readonly IMoleculeRepository _moleculeRepository = moleculeRepository;
+        private readonly IMapper _mapper = mapper;
+        private readonly ILogger<FindSimilarMoleculesHandler> _logger = logger;
+        private readonly IMoleculeAPI _iMoleculeAPI = iMoleculeAPI;
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-        private readonly IMolDbAPIService _molDbAPIService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
-
-        public FindSimilarMoleculesHandler(IMoleculeRepository moleculeRepository,
-            IMapper mapper, ILogger<FindSimilarMoleculesHandler> logger,
-            IMolDbAPIService molDbAPIService, IHttpContextAccessor httpContextAccessor)
-        {
-            _moleculeRepository = moleculeRepository;
-            _mapper = mapper;
-            _logger = logger;
-            _molDbAPIService = molDbAPIService;
-            _httpContextAccessor = httpContextAccessor;
-        }
-        public async Task<List<MoleculeVM>> Handle(FindSimilarMoleculesQuery request, CancellationToken cancellationToken)
+        public async Task<List<SimilarMoleculeVM>> Handle(FindSimilarMoleculesQuery request, CancellationToken cancellationToken)
         {
             var headers = _httpContextAccessor.HttpContext.Request.Headers
                         .ToDictionary(h => h.Key, h => h.Value.ToString());
             try
             {
-                _logger.LogInformation("FindSimilarMolecules for SMILES: {0} with threshold: {1} and max results: {2}", request.SMILES, request.SimilarityThreshold, request.MaxResults);
+                _logger.LogInformation("FindSimilarMolecules for SMILES: {0} with threshold: {1} and limit: {2}", request.SMILES, request.Threshold, request.Limit);
 
-                var res = new List<MoleculeVM>();
-                var molDbMolecules = await _molDbAPIService.FindSimilar(request.SMILES, (float)request.SimilarityThreshold, request.MaxResults, headers);
+                var res = new List<SimilarMoleculeVM>();
+                var vaultMolecules = await _iMoleculeAPI.FindSimilar(request, headers);
 
-                _logger.LogInformation("Found {0} similar molecules", molDbMolecules.Count);
+                _logger.LogInformation("Found {0} similar molecules", vaultMolecules.Count);
 
-                foreach (var molDbMolecule in molDbMolecules)
+                foreach (var vaultMolecule in vaultMolecules)
                 {
                     try
                     {
-                        var molecule = await _moleculeRepository.GetMoleculeByRegistrationId(molDbMolecule.Id);
-                        var moleculeVm = _mapper.Map<MoleculeVM>(molecule, opts => opts.Items["WithMeta"] = request.WithMeta);
+                        var molecule = await _moleculeRepository.GetMoleculeByRegistrationId(vaultMolecule.Id);
+                        var similarMoleculeVM = _mapper.Map<SimilarMoleculeVM>(molecule, opts => opts.Items["WithMeta"] = request.WithMeta);
+                        _mapper.Map(vaultMolecule, similarMoleculeVM);
+                        // Fix Ids
+                        similarMoleculeVM.RegistrationId = vaultMolecule.Id;
+                        similarMoleculeVM.Id = molecule.Id;
 
-                        //moleculeVm.Smiles = molDbMolecule.Smiles;
-                        moleculeVm.Smiles = molecule.RequestedSMILES ?? molDbMolecule.Smiles ?? "";
-                        moleculeVm.SmilesCanonical = molDbMolecule.SmilesCanonical;
-                        moleculeVm.MolecularWeight = (float)Math.Round(molDbMolecule.MolecularWeight, 2);
-                        moleculeVm.TPSA = (float)Math.Round(molDbMolecule.TPSA, 2);
-                        moleculeVm.Similarity = (float)Math.Round(molDbMolecule.Similarity, 2);
-                        res.Add(moleculeVm);
+                        res.Add(similarMoleculeVM);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error in processing molecule with ID: {0}", molDbMolecule.Id);
+                        _logger.LogError(ex, "Error in processing molecule with ID: {0}", vaultMolecule.Id);
                     }
                 }
                 return res;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in FindBySMILES");
+                _logger.LogError(ex, "Error in FindSimilarMolecules");
             }
 
             throw new ResourceNotFoundException(nameof(FindSimilarMoleculesHandler), request.SMILES);

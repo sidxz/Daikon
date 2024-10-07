@@ -7,6 +7,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
+    networks:
+      - daikon-be-net
 
   DKPGAdmin:
     image: dpage/pgadmin4
@@ -19,6 +21,8 @@ services:
       - "5050:80"
     volumes:
       - pgadmin_data:/root/.pgadmin
+    networks:
+      - daikon-be-net
 
   Kafka:
     container_name: "kafka"
@@ -36,11 +40,14 @@ services:
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@Kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    networks:
+      - daikon-be-net
 
   EventStoreDb:
     container_name: "eventstoredb"
     image: mongo:jammy
     restart: always
+    cpus: '0.1'
     ports:
       - "27017:27017"
     volumes:
@@ -48,18 +55,22 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    networks:
+      - daikon-be-net
 
-  MolDb_Postgres:
-    container_name: "moldb-postgres"
-    image: informaticsmatters/rdkit-cartridge-debian:Release_2024_03_3
-    environment:
-      POSTGRES_DB: chemdb
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - moldb_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+  # MolDb_Postgres:
+  #   container_name: "moldb-postgres"
+  #   image: informaticsmatters/rdkit-cartridge-debian:Release_2024_03_3
+  #   environment:
+  #     POSTGRES_DB: chemdb
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - moldb_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - daikon-be-net
 
   # MolDb_Postgres:
   #   container_name: "moldb-postgres"
@@ -89,6 +100,8 @@ services:
       - neo4j_plugins:/plugins
     environment:
       - NEO4J_AUTH=${NEO4J_AUTH}
+    networks:
+      - daikon-be-net
 
   kafka-ui:
     container_name: kafka-ui
@@ -99,9 +112,12 @@ services:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: Kafka:9092
+    networks:
+      - daikon-be-net
+
 volumes:
   portainer_data:
-  moldb_data:
+  # moldb_data:
   pgadmin_data:
   eventdb_mongo_data:
   kafka_data:
@@ -110,3 +126,8 @@ volumes:
   neo4j_import:
   neo4j_logs:
   neo4j_plugins:
+
+networks:
+  daikon-be-net:
+    external: true
+    name: daikon-be-net

@@ -1,9 +1,7 @@
-
-using Amazon.Runtime.Internal.Util;
 using AutoMapper;
+using Daikon.Shared.APIClients.MLogix;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Screen.Application.Contracts.Infrastructure;
 using Screen.Application.Contracts.Persistence;
 using Screen.Application.Features.Queries.ViewModels;
 
@@ -15,11 +13,14 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
         private readonly IHitCollectionRepository _hitCollectionRepository;
         private readonly IHitRepository _hitRepository;
         private readonly ILogger<GetHitCollectionByIdQueryHandler> _logger;
+        private readonly IMLogixAPI _mLogixAPIService;
 
-        private readonly IMLogixAPIService _mLogixAPIService;
-
-        public GetHitCollectionByIdQueryHandler(IMapper mapper, IHitCollectionRepository hitCollectionRepository,
-            IHitRepository hitRepository, ILogger<GetHitCollectionByIdQueryHandler> logger, IMLogixAPIService mLogixAPIService)
+        public GetHitCollectionByIdQueryHandler(
+            IMapper mapper,
+            IHitCollectionRepository hitCollectionRepository,
+            IHitRepository hitRepository,
+            ILogger<GetHitCollectionByIdQueryHandler> logger,
+            IMLogixAPI mLogixAPIService)
         {
             _mapper = mapper;
             _hitCollectionRepository = hitCollectionRepository;
@@ -30,53 +31,87 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
 
         public async Task<HitCollectionVM> Handle(GetHitCollectionByIdQuery request, CancellationToken cancellationToken)
         {
-            // fetch hit collection
+
+            // Fetch the hit collection
             var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(request.Id);
-            var hitCollectionVm = _mapper.Map<HitCollectionVM>(hitCollection, opts => opts.Items["WithMeta"] = request.WithMeta);
-
-            // fetch hits for hit collection
-            var hits = await _hitRepository.GetHitsListByHitCollectionId(hitCollection.Id);
-
-            hitCollectionVm.Hits = _mapper.Map<List<HitVM>>(hits, opts => opts.Items["WithMeta"] = request.WithMeta);
-            _logger.LogInformation("************** REQUESTOR");
-            if (request.RequestorUserId == Guid.Empty)
+            if (hitCollection == null)
             {
-                _logger.LogInformation("RequestorUserId is empty");
+                _logger.LogWarning("No Hit Collection found for Id: {HitCollectionId}", request.Id);
+                return null;
             }
-            _logger.LogInformation(request.RequestorUserId.ToString());
-            foreach (var hit in hitCollectionVm.Hits)
+
+            var hitCollectionViewModel = _mapper.Map<HitCollectionVM>(hitCollection, opts =>
+                opts.Items["WithMeta"] = request.WithMeta);
+
+            // Fetch hits for the hit collection
+            var hits = await _hitRepository.GetHitsListByHitCollectionId(hitCollection.Id);
+            hitCollectionViewModel.Hits = _mapper.Map<List<HitVM>>(hits, opts =>
+                opts.Items["WithMeta"] = request.WithMeta);
+
+            foreach (var hit in hitCollectionViewModel.Hits)
             {
+                // Assign user's vote if available
                 if (hit.Voters.TryGetValue(request.RequestorUserId.ToString(), out var usersVote))
                 {
-                    _logger.LogInformation("User's vote found");
-                    hit.UsersVote = usersVote; // User's vote found, assign it
+                   // _logger.LogInformation("User {RequestorUserId}'s vote found for HitId {HitId}", request.RequestorUserId, hit.Id);
+                    hit.UsersVote = usersVote;
                 }
                 else
                 {
-                    _logger.LogInformation("User's vote not found");
-                    hit.UsersVote = "NA"; // User's vote not found, assign "NA"
+                   // _logger.LogInformation("User {RequestorUserId}'s vote not found for HitId {HitId}", request.RequestorUserId, hit.Id);
+                    hit.UsersVote = "NA";
                 }
 
-                hit.VoteScore = (3 * (int)hit.Positive) + (1 * (int)hit.Neutral) - (3 * (int)hit.Negative); // Calculate vote score
+                // Calculate vote score
+                hit.VoteScore = CalculateVoteScore(hit);
             }
 
-            foreach (var hit in hitCollectionVm.Hits)
+            // Extract unique MoleculeIds from hits
+            var moleculeIds = hitCollectionViewModel.Hits
+                .Select(hit => hit.MoleculeId)
+                .Distinct()
+                .ToList();
+
+            // Fetch and map molecules, if any molecule IDs are available
+            if (moleculeIds.Count != 0)
             {
-                try
-                {
-                    var molecule = await _mLogixAPIService.GetMoleculeById(hit.MoleculeId);
-
-                    hit.Molecule = _mapper.Map<MoleculeVM>(molecule);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error fetching molecule for hit {HitId}", hit.Id);
-
-                }
-
+                await FetchAndMapMoleculesAsync(moleculeIds, hitCollectionViewModel, cancellationToken);
             }
 
-            return hitCollectionVm;
+            return hitCollectionViewModel;
+        }
+
+        private int CalculateVoteScore(HitVM hit)
+        {
+            // Calculation logic for vote score based on positive, neutral, and negative votes
+            return (3 * (int)hit.Positive) + (1 * (int)hit.Neutral) - (3 * (int)hit.Negative);
+        }
+
+        private async Task FetchAndMapMoleculesAsync(List<Guid> moleculeIds, HitCollectionVM hitCollectionViewModel, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Fetch all molecules by their IDs in a single call
+                var molecules = await _mLogixAPIService.GetMoleculesByIds(moleculeIds);
+
+                if (molecules != null && molecules.Any())
+                {
+                    var moleculeDictionary = molecules.ToDictionary(m => m.Id);
+
+                    // Map the fetched molecules back to the hits
+                    foreach (var hit in hitCollectionViewModel.Hits)
+                    {
+                        if (moleculeDictionary.TryGetValue(hit.MoleculeId, out var molecule))
+                        {
+                            hit.Molecule = molecule;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching molecules for Hit Collection Id: {HitCollectionId}", hitCollectionViewModel.Id);
+            }
         }
     }
 }
