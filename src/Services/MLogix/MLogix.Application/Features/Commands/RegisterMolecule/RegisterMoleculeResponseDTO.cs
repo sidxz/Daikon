@@ -1,11 +1,11 @@
 
+using Daikon.Shared.VM.MLogix;
 using MLogix.Application.DTOs.DaikonChemVault;
 
 namespace MLogix.Application.Features.Commands.RegisterMolecule
 {
-    public class RegisterMoleculeResponseDTO : MoleculeBase
+    public class RegisterMoleculeResponseDTO : MoleculeVM
     {
-        public Guid RegistrationId { get; set; }
         public bool WasAlreadyRegistered { get; set; }
     }
 }
