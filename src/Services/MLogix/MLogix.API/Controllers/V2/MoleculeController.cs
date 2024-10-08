@@ -14,6 +14,7 @@ using MLogix.Application.Features.Queries.GetMolecules.ByIDs;
 using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 using MLogix.Application.Features.Commands.ReregisterVault;
 using MLogix.Application.BackgroundServices;
+using MLogix.Application.Features.Commands.GenerateParentBatch;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -151,5 +152,17 @@ namespace MLogix.API.Controllers.V2
             _ = _vaultBackgroundServices.QueueReregisterVaultJobAsync(command, HttpContext.RequestAborted);
             return Accepted("ReregisterVault job has been queued and is processing in the background.");
         }
+
+        [HttpPost("generate-parent-batch", Name = "GenerateParentBatch")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.Accepted)]
+        public IActionResult GenerateParent([FromBody] GenerateParentBatchCommand command)
+        {
+            // Queue the background job
+            _ = _vaultBackgroundServices.QueueGenerateParentBatchJobAsync(command, HttpContext.RequestAborted);
+            return Accepted("GenerateParentBatch job has been queued and is processing in the background.");
+        }
+
+
     }
 }

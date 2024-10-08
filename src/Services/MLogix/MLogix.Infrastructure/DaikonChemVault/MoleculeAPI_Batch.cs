@@ -13,11 +13,7 @@ namespace MLogix.Infrastructure.DaikonChemVault
         {
             string apiUrl = $"{_apiBaseUrl}/molecules/batch";
             var molecules = await SendRequestAsync<List<MoleculeBase>>(apiUrl, HttpMethod.Post, headers, registerMoleculeCommands);
-            //Debug Log all molecules details
-            _logger.LogDebug("+++++++++++++++ Molecules registered: {Molecules}", molecules);
-            // count
             _logger.LogDebug("Molecules registered count: {Count}", molecules.Count);
-
             return molecules;
         }
 
