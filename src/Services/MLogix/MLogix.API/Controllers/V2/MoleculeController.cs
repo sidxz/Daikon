@@ -11,14 +11,24 @@ using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSubstructures;
 using MLogix.Application.Features.Queries.GetMolecule.ByName;
 using MLogix.Application.Features.Queries.GetMolecules.ByIDs;
+using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
+using MLogix.Application.Features.Commands.ReregisterVault;
+using MLogix.Application.BackgroundServices;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public partial class MoleculeController(IMediator mediator) : ControllerBase
+    public partial class MoleculeController : ControllerBase
     {
-        private readonly IMediator _mediator = mediator;
+        private readonly IMediator _mediator;
+        private readonly VaultBackgroundServices _vaultBackgroundServices;
+
+        public MoleculeController(IMediator mediator, VaultBackgroundServices vaultBackgroundServices)
+        {
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _vaultBackgroundServices = vaultBackgroundServices ?? throw new ArgumentNullException(nameof(vaultBackgroundServices));
+        }
 
         [HttpGet("{id}", Name = "GetMoleculeById")]
         [MapToApiVersion("2.0")]
@@ -118,6 +128,28 @@ namespace MLogix.API.Controllers.V2
             var updateMoleculeResponseDTO = await _mediator.Send(command);
             return Ok(updateMoleculeResponseDTO);
 
+        }
+
+        [HttpPost("batch", Name = "RegisterMoleculeBatch")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterMoleculeBatch([FromBody] List<RegisterMoleculeCommandWithRegId> commands)
+        {
+            var batchCommand = new RegisterMoleculeBatchCommand { Commands = commands };
+            var response = await _mediator.Send(batchCommand);
+            return Ok(response);
+        }
+
+
+
+        [HttpPost("reregister-vault", Name = "ReregisterVault")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.Accepted)]
+        public IActionResult ReregisterVault([FromBody] ReRegisterVaultCommand command)
+        {
+            // Queue the background job
+            _ = _vaultBackgroundServices.QueueReregisterVaultJobAsync(command, HttpContext.RequestAborted);
+            return Accepted("ReregisterVault job has been queued and is processing in the background.");
         }
     }
 }

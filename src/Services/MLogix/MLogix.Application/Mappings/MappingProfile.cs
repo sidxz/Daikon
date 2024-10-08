@@ -4,6 +4,7 @@ using Daikon.Events.MLogix;
 using Daikon.Shared.VM.MLogix;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.RegisterMolecule;
+using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
 using MLogix.Domain.Entities;
@@ -22,8 +23,19 @@ namespace MLogix.Application.Mappings
             CreateMap<UpdateMoleculeResponseDTO, MoleculeUpdatedEvent>()
                 .ReverseMap();
 
+            CreateMap<RegisterMoleculeBatchCommand, RegisterMoleculeBatchCommand>()
+                .ReverseMap();
+
+            CreateMap<RegisterMoleculeCommandWithRegId, RegisterMoleculeCommandWithRegId>()
+                .ReverseMap();
+
+            CreateMap<RegisterMoleculeCommand, RegisterMoleculeCommand>()
+                .ReverseMap();
+
 
             /* Events */
+            CreateMap<MoleculeBase, MoleculeCreatedEvent>().ReverseMap();
+            CreateMap<MoleculeBase, MoleculeUpdatedEvent>().ReverseMap();
             CreateMap<Molecule, MoleculeCreatedEvent>().ReverseMap();
             CreateMap<Molecule, MoleculeUpdatedEvent>().ReverseMap();
 
