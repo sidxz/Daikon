@@ -18,16 +18,10 @@ namespace Target.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public partial class TargetController : ControllerBase
+    public partial class TargetController(IMediator mediator, ILogger<TargetController> logger) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<TargetController> _logger;
-
-        public TargetController(IMediator mediator, ILogger<TargetController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        private readonly IMediator _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        private readonly ILogger<TargetController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         private void LogRequestHeaders()
         {
@@ -42,39 +36,11 @@ namespace Target.API.Controllers.V2
         [ProducesResponseType(typeof(TargetsListVM), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<TargetsListVM>> GetTargets([FromQuery] bool WithMeta = false)
         {
-            LogRequestHeaders();
-            try
-            {
-                var targets = await _mediator.Send(new GetTargetsListQuery { WithMeta = WithMeta });
-                return Ok(targets);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetTargets: Requested Resource Not Found");
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
+            //DEBUG:
+            //LogRequestHeaders();
+            var targets = await _mediator.Send(new GetTargetsListQuery { WithMeta = WithMeta });
+            return Ok(targets);
 
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the targets";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
         }
 
 
@@ -85,40 +51,9 @@ namespace Target.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TargetVM>> GetTargetById(Guid id, [FromQuery] bool WithMeta = false)
         {
-            try
-            {
-                var target = await _mediator.Send(new GetTargetByIdQuery { Id = id, WithMeta = WithMeta });
-                return Ok(target);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetTargetById: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the target";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+            var target = await _mediator.Send(new GetTargetByIdQuery { Id = id, WithMeta = WithMeta });
+            return Ok(target);
         }
-
 
 
 
@@ -128,56 +63,14 @@ namespace Target.API.Controllers.V2
         public async Task<ActionResult> AddTarget(NewTargetCommand command)
         {
             var id = Guid.NewGuid();
-            try
+            command.Id = id;
+            await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                command.Id = id;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "Target added successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("AddTarget: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddTarget: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the target";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = id,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
-
+                Id = id,
+                Message = "Target added successfully",
+            });
         }
 
 
@@ -189,52 +82,13 @@ namespace Target.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateTarget(Guid id, UpdateTargetCommand command)
         {
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Target updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("UpdateTarget: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateTarget: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the target";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Target updated successfully",
+            });
 
         }
 
@@ -246,52 +100,13 @@ namespace Target.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateTargetAssociatedGenes(Guid id, UpdateTargetAssociatedGenesCommand command)
         {
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Target updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("UpdateTarget: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateTarget: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the target";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Target associated genes updated successfully",
+            });
 
         }
 
@@ -301,44 +116,12 @@ namespace Target.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteTarget(Guid id)
         {
-            try
+            await _mediator.Send(new DeleteTargetCommand { Id = id });
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                await _mediator.Send(new DeleteTargetCommand { Id = id });
-
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Target deleted successfully",
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("DeleteTarget: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the target";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "Target deleted successfully",
+            });
         }
 
         // Rename Target
@@ -348,52 +131,13 @@ namespace Target.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> RenameTarget(Guid id, RenameTargetCommand command)
         {
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Target renamed successfully",
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("RenameTarget: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("RenameTarget: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while renaming the target";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Target renamed successfully",
+            });
 
         }
     }

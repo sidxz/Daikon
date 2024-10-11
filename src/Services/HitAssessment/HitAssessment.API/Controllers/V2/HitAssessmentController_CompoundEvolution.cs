@@ -1,6 +1,5 @@
 
 using System.Net;
-using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.NewHaCompoundEvolution;
@@ -18,53 +17,10 @@ namespace HitAssessment.API.Controllers.V2
         {
             command.Id = haId;
             var compoundEvolutionId = Guid.NewGuid();
-            try
-            {
-                command.CompoundEvolutionId = compoundEvolutionId;
-                var response = await _mediator.Send(command);
-                return StatusCode(StatusCodes.Status201Created, response);
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("AddCompoundEvolution: ArgumentNullException {Id}", compoundEvolutionId);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddCompoundEvolution: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the Compound Evolution";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = compoundEvolutionId,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
-
+            command.CompoundEvolutionId = compoundEvolutionId;
+            var response = await _mediator.Send(command);
+            return StatusCode(StatusCodes.Status201Created, response);
         }
-
 
 
         [HttpPut("{haId}/compound-evolution/{id}", Name = "UpdateCompoundEvolution")]
@@ -74,59 +30,16 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateCompoundEvolution(Guid haId, Guid id, UpdateHaCompoundEvolutionCommand command)
         {
+            command.Id = haId;
+            command.CompoundEvolutionId = id;
 
-            try
+            await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                command.Id = haId;
-                command.CompoundEvolutionId = id;
-
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "HA Compound Evolution updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("UpdateCompoundEvolution: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateCompoundEvolution: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the Compound Evolution";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "HA Compound Evolution updated successfully",
+            });
         }
-
-
 
         [HttpDelete("{haId}/compound-evolution/{id}", Name = "DeleteCompoundEvolution")]
         [MapToApiVersion("2.0")]
@@ -134,48 +47,16 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteCompoundEvolution(Guid haId, Guid id)
         {
-            try
+            await _mediator.Send(new DeleteHaCompoundEvolutionCommand
             {
-                await _mediator.Send(new DeleteHaCompoundEvolutionCommand
-                {
-                    Id = haId,
-                    CompoundEvolutionId = id
-                });
+                Id = haId,
+                CompoundEvolutionId = id
+            });
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "HA Compound Evolution deleted successfully",
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("DeleteHitAssessment: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "HA Compound Evolution deleted successfully",
+            });
         }
     }
 }

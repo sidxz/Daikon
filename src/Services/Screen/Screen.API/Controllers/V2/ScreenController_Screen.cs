@@ -1,6 +1,5 @@
 
 using System.Net;
-using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -20,60 +19,26 @@ namespace Screen.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public partial class ScreenController : ControllerBase
+    public partial class ScreenController(IMediator mediator, ILogger<ScreenController> logger) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<ScreenController> _logger;
-
-        public ScreenController(IMediator mediator, ILogger<ScreenController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        private readonly IMediator _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+        private readonly ILogger<ScreenController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         [HttpGet(Name = "GetScreensList")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(List<ScreenVM>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<List<ScreenVM>>> GetScreensList([FromQuery] bool WithMeta = false)
         {
+            var screens = await _mediator.Send(new GetScreensListQuery { WithMeta = WithMeta });
+            
             // Debug: Log the incoming request headers
-            _logger.LogInformation("SCREEN Incoming request headers:");
-            foreach (var header in Request.Headers)
-            {
-                _logger.LogInformation($"{header.Key}: {header.Value}");
-            }
-            try
-            {
-                var screens = await _mediator.Send(new GetScreensListQuery { WithMeta = WithMeta });
-                return Ok(screens);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetScreensList: Requested Resource Not Found");
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
+            // _logger.LogInformation("SCREEN Incoming request headers:");
+            // foreach (var header in Request.Headers)
+            // {
+            //     _logger.LogInformation($"{header.Key}: {header.Value}");
+            // }
+            return Ok(screens);
 
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screens";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
         }
 
 
@@ -84,38 +49,9 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ScreenVM>> GetScreenById(Guid id, [FromQuery] bool WithMeta = false)
         {
-            try
-            {
-                var screen = await _mediator.Send(new GetScreenByIdQuery { Id = id, WithMeta = WithMeta });
-                return Ok(screen);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetScreenById: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
+            var screen = await _mediator.Send(new GetScreenByIdQuery { Id = id, WithMeta = WithMeta });
+            return Ok(screen);
 
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
         }
 
         [HttpGet("by-name/{name}", Name = "GetScreenByName")]
@@ -124,38 +60,8 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ScreenVM>> GetScreenByName(string name, [FromQuery] bool WithMeta = false)
         {
-            try
-            {
-                var screen = await _mediator.Send(new GetScreenByNameQuery { Name = name, WithMeta = WithMeta });
-                return Ok(screen);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetScreenById: Requested Resource Not Found {name}", name);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+            var screen = await _mediator.Send(new GetScreenByNameQuery { Name = name, WithMeta = WithMeta });
+            return Ok(screen);
         }
 
 
@@ -165,56 +71,14 @@ namespace Screen.API.Controllers.V2
         public async Task<ActionResult> AddScreen(NewScreenCommand command)
         {
             var id = Guid.NewGuid();
-            try
+            command.Id = id;
+            await _mediator.Send(command);
+
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                command.Id = id;
-                await _mediator.Send(command);
-
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "Screen added successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
-            {
-                _logger.LogInformation("AddScreen: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddScreen: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = id,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
-
+                Id = id,
+                Message = "Screen added successfully",
+            });
         }
 
 
@@ -226,53 +90,13 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateScreen(Guid id, UpdateScreenCommand command)
         {
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Screen updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("UpdateScreen: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateScreen: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "Screen updated successfully",
+            });
         }
 
 
@@ -283,52 +107,13 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateAssociatedTargets(Guid id, UpdateScreenAssociatedTargetsCommand command)
         {
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Screen updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("UpdateScreen: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateScreen: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Screen associated targets updated successfully",
+            });
 
         }
 
@@ -339,61 +124,13 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> RenameScreen(Guid id, RenameScreenCommand command)
         {
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Screen renamed successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("RenameScreen: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("RenameScreen: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("RenameScreen: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while renaming the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "Screen renamed successfully",
+            });
         }
 
         [HttpDelete("{id}", Name = "DeleteScreen")]
@@ -402,44 +139,12 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteScreen(Guid id)
         {
-            try
+            await _mediator.Send(new DeleteScreenCommand { Id = id });
+
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                await _mediator.Send(new DeleteScreenCommand { Id = id });
-
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Screen deleted successfully",
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("DeleteScreen: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "Screen deleted successfully",
+            });
         }
 
 
@@ -449,52 +154,13 @@ namespace Screen.API.Controllers.V2
         public async Task<ActionResult> ImportOne(ImportOneCommand command)
         {
             var id = Guid.NewGuid();
-            try
-            {
-                command.Id = command.Id == Guid.Empty ? id : command.Id;
-                await _mediator.Send(command);
+            command.Id = command.Id == Guid.Empty ? id : command.Id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "Screen imported successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("ImportOne: ArgumentNullException");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("ImportOne: Requested Resource Not Found");
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while importing the screen";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Screen imported successfully",
+            });
 
         }
     }

@@ -1,7 +1,8 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using HitAssessment.Application.Contracts.Infrastructure;
+using Daikon.Shared.APIClients.MLogix;
+using Daikon.Shared.VM.MLogix;
 using HitAssessment.Application.Contracts.Persistence;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,11 +14,11 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
         private readonly IHitAssessmentRepository _haRepository;
         private readonly IHaCompoundEvolutionRepository _haCompoundEvoRepository;
         private readonly IMapper _mapper;
-        private readonly IMLogixAPIService _mLogixAPIService;
+        private readonly IMLogixAPI _mLogixAPIService;
         private readonly ILogger<GetHitAssessmentByIdQueryHandler> _logger;
 
         public GetHitAssessmentByIdQueryHandler(IHitAssessmentRepository haRepository,
-        IMapper mapper, IHaCompoundEvolutionRepository haCompoundEvoRepository, IMLogixAPIService mLogixAPIService,
+        IMapper mapper, IHaCompoundEvolutionRepository haCompoundEvoRepository, IMLogixAPI mLogixAPIService,
         ILogger<GetHitAssessmentByIdQueryHandler> logger)
         {
             _haRepository = haRepository ?? throw new ArgumentNullException(nameof(haRepository));

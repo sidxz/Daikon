@@ -1,5 +1,6 @@
 
 using CQRS.Core.Query;
+using Daikon.Shared.VM.MLogix;
 using MediatR;
 
 namespace MLogix.Application.Features.Queries.GetMolecule.ById

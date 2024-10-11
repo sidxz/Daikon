@@ -14,17 +14,18 @@ using Daikon.EventStore.Stores;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
-using MLogix.Application.Contracts.Infrastructure;
 using MLogix.Application.Contracts.Persistence;
 using MLogix.Domain.Aggregates;
 using MLogix.Domain.EntityRevisions;
-using MLogix.Infrastructure.MolDbAPI;
 using MLogix.Infrastructure.Query.Consumers;
 using MLogix.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 using Confluent.Kafka;
+using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
+using MLogix.Infrastructure.DaikonChemVault;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace MLogix.Infrastructure
 {
@@ -32,6 +33,11 @@ namespace MLogix.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+
+            var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+            ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
+
+            /* Event Database */
             BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<MoleculeCreatedEvent>();
@@ -107,7 +113,7 @@ namespace MLogix.Infrastructure
             services.AddHostedService<ConsumerHostedService>();
 
             /* MolDb API */
-            services.AddScoped<IMolDbAPIService, MolDbAPIService>();
+            services.AddScoped<IMoleculeAPI, MoleculeAPI>();
 
             return services;
         }

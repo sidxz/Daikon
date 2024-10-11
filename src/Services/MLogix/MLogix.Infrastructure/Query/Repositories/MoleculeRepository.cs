@@ -116,6 +116,22 @@ namespace MLogix.Infrastructure.Query.Repositories
             }
         }
 
+        public async Task<List<Molecule>> GetMoleculesByIds(List<Guid> ids)
+        {
+            ArgumentNullException.ThrowIfNull(ids);
+            try
+            {
+                _logger.LogInformation("GetMoleculesByIds: Fetching molecules {moleculeIds}", ids);
+
+                return await _moleculeCollection.Find(m => ids.Contains(m.Id)).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching the molecules with IDs {moleculeIds}", ids);
+                throw new RepositoryException(nameof(MoleculeRepository), "Error fetching molecules", ex);
+            }
+        }
+
         public async Task<Molecule> GetMoleculeByRegistrationId(Guid id)
         {
             ArgumentNullException.ThrowIfNull(id);

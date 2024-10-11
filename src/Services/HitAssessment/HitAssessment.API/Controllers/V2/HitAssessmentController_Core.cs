@@ -1,6 +1,5 @@
 
 using System.Net;
-using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +10,6 @@ using HitAssessment.Application.Features.Queries.GetHitAssessment.ById;
 using HitAssessment.Application.Features.Queries.GetHitAssessment;
 using HitAssessment.Application.Features.Queries.GetHitAssessmentList;
 using HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAssessmentList;
-using System.Text.Json;
 using HitAssessment.Application.Features.Batch.ImportOne;
 using HitAssessment.Application.Features.Commands.RenameHitAssessment;
 
@@ -20,37 +18,17 @@ namespace HitAssessment.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public partial class HitAssessmentController : ControllerBase
+    public partial class HitAssessmentController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<HitAssessmentController> _logger;
-
-        public HitAssessmentController(IMediator mediator, ILogger<HitAssessmentController> logger)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+        private readonly IMediator _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [HttpGet(Name = "GetHitAssessmentList")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(IEnumerable<HitAssessmentListVM>), (int)HttpStatusCode.OK)]
         public async Task<ActionResult<IEnumerable<HitAssessmentListVM>>> GetHitAssessmentList([FromQuery] bool WithMeta = false)
         {
-            try
-            {
-                var screens = await _mediator.Send(new GetHitAssessmentListQuery { WithMeta = WithMeta });
-                return Ok(screens);
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the hit assessment list";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+            var has = await _mediator.Send(new GetHitAssessmentListQuery { WithMeta = WithMeta });
+            return Ok(has);
         }
 
 
@@ -61,42 +39,9 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<HitAssessmentVM>> GetHitAssessmentById(Guid id, [FromQuery] bool WithMeta = false)
         {
-            try
-            {
-                var screen = await _mediator.Send(new GetHitAssessmentByIdQuery { Id = id, WithMeta = WithMeta });
-                return Ok(screen);
-            }
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("GetHitAssessmentById: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while retrieving the hit assessment";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+            var ha = await _mediator.Send(new GetHitAssessmentByIdQuery { Id = id, WithMeta = WithMeta });
+            return Ok(ha);
         }
-
-
-
 
         [HttpPost(Name = "AddHitAssessment")]
         [MapToApiVersion("2.0")]
@@ -105,56 +50,15 @@ namespace HitAssessment.API.Controllers.V2
         {
 
             var id = Guid.NewGuid();
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "HitAssessment added successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                _logger.LogInformation("AddHitAssessment: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("AddHitAssessment: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while adding the hit assessment";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = id,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Id = id,
+                Message = "Hit Assessment added successfully",
+            });
         }
-
 
 
         [HttpPut("{id}", Name = "UpdateHitAssessment")]
@@ -164,53 +68,13 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> UpdateHitAssessment(Guid id, UpdateHitAssessmentCommand command)
         {
-            try
-            {
-                command.Id = id;
-                await _mediator.Send(command);
+            command.Id = id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "HitAssessment updated successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("UpdateHitAssessment: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("UpdateHitAssessment: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while updating the hit assessment";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Message = "Hit Assessment updated successfully",
+            });
         }
 
 
@@ -221,43 +85,12 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteHitAssessment(Guid id)
         {
-            try
-            {
-                await _mediator.Send(new DeleteHitAssessmentCommand { Id = id });
+            await _mediator.Send(new DeleteHitAssessmentCommand { Id = id });
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "HitAssessment deleted successfully",
-                });
-            }
-
-            catch (ResourceNotFoundException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("DeleteHitAssessment: Requested Resource Not Found {Id}", id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while deleting the hit assessment";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
+                Message = "Hit Assessment deleted successfully",
+            });
 
         }
 
@@ -267,51 +100,13 @@ namespace HitAssessment.API.Controllers.V2
         public async Task<ActionResult> RenameHitAssessment(Guid id, [FromBody] RenameHitAssessmentCommand command)
         {
             command.Id = id;
-            try
-            {
-                await _mediator.Send(command);
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status200OK, new BaseResponse
-                {
-                    Message = "HitAssessment renamed successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {
-                _logger.LogInformation("RenameHitAssessment: ArgumentNullException {Id}", command.Id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
+                Message = "Hit Assessment renamed successfully",
+            });
 
-            catch (ResourceNotFoundException ex)
-            {
-                _logger.LogInformation("RenameHitAssessment: Requested Resource Not Found {Id}", command.Id);
-                return NotFound(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while renaming the hit assessment";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new BaseResponse
-                {
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
         }
 
 
@@ -320,57 +115,15 @@ namespace HitAssessment.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> ImportHitAssessment([FromBody] ImportOneCommand command)
         {
-
             var id = Guid.NewGuid();
-            try
-            {
-                command.Id = command.Id == Guid.Empty ? id : command.Id;
-                await _mediator.Send(command);
+            command.Id = command.Id == Guid.Empty ? id : command.Id;
+            await _mediator.Send(command);
 
-                return StatusCode(StatusCodes.Status201Created, new AddResponse
-                {
-                    Id = id,
-                    Message = "HitAssessment imported successfully",
-                });
-            }
-            catch (ArgumentNullException ex)
+            return StatusCode(StatusCodes.Status201Created, new AddResponse
             {
-                _logger.LogInformation("ImportHitAssessment: ArgumentNullException {Id}", id);
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (DuplicateEntityRequestException ex)
-            {
-                _logger.LogInformation("ImportHitAssessment: Requested Resource Already Exists {Name}", ex.Message);
-                return Conflict(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.Log(LogLevel.Warning, ex, "Client Made a bad request");
-                return BadRequest(new BaseResponse
-                {
-                    Message = ex.Message
-                });
-            }
-
-            catch (Exception ex)
-            {
-                const string SAFE_ERROR_MESSAGE = "An error occurred while importing the hit assessment";
-                _logger.Log(LogLevel.Error, ex, SAFE_ERROR_MESSAGE);
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new AddResponse
-                {
-                    Id = id,
-                    Message = SAFE_ERROR_MESSAGE
-                });
-            }
-
+                Id = id,
+                Message = "Hit Assessment imported successfully",
+            });
 
         }
     }

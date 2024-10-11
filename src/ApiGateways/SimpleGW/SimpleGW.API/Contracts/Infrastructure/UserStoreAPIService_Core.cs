@@ -25,7 +25,7 @@ namespace SimpleGW.Contracts.Infrastructure
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _userStoreApiBaseUrl = configuration.GetSection("UserStoreAPI:BaseUrl")?.Value ?? throw new ArgumentNullException(nameof(_userStoreApiBaseUrl));
             _userStoreAPIValidateUrl = configuration.GetSection("UserStoreAPI:Validate")?.Value ?? throw new ArgumentNullException(nameof(_userStoreAPIValidateUrl));
-            _logger.LogInformation($"UserStoreAPIService: BaseUrl: {_userStoreApiBaseUrl}");
+            //_logger.LogInformation($"UserStoreAPIService: BaseUrl: {_userStoreApiBaseUrl}");
         }
     }
 }

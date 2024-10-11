@@ -11,7 +11,6 @@ using Project.Application.Features.Commands.UpdateProjectCompoundEvolution;
 using Project.Application.Features.Commands.UpdateProject;
 using Project.Application.Features.Queries.GetProject;
 using Project.Application.Features.Queries.GetProjectList;
-using Project.Application.DTOs.MLogixAPI;
 using Project.Domain.Entities;
 using Project.Application.Features.Commands.UpdateProjectAssociation;
 using Project.Application.Features.Batch;
@@ -97,7 +96,6 @@ namespace Project.Application.Mappings
             CreateMap<ProjectCompoundEvolutionUpdatedEvent, ProjectCompoundEvolution>().ReverseMap();
             CreateMap<ProjectCompoundEvolutionDeletedEvent, ProjectCompoundEvolution>().ReverseMap();
 
-            CreateMap<RegisterMoleculeResponseDTO, MoleculeVM>().ReverseMap();
 
 
             // -- Queries --
@@ -112,8 +110,6 @@ namespace Project.Application.Mappings
            .ForMember(dest => dest.RequestedSMILES, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<string>, string>(src => src.RequestedSMILES)))
            .ForMember(dest => dest.IsStructureDisclosed, opt => opt.MapFrom(new MapperDVariableMetaResolver<ProjectCompoundEvolution, IValueProperty<bool>, bool>(src => src.IsStructureDisclosed)))
            .ReverseMap();
-
-            CreateMap<GetMoleculesResultDTO, MoleculeVM>().ReverseMap();
 
 
         }
