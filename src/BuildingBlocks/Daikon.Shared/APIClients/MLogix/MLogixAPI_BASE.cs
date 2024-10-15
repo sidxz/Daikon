@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using CQRS.Core.Infrastructure;
+using Microsoft.AspNetCore.Http;
 
 namespace Daikon.Shared.APIClients.MLogix
 {
@@ -16,10 +17,12 @@ namespace Daikon.Shared.APIClients.MLogix
         private readonly ILogger<MLogixAPI> _logger;
         private readonly string _apiBaseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public MLogixAPI(ILogger<MLogixAPI> logger, IConfiguration configuration)
+        public MLogixAPI(ILogger<MLogixAPI> logger, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = new HttpClient();
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _apiBaseUrl = configuration["MLogixAPI:Url"] ?? throw new ArgumentNullException(nameof(_apiBaseUrl));
             _jsonOptions = new JsonSerializerOptions
@@ -35,6 +38,11 @@ namespace Daikon.Shared.APIClients.MLogix
             try
             {
                 var request = new HttpRequestMessage(method, apiUrl);
+
+                var headers = _httpContextAccessor.HttpContext.Request.Headers
+                        .ToDictionary(h => h.Key, h => h.Value.ToString());
+                        
+                request.AddHeaders(headers);
                 // Only add content for methods that support a body (POST, PUT, PATCH, etc.)
                 if (content != null && (method == HttpMethod.Post || method == HttpMethod.Put || method.Method == "PATCH"))
                 {
