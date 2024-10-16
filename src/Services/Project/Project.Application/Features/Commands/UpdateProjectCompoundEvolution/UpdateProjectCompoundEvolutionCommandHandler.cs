@@ -34,9 +34,7 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
         public async Task<Unit> Handle(UpdateProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
 
-            var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             // log stage
             // _logger.LogInformation("++++++++++++++++++++  UpdateProjectCompoundEvolutionCommand: {CompoundEvolutionId} {Stage}", request.CompoundEvolutionId, request.Stage);

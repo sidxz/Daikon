@@ -33,9 +33,9 @@ namespace Project.Application.Features.Commands.UpdateProjectAssociation
 
         public async Task<Unit> Handle(UpdateProjectAssociationCommand request, CancellationToken cancellationToken)
         {
-            var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
+
+
+            request.SetUpdateProperties(request.RequestorUserId);
 
 
             // fetch existing project
