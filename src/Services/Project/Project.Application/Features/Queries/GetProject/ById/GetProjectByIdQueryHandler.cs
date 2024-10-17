@@ -78,11 +78,8 @@ namespace Project.Application.Features.Queries.GetProject.ById
             }
 
             trackableEntities.AddRange(projectVm.CompoundEvolution);
-            var (pageLastUpdatedDate, pageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+            (projectVm.PageLastUpdatedDate, projectVm.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
 
-            // Finally return the complete HA VM
-            projectVm.PageLastUpdatedDate = pageLastUpdatedDate;
-            projectVm.PageLastUpdatedUser = pageLastUpdatedUser;
             return projectVm;
         }
     }
