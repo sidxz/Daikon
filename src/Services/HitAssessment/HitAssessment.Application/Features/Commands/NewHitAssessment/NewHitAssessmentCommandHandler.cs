@@ -40,8 +40,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
             {
                  // handle dates
                 var now = DateTime.UtcNow;
-                request.DateCreated = now;
-                request.IsModified = false;
+                request.SetCreateProperties(request.RequestorUserId);
                 
                 // check if name exists
                 var existingHitAssessment = await _haRepository.ReadHaByName(request.Name);
