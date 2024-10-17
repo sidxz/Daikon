@@ -68,7 +68,6 @@ namespace HitAssessment.Application.Features.Commands.RenameHitAssessment
                 _logger.LogError(ex, "An error occurred while handling UpdateHitAssessmentCommandHandler");
                 throw;
             }
-
             return Unit.Value;
         }
     }
