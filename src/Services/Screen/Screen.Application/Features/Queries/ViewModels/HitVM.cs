@@ -4,7 +4,7 @@ using Daikon.Shared.VM.MLogix;
 
 namespace Screen.Application.Features.Queries.ViewModels
 {
-    public class HitVM : DocMetadata
+    public class HitVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid HitCollectionId { get; set; }

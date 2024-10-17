@@ -30,6 +30,7 @@ namespace Screen.Application.Features.Commands.NewScreen
         {
             try
             {
+                request.SetCreateProperties(request.RequestorUserId);
                 _logger.LogInformation($"Handling NewScreenCommand: {request}");
 
                 // check if name exists

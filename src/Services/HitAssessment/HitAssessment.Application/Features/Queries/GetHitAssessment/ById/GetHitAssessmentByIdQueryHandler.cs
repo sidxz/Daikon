@@ -78,9 +78,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
             }
 
             trackableEntities.AddRange(haVm.HaCompoundEvolution);
-            var (pageLastUpdatedDate, pageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
-            haVm.PageLastUpdatedDate = pageLastUpdatedDate;
-            haVm.PageLastUpdatedUser = pageLastUpdatedUser;
+            (haVm.PageLastUpdatedDate, haVm.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
             // Finally return the complete HA VM
             return haVm;
 

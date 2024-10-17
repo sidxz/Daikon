@@ -39,6 +39,7 @@ namespace Screen.Application.Features.Commands.NewHit
 
             try
             {
+                request.SetCreateProperties(request.RequestorUserId);
                 var newHitAddedEvent = _mapper.Map<HitAddedEvent>(request);
                 newHitAddedEvent.Author = request.RequestorUserId.ToString();
                 newHitAddedEvent.RequestedMoleculeName = request.MoleculeName;

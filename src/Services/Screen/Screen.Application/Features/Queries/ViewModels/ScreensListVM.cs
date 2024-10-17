@@ -3,7 +3,7 @@ using CQRS.Core.Domain;
 
 namespace Screen.Application.Features.Queries.ViewModels
 {
-    public class ScreensListVM : DocMetadata
+    public class ScreensListVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid StrainId { get; set; }

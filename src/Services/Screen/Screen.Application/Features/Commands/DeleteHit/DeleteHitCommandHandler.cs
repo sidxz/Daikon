@@ -37,6 +37,7 @@ namespace Screen.Application.Features.Commands.DeleteHit
         {
             try
             {
+                request.SetUpdateProperties(request.RequestorUserId);
                 var hitDeletedEvent = _mapper.Map<HitDeletedEvent>(request);
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
                 aggregate.DeleteHit(hitDeletedEvent);
