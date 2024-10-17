@@ -1,6 +1,8 @@
 
 using AutoMapper;
+using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using Daikon.Shared.APIClients.MLogix;
 using Daikon.Shared.VM.MLogix;
 using HitAssessment.Application.Contracts.Persistence;
@@ -41,6 +43,8 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
             // map to ha VM
             var haVm = _mapper.Map<HitAssessmentVM>(ha, opts => opts.Items["WithMeta"] = request.WithMeta);
 
+            var trackableEntities = new List<VMMeta> { haVm }; 
+
             // fetch compound evolution of HA. This returns a list of compound evolutions
             var haCompoundEvo = await _haCompoundEvoRepository.GetHaCompoundEvolutionOfHa(request.Id);
 
@@ -73,9 +77,10 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.ById
                 haVm.HaCompoundEvolution = [];
             }
 
-
-
-
+            trackableEntities.AddRange(haVm.HaCompoundEvolution);
+            var (pageLastUpdatedDate, pageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+            haVm.PageLastUpdatedDate = pageLastUpdatedDate;
+            haVm.PageLastUpdatedUser = pageLastUpdatedUser;
             // Finally return the complete HA VM
             return haVm;
 
