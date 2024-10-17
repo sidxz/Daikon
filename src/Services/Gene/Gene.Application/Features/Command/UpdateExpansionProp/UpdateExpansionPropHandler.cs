@@ -30,8 +30,7 @@ namespace Gene.Application.Features.Command.UpdateExpansionProp
         {
             _logger.LogInformation("UpdateExpansionPropHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
             
             var geneExpansionPropUpdatedEvent = _mapper.Map<GeneExpansionPropUpdatedEvent>(request);
             geneExpansionPropUpdatedEvent.LastModifiedById = request.RequestorUserId;

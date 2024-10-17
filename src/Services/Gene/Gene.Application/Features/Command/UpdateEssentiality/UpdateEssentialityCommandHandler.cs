@@ -28,8 +28,7 @@ namespace Gene.Application.Features.Command.UpdateEssentiality
         {
             _logger.LogInformation("UpdateEssentialityCommandHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneEssentialityUpdatedEvent = _mapper.Map<GeneEssentialityUpdatedEvent>(request);
             geneEssentialityUpdatedEvent.LastModifiedById = request.RequestorUserId;

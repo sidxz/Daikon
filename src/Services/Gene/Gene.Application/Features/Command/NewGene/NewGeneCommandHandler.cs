@@ -35,6 +35,8 @@ namespace Gene.Application.Features.Command.NewGene
         {
             _logger.LogInformation($"Handling NewGeneCommand: {request}");
 
+            request.SetCreateProperties(request.RequestorUserId);
+
             var geneExists = await _geneRepository.ReadGeneByAccession(request.AccessionNumber);
             if (geneExists != null)
             {
@@ -44,7 +46,7 @@ namespace Gene.Application.Features.Command.NewGene
             // check if both strainId and strainName are null; reject if they are
             if (request.StrainId == null && request.StrainName == null)
             {
-                throw new ArgumentNullException(nameof(request.StrainId), "Both StrainId and StrainName cannot be null.");
+                throw new ArgumentNullException(nameof(request.StrainId), "Please provide either StrainId or Strain Name");
             }
 
             // fetch strain using StrainId or StrainName, whichever is not null
@@ -68,9 +70,6 @@ namespace Gene.Application.Features.Command.NewGene
             {
                 request.StrainId = strain.Id;
 
-                request.DateCreated = DateTime.UtcNow;
-                request.IsModified = false;
-                
                 var geneCreatedEvent = _mapper.Map<GeneCreatedEvent>(request);
                 geneCreatedEvent.CreatedById = request.RequestorUserId;
 

@@ -27,6 +27,7 @@ namespace Gene.Application.Features.Command.DeleteEssentiality
     public async Task<Unit> Handle(DeleteEssentialityCommand request, CancellationToken cancellationToken)
     {
       _logger.LogInformation("DeleteEssentialityCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
 
       var geneEssentialityDeletedEvent = _mapper.Map<GeneEssentialityDeletedEvent>(request);
       try

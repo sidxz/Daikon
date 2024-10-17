@@ -30,8 +30,7 @@ namespace Gene.Application.Features.Command.NewUnpublishedStructuralInformation
         {
             _logger.LogInformation("NewUnpublishedStructuralInformationCommandHandler {request}", request);
 
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
 
             var geneUnpublishedStructuralInformationAddedEvent = _mapper.Map<GeneUnpublishedStructuralInformationAddedEvent>(request);
             geneUnpublishedStructuralInformationAddedEvent.CreatedById = request.RequestorUserId;

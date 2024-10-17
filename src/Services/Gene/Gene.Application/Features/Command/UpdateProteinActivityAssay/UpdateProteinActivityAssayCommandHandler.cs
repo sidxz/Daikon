@@ -29,8 +29,7 @@ namespace Gene.Application.Features.Command.UpdateProteinActivityAssay
         {
             _logger.LogInformation("UpdateProteinActivityAssayCommandHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneProteinActivityAssayUpdatedEvent = _mapper.Map<GeneProteinActivityAssayUpdatedEvent>(request);
             geneProteinActivityAssayUpdatedEvent.LastModifiedById = request.RequestorUserId;

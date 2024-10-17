@@ -29,8 +29,7 @@ namespace Gene.Application.Features.Command.UpdateUnpublishedStructuralInformati
         {
             _logger.LogInformation("UpdateUnpublishedStructuralInformationCommandHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneUnpublishedStructuralInformationUpdatedEvent = _mapper.Map<GeneUnpublishedStructuralInformationUpdatedEvent>(request);
             geneUnpublishedStructuralInformationUpdatedEvent.LastModifiedById = request.RequestorUserId;

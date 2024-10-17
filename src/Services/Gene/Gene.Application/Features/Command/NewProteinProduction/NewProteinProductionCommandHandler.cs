@@ -30,9 +30,7 @@ namespace Gene.Application.Features.Command.NewProteinProduction
         public async Task<Unit> Handle(NewProteinProductionCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("NewProteinProductionCommandHandler {request}", request);
-
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
 
             var geneProteinProductionAddedEvent = _mapper.Map<GeneProteinProductionAddedEvent>(request);
             geneProteinProductionAddedEvent.CreatedById = request.RequestorUserId;

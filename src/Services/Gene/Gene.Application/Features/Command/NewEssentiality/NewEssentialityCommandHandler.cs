@@ -29,9 +29,7 @@ namespace Gene.Application.Features.Command.NewEssentiality
         public async Task<Unit> Handle(NewEssentialityCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("NewEssentialityCommandHandler {request}", request);
-
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
 
             var geneEssentialityAddedEvent = _mapper.Map<GeneEssentialityAddedEvent>(request);
             geneEssentialityAddedEvent.CreatedById = request.RequestorUserId;

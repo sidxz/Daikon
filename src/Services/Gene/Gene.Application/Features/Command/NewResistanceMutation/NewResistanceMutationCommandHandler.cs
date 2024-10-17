@@ -30,8 +30,8 @@ namespace Gene.Application.Features.Command.NewResistanceMutation
         {
             _logger.LogInformation("NewResistanceMutationCommandHandler {request}", request);
 
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
+            
             var geneResistanceMutationAddedEvent = _mapper.Map<GeneResistanceMutationAddedEvent>(request);
             geneResistanceMutationAddedEvent.CreatedById = request.RequestorUserId;
 
