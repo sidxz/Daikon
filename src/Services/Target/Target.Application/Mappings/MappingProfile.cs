@@ -20,6 +20,7 @@ using Target.Application.Features.Commands.UpdateTPQ;
 using Target.Application.Features.Queries.CommonVMs;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTargetsList;
+using Target.Application.Features.Queries.GetTPQ.VMs;
 
 namespace Target.Application.Mappings
 {
@@ -93,7 +94,8 @@ namespace Target.Application.Mappings
             .ReverseMap();
 
 
-
+            // === Query ===
+            CreateMap<Domain.Entities.PQResponse, PQResponseVM>().ReverseMap();
 
             // ==== OTHERS ====
             // Command to Command

@@ -30,7 +30,7 @@ namespace Target.Application.Features.Commands.UpdateTPQ
 
         public async Task<Unit> Handle(UpdateTPQCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             _logger.LogInformation($"Handling UpdateTPQCommand:");
             // fetch the existing TPQ.
             var existingTPQ = await _pqResponseRepository.ReadById(request.Id);
@@ -44,7 +44,8 @@ namespace Target.Application.Features.Commands.UpdateTPQ
                 tpqUpdatedEvent.Response = request.Response;
 
             }
-            else {
+            else
+            {
                 tpqUpdatedEvent.IsVerified = false;
             }
 
