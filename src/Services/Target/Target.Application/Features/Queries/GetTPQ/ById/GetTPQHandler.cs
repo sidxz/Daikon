@@ -1,5 +1,7 @@
 
 using AutoMapper;
+using CQRS.Core.Domain;
+using CQRS.Core.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Target.Application.Contracts.Persistence;
