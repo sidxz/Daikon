@@ -3,7 +3,7 @@ using CQRS.Core.Domain;
 
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneEssentialityVM : DocMetadata
+    public class GeneEssentialityVM : VMMeta
     {
         public Guid Id { get; set; }
         public object Classification { get; set; }
