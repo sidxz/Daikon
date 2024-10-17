@@ -6,6 +6,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Daikon.Shared.APIClients.MLogix;
 using Daikon.Shared.VM.MLogix;
+using CQRS.Core.Domain;
+using CQRS.Core.Extensions;
 
 namespace Project.Application.Features.Queries.GetProject.ById
 {
@@ -42,14 +44,15 @@ namespace Project.Application.Features.Queries.GetProject.ById
             // map to project VM
             var projectVm = _mapper.Map<ProjectVM>(project, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-            // fetch compound evolution of Project. This returns a list of compound evolutions
-            var compoundEvo = await _projectCompoundEvolutionRepository.GetProjectCompoundEvolutionOfProject(request.Id);
+            var trackableEntities = new List<VMMeta> { projectVm };
 
-            if (compoundEvo.Count >= 1)
+            // fetch compound evolution of Project. This returns a list of compound evolutions
+            var compoundEvolutions = await _projectCompoundEvolutionRepository.GetProjectCompoundEvolutionOfProject(request.Id);
+
+            if (compoundEvolutions.Count >= 1)
             {
                 // map each compound evolution to compound evolution VM
-                projectVm.CompoundEvolution = _mapper.Map<List<CompoundEvolutionVM>>(compoundEvo, opts => opts.Items["WithMeta"] = request.WithMeta);
-
+                projectVm.CompoundEvolution = _mapper.Map<List<CompoundEvolutionVM>>(compoundEvolutions, opts => opts.Items["WithMeta"] = request.WithMeta);
                 projectVm.CompoundEvoLatestSMILES = (string)projectVm.CompoundEvolution.LastOrDefault()?.RequestedSMILES;
                 projectVm.CompoundEvoLatestMoleculeId = (Guid)projectVm.CompoundEvolution.LastOrDefault()?.MoleculeId;
 
@@ -69,11 +72,17 @@ namespace Project.Application.Features.Queries.GetProject.ById
                     }
                 }
             }
-            else {
-                projectVm.CompoundEvolution = new List<CompoundEvolutionVM>();
+            else
+            {
+                projectVm.CompoundEvolution = [];
             }
 
+            trackableEntities.AddRange(projectVm.CompoundEvolution);
+            var (pageLastUpdatedDate, pageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+
             // Finally return the complete HA VM
+            projectVm.PageLastUpdatedDate = pageLastUpdatedDate;
+            projectVm.PageLastUpdatedUser = pageLastUpdatedUser;
             return projectVm;
         }
     }
