@@ -1,7 +1,9 @@
 
+using CQRS.Core.Domain;
+
 namespace Daikon.Shared.VM.MLogix
 {
-    public class MoleculeVM
+    public class MoleculeVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid RegistrationId { get; set; }

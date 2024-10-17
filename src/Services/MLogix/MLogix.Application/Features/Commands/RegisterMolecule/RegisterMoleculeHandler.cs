@@ -40,8 +40,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             var headers = _httpContextAccessor.HttpContext.Request.Headers
                         .ToDictionary(h => h.Key, h => h.Value.ToString());
 
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
 
             var registerMoleculeResponseDTO = new RegisterMoleculeResponseDTO();
 

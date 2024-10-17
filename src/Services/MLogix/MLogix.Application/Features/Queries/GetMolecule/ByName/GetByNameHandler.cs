@@ -1,6 +1,8 @@
 
 using AutoMapper;
+using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using Daikon.Shared.VM.MLogix;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -44,6 +46,9 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ByName
                         MoleculeVM.RegistrationId = vaultMolecule.Id;
                         MoleculeVM.Id = molecule.Id;
 
+                        var trackableEntities = new List<VMMeta> { MoleculeVM };
+                        (MoleculeVM.PageLastUpdatedDate, MoleculeVM.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+
                         res.Add(MoleculeVM);
                     }
                     catch (Exception ex)
@@ -51,6 +56,7 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ByName
                         _logger.LogError(ex, "Error in processing molecule with ID: {0}", vaultMolecule.Id);
                     }
                 }
+
                 return res;
             }
             catch (Exception ex)
