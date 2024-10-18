@@ -49,7 +49,9 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 Name = request.Name ?? existingMolecule.Name ?? "UnNamed",
                 RequestedSMILES = request.RequestedSMILES,
                 RegistrationId = existingMolecule.RegistrationId,
-                LastModifiedById = request.RequestorUserId
+                LastModifiedById = request.RequestorUserId,
+                DateModified = request.DateModified,
+                IsModified = request.IsModified
             };
 
 
