@@ -1,4 +1,3 @@
-
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
@@ -32,51 +31,84 @@ namespace HitAssessment.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
-
             services.AddHttpContextAccessor();
 
-              /* MongoDb */
+            /* MongoDB Conventions */
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
             ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
 
+            // Register BSON class maps for HitAssessment events
+            RegisterBsonClassMaps();
+
+            /* Event Database */
+            var eventDatabaseSettings = GetEventDatabaseSettings(configuration);
+            services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
+            services.AddScoped<IEventStoreRepository, EventStoreRepository>();
+            services.AddScoped<IEventStore<HaAggregate>, EventStore<HaAggregate>>();
+
+            /* Kafka Producer */
+            var kafkaProducerSettings = GetKafkaProducerSettings(configuration);
+            services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
+            services.AddScoped<IEventProducer, EventProducer>();
+            services.AddScoped<IEventSourcingHandler<HaAggregate>, EventSourcingHandler<HaAggregate>>();
+
+            /* Version Store */
+            ConfigureVersionStore<HitAssessmentRevision>(services, configuration, "HAMongoDbSettings:HitAssessmentRevisionCollectionName");
+            ConfigureVersionStore<HaCompoundEvolutionRevision>(services, configuration, "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName");
+
+            /* Query Repositories */
+            services.AddScoped<IHitAssessmentRepository, HitAssessmentRepository>();
+            services.AddScoped<IHaCompoundEvolutionRepository, HaCompoundEvolutionRepository>();
+
+            /* Event Consumers */
+            services.AddScoped<IEventConsumer, HitAssessmentEventConsumer>();
+            services.AddHostedService<ConsumerHostedService>();
+
+            /* MolDb API Client */
+            services.AddScoped<IMLogixAPI, MLogixAPI>();
+
+            return services;
+        }
+
+        private static void RegisterBsonClassMaps()
+        {
             BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
-
             BsonClassMap.RegisterClassMap<HaCreatedEvent>();
             BsonClassMap.RegisterClassMap<HaUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HaDeletedEvent>();
             BsonClassMap.RegisterClassMap<HaRenamedEvent>();
-
             BsonClassMap.RegisterClassMap<HaCompoundEvolutionAddedEvent>();
             BsonClassMap.RegisterClassMap<HaCompoundEvolutionUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HaCompoundEvolutionDeletedEvent>();
+        }
 
-
-            /* Event Database */
-            var eventDatabaseSettings = new EventDatabaseSettings
+        private static EventDatabaseSettings GetEventDatabaseSettings(IConfiguration configuration)
+        {
+            return new EventDatabaseSettings
             {
-                ConnectionString = configuration.GetValue<string>("EventDatabaseSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName))
+                ConnectionString = configuration.GetValue<string>("EventDatabaseSettings:ConnectionString")
+                                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString), "Event Database connection string is required."),
+                DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName")
+                                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName), "Event Database name is required."),
+                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName")
+                                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName), "Event Database collection name is required.")
             };
-            services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
-            services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
+        }
 
-            services.AddScoped<IEventStore<HaAggregate>, EventStore<HaAggregate>>();
-
-
-            /* Kafka Producer */
+        private static KafkaProducerSettings GetKafkaProducerSettings(IConfiguration configuration)
+        {
             var kafkaProducerSettings = new KafkaProducerSettings
             {
-                BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers") 
-                                            ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers)),
-                Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic") 
-                                            ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic)),
-
-                SecurityProtocol = Enum.Parse<SecurityProtocol>(configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol")?? ""),
+                BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers")
+                                     ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers), "Kafka BootstrapServers is required."),
+                Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic")
+                                     ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic), "Kafka Topic is required."),
+                SecurityProtocol = Enum.Parse<SecurityProtocol>(configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol") ?? ""),
                 SaslMechanism = SaslMechanism.Plain,
                 SaslUsername = "$ConnectionString",
-                SaslPassword = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString"),
+                SaslPassword = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString")
+                                     ?? throw new ArgumentNullException(nameof(KafkaProducerSettings), "Kafka Connection String is required.")
             };
 
             var kafkaProducerSecurityProtocol = configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol");
@@ -84,56 +116,26 @@ namespace HitAssessment.Infrastructure
             {
                 kafkaProducerSettings.SecurityProtocol = Enum.Parse<SecurityProtocol>(kafkaProducerSecurityProtocol);
             }
-            var kafkaProducerConnectionString = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString");
-            if (!string.IsNullOrEmpty(kafkaProducerConnectionString))
+
+            return kafkaProducerSettings;
+        }
+
+        private static void ConfigureVersionStore<T>(IServiceCollection services, IConfiguration configuration, string collectionNameKey)
+            where T : CQRS.Core.Domain.Historical.BaseVersionEntity
+        {
+            var versionDatabaseSettings = new VersionDatabaseSettings<T>
             {
-                kafkaProducerSettings.SaslMechanism = SaslMechanism.Plain;
-                kafkaProducerSettings.SaslUsername = "$ConnectionString";
-                kafkaProducerSettings.SaslPassword = kafkaProducerConnectionString;
-            }
-            services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
-
-            services.AddScoped<IEventProducer, EventProducer>();
-            services.AddScoped<IEventSourcingHandler<HaAggregate>, EventSourcingHandler<HaAggregate>>();
-
-
-
-            /* Version Store */
-            var haVersionStoreSettings = new VersionDatabaseSettings<HitAssessmentRevision>
-            {
-                ConnectionString = configuration.GetValue<string>("HAMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HitAssessmentRevision>.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("HAMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HitAssessmentRevision>.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("HAMongoDbSettings:HitAssessmentRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HitAssessmentRevision>.CollectionName))
+                ConnectionString = configuration.GetValue<string>("HAMongoDbSettings:ConnectionString")
+                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.ConnectionString), "Version Store connection string is required."),
+                DatabaseName = configuration.GetValue<string>("HAMongoDbSettings:DatabaseName")
+                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.DatabaseName), "Version Store database name is required."),
+                CollectionName = configuration.GetValue<string>(collectionNameKey)
+                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.CollectionName), $"Collection name for {typeof(T).Name} is required.")
             };
-            services.AddSingleton<IVersionDatabaseSettings<HitAssessmentRevision>>(haVersionStoreSettings);
-            services.AddScoped<IVersionStoreRepository<HitAssessmentRevision>, VersionStoreRepository<HitAssessmentRevision>>();
-            services.AddScoped<IVersionHub<HitAssessmentRevision>, VersionHub<HitAssessmentRevision>>();
 
-            var haCompoundEvolutionVersionStoreSettings = new VersionDatabaseSettings<HaCompoundEvolutionRevision>
-            {
-                ConnectionString = configuration.GetValue<string>("HAMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HaCompoundEvolutionRevision>.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("HAMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HaCompoundEvolutionRevision>.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<HaCompoundEvolutionRevision>.CollectionName))
-            };
-            services.AddSingleton<IVersionDatabaseSettings<HaCompoundEvolutionRevision>>(haCompoundEvolutionVersionStoreSettings);
-            services.AddScoped<IVersionStoreRepository<HaCompoundEvolutionRevision>, VersionStoreRepository<HaCompoundEvolutionRevision>>();
-            services.AddScoped<IVersionHub<HaCompoundEvolutionRevision>, VersionHub<HaCompoundEvolutionRevision>>();
-
-
-            /* Query */
-            services.AddScoped<IHitAssessmentRepository, HitAssessmentRepository>();
-            services.AddScoped<IHaCompoundEvolutionRepository, HaCompoundEvolutionRepository>();
-
-
-            /* Consumers */
-            services.AddScoped<IEventConsumer, HitAssessmentEventConsumer>();
-            services.AddHostedService<ConsumerHostedService>();
-
-            /* MolDb API */
-            
-            services.AddScoped<IMLogixAPI, MLogixAPI>();
-
-            return services;
+            services.AddSingleton<IVersionDatabaseSettings<T>>(versionDatabaseSettings);
+            services.AddScoped<IVersionStoreRepository<T>, VersionStoreRepository<T>>();
+            services.AddScoped<IVersionHub<T>, VersionHub<T>>();
         }
     }
 }

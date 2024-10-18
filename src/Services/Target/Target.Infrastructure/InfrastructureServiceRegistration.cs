@@ -1,4 +1,3 @@
-
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
@@ -31,10 +30,28 @@ namespace Target.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+            ConfigureMongoDbConventions();
+            RegisterBsonClassMaps();
+
+            ConfigureEventDatabase(services, configuration);
+            ConfigureKafkaProducer(services, configuration);
+
+            ConfigureVersionStores(services, configuration);
+
+            ConfigureRepositories(services);
+            ConfigureConsumers(services);
+
+            return services;
+        }
+
+        private static void ConfigureMongoDbConventions()
+        {
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
             ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
+        }
 
-            /* Command */
+        private static void RegisterBsonClassMaps()
+        {
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<TargetCreatedEvent>();
             BsonClassMap.RegisterClassMap<TargetUpdatedEvent>();
@@ -44,89 +61,85 @@ namespace Target.Infrastructure
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireSubmittedEvent>();
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireUpdatedEvent>();
             BsonClassMap.RegisterClassMap<TargetPromotionQuestionnaireDeletedEvent>();
-
             BsonClassMap.RegisterClassMap<TargetToxicologyAddedEvent>();
             BsonClassMap.RegisterClassMap<TargetToxicologyUpdatedEvent>();
             BsonClassMap.RegisterClassMap<TargetToxicologyDeletedEvent>();
+        }
 
-            /* Event Database */
+        private static void ConfigureEventDatabase(IServiceCollection services, IConfiguration configuration)
+        {
             var eventDatabaseSettings = new EventDatabaseSettings
             {
-                ConnectionString = configuration.GetValue<string>("EventDatabaseSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName))
+                ConnectionString = configuration.GetValue<string>("EventDatabaseSettings:ConnectionString")
+                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString), "Event Database connection string is required."),
+                DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName")
+                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName), "Event Database name is required."),
+                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName")
+                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName), "Event Database collection name is required.")
             };
-            services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
-            services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
 
+            services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
+            services.AddScoped<IEventStoreRepository, EventStoreRepository>();
             services.AddScoped<IEventStore<TargetAggregate>, EventStore<TargetAggregate>>();
             services.AddScoped<IEventStore<TPQuestionnaireAggregate>, EventStore<TPQuestionnaireAggregate>>();
+        }
 
-
-            /* Kafka Producer */
+        private static void ConfigureKafkaProducer(IServiceCollection services, IConfiguration configuration)
+        {
             var kafkaProducerSettings = new KafkaProducerSettings
             {
                 BootstrapServers = configuration.GetValue<string>("KafkaProducerSettings:BootstrapServers")
-                                            ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers)),
+                    ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.BootstrapServers), "Kafka BootstrapServers is required."),
                 Topic = configuration.GetValue<string>("KafkaProducerSettings:Topic")
-                                            ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic)),
-
+                    ?? throw new ArgumentNullException(nameof(KafkaProducerSettings.Topic), "Kafka Topic is required."),
                 SecurityProtocol = Enum.Parse<SecurityProtocol>(configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol") ?? ""),
                 SaslMechanism = SaslMechanism.Plain,
                 SaslUsername = "$ConnectionString",
-                SaslPassword = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString"),
+                SaslPassword = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString")
+                    ?? throw new ArgumentNullException(nameof(KafkaProducerSettings), "Kafka Connection String is required.")
             };
 
-            var kafkaProducerSecurityProtocol = configuration.GetValue<string>("KafkaProducerSettings:SecurityProtocol");
-            if (!string.IsNullOrEmpty(kafkaProducerSecurityProtocol))
-            {
-                kafkaProducerSettings.SecurityProtocol = Enum.Parse<SecurityProtocol>(kafkaProducerSecurityProtocol);
-            }
-            var kafkaProducerConnectionString = configuration.GetValue<string>("KafkaProducerSettings:ConnectionString");
-            if (!string.IsNullOrEmpty(kafkaProducerConnectionString))
-            {
-                kafkaProducerSettings.SaslMechanism = SaslMechanism.Plain;
-                kafkaProducerSettings.SaslUsername = "$ConnectionString";
-                kafkaProducerSettings.SaslPassword = kafkaProducerConnectionString;
-            }
             services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
-
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<TargetAggregate>, EventSourcingHandler<TargetAggregate>>();
             services.AddScoped<IEventSourcingHandler<TPQuestionnaireAggregate>, EventSourcingHandler<TPQuestionnaireAggregate>>();
+        }
 
+        private static void ConfigureVersionStores(IServiceCollection services, IConfiguration configuration)
+        {
+            ConfigureVersionStore<TargetRevision>(services, configuration, "TargetMongoDbSettings:TargetRevisionCollectionName");
+            ConfigureVersionStore<ToxicologyRevision>(services, configuration, "TargetMongoDbSettings:TargetToxicologyRevisionCollectionName", "TargetToxicologiesRevisions");
+        }
 
-            /* Query */
+        private static void ConfigureVersionStore<T>(IServiceCollection services, IConfiguration configuration, string collectionNameKey, string defaultCollectionName = "")
+            where T : CQRS.Core.Domain.Historical.BaseVersionEntity
+        {
+            var versionDatabaseSettings = new VersionDatabaseSettings<T>
+            {
+                ConnectionString = configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString")
+                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.ConnectionString), "Version Store connection string is required."),
+                DatabaseName = configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName")
+                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.DatabaseName), "Version Store database name is required."),
+                CollectionName = configuration.GetValue<string>(collectionNameKey) ?? defaultCollectionName
+                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.CollectionName), $"Collection name for {typeof(T).Name} is required.")
+            };
+
+            services.AddSingleton<IVersionDatabaseSettings<T>>(versionDatabaseSettings);
+            services.AddScoped<IVersionStoreRepository<T>, VersionStoreRepository<T>>();
+            services.AddScoped<IVersionHub<T>, VersionHub<T>>();
+        }
+
+        private static void ConfigureRepositories(IServiceCollection services)
+        {
             services.AddScoped<ITargetRepository, TargetRepository>();
             services.AddScoped<IPQResponseRepository, PQResponseRepository>();
             services.AddScoped<IToxicologyRepo, ToxicologyRepo>();
+        }
 
-            /* Version Store */
-            var targetVersionStoreSettings = new VersionDatabaseSettings<TargetRevision>
-            {
-                ConnectionString = configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<TargetRevision>.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<TargetRevision>.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("TargetMongoDbSettings:TargetRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<TargetRevision>.CollectionName))
-            };
-            services.AddSingleton<IVersionDatabaseSettings<TargetRevision>>(targetVersionStoreSettings);
-            services.AddScoped<IVersionStoreRepository<TargetRevision>, VersionStoreRepository<TargetRevision>>();
-            services.AddScoped<IVersionHub<TargetRevision>, VersionHub<TargetRevision>>();
-
-            var toxicologyVersionStoreSettings = new VersionDatabaseSettings<ToxicologyRevision>
-            {
-                ConnectionString = configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ToxicologyRevision>.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ToxicologyRevision>.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("TargetMongoDbSettings:TargetToxicologyRevisionCollectionName") ?? "TargetToxicologiesRevisions"
-            };
-            services.AddSingleton<IVersionDatabaseSettings<ToxicologyRevision>>(toxicologyVersionStoreSettings);
-            services.AddScoped<IVersionStoreRepository<ToxicologyRevision>, VersionStoreRepository<ToxicologyRevision>>();
-            services.AddScoped<IVersionHub<ToxicologyRevision>, VersionHub<ToxicologyRevision>>();
-
-            /* Consumers */
-            services.AddScoped<IEventConsumer, TargetEventConsumer>(); // Depends on IKafkaConsumerSettings; Takes care of both gene and strain events
+        private static void ConfigureConsumers(IServiceCollection services)
+        {
+            services.AddScoped<IEventConsumer, TargetEventConsumer>();
             services.AddHostedService<ConsumerHostedService>();
-
-            return services;
         }
     }
 }
