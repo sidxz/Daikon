@@ -42,6 +42,9 @@ namespace Target.Application.Features.Commands.UpdateTPQ
             {
                 tpqUpdatedEvent = _mapper.Map<TargetPromotionQuestionnaireUpdatedEvent>(existingTPQ);
                 tpqUpdatedEvent.Response = request.Response;
+                tpqUpdatedEvent.IsModified = request.IsModified;
+                tpqUpdatedEvent.LastModifiedById = request.LastModifiedById;
+                tpqUpdatedEvent.DateModified = request.DateModified;
 
             }
             else

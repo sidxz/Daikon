@@ -21,6 +21,7 @@ using Target.Application.Features.Queries.CommonVMs;
 using Target.Application.Features.Queries.GetTarget;
 using Target.Application.Features.Queries.GetTargetsList;
 using Target.Application.Features.Queries.GetTPQ.VMs;
+using Target.Domain.Entities;
 
 namespace Target.Application.Mappings
 {
@@ -97,6 +98,7 @@ namespace Target.Application.Mappings
             // === Query ===
             CreateMap<Domain.Entities.PQResponse, PQResponseVM>().ReverseMap();
 
+
             // ==== OTHERS ====
             // Command to Command
             CreateMap<NewTargetCommand, ApproveTargetCommand>().ReverseMap();
@@ -119,12 +121,14 @@ namespace Target.Application.Mappings
 
             CreateMap<SubmitTPQCommand, Domain.Entities.PQResponse>().ReverseMap();
             CreateMap<UpdateTPQCommand, Domain.Entities.PQResponse>().ReverseMap();
+            CreateMap<PQResponse, PQResponse>();
 
             // Event to Domain
 
 
             CreateMap<TargetPromotionQuestionnaireSubmittedEvent, Domain.Entities.PQResponse>().ReverseMap();
             CreateMap<TargetPromotionQuestionnaireUpdatedEvent, Domain.Entities.PQResponse>().ReverseMap();
+            CreateMap<TargetPromotionQuestionnaireDeletedEvent, Domain.Entities.PQResponse>().ReverseMap();
 
 
         }
