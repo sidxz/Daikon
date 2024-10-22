@@ -11,7 +11,6 @@ using Daikon.EventStore.Settings;
 using EventHistory.Application.Contracts.Persistence;
 using EventHistory.Application.Features.Queries.GetEventHistory;
 using EventHistory.Infrastructure.Query.Repositories;
-using EventHistory.Infrastructure.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
@@ -19,6 +18,7 @@ using MongoDB.Bson.Serialization.Conventions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Http;
 using Daikon.Shared.APIClients.UserStore;
+using System.Reflection;
 namespace EventHistory.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -71,12 +71,41 @@ namespace EventHistory.Infrastructure
         {
             //BsonClassMap.RegisterClassMap<DocMetadata>();
             //BsonClassMap.RegisterClassMap<EventModel>();
+            Console.WriteLine("Registering class maps for all events");
             BsonClassMap.RegisterClassMap<BaseEvent>(classMap =>
             {
                 classMap.AutoMap();
                 classMap.SetIsRootClass(true);
                 classMap.SetDiscriminatorIsRequired(true);
             });
+
+            //BsonClassMap.RegisterClassMap<HaCreatedEvent>();
+
+            var assembly = Assembly.GetAssembly(typeof(GeneCreatedEvent));
+            if (assembly == null)
+                throw new InvalidOperationException("Could not find the assembly for BaseEvent");
+
+            // Get all types in the Daikon.Events namespace that inherit from BaseEvent
+            var eventTypes = assembly.GetTypes()
+                 .Where(t => t.Namespace != null && t.Namespace.StartsWith("Daikon.Events") && t.IsSubclassOf(typeof(BaseEvent))
+                             && !t.IsAbstract) // Exclude abstract types (e.g., BaseEvent)
+                .ToList();
+
+            // Dynamically register each concrete event type
+            foreach (var eventType in eventTypes)
+            {
+                Console.WriteLine($"Found class map {eventType.Name}");
+                if (!BsonClassMap.IsClassMapRegistered(eventType))
+                {
+                    Console.WriteLine($"Registering class map for {eventType.Name}");
+                    BsonClassMap.LookupClassMap(eventType);
+                }
+            }
+
+
+
+
+            /*
             BsonClassMap.RegisterClassMap<HaCreatedEvent>();
             //             BsonClassMap.RegisterClassMap<HaCreatedEvent>(cm =>
             // {
@@ -139,6 +168,7 @@ namespace EventHistory.Infrastructure
             BsonClassMap.RegisterClassMap<ProjectCompoundEvolutionUpdatedEvent>();
             BsonClassMap.RegisterClassMap<ProjectCompoundEvolutionDeletedEvent>();
             BsonClassMap.RegisterClassMap<ProjectAssociationUpdatedEvent>();
+            */
         }
 
     }

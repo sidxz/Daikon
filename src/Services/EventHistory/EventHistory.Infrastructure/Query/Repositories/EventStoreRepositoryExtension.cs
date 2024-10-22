@@ -5,10 +5,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CQRS.Core.Event;
+using CQRS.Core.Exceptions;
 using Daikon.Events.HitAssessment;
 using Daikon.EventStore.Settings;
 using EventHistory.Application.Contracts.Persistence;
-using EventHistory.Infrastructure.Query.Converters;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -78,36 +78,19 @@ namespace EventHistory.Infrastructure.Query.Repositories
             try
             {
                 var events = await _eventStoreCollection
-            .Find(combinedFilter)
-            .Limit(limit)
-            .ToListAsync()
-            .ConfigureAwait(false);
+                .Find(combinedFilter)
+                .SortByDescending(x => x.TimeStamp)
+                .Limit(limit)
+                .ToListAsync()
+                .ConfigureAwait(false);
 
-                var Options = new JsonSerializerOptions
-                {
-                    Converters = { new EventJSONConverter() },
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                    WriteIndented = true
-                };
-
-                foreach (var @event in events)
-                {
-                    //Console.WriteLine("Before ");
-                    //Console.WriteLine(JsonSerializer.Serialize(@event, Options));
-                    if (@event.EventData is HaCreatedEvent haCreatedEvent)
-                    {
-                        Console.WriteLine($"Event Type: {haCreatedEvent.GetType().Name}");
-                        Console.WriteLine($"Name: {haCreatedEvent.Name}");  // Access derived class properties
-                        Console.WriteLine($"StrainId: {haCreatedEvent.StrainId}");
-
-                        Console.WriteLine(JsonSerializer.Serialize(haCreatedEvent)); // Serialize derived class
-                    }
-                    //var bsonDocument = @event.ToBsonDocument();
-                    //Console.WriteLine(bsonDocument);
-                }
-
-
-                return events;
+                // var Options = new JsonSerializerOptions
+                // {
+                //     Converters = { new EventJSONConverter() },
+                //     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                //     WriteIndented = true
+                // };
+                return events.Where(e => e.EventData != null).ToList();
             }
             catch (Exception ex)
             {
