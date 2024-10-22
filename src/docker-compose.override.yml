@@ -388,6 +388,7 @@ services:
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
       - "EventDatabaseSettings:CollectionName=Events"
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
     ports:
       - "8012:80"
@@ -456,7 +457,7 @@ services:
       - "EndPointRouting:user=http://userstore-api"
       - "EndPointRouting:questionnaire=http://questionnaire-api"
       - "EndPointRouting:comment=http://comment-api"
-            
+
       - "EndPointRouting:event-history=http://event-history-api"
 
     ports:

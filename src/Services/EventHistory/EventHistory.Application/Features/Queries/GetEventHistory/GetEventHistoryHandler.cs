@@ -18,11 +18,12 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
         private readonly IEventStoreRepositoryExtension _eventStoreRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<GetEventHistoryHandler> _logger;
+        private EventToMessage _eventToMessage;
 
         public GetEventHistoryHandler(
             IEventStoreRepositoryExtension eventStoreRepository,
             IMapper mapper,
-            ILogger<GetEventHistoryHandler> logger)
+            ILogger<GetEventHistoryHandler> logger, EventToMessage eventToMessage)
         {
             _eventStoreRepository = eventStoreRepository
                 ?? throw new ArgumentNullException(nameof(eventStoreRepository));
@@ -30,6 +31,7 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
                 ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger
                 ?? throw new ArgumentNullException(nameof(logger));
+            _eventToMessage = eventToMessage ?? throw new ArgumentNullException(nameof(eventToMessage));
         }
 
         public async Task<List<EventHistoryVM>> Handle(GetEventHistoryQuery request, CancellationToken cancellationToken)
@@ -54,27 +56,20 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
 
                 // Initialize the ViewModel list
                 var eventHistoryViewModels = new List<EventHistoryVM>();
-
-                // Process each event log in parallel for better performance
-                Parallel.ForEach(eventLogs, (eventLog) =>
+                foreach (var eventLog in eventLogs)
                 {
                     var eventData = eventLog.EventData;
-
-                    // Use a factory method to create the ViewModel
-                    var eventHistoryVM = CreateEventHistoryVM(eventLog, eventData);
+                    var eventHistoryVM = await CreateEventHistoryVM(eventLog, eventData);
 
                     if (eventHistoryVM != null)
                     {
-                        lock (eventHistoryViewModels) // Ensure thread-safety when adding to list
-                        {
-                            eventHistoryViewModels.Add(eventHistoryVM);
-                        }
+                        eventHistoryViewModels.Add(eventHistoryVM);
                     }
                     else
                     {
                         _logger.LogWarning($"Unsupported event type: {eventData?.GetType().Name}");
                     }
-                });
+                }
 
                 return eventHistoryViewModels;
             }
@@ -91,7 +86,7 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
         /// <param name="eventLog">Event log data</param>
         /// <param name="eventData">Event data object</param>
         /// <returns>EventHistoryVM or null if event type is unsupported</returns>
-        private EventHistoryVM CreateEventHistoryVM(EventModel eventLog, BaseEvent eventData)
+        private async Task<EventHistoryVM> CreateEventHistoryVM(EventModel eventLog, BaseEvent eventData)
         {
             if (eventData == null)
             {
@@ -100,7 +95,7 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
             }
 
             // Process event data to get a message and link
-            var eventMessageResult = EventToMessage.Process(eventData);
+            var eventMessageResult = await _eventToMessage.Process(eventData);
 
             return new EventHistoryVM
             {

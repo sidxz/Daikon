@@ -11,12 +11,16 @@
     <ProjectReference Include="..\EventHistory.Application\EventHistory.Application.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.EventStore\Daikon.EventStore.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.VersionStore\Daikon.VersionStore.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.Shared\Daikon.Shared.csproj" />
+    
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Confluent.Kafka" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
   </ItemGroup>
 
 </Project>

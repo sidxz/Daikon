@@ -1,23 +1,35 @@
 using System;
+using AutoMapper;
 using CQRS.Core.Event;
 using Daikon.Events.HitAssessment;
+using Daikon.Shared.APIClients.UserStore;
+using Microsoft.Extensions.Logging;
 
 namespace EventHistory.Application.Features.Processors
 {
     public class EventToMessage
     {
-        /// <summary>
-        /// Processes the event data and returns an object containing both the message and the link.
-        /// </summary>
-        /// <param name="eventData">Event data object</param>
-        /// <returns>EventMessageResult containing both message and link</returns>
-        public static EventMessageResult Process(BaseEvent eventData)
+        private readonly IUserStoreAPI _userStoreAPI;
+        private readonly IMapper _mapper;
+        private readonly ILogger<EventToMessage> _logger;
+
+        public EventToMessage(IUserStoreAPI userStoreAPI, IMapper mapper, ILogger<EventToMessage> logger)
+        {
+            _userStoreAPI = userStoreAPI ?? throw new ArgumentNullException(nameof(userStoreAPI));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public async Task<EventMessageResult> Process(BaseEvent eventData)
         {
             if (eventData is HaCreatedEvent haCreatedEvent)
             {
+                var primaryOrg = await _userStoreAPI.GetOrgById(haCreatedEvent.PrimaryOrgId);
+                var primaryOrgName = primaryOrg?.Name ?? "Unknown";
+
                 return new EventMessageResult
                 {
-                    Message = $"HA {haCreatedEvent.Name} created by {haCreatedEvent.PrimaryOrgId}",
+                    Message = $"HA {haCreatedEvent.Name} created by {primaryOrgName}",
                     Link = $"/ha/{haCreatedEvent.Id}"
                 };
             }

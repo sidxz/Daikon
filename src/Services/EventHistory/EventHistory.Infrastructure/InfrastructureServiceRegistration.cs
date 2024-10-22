@@ -16,7 +16,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
-
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Http;
+using Daikon.Shared.APIClients.UserStore;
 namespace EventHistory.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -24,6 +26,14 @@ namespace EventHistory.Infrastructure
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddHttpContextAccessor();
+            services.AddMemoryCache();
+
+            services.AddHttpClient<IUserStoreAPI>(client =>
+        {
+            // Assuming the API base URL is stored in configuration
+            client.BaseAddress = new Uri(configuration["UserStoreAPI:Url"]);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+        });
 
             /* MongoDB Conventions */
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
@@ -38,6 +48,7 @@ namespace EventHistory.Infrastructure
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepositoryExtension, EventStoreRepositoryExtension>();
 
+            services.AddScoped<IUserStoreAPI, UserStoreAPI>();
             return services;
         }
 
@@ -67,11 +78,11 @@ namespace EventHistory.Infrastructure
                 classMap.SetDiscriminatorIsRequired(true);
             });
             BsonClassMap.RegisterClassMap<HaCreatedEvent>();
-//             BsonClassMap.RegisterClassMap<HaCreatedEvent>(cm =>
-// {
-//     cm.AutoMap();
-//     cm.SetDiscriminator(nameof(HaCreatedEvent)); // Ensure the correct discriminator is used
-// });
+            //             BsonClassMap.RegisterClassMap<HaCreatedEvent>(cm =>
+            // {
+            //     cm.AutoMap();
+            //     cm.SetDiscriminator(nameof(HaCreatedEvent)); // Ensure the correct discriminator is used
+            // });
             BsonClassMap.RegisterClassMap<HaUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HaDeletedEvent>();
             BsonClassMap.RegisterClassMap<HaRenamedEvent>();
