@@ -56,13 +56,6 @@ services:
       context: .
       dockerfile: Services/MLogix/MLogix.API/Dockerfile
 
-  # moldb-api:
-  #   container_name: "moldb-api"
-  #   image: ${DOCKER_REGISTRY-}moldb
-  #   build:
-  #     context: .
-  #     dockerfile: Services/Chem/MolDb.API/Dockerfile
-
   questionnaire-api:
     container_name: "questionnaire-api"
     image: ${DOCKER_REGISTRY-}questionnaire
@@ -76,6 +69,13 @@ services:
     build:
       context: .
       dockerfile: Services/Comment/Comment.API/Dockerfile
+
+  event-history-api:
+    container_name: "event-history-api"
+    image: ${DOCKER_REGISTRY-}event-history
+    build:
+      context: .
+      dockerfile: Services/EventHistory/EventHistory.API/Dockerfile
   
   simplegw-api:
     container_name: "simplegw-api"

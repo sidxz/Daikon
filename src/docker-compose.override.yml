@@ -379,6 +379,21 @@ services:
     networks:
       - daikon-be-net
 
+  event-history-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+    ports:
+      - "8012:80"
+    networks:
+      - daikon-be-net
+
   userstore-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -441,7 +456,8 @@ services:
       - "EndPointRouting:user=http://userstore-api"
       - "EndPointRouting:questionnaire=http://questionnaire-api"
       - "EndPointRouting:comment=http://comment-api"
-      - "EndPointRouting:mol-db=http://moldb-api"
+            
+      - "EndPointRouting:event-history=http://event-history-api"
 
     ports:
       - "8010:80"

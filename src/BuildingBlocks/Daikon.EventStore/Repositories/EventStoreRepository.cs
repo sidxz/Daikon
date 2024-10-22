@@ -84,61 +84,7 @@ namespace Daikon.EventStore.Repositories
             }
         }
 
-        /*
-         GetHistoryAsync:
+       
 
-         Retrieves event history based on optional filters such as aggregateId, aggregateType, eventType, 
-         with optional date range and result limit.
-        */
-        public async Task<List<EventModel>> GetHistoryAsync(
-            Guid? aggregateId,
-            string aggregateType,
-            string eventType,
-            DateTime? startDate,
-            DateTime? endDate,
-            int limit = 100)
-        {
-            if (limit <= 0)
-                throw new ArgumentOutOfRangeException(nameof(limit), "Limit must be greater than zero.");
-            if (startDate.HasValue && endDate.HasValue && startDate > endDate)
-                throw new ArgumentException("Start date must be earlier than or equal to the end date.");
-
-            var filterBuilder = Builders<EventModel>.Filter;
-            var filters = new List<FilterDefinition<EventModel>>();
-
-            // Apply filters as necessary
-            if (startDate.HasValue)
-                filters.Add(filterBuilder.Gte(x => x.TimeStamp, startDate.Value));
-
-            if (endDate.HasValue)
-                filters.Add(filterBuilder.Lte(x => x.TimeStamp, endDate.Value));
-
-            if (aggregateId.HasValue)
-                filters.Add(filterBuilder.Eq(x => x.AggregateIdentifier, aggregateId.Value));
-
-            if (!string.IsNullOrWhiteSpace(aggregateType))
-                filters.Add(filterBuilder.Eq(x => x.AggregateType, aggregateType));
-
-            if (!string.IsNullOrWhiteSpace(eventType))
-                filters.Add(filterBuilder.Eq(x => x.EventType, eventType));
-
-            var combinedFilter = filters.Any() 
-                ? filterBuilder.And(filters) 
-                : FilterDefinition<EventModel>.Empty;
-
-            try
-            {
-                return await _eventStoreCollection
-                    .Find(combinedFilter)
-                    .Limit(limit)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching event history.");
-                throw new ApplicationException("An error occurred while fetching event history.", ex);
-            }
-        }
     }
 }
