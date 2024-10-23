@@ -50,6 +50,7 @@ namespace Screen.Application.Features.Commands.NewHit
                 if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
                 {
                     _logger.LogInformation("Will try to register molecule ...");
+                    newHitAddedEvent.IsStructureDisclosed = true;
                     await RegisterMoleculeAndAssignToEvent(request, newHitAddedEvent);
                 }
 

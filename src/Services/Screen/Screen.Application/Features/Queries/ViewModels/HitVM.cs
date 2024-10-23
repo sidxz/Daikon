@@ -34,6 +34,7 @@ namespace Screen.Application.Features.Queries.ViewModels
         /* Molecule */
         public object RequestedSMILES { get; set; }
         public object IsStructureDisclosed { get; set; }
+        public string RequestedMoleculeName { get; set; }
         public Guid MoleculeId { get; set; }
         public Guid MoleculeRegistrationId { get; set; }
 
