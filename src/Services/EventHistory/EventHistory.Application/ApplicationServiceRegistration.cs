@@ -17,7 +17,7 @@ namespace EventHistory.Application
 
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
             services.AddMediatR(typeof(GetEventHistoryQuery).Assembly);
-            services.AddScoped<EventToMessage>();
+            services.AddScoped<EventMessageProcessor>();
 
             //services.AddValidatorsFromAssembly(typeof(NewProjectCommandValidator).Assembly);
             return services;

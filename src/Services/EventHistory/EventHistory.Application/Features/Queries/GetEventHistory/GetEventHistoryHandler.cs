@@ -10,6 +10,7 @@ using EventHistory.Application.Features.Processors;
 using EventHistory.Application.Serialization;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace EventHistory.Application.Features.Queries.GetEventHistory
 {
@@ -18,12 +19,16 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
         private readonly IEventStoreRepositoryExtension _eventStoreRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<GetEventHistoryHandler> _logger;
-        private EventToMessage _eventToMessage;
+        private readonly EventMessageProcessor _eventMessageProcessor;
+        private readonly IMemoryCache _memoryCache;
+        private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(30);  // Cache duration set to 30 minutes
 
         public GetEventHistoryHandler(
             IEventStoreRepositoryExtension eventStoreRepository,
             IMapper mapper,
-            ILogger<GetEventHistoryHandler> logger, EventToMessage eventToMessage)
+            ILogger<GetEventHistoryHandler> logger,
+            EventMessageProcessor eventMessageProcessor,
+            IMemoryCache memoryCache)
         {
             _eventStoreRepository = eventStoreRepository
                 ?? throw new ArgumentNullException(nameof(eventStoreRepository));
@@ -31,13 +36,26 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
                 ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger
                 ?? throw new ArgumentNullException(nameof(logger));
-            _eventToMessage = eventToMessage ?? throw new ArgumentNullException(nameof(eventToMessage));
+            _eventMessageProcessor = eventMessageProcessor
+                ?? throw new ArgumentNullException(nameof(eventMessageProcessor));
+            _memoryCache = memoryCache
+                ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         public async Task<List<EventHistoryVM>> Handle(GetEventHistoryQuery request, CancellationToken cancellationToken)
         {
             try
             {
+                // Define a cache key based on the query parameters
+                var cacheKey = GetCacheKey(request);
+
+                // Try to get data from the cache
+                if (_memoryCache.TryGetValue(cacheKey, out List<EventHistoryVM> cachedEventHistory))
+                {
+                    _logger.LogInformation("Returning cached event history.");
+                    return cachedEventHistory;
+                }
+
                 // Fetch event history from repository with validated parameters
                 var eventLogs = await _eventStoreRepository.GetHistoryAsync(
                     request.AggregateIds,
@@ -67,6 +85,9 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
                     }
                 }
 
+                // Store the result in cache for 30 minutes
+                _memoryCache.Set(cacheKey, eventHistoryViewModels, _cacheDuration);
+
                 return eventHistoryViewModels;
             }
             catch (Exception ex)
@@ -75,6 +96,27 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
                 throw;  // Consider wrapping in a custom exception for better context
             }
         }
+
+        private string GetCacheKey(GetEventHistoryQuery request)
+        {
+            var aggregateIds = request.AggregateIds != null && request.AggregateIds.Any()
+                ? string.Join("_", request.AggregateIds)
+                : "no-aggregate-ids";
+
+            var aggregateTypes = request.AggregateTypes != null && request.AggregateTypes.Any()
+                ? string.Join("_", request.AggregateTypes)
+                : "no-aggregate-types";
+
+            var eventTypes = request.EventTypes != null && request.EventTypes.Any()
+                ? string.Join("_", request.EventTypes)
+                : "no-event-types";
+
+            var startDate = request.StartDate?.ToString("o") ?? "no-start-date";  // 'o' for round-trip date/time pattern
+            var endDate = request.EndDate?.ToString("o") ?? "no-end-date";
+
+            return $"{aggregateIds}_{aggregateTypes}_{eventTypes}_{startDate}_{endDate}_{request.Limit}";
+        }
+
 
         /// <summary>
         /// Factory method to create EventHistoryVM based on event type.
@@ -91,7 +133,7 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
             }
 
             // Process event data to get a message and link
-            var eventMessageResult = await _eventToMessage.Process(eventData);
+            var eventMessageResult = await _eventMessageProcessor.Process(eventData);
 
             if (eventMessageResult.Message == "Unsupported event")
             {
