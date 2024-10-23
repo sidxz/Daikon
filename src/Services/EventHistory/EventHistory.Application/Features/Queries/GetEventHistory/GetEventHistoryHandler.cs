@@ -65,10 +65,6 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
                     {
                         eventHistoryViewModels.Add(eventHistoryVM);
                     }
-                    else
-                    {
-                        _logger.LogWarning($"Unsupported event type: {eventData?.GetType().Name}");
-                    }
                 }
 
                 return eventHistoryViewModels;
@@ -97,9 +93,15 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
             // Process event data to get a message and link
             var eventMessageResult = await _eventToMessage.Process(eventData);
 
+            if (eventMessageResult.Message == "Unsupported event")
+            {
+                return null;
+            }
+
             return new EventHistoryVM
             {
-                Id = eventLog.AggregateIdentifier,
+                Id = eventLog.Id,
+                AggregateIdentifier = eventLog.AggregateIdentifier,
                 TimeStamp = eventLog.TimeStamp,
                 AggregateType = eventLog.AggregateType,
                 Version = eventLog.Version,

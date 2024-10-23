@@ -389,6 +389,7 @@ services:
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
       - "EventDatabaseSettings:CollectionName=Events"
       - "UserStoreAPI:Url=http://userstore-api/api/v2"
+      - "HitAssessmentAPI:Url=http://hitassessment-api/api/v2/hit-assessment"
 
     ports:
       - "8012:80"

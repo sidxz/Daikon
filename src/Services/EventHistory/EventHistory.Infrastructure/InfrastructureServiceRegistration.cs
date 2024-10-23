@@ -19,6 +19,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Http;
 using Daikon.Shared.APIClients.UserStore;
 using System.Reflection;
+using Daikon.Shared.APIClients.HitAssessment;
 namespace EventHistory.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -29,11 +30,18 @@ namespace EventHistory.Infrastructure
             services.AddMemoryCache();
 
             services.AddHttpClient<IUserStoreAPI>(client =>
-        {
-            // Assuming the API base URL is stored in configuration
-            client.BaseAddress = new Uri(configuration["UserStoreAPI:Url"]);
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-        });
+            {
+                // Assuming the API base URL is stored in configuration
+                client.BaseAddress = new Uri(configuration["UserStoreAPI:Url"]);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+            services.AddHttpClient<IHitAssessmentAPI>(client =>
+            {
+                // Assuming the API base URL is stored in configuration
+                client.BaseAddress = new Uri(configuration["HitAssessmentAPI:Url"]);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
 
             /* MongoDB Conventions */
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
@@ -49,6 +57,7 @@ namespace EventHistory.Infrastructure
             services.AddScoped<IEventStoreRepositoryExtension, EventStoreRepositoryExtension>();
 
             services.AddScoped<IUserStoreAPI, UserStoreAPI>();
+            services.AddScoped<IHitAssessmentAPI, HitAssessmentAPI>();
             return services;
         }
 

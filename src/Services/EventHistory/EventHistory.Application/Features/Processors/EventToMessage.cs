@@ -2,6 +2,7 @@ using System;
 using AutoMapper;
 using CQRS.Core.Event;
 using Daikon.Events.HitAssessment;
+using Daikon.Shared.APIClients.HitAssessment;
 using Daikon.Shared.APIClients.UserStore;
 using Microsoft.Extensions.Logging;
 
@@ -10,12 +11,15 @@ namespace EventHistory.Application.Features.Processors
     public class EventToMessage
     {
         private readonly IUserStoreAPI _userStoreAPI;
+        private readonly IHitAssessmentAPI _hitAssessmentAPI;
         private readonly IMapper _mapper;
         private readonly ILogger<EventToMessage> _logger;
 
-        public EventToMessage(IUserStoreAPI userStoreAPI, IMapper mapper, ILogger<EventToMessage> logger)
+        public EventToMessage(IUserStoreAPI userStoreAPI, IHitAssessmentAPI hitAssessmentAPI,
+        IMapper mapper, ILogger<EventToMessage> logger)
         {
             _userStoreAPI = userStoreAPI ?? throw new ArgumentNullException(nameof(userStoreAPI));
+            _hitAssessmentAPI = hitAssessmentAPI ?? throw new ArgumentNullException(nameof(hitAssessmentAPI));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -29,16 +33,29 @@ namespace EventHistory.Application.Features.Processors
 
                 return new EventMessageResult
                 {
-                    Message = $"HA {haCreatedEvent.Name} created by {primaryOrgName}",
+                    Message = $"A new Hit Assessment {haCreatedEvent.Name} has been created by {primaryOrgName}",
                     Link = $"/ha/{haCreatedEvent.Id}"
                 };
             }
             else if (eventData is HaUpdatedEvent haUpdatedEvent)
             {
+                var ha = await _hitAssessmentAPI.GetById(haUpdatedEvent.Id);
+                Guid updatedById = (Guid)haUpdatedEvent.LastModifiedById;
+                if (updatedById != Guid.Empty)
+                {
+                    var user = await _userStoreAPI.GetUserById(updatedById);
+                    return new EventMessageResult
+                    {
+                        Message = $"Hit Assessment {ha.Name} was updated by {user.FirstName} {user.LastName}",
+                        Link = $"/ha/{haUpdatedEvent.Id}"
+                    };
+                }
+
+
                 return new EventMessageResult
                 {
-                    Message = $"HA {haUpdatedEvent.Id} updated",
-                    Link = $"/ha/{haUpdatedEvent.Id}/updated"
+                    Message = $"Hit Assessment {ha.Name} was updated.",
+                    Link = $"/ha/{haUpdatedEvent.Id}"
                 };
             }
             else if (eventData is HaDeletedEvent haDeletedEvent)

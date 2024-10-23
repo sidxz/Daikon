@@ -12,21 +12,21 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Daikon.Shared.APIClients.Common;
 
-namespace Daikon.Shared.APIClients.UserStore
+namespace Daikon.Shared.APIClients.HitAssessment
 {
-    public partial class UserStoreAPI : APIRequests, IUserStoreAPI
+    public partial class HitAssessmentAPI : APIRequests, IHitAssessmentAPI
     {
-        private readonly ILogger<UserStoreAPI> _logger;
+        private readonly ILogger<HitAssessmentAPI> _logger;
         private readonly string _apiBaseUrl;
         private readonly IMemoryCache _cache;
         private readonly TimeSpan _cacheDuration = TimeSpan.FromMinutes(30);
 
-        public UserStoreAPI(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache, ILogger<UserStoreAPI> logger, IConfiguration configuration)
+        public HitAssessmentAPI(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, IMemoryCache memoryCache, ILogger<HitAssessmentAPI> logger, IConfiguration configuration)
          : base(httpClient, httpContextAccessor, logger)
         {
             _cache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _apiBaseUrl = configuration["UserStoreAPI:Url"] ?? throw new ArgumentNullException(nameof(_apiBaseUrl));
+            _apiBaseUrl = configuration["HitAssessmentAPI:Url"] ?? throw new ArgumentNullException(nameof(_apiBaseUrl));
         }
     }
 }

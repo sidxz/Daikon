@@ -83,13 +83,6 @@ namespace EventHistory.Infrastructure.Query.Repositories
                 .Limit(limit)
                 .ToListAsync()
                 .ConfigureAwait(false);
-
-                // var Options = new JsonSerializerOptions
-                // {
-                //     Converters = { new EventJSONConverter() },
-                //     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-                //     WriteIndented = true
-                // };
                 return events.Where(e => e.EventData != null).ToList();
             }
             catch (Exception ex)
