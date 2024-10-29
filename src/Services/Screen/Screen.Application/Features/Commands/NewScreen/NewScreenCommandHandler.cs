@@ -1,4 +1,5 @@
 using AutoMapper;
+using CQRS.Core.Domain;
 using CQRS.Core.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
@@ -43,6 +44,7 @@ namespace Screen.Application.Features.Commands.NewScreen
 
                 var newScreenCreatedEvent = _mapper.Map<ScreenCreatedEvent>(request);
 
+                newScreenCreatedEvent.LatestStatusChangeDate = new DVariable<DateTime>(DateTime.UtcNow);
                 var aggregate = new ScreenAggregate(newScreenCreatedEvent);
 
                 await _screenEventSourcingHandler.SaveAsync(aggregate);

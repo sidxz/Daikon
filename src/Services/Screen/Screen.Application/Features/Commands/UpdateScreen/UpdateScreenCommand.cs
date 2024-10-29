@@ -34,6 +34,9 @@ namespace Screen.Application.Features.Commands.UpdateScreen
         public string? Owner { get; set; }
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? ExpectedStartDate { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? ExpectedCompleteDate { get; set; }
     }
 }

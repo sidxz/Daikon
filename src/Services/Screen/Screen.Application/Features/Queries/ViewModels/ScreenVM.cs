@@ -18,6 +18,7 @@ namespace Screen.Application.Features.Queries.ViewModels
         public object PrimaryOrgName { get; set; }
 
         public string Owner { get; set; }
+        public object ExpectedStartDate { get; set; }
         public object ExpectedCompleteDate { get; set; }
         public Dictionary<string, string> ParticipatingOrgs { get; set; }
         public List<ScreenRunVM> ScreenRuns { get; set; }
