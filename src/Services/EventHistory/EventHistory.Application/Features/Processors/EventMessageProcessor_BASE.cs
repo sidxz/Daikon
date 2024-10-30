@@ -57,11 +57,51 @@ namespace EventHistory.Application.Features.Processors
                 };
             }
         }
+
+
+        // Retrieves organization name by ID or returns "Unknown" if not found
+        protected async Task<string> GetOrganizationNameAsync(Guid? orgId)
+        {
+            if (!orgId.HasValue) return "Unknown";
+            try
+            {
+                var org = await _userStoreAPI.GetOrgById(orgId.Value);
+                return org?.Name ?? "Unknown";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to retrieve organization with ID: {orgId}");
+                return "Unknown";
+            }
+        }
+
+        // Retrieves user full name by ID or returns "Unknown User" if not found
+        protected async Task<string> GetUserNameAsync(Guid? userId)
+        {
+            if (!userId.HasValue) return "Unknown User";
+            try
+            {
+                var user = await _userStoreAPI.GetUserById(userId.Value);
+                return user != null ? $"{user.FirstName} {user.LastName}" : "Unknown User";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to retrieve user with ID: {userId}");
+                return "Unknown User";
+            }
+        }
     }
+
 
     public class EventMessageResult
     {
         public string Message { get; set; } = string.Empty;
         public string Link { get; set; } = string.Empty;
     }
+
+
+
+
+
+
 }

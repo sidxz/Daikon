@@ -9,35 +9,12 @@ namespace EventHistory.Application.Features.Processors
     {
         private async Task<EventMessageResult> HandleHaCreatedEvent(HaCreatedEvent haCreatedEvent)
         {
-            string primaryOrgName;
-            string createdByUser = null;
-
-            try
-            {
-                var primaryOrg = await _userStoreAPI.GetOrgById(haCreatedEvent.PrimaryOrgId);
-                primaryOrgName = primaryOrg?.Name ?? "Unknown";
-
-                // Check if CreatedById is not null before calling GetUserById
-                if (haCreatedEvent.CreatedById.HasValue)
-                {
-                    var user = await _userStoreAPI.GetUserById(haCreatedEvent.CreatedById.Value); // Use .Value to get the Guid
-                    createdByUser = $"{user.FirstName} {user.LastName}";
-                }
-                else
-                {
-                    createdByUser = "Unknown User";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Failed to retrieve primary organization or user details for HaCreatedEvent: {haCreatedEvent.Id}");
-                primaryOrgName = "Unknown";
-                createdByUser = "Unknown User";
-            }
+            var organizationName = await GetOrganizationNameAsync(haCreatedEvent.PrimaryOrgId);
+            var createdByUser = await GetUserNameAsync(haCreatedEvent.CreatedById);
 
             return new EventMessageResult
             {
-                Message = $"<b>{primaryOrgName}</b> added a new Hit Assessment <b>{haCreatedEvent.Name}</b>, created by {createdByUser}",
+                Message = $"<b>{organizationName}</b> added a new Hit Assessment <b>{haCreatedEvent.Name}</b>, created by {createdByUser}",
                 Link = $"/wf/ha/viewer/{haCreatedEvent.Id}"
             };
         }
@@ -45,7 +22,7 @@ namespace EventHistory.Application.Features.Processors
         private async Task<EventMessageResult> HandleHaUpdatedEvent(HaUpdatedEvent haUpdatedEvent)
         {
             string haName;
-            string updatedByUser = null;
+            string updatedByUser = "Unknown User";
 
             try
             {
@@ -67,27 +44,10 @@ namespace EventHistory.Application.Features.Processors
                 haName = "Unknown";
             }
 
-            var updatedById = haUpdatedEvent.LastModifiedById ?? Guid.Empty;
-
-            if (updatedById != Guid.Empty)
+            // Fetch the user who last modified the assessment if their ID is provided
+            if (haUpdatedEvent.LastModifiedById.HasValue)
             {
-                try
-                {
-                    var user = await _userStoreAPI.GetUserById(updatedById);
-                    var org = await _userStoreAPI.GetOrgById(user.AppOrgId);
-                    if (user != null && org != null)
-                    {
-                        updatedByUser = $"{user.FirstName} {user.LastName}, {org.Alias}";
-                    }
-                    else
-                    {
-                        _logger.LogWarning($"User or Org not found for Id: {updatedById}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, $"Failed to retrieve user for Id: {updatedById}");
-                }
+                updatedByUser = await GetUserNameAsync(haUpdatedEvent.LastModifiedById);
             }
 
             return new EventMessageResult
