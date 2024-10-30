@@ -23,7 +23,7 @@ namespace Daikon.Shared.VM.HitAssessment
         public Dictionary<string, string> AssociatedHitIds { get; set; }
 
         /* Orgs */
-        public object PrimaryOrgId { get; set; }
+        public Guid PrimaryOrgId { get; set; }
         public List<Guid>? ParticipatingOrgs { get; set; }
 
         /* Dates */

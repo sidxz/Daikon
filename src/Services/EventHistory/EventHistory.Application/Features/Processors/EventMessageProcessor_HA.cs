@@ -15,7 +15,8 @@ namespace EventHistory.Application.Features.Processors
             return new EventMessageResult
             {
                 Message = $"<b>{organizationName}</b> added a new Hit Assessment <b>{haCreatedEvent.Name}</b>, created by {createdByUser}",
-                Link = $"/wf/ha/viewer/{haCreatedEvent.Id}"
+                Link = $"/wf/ha/viewer/{haCreatedEvent.Id}",
+                EventType = nameof(HaCreatedEvent)
             };
         }
 
@@ -55,7 +56,8 @@ namespace EventHistory.Application.Features.Processors
                 Message = updatedByUser != null
                     ? $"The Hit Assessment <b>{haName}</b> was updated by {updatedByUser}"
                     : $"The Hit Assessment <b>{haName}</b> was updated.",
-                Link = $"/wf/ha/viewer/{haUpdatedEvent.Id}"
+                Link = $"/wf/ha/viewer/{haUpdatedEvent.Id}",
+                EventType = nameof(HaUpdatedEvent)
             };
         }
 
@@ -64,7 +66,8 @@ namespace EventHistory.Application.Features.Processors
             return new EventMessageResult
             {
                 Message = $"Hit Assessment {haDeletedEvent.Id} was deleted",
-                Link = $"/ha/{haDeletedEvent.Id}/deleted"
+                Link = $"/ha/{haDeletedEvent.Id}/deleted",
+                EventType = nameof(HaDeletedEvent)
             };
         }
     }

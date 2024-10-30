@@ -22,7 +22,7 @@ namespace Daikon.Shared.APIClients.HitAssessment
                 // Check if force refresh is requested or cache is invalid
                 if (forceRefresh || !_cache.TryGetValue(cacheKey, out HitAssessmentVM ha))
                 {
-                    string apiUrl = $"{_apiBaseUrl}/{id}";
+                    string apiUrl = $"{_apiBaseUrl}/hit-assessment/{id}";
                     ha = await SendRequestAsync<HitAssessmentVM>(apiUrl, HttpMethod.Get);
 
                     if (ha != null)
@@ -56,7 +56,7 @@ namespace Daikon.Shared.APIClients.HitAssessment
                 // Check if force refresh is requested or cache is invalid
                 if (forceRefresh || !_cache.TryGetValue(cacheKey, out List<HitAssessmentVM> hAs))
                 {
-                    string apiUrl = $"{_apiBaseUrl}/";
+                    string apiUrl = $"{_apiBaseUrl}/hit-assessment";
                     hAs = await SendRequestAsync<List<HitAssessmentVM>>(apiUrl, HttpMethod.Get);
 
                     if (hAs != null && hAs.Count > 0)

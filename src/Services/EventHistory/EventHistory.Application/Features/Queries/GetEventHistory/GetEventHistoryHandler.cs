@@ -74,12 +74,13 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
 
                 // Initialize the ViewModel list
                 var eventHistoryViewModels = new List<EventHistoryVM>();
+                var uniqueMessages = new HashSet<string>();
                 foreach (var eventLog in eventLogs)
                 {
                     var eventData = eventLog.EventData;
                     var eventHistoryVM = await CreateEventHistoryVM(eventLog, eventData);
 
-                    if (eventHistoryVM != null)
+                    if (eventHistoryVM != null && uniqueMessages.Add(eventHistoryVM.EventMessage))
                     {
                         eventHistoryViewModels.Add(eventHistoryVM);
                     }

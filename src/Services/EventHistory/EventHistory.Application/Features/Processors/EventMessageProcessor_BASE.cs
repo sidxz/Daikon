@@ -4,6 +4,7 @@ using CQRS.Core.Event;
 using Daikon.Events.HitAssessment;
 using Daikon.Events.Screens;
 using Daikon.Shared.APIClients.HitAssessment;
+using Daikon.Shared.APIClients.Screen;
 using Daikon.Shared.APIClients.UserStore;
 using Microsoft.Extensions.Logging;
 
@@ -12,17 +13,21 @@ namespace EventHistory.Application.Features.Processors
     public partial class EventMessageProcessor
     {
         private readonly IUserStoreAPI _userStoreAPI;
+        private readonly IScreenAPI _screenAPI;
         private readonly IHitAssessmentAPI _hitAssessmentAPI;
+
         private readonly IMapper _mapper;
         private readonly ILogger<EventMessageProcessor> _logger;
 
         public EventMessageProcessor(
             IUserStoreAPI userStoreAPI,
+            IScreenAPI screenAPI,
             IHitAssessmentAPI hitAssessmentAPI,
             IMapper mapper,
             ILogger<EventMessageProcessor> logger)
         {
             _userStoreAPI = userStoreAPI ?? throw new ArgumentNullException(nameof(userStoreAPI));
+            _screenAPI = screenAPI ?? throw new ArgumentNullException(nameof(screenAPI));
             _hitAssessmentAPI = hitAssessmentAPI ?? throw new ArgumentNullException(nameof(hitAssessmentAPI));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -36,6 +41,9 @@ namespace EventHistory.Application.Features.Processors
                 {
                     /* Screen */
                     ScreenCreatedEvent screenCreatedEvent => await HandleScreenCreatedEventAsync(screenCreatedEvent),
+                    ScreenUpdatedEvent screenUpdatedEvent => await HandleScreenUpdatedEventAsync(screenUpdatedEvent),
+
+                    HitCollectionCreatedEvent hitCollectionCreatedEvent => await HandleHitColCreatedEventAsync(hitCollectionCreatedEvent),
                     /* HIt Assessment */
                     HaCreatedEvent haCreatedEvent => await HandleHaCreatedEvent(haCreatedEvent),
                     HaUpdatedEvent haUpdatedEvent => await HandleHaUpdatedEvent(haUpdatedEvent),
@@ -97,11 +105,6 @@ namespace EventHistory.Application.Features.Processors
     {
         public string Message { get; set; } = string.Empty;
         public string Link { get; set; } = string.Empty;
+        public string EventType { get; set; } = string.Empty;
     }
-
-
-
-
-
-
 }
