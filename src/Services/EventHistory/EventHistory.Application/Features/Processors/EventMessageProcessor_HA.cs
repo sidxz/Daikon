@@ -9,56 +9,61 @@ namespace EventHistory.Application.Features.Processors
     {
         private async Task<EventMessageResult> HandleHaCreatedEvent(HaCreatedEvent haCreatedEvent)
         {
-            var organizationName = await GetOrganizationNameAsync(haCreatedEvent.PrimaryOrgId);
-            var createdByUser = await GetUserNameAsync(haCreatedEvent.CreatedById);
-
-            return new EventMessageResult
+            try
             {
-                Message = $"<b>{organizationName}</b> added a new Hit Assessment <b>{haCreatedEvent.Name}</b>, created by {createdByUser}",
-                Link = $"/wf/ha/viewer/{haCreatedEvent.Id}",
-                EventType = nameof(HaCreatedEvent)
-            };
+                var organizationName = await GetOrganizationNameAsync(haCreatedEvent.PrimaryOrgId);
+                var createdByUser = await GetUserNameAsync(haCreatedEvent.CreatedById);
+
+                return new EventMessageResult
+                {
+                    Message = $"<b>{organizationName}</b> added a new Hit Assessment <b>{haCreatedEvent.Name}</b>, created by {createdByUser}",
+                    Link = $"/wf/ha/viewer/{haCreatedEvent.Id}",
+                    EventType = nameof(HaCreatedEvent)
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling HaCreatedEvent");
+                throw;
+            }
         }
 
         private async Task<EventMessageResult> HandleHaUpdatedEvent(HaUpdatedEvent haUpdatedEvent)
         {
-            string haName;
+            string haName = "Unknown Hit Assessment";
             string updatedByUser = "Unknown User";
+            string organizationName = "Unknown Organization";
 
             try
             {
                 var ha = await _hitAssessmentAPI.GetById(haUpdatedEvent.Id);
-                if (ha == null)
+                if (ha != null)
+                {
+                    haName = ha.Name;
+                    organizationName = await GetOrganizationNameAsync(ha.PrimaryOrgId);
+                }
+                else
                 {
                     _logger.LogWarning($"Hit Assessment not found: {haUpdatedEvent.Id}");
-                    return new EventMessageResult
-                    {
-                        Message = $"Hit Assessment {haUpdatedEvent.Id} not found",
-                        Link = string.Empty
-                    };
                 }
-                haName = ha.Name;
+
+                if (haUpdatedEvent.LastModifiedById != Guid.Empty)
+                {
+                    updatedByUser = await GetUserNameAsync(haUpdatedEvent.LastModifiedById);
+                }
+
+                return new EventMessageResult
+                {
+                    Message = $"Hit Assessment <b>{haName} ({organizationName})</b> was updated by {updatedByUser}",
+                    Link = $"/wf/ha/viewer/{haUpdatedEvent.Id}",
+                    EventType = nameof(HaUpdatedEvent)
+                };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to retrieve Hit Assessment for Id: {haUpdatedEvent.Id}");
-                haName = "Unknown";
+                _logger.LogError(ex, $"Failed to process HaUpdatedEvent for Id: {haUpdatedEvent.Id}");
+                throw;
             }
-
-            // Fetch the user who last modified the assessment if their ID is provided
-            if (haUpdatedEvent.LastModifiedById.HasValue)
-            {
-                updatedByUser = await GetUserNameAsync(haUpdatedEvent.LastModifiedById);
-            }
-
-            return new EventMessageResult
-            {
-                Message = updatedByUser != null
-                    ? $"The Hit Assessment <b>{haName}</b> was updated by {updatedByUser}"
-                    : $"The Hit Assessment <b>{haName}</b> was updated.",
-                Link = $"/wf/ha/viewer/{haUpdatedEvent.Id}",
-                EventType = nameof(HaUpdatedEvent)
-            };
         }
 
         private EventMessageResult HandleHaDeletedEvent(HaDeletedEvent haDeletedEvent)
@@ -69,6 +74,54 @@ namespace EventHistory.Application.Features.Processors
                 Link = $"/ha/{haDeletedEvent.Id}/deleted",
                 EventType = nameof(HaDeletedEvent)
             };
+        }
+
+        private async Task<EventMessageResult> HandleHACEAddedEvent(HaCompoundEvolutionAddedEvent haCompoundEvolutionEvent)
+        {
+            return await HandleCompoundEvolutionEvent(haCompoundEvolutionEvent, "A new Compound Evolution was added to the Hit Assessment");
+        }
+
+        private async Task<EventMessageResult> HandleHACEUpdatedEvent(HaCompoundEvolutionUpdatedEvent haCompoundEvolutionEvent)
+        {
+            return await HandleCompoundEvolutionEvent(haCompoundEvolutionEvent, "Compound Evolution of Hit Assessment was modified");
+        }
+
+        private async Task<EventMessageResult> HandleCompoundEvolutionEvent(dynamic haCompoundEvolutionEvent, string actionMessage)
+        {
+            string haName = "Unknown Hit Assessment";
+            string updatedByUser = "Unknown User";
+            string organizationName = "Unknown Organization";
+
+            try
+            {
+                var ha = await _hitAssessmentAPI.GetById(haCompoundEvolutionEvent.Id);
+                if (ha != null)
+                {
+                    haName = ha.Name;
+                    organizationName = await GetOrganizationNameAsync(ha.PrimaryOrgId);
+                }
+                else
+                {
+                    _logger.LogWarning($"Hit Assessment not found: {haCompoundEvolutionEvent.Id}");
+                }
+
+                if (haCompoundEvolutionEvent.LastModifiedById != Guid.Empty)
+                {
+                    updatedByUser = await GetUserNameAsync(haCompoundEvolutionEvent.LastModifiedById);
+                }
+
+                return new EventMessageResult
+                {
+                    Message = $"{actionMessage} <b>{haName} ({organizationName})</b> by {updatedByUser}",
+                    Link = $"/wf/ha/viewer/{haCompoundEvolutionEvent.Id}",
+                    EventType = haCompoundEvolutionEvent.GetType().Name
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to process {haCompoundEvolutionEvent.GetType().Name} for Id: {haCompoundEvolutionEvent.Id}");
+                throw;
+            }
         }
     }
 }

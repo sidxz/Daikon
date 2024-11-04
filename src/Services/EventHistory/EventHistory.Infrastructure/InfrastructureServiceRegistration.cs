@@ -21,6 +21,7 @@ using Daikon.Shared.APIClients.UserStore;
 using System.Reflection;
 using Daikon.Shared.APIClients.HitAssessment;
 using Daikon.Shared.APIClients.Screen;
+using Daikon.Shared.APIClients.Project;
 namespace EventHistory.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -52,6 +53,13 @@ namespace EventHistory.Infrastructure
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
+            services.AddHttpClient<IProjectAPI>(client =>
+            {
+                // Assuming the API base URL is stored in configuration
+                client.BaseAddress = new Uri(configuration["ProjectAPI:Url"]);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
             
 
             /* MongoDB Conventions */
@@ -70,6 +78,7 @@ namespace EventHistory.Infrastructure
             services.AddScoped<IUserStoreAPI, UserStoreAPI>();
             services.AddScoped<IScreenAPI, ScreenAPI>();
             services.AddScoped<IHitAssessmentAPI, HitAssessmentAPI>();
+            services.AddScoped<IProjectAPI, ProjectAPI>();
             return services;
         }
 

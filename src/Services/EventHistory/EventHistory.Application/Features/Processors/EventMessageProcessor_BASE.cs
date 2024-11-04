@@ -2,8 +2,10 @@
 using AutoMapper;
 using CQRS.Core.Event;
 using Daikon.Events.HitAssessment;
+using Daikon.Events.Project;
 using Daikon.Events.Screens;
 using Daikon.Shared.APIClients.HitAssessment;
+using Daikon.Shared.APIClients.Project;
 using Daikon.Shared.APIClients.Screen;
 using Daikon.Shared.APIClients.UserStore;
 using Microsoft.Extensions.Logging;
@@ -15,6 +17,7 @@ namespace EventHistory.Application.Features.Processors
         private readonly IUserStoreAPI _userStoreAPI;
         private readonly IScreenAPI _screenAPI;
         private readonly IHitAssessmentAPI _hitAssessmentAPI;
+        private readonly IProjectAPI _projectAPI;
 
         private readonly IMapper _mapper;
         private readonly ILogger<EventMessageProcessor> _logger;
@@ -23,12 +26,14 @@ namespace EventHistory.Application.Features.Processors
             IUserStoreAPI userStoreAPI,
             IScreenAPI screenAPI,
             IHitAssessmentAPI hitAssessmentAPI,
+            IProjectAPI projectAPI,
             IMapper mapper,
             ILogger<EventMessageProcessor> logger)
         {
             _userStoreAPI = userStoreAPI ?? throw new ArgumentNullException(nameof(userStoreAPI));
             _screenAPI = screenAPI ?? throw new ArgumentNullException(nameof(screenAPI));
             _hitAssessmentAPI = hitAssessmentAPI ?? throw new ArgumentNullException(nameof(hitAssessmentAPI));
+            _projectAPI = projectAPI ?? throw new ArgumentNullException(nameof(projectAPI));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -44,10 +49,23 @@ namespace EventHistory.Application.Features.Processors
                     ScreenUpdatedEvent screenUpdatedEvent => await HandleScreenUpdatedEventAsync(screenUpdatedEvent),
 
                     HitCollectionCreatedEvent hitCollectionCreatedEvent => await HandleHitColCreatedEventAsync(hitCollectionCreatedEvent),
+                    HitCollectionUpdatedEvent hitCollectionUpdatedEvent => await HandleHitColUpdatedEventAsync(hitCollectionUpdatedEvent),
+                    HitAddedEvent hitAddedEvent => await HandleHitAddedEventAsync(hitAddedEvent),
                     /* HIt Assessment */
                     HaCreatedEvent haCreatedEvent => await HandleHaCreatedEvent(haCreatedEvent),
                     HaUpdatedEvent haUpdatedEvent => await HandleHaUpdatedEvent(haUpdatedEvent),
-                    HaDeletedEvent haDeletedEvent => HandleHaDeletedEvent(haDeletedEvent),
+                    HaCompoundEvolutionAddedEvent haCompoundEvolutionAddedEvent => await HandleHACEAddedEvent(haCompoundEvolutionAddedEvent),
+                    HaCompoundEvolutionUpdatedEvent haCompoundEvolutionUpdatedEvent => await HandleHACEUpdatedEvent(haCompoundEvolutionUpdatedEvent),
+                    /* Project */
+                    ProjectCreatedEvent projectCreatedEvent => await HandleProjectCreatedEvent(projectCreatedEvent),
+                    ProjectUpdatedEvent projectUpdatedEvent => await HandleProjectUpdatedEvent(projectUpdatedEvent),
+                    ProjectCompoundEvolutionAddedEvent projectCompoundEvolutionAddedEvent => await HandleProjectCEAddedEvent(projectCompoundEvolutionAddedEvent),
+                    ProjectCompoundEvolutionUpdatedEvent projectCompoundEvolutionUpdatedEvent => await HandleProjectCEUpdatedEvent(projectCompoundEvolutionUpdatedEvent),
+
+
+
+
+
                     _ => new EventMessageResult
                     {
                         Message = "Unsupported event",
