@@ -49,6 +49,12 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
                 // Define a cache key based on the query parameters
                 var cacheKey = GetCacheKey(request);
 
+                if (request.RefreshCache)
+                {
+                    _memoryCache.Remove(cacheKey);
+                    _logger.LogInformation("Cache cleared for key: {cacheKey}", cacheKey);
+                }
+
                 // Try to get data from the cache
                 if (_memoryCache.TryGetValue(cacheKey, out List<EventHistoryVM> cachedEventHistory))
                 {
@@ -78,7 +84,7 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
                 foreach (var eventLog in eventLogs)
                 {
                     var eventData = eventLog.EventData;
-                    var eventHistoryVM = await CreateEventHistoryVM(eventLog, eventData);
+                    var eventHistoryVM = await CreateEventHistoryVM(eventLog, eventData, request.RefreshCache);
 
                     if (eventHistoryVM != null && uniqueMessages.Add(eventHistoryVM.EventMessage))
                     {
@@ -125,7 +131,7 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
         /// <param name="eventLog">Event log data</param>
         /// <param name="eventData">Event data object</param>
         /// <returns>EventHistoryVM or null if event type is unsupported</returns>
-        private async Task<EventHistoryVM> CreateEventHistoryVM(EventModel eventLog, BaseEvent eventData)
+        private async Task<EventHistoryVM> CreateEventHistoryVM(EventModel eventLog, BaseEvent eventData, bool refreshCache = false)
         {
             if (eventData == null)
             {
@@ -134,7 +140,7 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
             }
 
             // Process event data to get a message and link
-            var eventMessageResult = await _eventMessageProcessor.Process(eventData);
+            var eventMessageResult = await _eventMessageProcessor.Process(eventData, refreshCache);
 
             if (eventMessageResult.Message == "Unsupported event")
             {

@@ -27,6 +27,8 @@ namespace EventHistory.Application.Features.Processors
         private readonly IMapper _mapper;
         private readonly ILogger<EventMessageProcessor> _logger;
 
+        private  bool refreshCache = false;
+
         public EventMessageProcessor(
             IUserStoreAPI userStoreAPI,
             IGeneAPI geneAPI,
@@ -45,8 +47,9 @@ namespace EventHistory.Application.Features.Processors
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task<EventMessageResult> Process(BaseEvent eventData)
+        public async Task<EventMessageResult> Process(BaseEvent eventData, bool refreshCache = false)
         {
+            this.refreshCache = refreshCache;
             try
             {
                 return eventData switch

@@ -37,7 +37,7 @@ namespace EventHistory.Application.Features.Processors
 
             try
             {
-                var project = await _projectAPI.GetById(@event.Id);
+                var project = await _projectAPI.GetById(@event.Id, this.refreshCache);
                 if (project != null)
                 {
                     projectName = project.Name;
@@ -86,7 +86,7 @@ namespace EventHistory.Application.Features.Processors
 
             try
             {
-                var project = await _projectAPI.GetById(@event.Id);
+                var project = await _projectAPI.GetById(@event.Id, this.refreshCache);
                 if (project != null)
                 {
                     projectName = project.Name;

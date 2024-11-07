@@ -15,5 +15,6 @@ namespace EventHistory.Application.Features.Queries.GetEventHistory
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public int Limit { get; set; } = 100;
+        public bool RefreshCache { get; set; } = false;
     }
 }

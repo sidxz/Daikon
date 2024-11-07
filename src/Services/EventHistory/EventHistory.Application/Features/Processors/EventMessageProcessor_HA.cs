@@ -36,7 +36,7 @@ namespace EventHistory.Application.Features.Processors
 
             try
             {
-                var ha = await _hitAssessmentAPI.GetById(haUpdatedEvent.Id);
+                var ha = await _hitAssessmentAPI.GetById(haUpdatedEvent.Id, this.refreshCache);
                 if (ha != null)
                 {
                     haName = ha.Name;
@@ -94,7 +94,7 @@ namespace EventHistory.Application.Features.Processors
 
             try
             {
-                var ha = await _hitAssessmentAPI.GetById(haCompoundEvolutionEvent.Id);
+                var ha = await _hitAssessmentAPI.GetById(haCompoundEvolutionEvent.Id, this.refreshCache);
                 if (ha != null)
                 {
                     haName = ha.Name;

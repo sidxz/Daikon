@@ -61,7 +61,7 @@ namespace EventHistory.Application.Features.Processors
 
             try
             {
-                var screen = await _screenAPI.GetById(createdEvent.ScreenId);
+                var screen = await _screenAPI.GetById(createdEvent.ScreenId, this.refreshCache);
                 if (screen != null)
                 {
                     screenName = screen.Name;
@@ -97,7 +97,7 @@ namespace EventHistory.Application.Features.Processors
 
             try
             {
-                var screen = await _screenAPI.GetById(updatedEvent.ScreenId);
+                var screen = await _screenAPI.GetById(updatedEvent.ScreenId, this.refreshCache);
                 if (screen != null)
                 {
                     screenName = screen.Name;
@@ -136,11 +136,11 @@ namespace EventHistory.Application.Features.Processors
 
             try
             {
-                var hc = await _screenAPI.GetHitCollectionById(addedEvent.Id);
+                var hc = await _screenAPI.GetHitCollectionById(addedEvent.Id, this.refreshCache);
                 if (hc != null)
                 {
                     hcName = hc.Name;
-                    var screen = await _screenAPI.GetById(hc.ScreenId);
+                    var screen = await _screenAPI.GetById(hc.ScreenId, this.refreshCache);
                     if (screen != null)
                     {
                         screenName = screen.Name;

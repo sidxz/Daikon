@@ -234,7 +234,7 @@ namespace EventHistory.Application.Features.Processors
         // Helper function to get gene name with null handling and logging
         private async Task<string> GetGeneNameAsync(Guid geneId)
         {
-            var gene = await _geneAPI.GetBasicById(geneId);
+            var gene = await _geneAPI.GetBasicById(geneId, this.refreshCache);
             if (gene == null)
             {
                 _logger.LogWarning($"Gene not found: {geneId}");
