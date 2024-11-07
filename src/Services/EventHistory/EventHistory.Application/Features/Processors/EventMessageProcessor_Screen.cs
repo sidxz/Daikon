@@ -13,7 +13,7 @@ namespace EventHistory.Application.Features.Processors
             {
                 var organizationName = await GetOrganizationNameAsync(createdEvent.PrimaryOrgId);
                 var createdByUser = await GetUserNameAsync(createdEvent.CreatedById);
-                var link = GenerateLink(createdEvent.ScreenType, createdEvent.Id);
+                var link = GenerateScreenLink(createdEvent.ScreenType, createdEvent.Id);
 
                 return new EventMessageResult
                 {
@@ -37,7 +37,7 @@ namespace EventHistory.Application.Features.Processors
                 var updatedByUser = updatedEvent.LastModifiedById.HasValue
                     ? await GetUserNameAsync(updatedEvent.LastModifiedById)
                     : "Unknown User";
-                var link = GenerateLink(updatedEvent.ScreenType, updatedEvent.Id);
+                var link = GenerateScreenLink(updatedEvent.ScreenType, updatedEvent.Id);
 
                 return new EventMessageResult
                 {
@@ -65,7 +65,7 @@ namespace EventHistory.Application.Features.Processors
                 if (screen != null)
                 {
                     screenName = screen.Name;
-                    link = $"{GenerateLink(screen.ScreenType, screen.Id)}/hits/{createdEvent.Id}";
+                    link = $"{GenerateScreenLink(screen.ScreenType, screen.Id)}/hits/{createdEvent.Id}";
                     organizationName = await GetOrganizationNameAsync(screen.PrimaryOrgId);
                 }
                 else
@@ -101,7 +101,7 @@ namespace EventHistory.Application.Features.Processors
                 if (screen != null)
                 {
                     screenName = screen.Name;
-                    link = $"{GenerateLink(screen.ScreenType, screen.Id)}/hits/{updatedEvent.Id}";
+                    link = $"{GenerateScreenLink(screen.ScreenType, screen.Id)}/hits/{updatedEvent.Id}";
                     organizationName = await GetOrganizationNameAsync(screen.PrimaryOrgId);
                 }
                 else
@@ -144,7 +144,7 @@ namespace EventHistory.Application.Features.Processors
                     if (screen != null)
                     {
                         screenName = screen.Name;
-                        link = $"{GenerateLink(screen.ScreenType, screen.Id)}/hits/{hc.Id}";
+                        link = $"{GenerateScreenLink(screen.ScreenType, screen.Id)}/hits/{hc.Id}";
                         organizationName = await GetOrganizationNameAsync(screen.PrimaryOrgId);
                     }
                     else
@@ -174,7 +174,7 @@ namespace EventHistory.Application.Features.Processors
         }
 
         // Helper method to generate link based on screen type
-        private string GenerateLink(string screenType, Guid id)
+        private string GenerateScreenLink(string screenType, Guid id)
         {
             var screenTypePath = screenType == "target-based" ? "/tb" : "/ph";
             return $"/wf/screen/viewer{screenTypePath}/{id}";

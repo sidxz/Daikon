@@ -22,6 +22,7 @@ using System.Reflection;
 using Daikon.Shared.APIClients.HitAssessment;
 using Daikon.Shared.APIClients.Screen;
 using Daikon.Shared.APIClients.Project;
+using Daikon.Shared.APIClients.Gene;
 namespace EventHistory.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -35,6 +36,14 @@ namespace EventHistory.Infrastructure
             {
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["UserStoreAPI:Url"]);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
+
+
+            services.AddHttpClient<IGeneAPI>(client =>
+            {
+                // Assuming the API base URL is stored in configuration
+                client.BaseAddress = new Uri(configuration["GeneAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
@@ -76,6 +85,7 @@ namespace EventHistory.Infrastructure
             services.AddScoped<IEventStoreRepositoryExtension, EventStoreRepositoryExtension>();
 
             services.AddScoped<IUserStoreAPI, UserStoreAPI>();
+            services.AddScoped<IGeneAPI, GeneAPI>();
             services.AddScoped<IScreenAPI, ScreenAPI>();
             services.AddScoped<IHitAssessmentAPI, HitAssessmentAPI>();
             services.AddScoped<IProjectAPI, ProjectAPI>();

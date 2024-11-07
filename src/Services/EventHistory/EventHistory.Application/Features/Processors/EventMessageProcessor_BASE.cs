@@ -1,9 +1,12 @@
 
 using AutoMapper;
 using CQRS.Core.Event;
+using Daikon.Events.Gene;
 using Daikon.Events.HitAssessment;
 using Daikon.Events.Project;
 using Daikon.Events.Screens;
+using Daikon.Events.Targets;
+using Daikon.Shared.APIClients.Gene;
 using Daikon.Shared.APIClients.HitAssessment;
 using Daikon.Shared.APIClients.Project;
 using Daikon.Shared.APIClients.Screen;
@@ -15,6 +18,8 @@ namespace EventHistory.Application.Features.Processors
     public partial class EventMessageProcessor
     {
         private readonly IUserStoreAPI _userStoreAPI;
+
+        private readonly IGeneAPI _geneAPI; 
         private readonly IScreenAPI _screenAPI;
         private readonly IHitAssessmentAPI _hitAssessmentAPI;
         private readonly IProjectAPI _projectAPI;
@@ -24,6 +29,7 @@ namespace EventHistory.Application.Features.Processors
 
         public EventMessageProcessor(
             IUserStoreAPI userStoreAPI,
+            IGeneAPI geneAPI,
             IScreenAPI screenAPI,
             IHitAssessmentAPI hitAssessmentAPI,
             IProjectAPI projectAPI,
@@ -31,6 +37,7 @@ namespace EventHistory.Application.Features.Processors
             ILogger<EventMessageProcessor> logger)
         {
             _userStoreAPI = userStoreAPI ?? throw new ArgumentNullException(nameof(userStoreAPI));
+            _geneAPI = geneAPI ?? throw new ArgumentNullException(nameof(geneAPI));
             _screenAPI = screenAPI ?? throw new ArgumentNullException(nameof(screenAPI));
             _hitAssessmentAPI = hitAssessmentAPI ?? throw new ArgumentNullException(nameof(hitAssessmentAPI));
             _projectAPI = projectAPI ?? throw new ArgumentNullException(nameof(projectAPI));
@@ -44,6 +51,31 @@ namespace EventHistory.Application.Features.Processors
             {
                 return eventData switch
                 {
+                    /* Gene */
+                    GeneCreatedEvent geneCreatedEvent => await HandleGeneCreatedEventAsync(geneCreatedEvent),
+                    GeneUpdatedEvent geneUpdatedEvent => await HandleGeneUpdatedEventAsync(geneUpdatedEvent),
+
+                    GeneCrispriStrainAddedEvent geneCrispriStrainAddedEvent => await HandleGeneCrispriStrainAddedEventAsync(geneCrispriStrainAddedEvent),
+                    GeneCrispriStrainUpdatedEvent geneCrispriStrainUpdatedEvent => await HandleGeneCrispriStrainUpdatedEventAsync(geneCrispriStrainUpdatedEvent),
+                    GeneEssentialityAddedEvent geneEssentialityAddedEvent => await HandleGeneEssentialityAddedEventAsync(geneEssentialityAddedEvent),
+                    GeneEssentialityUpdatedEvent geneEssentialityUpdatedEvent => await HandleGeneEssentialityUpdatedEventAsync(geneEssentialityUpdatedEvent),
+                    GeneHypomorphAddedEvent geneHypomorphAddedEvent => await HandleGeneHypomorphAddedEventAsync(geneHypomorphAddedEvent),
+                    GeneHypomorphUpdatedEvent geneHypomorphUpdatedEvent => await HandleGeneHypomorphUpdatedEventAsync(geneHypomorphUpdatedEvent),
+                    GeneProteinActivityAssayAddedEvent geneProteinActivityAssayAddedEvent => await HandleGeneProteinActivityAssayAddedEventAsync(geneProteinActivityAssayAddedEvent),
+                    GeneProteinActivityAssayUpdatedEvent geneProteinActivityAssayUpdatedEvent => await HandleGeneProteinActivityAssayUpdatedEventAsync(geneProteinActivityAssayUpdatedEvent),
+                    GeneProteinProductionAddedEvent geneProteinProductionAddedEvent => await HandleGeneProteinProductionAddedEventAsync(geneProteinProductionAddedEvent),
+                    GeneProteinProductionUpdatedEvent geneProteinProductionUpdatedEvent => await HandleGeneProteinProductionUpdatedEventAsync(geneProteinProductionUpdatedEvent),
+                    GeneResistanceMutationAddedEvent geneResistanceMutationAddedEvent => await HandleGeneResistanceMutationAddedEventAsync(geneResistanceMutationAddedEvent),
+                    GeneResistanceMutationUpdatedEvent geneResistanceMutationUpdatedEvent => await HandleGeneResistanceMutationUpdatedEventAsync(geneResistanceMutationUpdatedEvent),
+                    GeneUnpublishedStructuralInformationAddedEvent geneUnpublishedStructuralInformationAddedEvent => await HandleGeneUnpublishedStructuralInformationAddedEventAsync(geneUnpublishedStructuralInformationAddedEvent),
+                    GeneUnpublishedStructuralInformationUpdatedEvent geneUnpublishedStructuralInformationUpdatedEvent => await HandleGeneUnpublishedStructuralInformationUpdatedEventAsync(geneUnpublishedStructuralInformationUpdatedEvent),
+                    GeneVulnerabilityAddedEvent geneVulnerabilityAddedEvent => await HandleGeneVulnerabilityAddedEventAsync(geneVulnerabilityAddedEvent),
+                    GeneVulnerabilityUpdatedEvent geneVulnerabilityUpdatedEvent => await HandleGeneVulnerabilityUpdatedEventAsync(geneVulnerabilityUpdatedEvent),
+                    
+                    /* Target */
+                    TargetCreatedEvent targetCreatedEvent => await HandleTargetCreatedEventAsync(targetCreatedEvent),
+                    TargetUpdatedEvent targetUpdatedEvent => await HandleTargetUpdatedEventAsync(targetUpdatedEvent),
+
                     /* Screen */
                     ScreenCreatedEvent screenCreatedEvent => await HandleScreenCreatedEventAsync(screenCreatedEvent),
                     ScreenUpdatedEvent screenUpdatedEvent => await HandleScreenUpdatedEventAsync(screenUpdatedEvent),
@@ -61,9 +93,6 @@ namespace EventHistory.Application.Features.Processors
                     ProjectUpdatedEvent projectUpdatedEvent => await HandleProjectUpdatedEvent(projectUpdatedEvent),
                     ProjectCompoundEvolutionAddedEvent projectCompoundEvolutionAddedEvent => await HandleProjectCEAddedEvent(projectCompoundEvolutionAddedEvent),
                     ProjectCompoundEvolutionUpdatedEvent projectCompoundEvolutionUpdatedEvent => await HandleProjectCEUpdatedEvent(projectCompoundEvolutionUpdatedEvent),
-
-
-
 
 
                     _ => new EventMessageResult
