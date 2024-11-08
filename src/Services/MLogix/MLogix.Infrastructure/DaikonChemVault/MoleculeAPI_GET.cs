@@ -1,5 +1,7 @@
+using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.DTOs.DaikonChemVault;
+using MLogix.Application.Features.Queries.GetMolecule.ByName;
 
 namespace MLogix.Infrastructure.DaikonChemVault
 {
@@ -42,6 +44,38 @@ namespace MLogix.Infrastructure.DaikonChemVault
             var molecules = await SendRequestAsync<List<MoleculeBase>>(apiUrl, HttpMethod.Get, headers);
 
             return molecules;
+        }
+
+
+        public async Task<List<MoleculeBase>> FindByNameWithFilters(GetByNameQuery query, IDictionary<string, string> headers)
+        {
+            try
+            {
+                // string decodedSmiles = Uri.UnescapeDataString(query.SMILES);
+                // string encodedSmiles = Uri.EscapeDataString(decodedSmiles);
+
+                // Build the base query parameters
+                var queryParams = new Dictionary<string, object>
+                {
+                    { "name", query.Name },
+                    { "limit", query.Limit }
+                };
+
+                AddConditionFilters(query, queryParams);
+
+                // Build the query string
+                string queryString = BuildQueryString(queryParams);
+                string apiUrl = $"{_apiBaseUrl}/molecules/by-name?{queryString}";
+
+                var molecules = await SendRequestAsync<List<MoleculeBase>>(apiUrl, HttpMethod.Get, headers);
+
+                return molecules;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in Find Substructures");
+                return null;
+            }
         }
 
     }

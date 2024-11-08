@@ -31,7 +31,7 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ByName
                 _logger.LogInformation("Find Molecules matching name: {0} and limit: {2}", request.Name, request.Limit);
 
                 var res = new List<MoleculeVM>();
-                var vaultMolecules = await _iMoleculeAPI.FindByName(request.Name, request.Limit, headers);
+                var vaultMolecules = await _iMoleculeAPI.FindByNameWithFilters(request, headers);
 
                 _logger.LogInformation("Found {0} molecules with name {1}", vaultMolecules.Count, request.Name);
 
