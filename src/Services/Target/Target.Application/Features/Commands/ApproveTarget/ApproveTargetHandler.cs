@@ -60,6 +60,7 @@ namespace Target.Application.Features.Commands.ApproveTarget
             //     AssociatedGenes = request.AssociatedGenes,
             //     TargetType = request.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein  
             // };
+            request.SetCreateProperties(request.RequestorUserId);
 
             var newTargetCommand = _mapper.Map<NewTargetCommand>(request);
             newTargetCommand.Id = request.Id;

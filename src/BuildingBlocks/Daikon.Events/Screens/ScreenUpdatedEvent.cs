@@ -22,6 +22,7 @@ namespace Daikon.Events.Screens
         public DVariable<string>? PrimaryOrgName { get; set; }
 
         public string? Owner { get; set; }
+        public DVariable<DateTime>? ExpectedStartDate { get; set; }
         public DVariable<DateTime>? ExpectedCompleteDate { get; set; }
 
         public Dictionary<string, string>? ParticipatingOrgs { get; set; }

@@ -4,7 +4,7 @@ using Daikon.Shared.VM.MLogix;
 
 namespace Project.Application.Features.Queries.GetProject
 {
-    public class CompoundEvolutionVM : DocMetadata
+    public class CompoundEvolutionVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid HitAssessmentId { get; set; }

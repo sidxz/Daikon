@@ -26,6 +26,7 @@ namespace Gene.Application.Features.Command.DeleteUnpublishedStructuralInformati
     public async Task<Unit> Handle(DeleteUnpublishedStructuralInformationCommand request, CancellationToken cancellationToken)
     {
       _logger.LogInformation("DeleteUnpublishedStructuralInformationCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
 
       var unpublishedStructuralInformationDeletedEvent = _mapper.Map<GeneUnpublishedStructuralInformationDeletedEvent>(request);
 

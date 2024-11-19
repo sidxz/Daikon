@@ -4,7 +4,7 @@ using Daikon.Shared.VM.MLogix;
 
 namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 {
-    public class HaCompoundEvolutionVM : DocMetadata
+    public class HaCompoundEvolutionVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid HitAssessmentId { get; set; }

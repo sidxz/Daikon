@@ -29,6 +29,8 @@ namespace Screen.Application.Features.Commands.DeleteScreen
 
       try
       {
+        request.SetUpdateProperties(request.RequestorUserId);
+        
         var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
 
         var screenDeletedEvent = _mapper.Map<ScreenDeletedEvent>(request);

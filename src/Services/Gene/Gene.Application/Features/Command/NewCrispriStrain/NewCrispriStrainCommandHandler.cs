@@ -30,9 +30,7 @@ namespace Gene.Application.Features.Command.NewCrispriStrain
         public async Task<Unit> Handle(NewCrispriStrainCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Handling NewCrispriStrainCommand: {request}");
-            
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
 
             var newCrispriCreatedEvent = _mapper.Map<GeneCrispriStrainAddedEvent>(request);
             newCrispriCreatedEvent.CreatedById = request.RequestorUserId;

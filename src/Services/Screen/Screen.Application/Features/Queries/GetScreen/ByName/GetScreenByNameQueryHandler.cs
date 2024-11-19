@@ -1,5 +1,7 @@
 
 using AutoMapper;
+using CQRS.Core.Domain;
+using CQRS.Core.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -26,19 +28,24 @@ namespace Screen.Application.Features.Queries.GetScreen.ByName
 
         public async Task<ScreenVM> Handle(GetScreenByNameQuery request, CancellationToken cancellationToken)
         {
-            
-            var screen = await _screenRepository.ReadScreenByName(request.Name);
-            var screenVm = _mapper.Map<ScreenVM>(screen, opts => opts.Items["WithMeta"] = request.WithMeta);
+            try
+            {
+                var screen = await _screenRepository.ReadScreenByName(request.Name);
+                var screenVm = _mapper.Map<ScreenVM>(screen, opts => opts.Items["WithMeta"] = request.WithMeta);
 
-            // var hitCollections = await _hitCollectionRepository.GetHitCollectionsListByScreenId(screen.Id);
-            // screenVm.HitCollections = hitCollections.Select(async hc =>
-            // {
-            //     var hitCollectionVm = await _mediator.Send(new GetHitCollection.ById.GetHitCollectionByIdQuery { Id = hc.Id, WithMeta = request.WithMeta });
-            //     return hitCollectionVm;
-            // }).Select(t => t.Result).ToList();
+                var trackableEntities = new List<VMMeta> { screenVm };
+                trackableEntities.AddRange(screenVm.ScreenRuns);
 
-            return screenVm;
-            
+                (screenVm.PageLastUpdatedDate, screenVm.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+
+                return screenVm;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetScreenByNameQueryHandler");
+                throw;
+            }
+
         }
     }
 }

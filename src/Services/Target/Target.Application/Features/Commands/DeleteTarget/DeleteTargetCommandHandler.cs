@@ -24,7 +24,7 @@ namespace Target.Application.Features.Command.DeleteTarget
 
     public async Task<Unit> Handle(DeleteTargetCommand request, CancellationToken cancellationToken)
     {
-
+      request.SetUpdateProperties(request.RequestorUserId);
 
       try
       {

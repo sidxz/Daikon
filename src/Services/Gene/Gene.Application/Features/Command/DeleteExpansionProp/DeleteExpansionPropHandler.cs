@@ -28,6 +28,7 @@ namespace Gene.Application.Features.Command.DeleteExpansionProp
         {
             try
             {
+                request.SetUpdateProperties(request.RequestorUserId);
                 var expansionPropDeletedEvent = _mapper.Map<GeneExpansionPropDeletedEvent>(request);
 
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

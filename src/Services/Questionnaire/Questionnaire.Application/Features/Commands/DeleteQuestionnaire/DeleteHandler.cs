@@ -22,6 +22,7 @@ namespace Questionnaire.Application.Features.Commands.DeleteQuestionnaire
 
         public async Task<Unit> Handle(DeleteCommand request, CancellationToken cancellationToken)
         {
+            request.SetUpdateProperties(request.RequestorUserId);
             // fetch the existing questionnaire
             request.Name = request.Name.ToUpper();
             var existingQuestionnaire = await _questionnaireRepository.ReadQuestionnaireByName(request.Name)

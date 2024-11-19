@@ -3,7 +3,7 @@ using CQRS.Core.Domain;
 
 namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 {
-    public class HitAssessmentVM : DocMetadata
+    public class HitAssessmentVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid? StrainId { get; set; }

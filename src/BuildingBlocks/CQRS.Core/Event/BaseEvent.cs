@@ -1,8 +1,11 @@
 
+using System.Text.Json.Serialization;
 using CQRS.Core.Domain;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace CQRS.Core.Event
 {
+    [BsonDiscriminator(Required = true)]
 
     public abstract class BaseEvent : DocMetadata
     {

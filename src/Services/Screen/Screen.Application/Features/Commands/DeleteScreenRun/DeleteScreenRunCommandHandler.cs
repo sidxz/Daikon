@@ -33,6 +33,7 @@ namespace Screen.Application.Features.Commands.DeleteScreenRun
         public async Task<Unit> Handle(DeleteScreenRunCommand request, CancellationToken cancellationToken)
         {
 
+            request.SetUpdateProperties(request.RequestorUserId);
             var screenRunDeletedEvent = _mapper.Map<ScreenRunDeletedEvent>(request);
 
             try

@@ -33,6 +33,8 @@ namespace Project.Application.Features.Commands.DeleteProjectCompoundEvolution
         {
             try
             {
+                request.SetUpdateProperties(request.RequestorUserId);
+                
                 var projectCEDeletedEvent = _mapper.Map<ProjectCompoundEvolutionDeletedEvent>(request);
 
                 var aggregate = await _projectEventSourcingHandler.GetByAsyncId(request.Id);

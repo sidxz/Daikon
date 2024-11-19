@@ -4,7 +4,7 @@ using Daikon.Shared.VM.MLogix;
 
 namespace Screen.Application.Features.Queries.ViewModels
 {
-    public class HitVM : DocMetadata
+    public class HitVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid HitCollectionId { get; set; }
@@ -34,6 +34,7 @@ namespace Screen.Application.Features.Queries.ViewModels
         /* Molecule */
         public object RequestedSMILES { get; set; }
         public object IsStructureDisclosed { get; set; }
+        public string RequestedMoleculeName { get; set; }
         public Guid MoleculeId { get; set; }
         public Guid MoleculeRegistrationId { get; set; }
 

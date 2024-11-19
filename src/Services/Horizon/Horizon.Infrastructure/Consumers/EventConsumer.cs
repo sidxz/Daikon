@@ -142,7 +142,7 @@ namespace Horizon.Infrastructure.Query.Consumers
                         }
                         catch (UnknownEventDiscriminatorException ex)
                         {
-                            _logger.LogInformation("Horizon: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                            _logger.LogDebug("Horizon: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
                             continue;
                         }

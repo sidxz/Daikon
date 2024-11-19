@@ -30,7 +30,8 @@ namespace Screen.Application.Features.Commands.UpdateScreenAssociatedTargets
         }
         public async Task<Unit> Handle(UpdateScreenAssociatedTargetsCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
+            
             var screenAssociatedTargetsUpdatedEvent = _mapper.Map<ScreenAssociatedTargetsUpdatedEvent>(request);
             
             try

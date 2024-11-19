@@ -9,6 +9,7 @@ using Screen.Application.Features.Commands.NewHitCollection;
 using Screen.Application.Features.Commands.RenameHitCollection;
 using Screen.Application.Features.Commands.UpdateHitCollection;
 using Screen.Application.Features.Commands.UpdateHitCollectionAssociatedScreen;
+using Screen.Application.Features.Queries.GetHitCollection.ById;
 using Screen.Application.Features.Queries.GetHitCollectionsOfScreen;
 
 namespace Screen.API.Controllers.V2
@@ -25,6 +26,17 @@ namespace Screen.API.Controllers.V2
         {
             _mediator = mediator;
             _logger = logger;
+        }
+
+        [HttpGet("{id}", Name = "GetHitCollectionById")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetHitCollectionById(Guid id)
+        {
+            var hitCollection = await _mediator.Send(new GetHitCollectionByIdQuery { Id = id });
+            return Ok(hitCollection);
         }
 
         [HttpGet("by-screen/{screenId}", Name = "GetHitCollectionByScreen")]

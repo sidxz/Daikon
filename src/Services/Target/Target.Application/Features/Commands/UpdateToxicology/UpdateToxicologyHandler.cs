@@ -19,10 +19,8 @@ namespace Target.Application.Features.Commands.UpdateToxicology
 
         public async Task<Unit> Handle(UpdateToxicologyCommand request, CancellationToken cancellationToken)
         {
+            request.SetUpdateProperties(request.RequestorUserId);
             _logger.LogInformation("UpdateToxicologyHandler {request}", request);
-
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
 
             var targetToxicologyUpdatedEvent = _mapper.Map<TargetToxicologyUpdatedEvent>(request);
             targetToxicologyUpdatedEvent.LastModifiedById = request.RequestorUserId;

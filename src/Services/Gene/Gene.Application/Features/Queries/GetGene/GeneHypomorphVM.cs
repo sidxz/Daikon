@@ -3,7 +3,7 @@ using CQRS.Core.Domain;
 
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneHypomorphVM : DocMetadata
+    public class GeneHypomorphVM : VMMeta
     {
         public Guid Id { get; set; }
         public object KnockdownStrain { get; set; }

@@ -39,6 +39,7 @@ namespace Screen.Application.Features.Commands.NewHit
 
             try
             {
+                request.SetCreateProperties(request.RequestorUserId);
                 var newHitAddedEvent = _mapper.Map<HitAddedEvent>(request);
                 newHitAddedEvent.Author = request.RequestorUserId.ToString();
                 newHitAddedEvent.RequestedMoleculeName = request.MoleculeName;
@@ -49,6 +50,7 @@ namespace Screen.Application.Features.Commands.NewHit
                 if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
                 {
                     _logger.LogInformation("Will try to register molecule ...");
+                    newHitAddedEvent.IsStructureDisclosed = true;
                     await RegisterMoleculeAndAssignToEvent(request, newHitAddedEvent);
                 }
 

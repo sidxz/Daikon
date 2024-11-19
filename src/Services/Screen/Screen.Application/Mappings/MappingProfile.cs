@@ -114,6 +114,7 @@ namespace Screen.Application.Mappings
             CreateMap<Domain.Entities.Screen, Features.Queries.ViewModels.ScreenVM>()
                 .ForMember(dest => dest.Method, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Method)))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Status)))
+                .ForMember(dest => dest.ExpectedStartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<DateTime>, DateTime>(src => src.ExpectedStartDate)))
                 .ForMember(dest => dest.ExpectedCompleteDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<DateTime>, DateTime>(src => src.ExpectedCompleteDate)))
                 .ForMember(dest => dest.LatestStatusChangeDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<DateTime>, DateTime>(src => src.LatestStatusChangeDate)))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Screen, IValueProperty<string>, string>(src => src.Notes)))

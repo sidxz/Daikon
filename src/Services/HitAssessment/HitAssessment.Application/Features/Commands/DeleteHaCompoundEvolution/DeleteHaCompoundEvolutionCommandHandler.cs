@@ -33,6 +33,8 @@ namespace HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution
         {
             try
             {
+                request.SetUpdateProperties(request.RequestorUserId);
+                   
                 var haCEDeletedEvent = _mapper.Map<HaCompoundEvolutionDeletedEvent>(request);
 
                 var aggregate = await _haEventSourcingHandler.GetByAsyncId(request.Id);

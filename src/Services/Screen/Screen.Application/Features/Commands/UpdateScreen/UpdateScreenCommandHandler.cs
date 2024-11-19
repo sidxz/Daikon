@@ -35,7 +35,7 @@ namespace Screen.Application.Features.Commands.UpdateScreen
 
         public async Task<Unit> Handle(UpdateScreenCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             var existingScreen = await _screenRepository.ReadScreenById(request.Id);
 
             if (existingScreen == null)

@@ -27,8 +27,7 @@ namespace Gene.Application.Features.Command.UpdateCrispriStrain
         public async Task<Unit> Handle(UpdateCrispriStrainCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("UpdateCrispriStrainCommandHandler {request}", request);
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneCrispriStrainUpdatedEvent = _mapper.Map<GeneCrispriStrainUpdatedEvent>(request);
             geneCrispriStrainUpdatedEvent.LastModifiedById = request.RequestorUserId;

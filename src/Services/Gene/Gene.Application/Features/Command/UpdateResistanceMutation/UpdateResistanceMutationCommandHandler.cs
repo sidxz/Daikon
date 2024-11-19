@@ -28,8 +28,7 @@ namespace Gene.Application.Features.Command.UpdateResistanceMutation
         {
             _logger.LogInformation("UpdateResistanceMutationCommandHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneResistanceMutationUpdatedEvent = _mapper.Map<GeneResistanceMutationUpdatedEvent>(request);
             geneResistanceMutationUpdatedEvent.LastModifiedById = request.RequestorUserId;
