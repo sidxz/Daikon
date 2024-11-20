@@ -26,6 +26,7 @@ namespace Gene.Application.Features.Command.DeleteProteinProduction
     public async Task<Unit> Handle(DeleteProteinProductionCommand request, CancellationToken cancellationToken)
     {
       _logger.LogInformation("DeleteProteinProductionCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
 
       var proteinProductionDeletedEvent = _mapper.Map<GeneProteinProductionDeletedEvent>(request);
       try

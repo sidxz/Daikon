@@ -22,6 +22,7 @@ namespace Target.Application.Features.Commands.DeleteToxicology
 
         public async Task<Unit> Handle(DeleteToxicologyCommand request, CancellationToken cancellationToken)
         {
+            request.SetUpdateProperties(request.RequestorUserId);
             _logger.LogInformation("DeleteToxicologyCommand {request}", request);
             var targetToxicologyDeletedEvent = _mapper.Map<TargetToxicologyDeletedEvent>(request);
             try

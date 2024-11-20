@@ -41,12 +41,13 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
             try
             {
                 _logger.LogInformation("Handling NewProjectCompoundEvolutionCommand: {Id}", request.Id);
+
+                var dateCreated = request.DateCreated;
+                request.SetCreateProperties(request.RequestorUserId);
                 
                 // handle dates
-                var now = DateTime.UtcNow;
                 request.ImportMode ??= false;
-                request.DateCreated = (bool)request.ImportMode ? request.DateCreated: now;
-                request.IsModified = false;
+                request.DateCreated = (bool)request.ImportMode ? dateCreated: request.DateCreated;
 
 
                 var compoundEvoAddedEvent = _mapper.Map<ProjectCompoundEvolutionAddedEvent>(request);

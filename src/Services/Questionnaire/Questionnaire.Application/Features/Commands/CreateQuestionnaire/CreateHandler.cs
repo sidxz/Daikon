@@ -25,6 +25,7 @@ namespace Questionnaire.Application.Features.Commands.CreateQuestionnaire
         {
             // check if questionnaire (questionnaireName) already exists; reject if it does
             request.Name = request.Name.ToUpper();
+            request.SetCreateProperties(request.RequestorUserId);
             var questionnaireExists = await _questionnaireRepository.ReadQuestionnaireByName(request.Name);
 
             if (questionnaireExists != null)

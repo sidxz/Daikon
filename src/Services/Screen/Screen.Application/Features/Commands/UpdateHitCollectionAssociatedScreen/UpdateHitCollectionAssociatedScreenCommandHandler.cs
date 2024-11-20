@@ -30,6 +30,7 @@ namespace Screen.Application.Features.Commands.UpdateHitCollectionAssociatedScre
 
         public async Task<Unit> Handle(UpdateHitCollectionAssociatedScreenCommand request, CancellationToken cancellationToken)
         {
+            request.SetUpdateProperties(request.RequestorUserId);
             _logger.LogInformation("Updating hit collection associated screen. Id: {Id}", request.Id);
             try
             {

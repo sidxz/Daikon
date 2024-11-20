@@ -33,7 +33,7 @@ namespace Screen.Application.Features.Commands.RenameScreen
 
         public async Task<Unit> Handle(RenameScreenCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             var existingScreen = await _screenRepository.ReadScreenById(request.Id);
 
             // check if name is available

@@ -3,6 +3,8 @@ using AutoMapper;
 using CQRS.Core.Exceptions;
 using Target.Application.Contracts.Persistence;
 using MediatR;
+using CQRS.Core.Domain;
+using CQRS.Core.Extensions;
 
 namespace Target.Application.Features.Queries.GetTarget.ById
 {
@@ -27,6 +29,9 @@ namespace Target.Application.Features.Queries.GetTarget.ById
 
                 var targetVm = _mapper.Map<TargetVM>(target, opts => opts.Items["WithMeta"] = request.WithMeta);
                 targetVm.AssociatedGenesFlattened = string.Join(", ", targetVm.AssociatedGenes.Select(x => x.Value));
+
+                var trackableEntities = new List<VMMeta> { targetVm }; 
+                (targetVm.PageLastUpdatedDate, targetVm.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
 
                 return targetVm;
             }

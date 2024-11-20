@@ -31,8 +31,7 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
             var headers = _httpContextAccessor.HttpContext.Request.Headers
                         .ToDictionary(h => h.Key, h => h.Value.ToString());
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
             // First check if the molecule exists in the database
             var existingMolecule = await _moleculeRepository.GetMoleculeById(request.Id) ?? throw new InvalidOperationException("Molecule not found");
 
@@ -50,7 +49,9 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 Name = request.Name ?? existingMolecule.Name ?? "UnNamed",
                 RequestedSMILES = request.RequestedSMILES,
                 RegistrationId = existingMolecule.RegistrationId,
-                LastModifiedById = request.RequestorUserId
+                LastModifiedById = request.RequestorUserId,
+                DateModified = request.DateModified,
+                IsModified = request.IsModified
             };
 
 

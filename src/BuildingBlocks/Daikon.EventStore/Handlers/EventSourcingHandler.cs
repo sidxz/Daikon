@@ -1,56 +1,74 @@
-
 using CQRS.Core.Domain;
 using CQRS.Core.Handlers;
 using CQRS.Core.Infrastructure;
-
-/*
-== Overview ==
-The EventSourcingHandler<TAggregate> class, part of the Daikon.EventStore.Handlers namespace, is a generic handler 
-for event sourcing operations in a CQRS (Command Query Responsibility Segregation) architecture. It is designed 
-to work with aggregate roots of type TAggregate, which must inherit from AggregateRoot and have a parameterless constructor.
-
-== Responsibilities ==
-Event Sourcing Operations: This class is primarily responsible for retrieving and saving the state of aggregates through event sourcing.
-Interface Implementation: It implements the IEventSourcingHandler<TAggregate> interface,
-                          ensuring compliance with the defined contract for event sourcing handlers.
-
-== Developer Notes ==
-new() is a constraint that specifies that TAggregate must have a public parameterless constructor. 
-This allows the EventSourcingHandler to create new instances of TAggregate using the new TAggregate() syntax.
-*/
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Daikon.EventStore.Handlers
 {
+    /// <summary>
+    /// Generic event sourcing handler for aggregates of type TAggregate.
+    /// Responsible for loading and saving aggregate state using event sourcing techniques.
+    /// </summary>
+    /// <typeparam name="TAggregate">The type of aggregate root that the handler works with.</typeparam>
     public class EventSourcingHandler<TAggregate> : IEventSourcingHandler<TAggregate> where TAggregate : AggregateRoot, new()
     {
         private readonly IEventStore<TAggregate> _eventStore;
 
         public EventSourcingHandler(IEventStore<TAggregate> eventStore)
         {
-            _eventStore = eventStore;
+            _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
         }
 
+        /// <summary>
+        /// Retrieves an aggregate by its identifier asynchronously.
+        /// Replays all events for the aggregate to reconstruct its state.
+        /// </summary>
+        /// <param name="aggregateId">The unique identifier of the aggregate.</param>
+        /// <returns>The fully reconstituted aggregate.</returns>
         public async Task<TAggregate> GetByAsyncId(Guid aggregateId)
-
         {
+            // Create a new instance of the aggregate
             var aggregate = new TAggregate();
-            var events = await _eventStore.GetEventsAsync(aggregateId);
 
+            // Retrieve events from the event store for the given aggregateId
+            var events = await _eventStore.GetEventsAsync(aggregateId);
             if (events == null || !events.Any())
             {
+                // No events found, return a default empty aggregate
                 return aggregate;
             }
 
+            // Replay events to rebuild aggregate state
             aggregate.ReplayEvents(events);
-            aggregate.Version = events.Select(x => x.Version).Max();
 
+            // Set the version to the highest version from the events
+            aggregate.Version = events.Max(e => e.Version);
 
             return aggregate;
         }
 
+        /// <summary>
+        /// Saves the state of an aggregate by persisting its uncommitted changes (events) to the event store.
+        /// After saving, marks the changes as committed.
+        /// </summary>
+        /// <param name="aggregate">The aggregate whose state needs to be saved.</param>
         public async Task SaveAsync(AggregateRoot aggregate)
         {
-            await _eventStore.SaveEventAsync(aggregate.Id, aggregate.GetUncommittedChanges(), aggregate.Version);
+            if (aggregate == null)
+            {
+                throw new ArgumentNullException(nameof(aggregate), "Aggregate cannot be null when saving.");
+            }
+
+            // Save the uncommitted changes (events) to the event store
+            await _eventStore.SaveEventAsync(
+                aggregate.Id,
+                aggregate.GetUncommittedChanges(),
+                aggregate.Version
+            );
+
+            // Mark changes as committed after saving
             aggregate.MarkChangesAsCommitted();
         }
     }

@@ -28,6 +28,7 @@ namespace Gene.Application.Features.Command.DeleteHypomorph
     {
 
       _logger.LogInformation("DeleteHypomorphCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
       var geneHypomorphDeletedEvent = _mapper.Map<GeneHypomorphDeletedEvent>(request);
       try
       {

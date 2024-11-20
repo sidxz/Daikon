@@ -32,7 +32,7 @@ namespace Target.Application.Features.Command.UpdateTarget
 
         public async Task<Unit> Handle(UpdateTargetCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             // check if name is modified; reject if it is
             var existingTarget = await _targetRepository.ReadTargetById(request.Id);
             if (existingTarget.Name != request.Name)

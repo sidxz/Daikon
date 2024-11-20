@@ -28,8 +28,7 @@ namespace Gene.Application.Features.Command.UpdateProteinProduction
         {
             _logger.LogInformation("UpdateProteinProductionCommandHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneProteinProductionUpdatedEvent = _mapper.Map<GeneProteinProductionUpdatedEvent>(request);
             geneProteinProductionUpdatedEvent.LastModifiedById = request.RequestorUserId;

@@ -57,6 +57,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     // check if Id and RegistrationId are set, if not create new Guid
                     foreach (var command in batch)
                     {
+                        command.SetCreateProperties(request.RequestorUserId);
+
                         if (command.Id == Guid.Empty)
                         {
                             command.Id = Guid.NewGuid();
@@ -72,7 +74,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                         command.Id = command.RegistrationId;
                     }
 
-                    // Register batch of molecules in MolDB
+                    // Register batch of molecules in ChemVault
                     var registrationResponses = await _iMoleculeAPI.RegisterBatch(batch, headers);
 
                     foreach (var registrationReq in registrationResponses)

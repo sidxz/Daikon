@@ -1,6 +1,8 @@
 
 using AutoMapper;
+using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using Daikon.Shared.VM.MLogix;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +31,7 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ByName
                 _logger.LogInformation("Find Molecules matching name: {0} and limit: {2}", request.Name, request.Limit);
 
                 var res = new List<MoleculeVM>();
-                var vaultMolecules = await _iMoleculeAPI.FindByName(request.Name, request.Limit, headers);
+                var vaultMolecules = await _iMoleculeAPI.FindByNameWithFilters(request, headers);
 
                 _logger.LogInformation("Found {0} molecules with name {1}", vaultMolecules.Count, request.Name);
 
@@ -44,6 +46,9 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ByName
                         MoleculeVM.RegistrationId = vaultMolecule.Id;
                         MoleculeVM.Id = molecule.Id;
 
+                        var trackableEntities = new List<VMMeta> { MoleculeVM };
+                        (MoleculeVM.PageLastUpdatedDate, MoleculeVM.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+
                         res.Add(MoleculeVM);
                     }
                     catch (Exception ex)
@@ -51,6 +56,7 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ByName
                         _logger.LogError(ex, "Error in processing molecule with ID: {0}", vaultMolecule.Id);
                     }
                 }
+
                 return res;
             }
             catch (Exception ex)

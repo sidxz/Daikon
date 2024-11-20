@@ -29,8 +29,7 @@ namespace Gene.Application.Features.Command.UpdateHypomorph
         {
             _logger.LogInformation("UpdateHypomorphCommandHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneHypomorphUpdatedEvent = _mapper.Map<GeneHypomorphUpdatedEvent>(request);
             geneHypomorphUpdatedEvent.LastModifiedById = request.RequestorUserId;

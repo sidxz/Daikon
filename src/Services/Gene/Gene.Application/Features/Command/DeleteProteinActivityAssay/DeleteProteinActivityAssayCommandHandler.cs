@@ -27,6 +27,7 @@ namespace Gene.Application.Features.Command.DeleteProteinActivityAssay
     public async Task<Unit> Handle(DeleteProteinActivityAssayCommand request, CancellationToken cancellationToken)
     {
       _logger.LogInformation("DeleteProteinActivityAssayCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
 
       var proteinActivityAssayDeletedEvent = _mapper.Map<GeneProteinActivityAssayDeletedEvent>(request);
       try

@@ -31,9 +31,9 @@ namespace Screen.Application.Features.Commands.NewScreenRun
 
         public async Task<Unit> Handle(NewScreenRunCommand request, CancellationToken cancellationToken)
         {
-            
 
-           var screenRunAddedEvent = _mapper.Map<ScreenRunAddedEvent>(request);
+            request.SetCreateProperties(request.RequestorUserId);
+            var screenRunAddedEvent = _mapper.Map<ScreenRunAddedEvent>(request);
 
             try
             {

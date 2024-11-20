@@ -26,6 +26,7 @@ namespace Questionnaire.Application.Features.Commands.UpdateQuestionnaire
         public async Task<Domain.Entities.Questionnaire> Handle(UpdateCommand request, CancellationToken cancellationToken)
         {
             // fetch the existing questionnaire
+            request.SetUpdateProperties(request.RequestorUserId);
             request.Name = request.Name.ToUpper();
             var existingQuestionnaire = await _questionnaireRepository.ReadQuestionnaireByName(request.Name)
                         ?? throw new AggregateNotFoundException(nameof(UpdateCommand));

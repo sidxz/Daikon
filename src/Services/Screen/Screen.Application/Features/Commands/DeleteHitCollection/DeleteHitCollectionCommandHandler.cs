@@ -36,6 +36,7 @@ namespace Screen.Application.Features.Commands.DeleteHitCollection
 
             try
             {
+                request.SetUpdateProperties(request.RequestorUserId);
                 var hitCollectionDeletedEvent = _mapper.Map<HitCollectionDeletedEvent>(request);
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.HitCollectionId);

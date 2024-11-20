@@ -27,6 +27,7 @@ namespace Target.Application.Features.Commands.SubmitTPQ
         {
             try
             {
+                request.SetCreateProperties(request.RequestorUserId);
                 _logger.LogInformation($"Handling SubmitTPQCommand: {request.ToJson()}");
 
                 /*public List<(string QIdentification, string Answer, string Description)> Response { get; set; }

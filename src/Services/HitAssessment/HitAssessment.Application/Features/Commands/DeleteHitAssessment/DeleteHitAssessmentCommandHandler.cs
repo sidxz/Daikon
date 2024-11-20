@@ -29,6 +29,8 @@ namespace HitAssessment.Application.Features.Commands.DeleteHitAssessment
 
       try
       {
+        request.SetUpdateProperties(request.RequestorUserId);
+        
         var aggregate = await _haEventSourcingHandler.GetByAsyncId(request.Id);
 
         var haDeletedEvent = _mapper.Map<HaDeletedEvent>(request);

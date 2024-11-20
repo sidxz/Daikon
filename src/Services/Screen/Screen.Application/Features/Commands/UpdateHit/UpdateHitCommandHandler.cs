@@ -36,6 +36,8 @@ namespace Screen.Application.Features.Commands.UpdateHit
         public async Task<Unit> Handle(UpdateHitCommand request, CancellationToken cancellationToken)
         {
 
+            request.SetUpdateProperties(request.RequestorUserId);
+
             try
             {
                 if (request.VoteToAdd != null)

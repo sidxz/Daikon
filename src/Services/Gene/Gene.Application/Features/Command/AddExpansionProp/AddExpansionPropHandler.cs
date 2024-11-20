@@ -30,8 +30,7 @@ namespace Gene.Application.Features.Command.AddExpansionProp
         {
             _logger.LogInformation("AddExpansionPropCommandHandler {request}", request);
             
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
             
             var geneExpansionPropAddedEvent = _mapper.Map<GeneExpansionPropAddedEvent>(request);
 

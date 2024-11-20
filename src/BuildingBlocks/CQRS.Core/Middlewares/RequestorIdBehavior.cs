@@ -1,15 +1,18 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using CQRS.Core.Command;
 using CQRS.Core.Query;
+
 namespace CQRS.Core.Middlewares
 {
+    /// <summary>
+    /// Middleware to assign RequestorUserId from HTTP headers to commands and queries.
+    /// </summary>
     public class RequestorIdBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+        where TRequest : IRequest<TResponse>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -18,20 +21,50 @@ namespace CQRS.Core.Middlewares
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public async Task<TResponse> Handle(
+            TRequest request, 
+            RequestHandlerDelegate<TResponse> next, 
+            CancellationToken cancellationToken)
         {
-            if (request is BaseCommand baseCommand)
+            try
             {
-                baseCommand.RequestorUserId = Guid.TryParse(_httpContextAccessor.HttpContext.Request.Headers["AppUser-Id"], out var appUserId) ? appUserId : Guid.Empty;
+                var requestorUserId = GetRequestorUserId();
+                
+                switch (request)
+                {
+                    case BaseCommand baseCommand:
+                        baseCommand.RequestorUserId = requestorUserId;
+                        break;
+                    case BaseQuery baseQuery:
+                        baseQuery.RequestorUserId = requestorUserId;
+                        break;
+                }
+
+                // Continue to the next delegate in the pipeline
+                return await next();
             }
-            else if (request is BaseQuery baseQuery)
+            catch (Exception ex)
             {
-                baseQuery.RequestorUserId = Guid.TryParse(_httpContextAccessor.HttpContext.Request.Headers["AppUser-Id"], out var appUserId) ? appUserId : Guid.Empty;
+                // Log the exception (logging mechanism would be implemented here)
+                throw new InvalidOperationException("An error occurred while processing the request.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Extracts the RequestorUserId from the HTTP header, if available.
+        /// </summary>
+        /// <returns>The extracted Guid, or Guid.Empty if not found or invalid.</returns>
+        private Guid GetRequestorUserId()
+        {
+            if (_httpContextAccessor.HttpContext == null)
+            {
+                // No HTTP context, typically in a background service.
+                return Guid.Empty;
             }
 
-            // Call the next delegate/middleware in the pipeline
-            return await next();
+            // Attempt to parse the AppUser-Id from headers
+            var headers = _httpContextAccessor.HttpContext.Request.Headers;
+            return Guid.TryParse(headers["AppUser-Id"], out var appUserId) ? appUserId : Guid.Empty;
         }
     }
-
 }

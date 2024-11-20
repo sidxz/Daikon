@@ -6,6 +6,7 @@ using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
 using MLogix.Application.Features.Queries.FindSubstructures;
+using MLogix.Application.Features.Queries.GetMolecule.ByName;
 
 namespace MLogix.Application.Contracts.Infrastructure.DaikonChemVault
 {
@@ -17,6 +18,7 @@ namespace MLogix.Application.Contracts.Infrastructure.DaikonChemVault
         public Task<List<SimilarMolecule>> FindSimilar(FindSimilarMoleculesQuery query, IDictionary<string, string> headers);
         public Task<List<MoleculeBase>> FindSubstructure(FindSubstructuresQuery query, IDictionary<string, string> headers);
         public Task<List<MoleculeBase>> FindByName(string name, int limit, IDictionary<string, string> headers);
+        public Task<List<MoleculeBase>> FindByNameWithFilters(GetByNameQuery query, IDictionary<string, string> headers);
         public Task<MoleculeBase> Register(RegisterMoleculeCommand registerMoleculeCommand, IDictionary<string, string> headers);
         public Task<MoleculeBase> Update(Guid RegistrationId, UpdateMoleculeCommand command, IDictionary<string, string> headers);
         public Task<Unit> Delete(Guid RegistrationId, IDictionary<string, string> headers);

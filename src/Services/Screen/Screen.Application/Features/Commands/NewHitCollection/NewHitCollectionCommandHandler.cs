@@ -32,6 +32,7 @@ namespace Screen.Application.Features.Commands.NewHitCollection
         {
             try
             {
+                request.SetCreateProperties(request.RequestorUserId);
                 // Check if the name already exists in the hit collection repository
                 var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionByName(request.Name);
                 if (existingHitCollection != null)

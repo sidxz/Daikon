@@ -32,6 +32,7 @@ namespace Screen.Application.Features.Commands.UpdateHitCollection
         }
         public async Task<Unit> Handle(UpdateHitCollectionCommand request, CancellationToken cancellationToken)
         {
+            request.SetUpdateProperties(request.RequestorUserId);
             try
             {
                 var hitCollectionUpdatedEvent = _mapper.Map<HitCollectionUpdatedEvent>(request);

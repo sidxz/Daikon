@@ -42,9 +42,10 @@ namespace Project.Application.Features.Commands.NewProject
                 throw new ResourceNotFoundException(nameof(Project), request.Id);
             }
 
+            request.SetUpdateProperties(request.RequestorUserId);
+
             var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
+            
 
             // check if stage has changed
             if (existingProject.Stage != request.Stage)

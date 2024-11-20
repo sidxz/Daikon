@@ -32,6 +32,7 @@ namespace Screen.Application.Features.Commands.RenameHitCollection
         }
         public async Task<Unit> Handle(RenameHitCollectionCommand request, CancellationToken cancellationToken)
         {
+            request.SetUpdateProperties(request.RequestorUserId);
             // check if name is available
             var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionByName(request.Name);
             if (existingHitCollection != null)

@@ -31,9 +31,7 @@ namespace Project.Application.Features.Commands.RenameProject
             // Experimental: (Code Improvement) Removing dependency on the repository
             // Name check is done in the aggregate
 
-            var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             try
             {
