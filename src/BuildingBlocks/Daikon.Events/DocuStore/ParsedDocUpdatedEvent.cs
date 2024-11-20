@@ -1,10 +1,16 @@
 
 using CQRS.Core.Domain;
+using CQRS.Core.Event;
 
-namespace DocuStore.Domain.Entities
+namespace Daikon.Events.DocuStore
 {
-    public class ParsedDoc : BaseEntity
+    public class ParsedDocUpdatedEvent : BaseEvent
     {
+        public ParsedDocUpdatedEvent() : base(nameof(ParsedDocUpdatedEvent))
+        {
+            
+        }
+
         public string Name { get; set; } = string.Empty;
         public string FilePath { get; set; } = string.Empty;
         public string FileType { get; set; } = string.Empty;
