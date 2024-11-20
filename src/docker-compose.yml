@@ -77,6 +77,13 @@ services:
       context: .
       dockerfile: Services/EventHistory/EventHistory.API/Dockerfile
   
+  docustore-api:
+    container_name: "docustore-api"
+    image: ${DOCKER_REGISTRY-}docustore
+    build:
+      context: .
+      dockerfile: Services/DocuStore/DocuStore.API/Dockerfile
+  
   simplegw-api:
     container_name: "simplegw-api"
     image: ${DOCKER_REGISTRY-}simplegw

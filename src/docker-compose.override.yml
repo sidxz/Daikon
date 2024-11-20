@@ -400,6 +400,49 @@ services:
     networks:
       - daikon-be-net
 
+  docustore-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      ## Kafka Producer
+      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings:Topic=${KafkaTopic}
+
+      ## Kafka Consumer
+      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+
+      - "KafkaConsumerSettings:GroupId=docustore-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      ## MongoDb Data Store
+      - DocuStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+
+      - "DocuStoreMongoDbSettings:DatabaseName=DocuStore"
+
+      - "DocuStoreMongoDbSettings:DocuStoreCollectionName=Docs"
+      - "DocuStoreMongoDbSettings:DocuStoreRevisionCollectionName=DocsRevisions"
+
+      ## Internal APIs
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+
+    ports:
+      - "8014:80"
+    networks:
+      - daikon-be-net
+
   userstore-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
