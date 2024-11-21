@@ -432,8 +432,8 @@ services:
 
       - "DocuStoreMongoDbSettings:DatabaseName=DocuStore"
 
-      - "DocuStoreMongoDbSettings:DocuStoreCollectionName=Docs"
-      - "DocuStoreMongoDbSettings:DocuStoreRevisionCollectionName=DocsRevisions"
+      - "DocuStoreMongoDbSettings:ParsedDocCollectionName=ParsedDocs"
+      - "DocuStoreMongoDbSettings:ParsedDocRevisionCollectionName=ParsedDocsRevisions"
 
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"

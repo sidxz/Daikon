@@ -22,9 +22,9 @@ namespace DocuStore.Infrastructure.Repositories
             ILogger<ParsedDocRepository> logger,
             IVersionHub<ParsedDocRevision> versionMaintainer)
         {
-            var client = new MongoClient(configuration.GetValue<string>("ParsedDocMongoDbSettings:ConnectionString"));
-            var database = client.GetDatabase(configuration.GetValue<string>("ParsedDocMongoDbSettings:DatabaseName"));
-            _parsedDocCollection = database.GetCollection<ParsedDoc>(configuration.GetValue<string>("ParsedDocMongoDbSettings:CollectionName"));
+            var client = new MongoClient(configuration.GetValue<string>("DocuStoreMongoDbSettings:ConnectionString"));
+            var database = client.GetDatabase(configuration.GetValue<string>("DocuStoreMongoDbSettings:DatabaseName"));
+            _parsedDocCollection = database.GetCollection<ParsedDoc>(configuration.GetValue<string>("DocuStoreMongoDbSettings:ParsedDocCollectionName"));
 
             // Create indexes for optimized queries
             CreateIndexes();
