@@ -14,9 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace DocuStore.API.Controllers.V2
 {
     [ApiController]
-    [Route("api/v{version:apiVersion}/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]/parsed-docs")]
     [ApiVersion("2.0")]
-    public partial class ParsedDocController(IMediator mediator) : ControllerBase
+    public partial class DocuStoreController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 

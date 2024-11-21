@@ -38,10 +38,9 @@ namespace DocuStore.Infrastructure.Repositories
             _parsedDocCollection.Indexes.CreateMany(new[]
             {
                 new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.Tags), new CreateIndexOptions { Unique = false }),
+                new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.FilePath), new CreateIndexOptions { Unique = true }),
                 new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.PublicationDate), new CreateIndexOptions { Unique = false }),
                 new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.Mentions), new CreateIndexOptions { Unique = false }),
-                new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.PublicationDate), new CreateIndexOptions { Unique = false }),
-                new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Hashed(doc => doc.DocHash), new CreateIndexOptions { Unique = true }) // Ensure unique hash
             });
         }
 
@@ -52,6 +51,8 @@ namespace DocuStore.Infrastructure.Repositories
             try
             {
                 _logger.LogInformation("CreateParsedDoc: Creating parsed document {ParsedDocId}, {ParsedDoc}", parsedDoc.Id, parsedDoc.ToJson());
+
+
                 await _parsedDocCollection.InsertOneAsync(parsedDoc);
                 await _versionHub.CommitVersion(parsedDoc);
             }
@@ -166,11 +167,10 @@ namespace DocuStore.Infrastructure.Repositories
         }
 
         public async Task<List<ParsedDoc>> ListByTags(
-                                                        HashSet<string> tags,
-                                                        int limit = 1000,
-                                                        DateTime? startDate = null,
-                                                        DateTime? endDate = null
-                                                        )
+    HashSet<string> tags,
+    int limit = 1000,
+    DateTime? startDate = null,
+    DateTime? endDate = null)
         {
             try
             {
@@ -179,18 +179,41 @@ namespace DocuStore.Infrastructure.Repositories
                     throw new ArgumentException("Tags list cannot be null or empty.", nameof(tags));
                 }
 
-                // Build the filter criteria
-                var filters = new List<FilterDefinition<ParsedDoc>>
-        {
-            Builders<ParsedDoc>.Filter.Or(
-                tags.Select(tag => Builders<ParsedDoc>.Filter.Regex("Tags", new BsonRegularExpression(tag, "i")))),
-            Builders<ParsedDoc>.Filter.Gte(doc => doc.PublicationDate.Value, startDate ?? DateTime.MinValue),
-            Builders<ParsedDoc>.Filter.Lte(doc => doc.PublicationDate.Value, endDate ?? DateTime.UtcNow)
-        };
+                // Build the filters
+                var filters = new List<FilterDefinition<ParsedDoc>>();
 
+                // Filter by tags using case-insensitive regex
+                var regexFilters = tags.Select(tag => Builders<ParsedDoc>.Filter.Regex("Tags", new BsonRegularExpression(tag, "i"))).ToList();
+                filters.Add(Builders<ParsedDoc>.Filter.Or(regexFilters));
+
+                // Handle PublicationDate filters
+                if (startDate.HasValue || endDate.HasValue)
+                {
+                    var dateFilters = new List<FilterDefinition<ParsedDoc>>();
+
+                    // Include documents where PublicationDate is null
+                    dateFilters.Add(Builders<ParsedDoc>.Filter.Exists(doc => doc.PublicationDate, false));
+
+                    // Add range filters for non-null PublicationDate
+                    if (startDate.HasValue)
+                    {
+                        dateFilters.Add(Builders<ParsedDoc>.Filter.Gte(doc => doc.PublicationDate.Value, startDate.Value));
+                    }
+                    if (endDate.HasValue)
+                    {
+                        dateFilters.Add(Builders<ParsedDoc>.Filter.Lte(doc => doc.PublicationDate.Value, endDate.Value));
+                    }
+
+                    // Combine date filters with OR
+                    filters.Add(Builders<ParsedDoc>.Filter.Or(dateFilters));
+                }
+
+                // Combine all filters
                 var combinedFilter = Builders<ParsedDoc>.Filter.And(filters);
 
-                // Execute the query with a limit on the number of results
+                _logger.LogInformation("Combined Filter: {CombinedFilter}", combinedFilter);
+
+                // Execute the query with a limit
                 return await _parsedDocCollection.Find(combinedFilter).Limit(limit).ToListAsync();
             }
             catch (MongoException ex)
@@ -199,6 +222,7 @@ namespace DocuStore.Infrastructure.Repositories
                 throw new RepositoryException(nameof(ParsedDocRepository), "Error listing parsed documents by tags", ex);
             }
         }
+
 
 
         public async Task<List<ParsedDoc>> ListByMentions(List<Guid> mentions)

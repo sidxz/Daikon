@@ -505,6 +505,7 @@ services:
       - "EndPointRouting:user=http://userstore-api"
       - "EndPointRouting:questionnaire=http://questionnaire-api"
       - "EndPointRouting:comment=http://comment-api"
+      - "EndPointRouting:docu-store=http://docustore-api"
 
       - "EndPointRouting:event-history=http://event-history-api"
 
