@@ -1,27 +1,27 @@
-﻿// using DocuStore.Application.EventHandlers;
-// using DocuStore.Application.Features.Commands.NewDocuStore;
-// using FluentValidation;
-// using MediatR;
-// using Microsoft.Extensions.DependencyInjection;
-// using DocuStore.Application.Mappings;
+﻿
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using DocuStore.Application.Mappings;
+using DocuStore.Application.Features.Commands.AddParsedDoc;
 
-// namespace DocuStore.Application;
+namespace DocuStore.Application;
 
-// public static class ApplicationServiceRegistration
-//     {
-//         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
-//         {
+public static class ApplicationServiceRegistration
+    {
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        {
 
-//             services.AddAutoMapper(typeof(MappingProfile).Assembly);
-//             services.AddMediatR(typeof(NewDocuStoreCommand).Assembly);
-//             services.AddValidatorsFromAssembly(typeof(NewDocuStoreCommandValidator).Assembly);
+            services.AddAutoMapper(typeof(MappingProfile).Assembly);
+            services.AddMediatR(typeof(AddParsedDocCommand).Assembly);
+            services.AddValidatorsFromAssembly(typeof(AddParsedDocValidator).Assembly);
 
-//             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
-//             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
+            // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
+            // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-//             services.AddScoped<IDocuStoreEventHandler, DocuStoreEventHandler>();
+            //services.AddScoped<IDocuStoreEventHandler, DocuStoreEventHandler>();
 
-//             return services;
-//         }
+            return services;
+        }
 
-//     }
+    }

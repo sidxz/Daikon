@@ -1,9 +1,9 @@
 
 using CQRS.Core.Domain;
 
-namespace DocuStore.Domain.Entities
+namespace Daikon.Shared.VM.DocuStore
 {
-    public class ParsedDoc : BaseEntity
+    public class ParsedDocVM : VMMeta
     {
         public string Name { get; set; } = string.Empty;
         public string FilePath { get; set; } = string.Empty;
@@ -12,10 +12,10 @@ namespace DocuStore.Domain.Entities
         public string DocHash { get; set; } = string.Empty;
         public string Link { get; set; } = string.Empty;
 
-        public DVariable<string> Title { get; set; } = new();
-        public DVariable<string> Authors { get; set; } = new();
-        public DVariable<string> ShortSummary { get; set; } = new();
-        public DVariable<string> Notes { get; set; } = new();
+        public object Title { get; set; } = string.Empty;
+        public object Authors { get; set; } = string.Empty;
+        public object ShortSummary { get; set; } = string.Empty;
+        public object Notes { get; set; } = string.Empty;
 
         public HashSet<string> Tags { get; set; } = [];
         public HashSet<Guid> Mentions { get; set; } = [];
@@ -23,7 +23,6 @@ namespace DocuStore.Domain.Entities
         public Dictionary<string, string> Molecules { get; set; } = [];
 
 
-        public DVariable<DateTime> PublicationDate { get; set; } = new DVariable<DateTime> { Value = DateTime.UtcNow };
-
+        public DVariable<DateTime>? PublicationDate { get; set; }
     }
 }
