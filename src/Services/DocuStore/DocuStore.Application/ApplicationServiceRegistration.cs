@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using DocuStore.Application.Mappings;
 using DocuStore.Application.Features.Commands.AddParsedDoc;
+using DocuStore.Application.EventHandlers;
 
 namespace DocuStore.Application;
 
@@ -19,7 +20,7 @@ public static class ApplicationServiceRegistration
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.UnhandledExceptionBehaviour<,>));
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
-            //services.AddScoped<IDocuStoreEventHandler, DocuStoreEventHandler>();
+            services.AddScoped<IParsedDocEventHandler, ParsedDocEventHandler>();
 
             return services;
         }

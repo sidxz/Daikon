@@ -166,7 +166,7 @@ namespace DocuStore.Infrastructure.Repositories
         }
 
         public async Task<List<ParsedDoc>> ListByTags(
-                                                        List<string> tags,
+                                                        HashSet<string> tags,
                                                         int limit = 1000,
                                                         DateTime? startDate = null,
                                                         DateTime? endDate = null

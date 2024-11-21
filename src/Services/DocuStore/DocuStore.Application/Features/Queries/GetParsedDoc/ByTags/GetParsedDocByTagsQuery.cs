@@ -10,6 +10,7 @@ namespace DocuStore.Application.Features.Queries.GetParsedDoc.ByTags
 {
     public class GetParsedDocByTagsQuery : BaseQuery, IRequest<List<ParsedDocVM>>
     {
-        public required List<string> Tags { get; set; }
+        public required HashSet<string> Tags { get; set; }
+        
     }
 }

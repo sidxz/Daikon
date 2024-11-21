@@ -66,7 +66,7 @@ namespace DocuStore.Application.Contracts.Persistence
         /// <param name="endDate">The end date for filtering documents. Defaults to today's date if not specified.</param>
         /// <returns>A list of ParsedDoc entities matching the specified criteria.</returns>
         Task<List<ParsedDoc>> ListByTags(
-            List<string> tags,
+            HashSet<string> tags,
             int limit = 1000,
             DateTime? startDate = null,
             DateTime? endDate = null);
