@@ -2,6 +2,7 @@
 using AutoMapper;
 using CQRS.Core.Handlers;
 using Daikon.Events.DocuStore;
+using Daikon.Shared.APIClients.MLogix;
 using DocuStore.Application.Contracts.Persistence;
 using DocuStore.Domain.Aggregates;
 using DocuStore.Domain.Entities;
@@ -16,17 +17,21 @@ namespace DocuStore.Application.Features.Commands.AddParsedDoc
         private readonly ILogger<AddParsedDocHandler> _logger;
         private readonly IParsedDocRepository _parsedDocRepository;
         private readonly IEventSourcingHandler<ParsedDocAggregate> _parsedDocEventSourcingHandler;
+        private readonly IMLogixAPI _mLogixAPIService;
 
         public AddParsedDocHandler(
             IMapper mapper,
             ILogger<AddParsedDocHandler> logger,
             IParsedDocRepository parsedDocRepository,
-            IEventSourcingHandler<ParsedDocAggregate> parsedDocEventSourcingHandler)
+            IEventSourcingHandler<ParsedDocAggregate> parsedDocEventSourcingHandler,
+            IMLogixAPI mLogixAPIService
+            )
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _parsedDocRepository = parsedDocRepository ?? throw new ArgumentNullException(nameof(parsedDocRepository));
             _parsedDocEventSourcingHandler = parsedDocEventSourcingHandler ?? throw new ArgumentNullException(nameof(parsedDocEventSourcingHandler));
+            _mLogixAPIService = mLogixAPIService ?? throw new ArgumentNullException(nameof(mLogixAPIService));
         }
 
         public async Task<ParsedDoc> Handle(AddParsedDocCommand request, CancellationToken cancellationToken)
@@ -51,6 +56,19 @@ namespace DocuStore.Application.Features.Commands.AddParsedDoc
 
                 // Set metadata for the new document
                 request.SetCreateProperties(request.RequestorUserId);
+
+                // map molecule names to IDs
+                foreach (var smiles in request.ExtractedSMILES)
+                {
+                    var molecule = await _mLogixAPIService.GetMoleculeBySmiles(smiles);
+                    if (molecule != null)
+                    {
+                        string moleculeId = molecule.Id.ToString();
+                        string moleculeName = molecule.Name;
+                        request.Molecules.Add(moleculeId, moleculeName);
+                        request.Tags.Add(moleculeName);
+                    }
+                }
 
                 // Map request to an event and initialize the aggregate
                 var parsedDocAddedEvent = _mapper.Map<ParsedDocAddedEvent>(request);

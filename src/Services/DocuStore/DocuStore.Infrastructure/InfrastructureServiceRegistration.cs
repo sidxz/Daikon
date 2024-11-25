@@ -13,6 +13,7 @@ using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
+using Daikon.Shared.APIClients.MLogix;
 using Daikon.VersionStore.Handlers;
 using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
@@ -100,6 +101,10 @@ namespace DocuStore.Infrastructure
             /* Consumers */
             services.AddScoped<IEventConsumer, ParsedDocEventConsumer>();
             services.AddHostedService<ConsumerHostedService>();
+
+
+            /* MolDb API */
+            services.AddScoped<IMLogixAPI, MLogixAPI>();
 
             return services;
         }

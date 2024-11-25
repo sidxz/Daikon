@@ -24,6 +24,8 @@ namespace DocuStore.Application.Mappings
 
             CreateMap<ParsedDoc, ParsedDocUpdatedEvent>().ReverseMap();
             CreateMap<UpdateParsedDocCommand, ParsedDocUpdatedEvent>().ReverseMap();
+            CreateMap<UpdateParsedDocCommand, AddParsedDocCommand>().ReverseMap();
+
 
             CreateMap<ParsedDoc, ParsedDocDeletedEvent>().ReverseMap();
 
