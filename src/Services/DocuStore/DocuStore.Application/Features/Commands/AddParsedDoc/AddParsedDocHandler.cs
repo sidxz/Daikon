@@ -65,7 +65,7 @@ namespace DocuStore.Application.Features.Commands.AddParsedDoc
                     {
                         string moleculeId = molecule.Id.ToString();
                         string moleculeName = molecule.Name;
-                        request.Molecules.Add(moleculeId, moleculeName);
+                        request.Molecules.TryAdd(moleculeId, moleculeName);
                         request.Tags.Add(moleculeName);
                     }
                 }

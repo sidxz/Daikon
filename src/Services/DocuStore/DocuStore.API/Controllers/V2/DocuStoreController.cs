@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using CQRS.Core.Responses;
 using Daikon.Shared.VM.DocuStore;
 using DocuStore.Application.Features.Commands.AddParsedDoc;
+using DocuStore.Application.Features.Commands.UpdateParsedDoc;
 using DocuStore.Application.Features.Queries.GetParsedDoc.ById;
+using DocuStore.Application.Features.Queries.GetParsedDoc.ByPath;
 using DocuStore.Application.Features.Queries.GetParsedDoc.ByTags;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +43,16 @@ namespace DocuStore.API.Controllers.V2
             return Ok(parsedDoc);
         }
 
+        [HttpGet("by-path", Name = "GetDocByPath")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(ParsedDocVM), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ParsedDocVM>> GetDocByPath([FromQuery] string path, [FromQuery] bool WithMeta = false)
+        {
+            var parsedDoc = await _mediator.Send(new GetParsedDocByPathQuery { Path = path, WithMeta = WithMeta });
+            return Ok(parsedDoc);
+        }
+
         [HttpGet("by-tags", Name = "GetDocsByTags")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType(typeof(IEnumerable<ParsedDocVM>), (int)HttpStatusCode.OK)]
@@ -61,12 +73,12 @@ namespace DocuStore.API.Controllers.V2
             return StatusCode(StatusCodes.Status201Created, res);
         }
 
-        [HttpPut("{id}", Name = "UpdateDoc")]
+        [HttpPut(Name = "UpdateDoc")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> UpdateDoc(Guid id, AddParsedDocCommand command)
+        public async Task<ActionResult> UpdateDoc(UpdateParsedDocCommand command)
         {
-            command.Id = id;
+            
             var res = await _mediator.Send(command);
 
             return StatusCode(StatusCodes.Status200OK, res);

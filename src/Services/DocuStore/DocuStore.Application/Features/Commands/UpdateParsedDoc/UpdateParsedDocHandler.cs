@@ -69,6 +69,7 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
 
                 // Set metadata for the new document
                 request.SetUpdateProperties(request.RequestorUserId);
+                request.Id = existingDoc.Id;
 
                 // map molecule names to IDs
                 foreach (var smiles in request.ExtractedSMILES)
@@ -78,7 +79,7 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
                     {
                         string moleculeId = molecule.Id.ToString();
                         string moleculeName = molecule.Name;
-                        request.Molecules.Add(moleculeId, moleculeName);
+                        request.Molecules.TryAdd(moleculeId, moleculeName);
                         request.Tags.Add(moleculeName);
                     }
                 }

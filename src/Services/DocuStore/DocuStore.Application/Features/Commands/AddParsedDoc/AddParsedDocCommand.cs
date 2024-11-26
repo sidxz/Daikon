@@ -18,15 +18,15 @@ namespace DocuStore.Application.Features.Commands.AddParsedDoc
         public string Link { get; set; } = string.Empty;
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> Title { get; set; } = new();
+        public DVariable<string> Title { get; set; } = new DVariable<string>();
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> Authors { get; set; } = new();
+        public DVariable<string> Authors { get; set; } = new DVariable<string>();
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> ShortSummary { get; set; } = new();
+        public DVariable<string> ShortSummary { get; set; } = new DVariable<string>();
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
-        public DVariable<string> Notes { get; set; } = new();
+        public DVariable<string> Notes { get; set; } = new DVariable<string>();
 
         public HashSet<string> Tags { get; set; } = [];
         public HashSet<Guid> Mentions { get; set; } = [];
