@@ -5,6 +5,7 @@ namespace Daikon.Shared.VM.DocuStore
 {
     public class ParsedDocVM : VMMeta
     {
+        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string FilePath { get; set; } = string.Empty;
         public string FileType { get; set; } = string.Empty;
