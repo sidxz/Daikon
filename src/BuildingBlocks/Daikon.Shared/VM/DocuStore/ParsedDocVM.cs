@@ -1,5 +1,6 @@
 
 using CQRS.Core.Domain;
+using Daikon.Shared.VM.MLogix;
 
 namespace Daikon.Shared.VM.DocuStore
 {
@@ -22,8 +23,7 @@ namespace Daikon.Shared.VM.DocuStore
         public HashSet<Guid> Mentions { get; set; } = [];
         public HashSet<string> ExtractedSMILES { get; set; } = [];
         public Dictionary<string, string> Molecules { get; set; } = [];
-
-
+        public List<MoleculeVM> MoleculeView { get; set; } = [];
         public DVariable<DateTime>? PublicationDate { get; set; }
     }
 }
