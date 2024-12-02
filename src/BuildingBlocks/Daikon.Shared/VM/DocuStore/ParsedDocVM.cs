@@ -24,6 +24,6 @@ namespace Daikon.Shared.VM.DocuStore
         public HashSet<string> ExtractedSMILES { get; set; } = [];
         public Dictionary<string, string> Molecules { get; set; } = [];
         public List<MoleculeVM> MoleculeView { get; set; } = [];
-        public DVariable<DateTime>? PublicationDate { get; set; }
+        public dynamic PublicationDate { get; set; }
     }
 }

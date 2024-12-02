@@ -36,6 +36,7 @@ namespace DocuStore.Application.Mappings
             .ForMember(dest => dest.Authors, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.Authors)))
             .ForMember(dest => dest.ShortSummary, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.ShortSummary)))
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.Notes)))
+            .ForMember(dest => dest.PublicationDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<DateTime>, DateTime>(src => src.PublicationDate)))
             .ReverseMap()
             ;
         }

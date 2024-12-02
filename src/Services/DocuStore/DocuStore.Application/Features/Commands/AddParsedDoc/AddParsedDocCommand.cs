@@ -33,6 +33,7 @@ namespace DocuStore.Application.Features.Commands.AddParsedDoc
         public HashSet<string> ExtractedSMILES { get; set; } = [];
         public Dictionary<string, string> Molecules { get; set; } = [];
 
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? PublicationDate { get; set; }
 
     }
