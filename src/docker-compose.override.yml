@@ -1,4 +1,77 @@
 services:
+  simplegw-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## OIDC
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+
+      ## OIDC
+      # - OIDCProvider=KeyCloak
+      # - KeyCloak:Instance=${Keycloak_Instance}
+      # - KeyCloak:TenantId=${Keycloak_Realm}
+      # - KeyCloak:ClientId=${Keycloak_ClientId}
+      # - KeyCloak:Audience=${Keycloak_Audience}
+      # - KeyCloak:Authority=${Keycloak_Authority}
+
+      ## Internal API Routing
+      - "UserStoreAPI:BaseUrl=http://userstore-api/api/v2/"
+
+      - "EndPointRouting:gene=http://gene-api"
+      - "EndPointRouting:gene-batch=http://gene-api"
+      - "EndPointRouting:strain=http://gene-api"
+
+      - "EndPointRouting:target=http://target-api"
+      - "EndPointRouting:screen=http://screen-api"
+      - "EndPointRouting:hit-collection=http://screen-api"
+
+      - "EndPointRouting:hit-assessment=http://hitassessment-api"
+      - "EndPointRouting:project=http://project-api"
+      - "EndPointRouting:horizon=http://horizon-api"
+      - "EndPointRouting:molecule=http://mlogix-api"
+      - "EndPointRouting:api-resources=http://userstore-api"
+      - "EndPointRouting:app-settings=http://userstore-api"
+      - "EndPointRouting:org=http://userstore-api"
+      - "EndPointRouting:roles=http://userstore-api"
+      - "EndPointRouting:user=http://userstore-api"
+      - "EndPointRouting:questionnaire=http://questionnaire-api"
+      - "EndPointRouting:comment=http://comment-api"
+      - "EndPointRouting:docu-store=http://docustore-api"
+
+      - "EndPointRouting:event-history=http://event-history-api"
+
+    ports:
+      - "8010:80"
+    networks:
+      - daikon-be-net
+  
+
+
+  userstore-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## MongoDb Data Store
+      - UserStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+
+      - "UserStoreMongoDbSettings:DatabaseName=UserStore"
+
+      - "UserStoreMongoDbSettings:AppOrgCollectionName=AppOrgs"
+      - "UserStoreMongoDbSettings:AppUserCollectionName=AppUsers"
+      - "UserStoreMongoDbSettings:AppRoleCollectionName=AppRoles"
+      - "UserStoreMongoDbSettings:APIResourceCollectionName=AppAPIResources"
+    ports:
+      - "8011:80"
+    networks:
+      - daikon-be-net
+
   gene-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -400,75 +473,50 @@ services:
     networks:
       - daikon-be-net
 
-  userstore-api:
+  docustore-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings:CollectionName=Events"
+
+      ## Kafka Producer
+      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings:Topic=${KafkaTopic}
+
+      ## Kafka Consumer
+      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+
+      - "KafkaConsumerSettings:GroupId=docustore-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
       ## MongoDb Data Store
-      - UserStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+      - DocuStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
 
-      - "UserStoreMongoDbSettings:DatabaseName=UserStore"
+      - "DocuStoreMongoDbSettings:DatabaseName=DocuStore"
 
-      - "UserStoreMongoDbSettings:AppOrgCollectionName=AppOrgs"
-      - "UserStoreMongoDbSettings:AppUserCollectionName=AppUsers"
-      - "UserStoreMongoDbSettings:AppRoleCollectionName=AppRoles"
-      - "UserStoreMongoDbSettings:APIResourceCollectionName=AppAPIResources"
+      - "DocuStoreMongoDbSettings:ParsedDocCollectionName=ParsedDocs"
+      - "DocuStoreMongoDbSettings:ParsedDocRevisionCollectionName=ParsedDocsRevisions"
+
+      ## Internal APIs
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+
     ports:
-      - "8011:80"
+      - "8014:80"
     networks:
       - daikon-be-net
 
-  simplegw-api:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-
-      ## OIDC
-      - OIDCProvider=EntraID
-      - EntraID:Instance=${EntraID_Instance}
-      - EntraID:Domain=${EntraID_Domain}
-      - EntraID:TenantId=${EntraID_TenantId}
-      - EntraID:ClientId=${EntraID_ClientId}
-      - EntraID:Audience=${EntraID_Audience}
-
-      ## OIDC
-      # - OIDCProvider=KeyCloak
-      # - KeyCloak:Instance=${Keycloak_Instance}
-      # - KeyCloak:TenantId=${Keycloak_Realm}
-      # - KeyCloak:ClientId=${Keycloak_ClientId}
-      # - KeyCloak:Audience=${Keycloak_Audience}
-      # - KeyCloak:Authority=${Keycloak_Authority}
-
-      ## Internal API Routing
-      - "UserStoreAPI:BaseUrl=http://userstore-api/api/v2/"
-
-      - "EndPointRouting:gene=http://gene-api"
-      - "EndPointRouting:gene-batch=http://gene-api"
-      - "EndPointRouting:strain=http://gene-api"
-
-      - "EndPointRouting:target=http://target-api"
-      - "EndPointRouting:screen=http://screen-api"
-      - "EndPointRouting:hit-collection=http://screen-api"
-
-      - "EndPointRouting:hit-assessment=http://hitassessment-api"
-      - "EndPointRouting:project=http://project-api"
-      - "EndPointRouting:horizon=http://horizon-api"
-      - "EndPointRouting:molecule=http://mlogix-api"
-      - "EndPointRouting:api-resources=http://userstore-api"
-      - "EndPointRouting:app-settings=http://userstore-api"
-      - "EndPointRouting:org=http://userstore-api"
-      - "EndPointRouting:roles=http://userstore-api"
-      - "EndPointRouting:user=http://userstore-api"
-      - "EndPointRouting:questionnaire=http://questionnaire-api"
-      - "EndPointRouting:comment=http://comment-api"
-
-      - "EndPointRouting:event-history=http://event-history-api"
-
-    ports:
-      - "8010:80"
-    networks:
-      - daikon-be-net
+  
 
 networks:
   daikon-be-net:
