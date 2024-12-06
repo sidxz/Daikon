@@ -117,6 +117,7 @@ namespace EventHistory.Infrastructure
                 classMap.AutoMap();
                 classMap.SetIsRootClass(true);
                 classMap.SetDiscriminatorIsRequired(true);
+                classMap.SetIgnoreExtraElements(true);
             });
 
             //BsonClassMap.RegisterClassMap<HaCreatedEvent>();

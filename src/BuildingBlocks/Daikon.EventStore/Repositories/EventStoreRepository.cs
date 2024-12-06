@@ -13,12 +13,53 @@ namespace Daikon.EventStore.Repositories
 
         public EventStoreRepository(IEventDatabaseSettings settings, ILogger<EventStoreRepository> logger)
         {
-            // Initialize MongoDB client and collection
+            // Initialize MongoDB client and database
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _eventStoreCollection = database.GetCollection<EventModel>(settings.CollectionName);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            // Create indexes
+            _eventStoreCollection.Indexes.CreateOne(
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Descending(e => e.TimeStamp),
+                    new CreateIndexOptions { Unique = false }
+                )
+            );
+
+            _eventStoreCollection.Indexes.CreateOne(
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateIdentifier),
+                    new CreateIndexOptions { Unique = false }
+                )
+            );
+
+            _eventStoreCollection.Indexes.CreateOne(
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateType),
+                    new CreateIndexOptions { Unique = false }
+                )
+            );
+
+            _eventStoreCollection.Indexes.CreateOne(
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Ascending(e => e.EventType),
+                    new CreateIndexOptions { Unique = false }
+                )
+            );
+
+            _eventStoreCollection.Indexes.CreateOne(
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys
+                        .Ascending(e => e.AggregateIdentifier)
+                        .Ascending(e => e.AggregateType)
+                        .Ascending(e => e.EventType)
+                        .Descending(e => e.TimeStamp),
+                    new CreateIndexOptions { Unique = false }
+                )
+            );
         }
+
 
         /*
          FindByAggregateId(Guid aggregateId):
@@ -84,7 +125,7 @@ namespace Daikon.EventStore.Repositories
             }
         }
 
-       
+
 
     }
 }
