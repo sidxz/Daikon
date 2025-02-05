@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CQRS.Core.Exceptions;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.MLogix;
 using Microsoft.Extensions.Logging;
 using Neo4j.Driver;
