@@ -14,8 +14,8 @@ namespace Daikon.Shared
             {
                 AppVersion = new
                 {
-                    Version = "2.4.0",
-                    Name = "Cusco"
+                    Version = "2.5.0",
+                    Name = "Valparaíso"
                 },
                 AppTarget = new
                 {
