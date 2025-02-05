@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Neo4j.Driver;
 
-namespace Horizon.Application.Contracts.Persistance
+namespace Horizon.Application.Contracts.Persistence
 {
     public interface IGraphQueryRepository
     {
