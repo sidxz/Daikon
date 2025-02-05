@@ -24,6 +24,7 @@ namespace HitAssessment.Application.Features.Commands.UpdateHitAssessment
         public bool? IsHAPromoted { get; set; }
 
         // Primary HA Compound
+        public Guid? HitCollectionId { get; set; }
         public Guid? HitId { get; set; }
         public Guid CompoundId { get; set; }
         public string? CompoundSMILES { get; set; }
