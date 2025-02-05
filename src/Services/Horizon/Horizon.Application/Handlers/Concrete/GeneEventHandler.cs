@@ -2,7 +2,7 @@
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Daikon.Events.Strains;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.Genes;
 using Horizon.Domain.Strains;
 using Microsoft.Extensions.Logging;

@@ -1,6 +1,6 @@
 
 using CQRS.Core.Consumers;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Infrastructure.HostedServices;
 using Horizon.Infrastructure.Query.Consumers;
 using Horizon.Infrastructure.Repositories;

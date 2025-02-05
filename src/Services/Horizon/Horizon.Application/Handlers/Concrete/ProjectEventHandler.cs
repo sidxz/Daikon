@@ -1,7 +1,7 @@
 
 using CQRS.Core.Exceptions;
 using Daikon.Events.Project;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.Projects;
 using Microsoft.Extensions.Logging;
 
