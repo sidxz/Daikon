@@ -23,5 +23,8 @@ namespace Screen.Application.Features.Queries.ViewModels
         public Dictionary<string, string> ParticipatingOrgs { get; set; }
         public List<ScreenRunVM> ScreenRuns { get; set; }
         //public List<HitCollectionVM> HitCollections { get; set; }
+
+        public DateTime DeepLastUpdated { get; set; }
+
     }
 }

@@ -31,6 +31,7 @@ namespace Screen.Application.EventHandlers
             screen.Id = @event.Id;
             screen.DateCreated = DateTime.UtcNow;
             screen.IsModified = false;
+            screen.DeepLastUpdated = DateTime.UtcNow;
 
             try
             {
@@ -56,6 +57,7 @@ namespace Screen.Application.EventHandlers
             screen.DateCreated = existingScreen.DateCreated;
             screen.DateModified = DateTime.UtcNow;
             screen.IsModified = true;
+            screen.DeepLastUpdated = DateTime.UtcNow;
 
             try
             {
@@ -94,6 +96,7 @@ namespace Screen.Application.EventHandlers
             screen.Name = @event.Name;
             screen.DateModified = DateTime.UtcNow;
             screen.IsModified = true;
+            screen.DeepLastUpdated = DateTime.UtcNow;
 
             try
             {
@@ -119,6 +122,7 @@ namespace Screen.Application.EventHandlers
             screen.AssociatedTargets = @event.AssociatedTargets;
             screen.DateModified = DateTime.UtcNow;
             screen.IsModified = true;
+            screen.DeepLastUpdated = DateTime.UtcNow;
 
             try
             {

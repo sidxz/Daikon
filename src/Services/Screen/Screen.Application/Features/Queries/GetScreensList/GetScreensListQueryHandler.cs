@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using CQRS.Core.Domain;
+using CQRS.Core.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -33,6 +35,11 @@ namespace Screen.Application.Features.Queries.GetScreensList
             foreach (var screen in screensListVm)
             {
                 screen.AssociatedTargetsFlattened = string.Join(", ", screen.AssociatedTargets.Select(x => x.Value));
+
+                var trackableEntities = new List<VMMeta> { screen };
+                trackableEntities.AddRange(screen.ScreenRuns);
+
+                (screen.PageLastUpdatedDate, screen.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
             }
             return screensListVm;
         }

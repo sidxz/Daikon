@@ -13,6 +13,8 @@ namespace Screen.Application.EventHandlers
             _logger.LogInformation("OnEvent: ScreenRunAddedEvent: ScreenId {Id}, ScreenRunId {ScreenRunId}", @event.Id, @event.ScreenRunId);
 
             var screenRun = _mapper.Map<Domain.Entities.ScreenRun>(@event);
+            var screen = await _screenRepository.ReadScreenById(@event.Id);
+            screen.DeepLastUpdated = DateTime.UtcNow;
 
             // Override screenRun.Id to be the same as screenRun.ScreenRunId 
             // as @event.Id refers to ScreenId (Aggregate Id) which is auto-mapped by the mapper
@@ -29,6 +31,7 @@ namespace Screen.Application.EventHandlers
             try
             {
                 await _screenRunRepository.CreateScreenRun(screenRun);
+                await _screenRepository.UpdateScreen(screen);
             }
             catch (RepositoryException ex)
             {

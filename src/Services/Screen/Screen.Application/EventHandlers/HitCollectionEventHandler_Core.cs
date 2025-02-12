@@ -11,15 +11,18 @@ namespace Screen.Application.EventHandlers
     {
         private readonly IHitCollectionRepository _hitCollectionRepository;
         private readonly IHitRepository _hitRepository;
+        private readonly IScreenRepository _screenRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<HitCollectionEventHandler> _logger;
 
-        public HitCollectionEventHandler(IHitCollectionRepository hitCollectionRepository, IHitRepository hitRepository, IMapper mapper, ILogger<HitCollectionEventHandler> logger)
+        public HitCollectionEventHandler(IHitCollectionRepository hitCollectionRepository, IHitRepository hitRepository, 
+        IMapper mapper, ILogger<HitCollectionEventHandler> logger, IScreenRepository screenRepository)
         {
             _hitCollectionRepository = hitCollectionRepository;
             _hitRepository = hitRepository;
             _mapper = mapper;
             _logger = logger;
+            _screenRepository = screenRepository;
         }
 
         public async Task OnEvent(HitCollectionCreatedEvent @event)
@@ -30,9 +33,13 @@ namespace Screen.Application.EventHandlers
             hitCollection.DateCreated = DateTime.UtcNow;
             hitCollection.IsModified = false;
 
+            var screen = await _screenRepository.ReadScreenById(@event.ScreenId);
+            screen.DeepLastUpdated = DateTime.UtcNow;
+
             try
             {
                 await _hitCollectionRepository.CreateHitCollection(hitCollection);
+                await _screenRepository.UpdateScreen(screen);
             }
             catch (RepositoryException ex)
             {
@@ -53,9 +60,13 @@ namespace Screen.Application.EventHandlers
             hitCollection.DateCreated = existingHitCollection.DateCreated;
             hitCollection.IsModified = true;
 
+            var screen = await _screenRepository.ReadScreenById(@event.ScreenId);
+            screen.DeepLastUpdated = DateTime.UtcNow;
+
             try
             {
                 await _hitCollectionRepository.UpdateHitCollection(hitCollection);
+                await _screenRepository.UpdateScreen(screen);
             }
             catch (RepositoryException ex)
             {
@@ -67,6 +78,7 @@ namespace Screen.Application.EventHandlers
         {
             _logger.LogInformation("OnEvent: HitCollectionDeletedEvent: {Id}", @event.Id);
             var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionById(@event.Id);
+
             if (existingHitCollection == null)
             {
                 throw new EventHandlerException(nameof(EventHandler), $"HitCollectionDeletedEvent Error deleting hit collection {@event.Id}", new Exception("Hit collection not found"));
@@ -98,6 +110,7 @@ namespace Screen.Application.EventHandlers
         {
             _logger.LogInformation("OnEvent: HitCollectionRenamedEvent: {Id}", @event.Id);
             var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(@event.Id);
+
 
             if (hitCollection == null)
             {
