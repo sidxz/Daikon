@@ -104,6 +104,7 @@ namespace Screen.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"HitCollectionDeletedEvent Error deleting hit collection {@event.Id}", ex);
             }
 
+
         }
 
         public async Task OnEvent(HitCollectionRenamedEvent @event)

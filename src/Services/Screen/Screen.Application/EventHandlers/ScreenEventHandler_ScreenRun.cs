@@ -63,7 +63,12 @@ namespace Screen.Application.EventHandlers
 
                 //_logger.LogInformation("OnEvent: ScreenRunUpdatedEvent: ScreenRunToUpdateJSON: {screenRun}", System.Text.Json.JsonSerializer.Serialize(screenRun));
 
+                var screen = await _screenRepository.ReadScreenById(@event.Id);
+                screen.DeepLastUpdated = DateTime.UtcNow;
+
                 await _screenRunRepository.UpdateScreenRun(screenRun);
+                await _screenRepository.UpdateScreen(screen);
+                
             }
             catch (RepositoryException ex)
             {
@@ -81,9 +86,13 @@ namespace Screen.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting screen run {@event.ScreenRunId} for ScreenRunDeletedEvent", new Exception("Screen run not found"));
             }
 
+            var screen = await _screenRepository.ReadScreenById(existingScreenRun.ScreenId);
+            screen.DeepLastUpdated = DateTime.UtcNow;
+
             try
             {
                 await _screenRunRepository.DeleteScreenRun(@event.ScreenRunId);
+                await _screenRepository.UpdateScreen(screen);
             }
             catch (RepositoryException ex)
             {
