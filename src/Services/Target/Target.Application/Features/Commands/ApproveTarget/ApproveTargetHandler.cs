@@ -97,10 +97,6 @@ namespace Target.Application.Features.Commands.ApproveTarget
 
             _logger.LogInformation(" +++++++++++++++++ TPQ updated with new target");
 
-            return Unit.Value;
-
-
-            throw new NotImplementedException();
-        }
+            return Unit.Value;        }
     }
 }

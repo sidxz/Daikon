@@ -16,5 +16,6 @@ namespace Target.Application.Features.Queries.GetTargetsList
         public string ImpactComplete { get; set; }
         public string LikeScore { get; set; }
         public string LikeComplete { get; set; }
+        public int Priority { get; set; }
     }
 }
