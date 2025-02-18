@@ -296,6 +296,7 @@ namespace Gene.Application.Mappings
             CreateMap<GeneVulnerabilityUpdatedEvent, Vulnerability>().ReverseMap();
             CreateMap<GeneVulnerabilityDeletedEvent, Vulnerability>().ReverseMap();
 
+
             // -- Queries --
 
             CreateMap<Vulnerability, GeneVulnerabilityVM>()
@@ -310,7 +311,9 @@ namespace Gene.Application.Mappings
                 .ForMember(dest => dest.Reference, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Reference)))
                 .ForMember(dest => dest.URL, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.URL)))
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Score)))
-                .ForMember(dest => dest.Certain, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Certain)));
+                .ForMember(dest => dest.Certain, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Certain)))
+                .ForMember(dest => dest.PctOfMax, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.PctOfMax)))
+                .ForMember(dest => dest.Bin, opt => opt.MapFrom(new MapperDVariableMetaResolver<Vulnerability, IValueProperty<string>, string>(src => src.Bin)));
         }
     }
 }
