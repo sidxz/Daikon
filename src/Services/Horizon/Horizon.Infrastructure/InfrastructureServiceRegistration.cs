@@ -24,20 +24,29 @@ namespace Horizon.Infrastructure
             services.AddScoped<IGraphQueryRepository, GraphQueryRepository>();
             services.AddScoped<IHitAssessmentRepo, HitAssessmentRepo>();
             services.AddScoped<IProjectRepo, ProjectRepo>();
-            
+
 
             string neo4jUri = configuration.GetValue<string>("HorizonNeo4jSettings:Uri") ?? throw new ArgumentNullException(nameof(neo4jUri));
             string neo4jUser = configuration.GetValue<string>("HorizonNeo4jSettings:User") ?? throw new ArgumentNullException(nameof(neo4jUser));
             string neo4jPassword = configuration.GetValue<string>("HorizonNeo4jSettings:Password") ?? throw new ArgumentNullException(nameof(neo4jPassword));
 
 
-            services.AddSingleton(GraphDatabase.Driver(
-                neo4jUri,
-                AuthTokens.Basic(
-                    neo4jUser,
-                    neo4jPassword
-                )
-            ));
+
+
+            services.AddSingleton<IDriver>(sp =>
+            {
+                return GraphDatabase.Driver(
+                    neo4jUri,
+                    AuthTokens.Basic(neo4jUser, neo4jPassword),
+                    new Action<ConfigBuilder>(config =>
+                    {
+                        config.WithMaxConnectionPoolSize(100); 
+                        config.WithConnectionTimeout(TimeSpan.FromSeconds(60)); 
+                        config.WithMaxTransactionRetryTime(TimeSpan.FromSeconds(30)); 
+                        config.WithEncryptionLevel(EncryptionLevel.None);
+                    })
+                );
+            });
 
             services.AddHostedService<Neo4jDatabaseSetupHostedService>();
 
