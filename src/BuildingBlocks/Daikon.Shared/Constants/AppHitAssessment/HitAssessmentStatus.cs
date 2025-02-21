@@ -15,6 +15,9 @@ namespace Daikon.Shared.Constants.AppHitAssessment
         public const string KnownLiability = "Known Liability";
         public const string CompleteFailed = "Complete - Failed";
         public const string CompleteSuccess = "Complete - Success";
+        public const string Paused = "Paused";
+
+
 
 
         public static List<NameValuePair> GetHAStatuses()
@@ -27,6 +30,7 @@ namespace Daikon.Shared.Constants.AppHitAssessment
                 new() { Name = KnownLiability, Value = nameof(KnownLiability) },
                 new() { Name = CompleteFailed, Value = nameof(CompleteFailed) },
                 new() { Name = CompleteSuccess, Value = nameof(CompleteSuccess) },
+                new() { Name = Paused, Value = nameof(Paused) }
             }];
         }
 

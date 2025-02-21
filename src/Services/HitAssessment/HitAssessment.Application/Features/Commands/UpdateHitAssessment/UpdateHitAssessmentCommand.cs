@@ -84,6 +84,9 @@ namespace HitAssessment.Application.Features.Commands.UpdateHitAssessment
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? CompletionDate { get; set; }
 
+        [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
+        public DVariable<DateTime>? StatusPausedDate { get; set; }
+
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? EOLDate { get; set; }

@@ -63,6 +63,7 @@ namespace HitAssessment.Application.Mappings
             .ForMember(dest => dest.CompletionDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.CompletionDate)))
             .ForMember(dest => dest.EOLDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.EOLDate)))
             .ForMember(dest => dest.H2LPredictedStartDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.H2LPredictedStartDate)))
+            .ForMember(dest => dest.StatusPausedDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.HitAssessment, IValueProperty<DateTime>, DateTime>(src => src.StatusPausedDate)))
             .ReverseMap();
 
 
