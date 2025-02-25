@@ -24,5 +24,7 @@ namespace Screen.Domain.Entities
         public DVariable<DateTime>? ActualStartDate { get; set; }
         public DVariable<DateTime>? ActualCompleteDate { get; set; }
         public Dictionary<string, string>? ParticipatingOrgs { get; set; }
+
+        public DVariable<DateTime>? DeepLastUpdated { get; set; }
     }
 }

@@ -52,6 +52,7 @@ namespace Daikon.Events.Targets
         public DVariable<string> Strategy { get; set; }
 
         public DVariable<string> Challenges { get; set; }
+        public int Priority { get; set; } = default!;
         
     }
 }

@@ -38,10 +38,10 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
         {
             try
             {
-                 // handle dates
+                // handle dates
                 var now = DateTime.UtcNow;
                 request.SetCreateProperties(request.RequestorUserId);
-                
+
                 // check if name exists
                 var existingHitAssessment = await _haRepository.ReadHaByName(request.Name);
                 if (existingHitAssessment != null)
@@ -50,7 +50,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     throw new InvalidOperationException("HitAssessment name already exists");
                 }
 
-               
+
 
                 request.StatusLastModifiedDate = now;
                 // set HAPredictedStartDate to 10 days now if not set
@@ -69,30 +69,38 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                 await _haEventSourcingHandler.SaveAsync(aggregate);
 
                 // Crete a compound evolution for the hit assessment as a starting point
-                var newHaCompoundEvolutionCommand = new NewHaCompoundEvolutionCommand
+                // Create compound evolution only if compoundId is provided
+                if (request.CompoundId != Guid.Empty)
                 {
-                    Id = request.Id,
-                    CompoundEvolutionId = Guid.NewGuid(),
-                    MoleculeId = request.CompoundId,
-                    EvolutionDate = request.DateCreated,
-                    Stage = "HA",
-                    Notes = new DVariable<string>("Initial HA Compound"),
-                    MIC = request.CompoundMIC ?? "0",
-                    IC50 = request.CompoundIC50 ?? "0",
-                    RequestedSMILES = request.CompoundSMILES,
-                    ImportMode = false
-                };
+                    var newHaCompoundEvolutionCommand = new NewHaCompoundEvolutionCommand
+                    {
+                        Id = request.Id,
+                        CompoundEvolutionId = Guid.NewGuid(),
+                        MoleculeId = request.CompoundId,
+                        EvolutionDate = request.DateCreated,
+                        Stage = "HA",
+                        Notes = new DVariable<string>("Initial HA Compound"),
+                        MIC = request.CompoundMIC ?? "0",
+                        IC50 = request.CompoundIC50 ?? "0",
+                        RequestedSMILES = request.CompoundSMILES,
+                        ImportMode = false
+                    };
 
-                try
-                {
-                    await _mediator.Send(newHaCompoundEvolutionCommand, cancellationToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error while creating initial HaCompoundEvolution");
-                    throw;
+                    try
+                    {
+                        await _mediator.Send(newHaCompoundEvolutionCommand, cancellationToken);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error while creating initial HaCompoundEvolution");
+                        throw;
+                    }
                 }
 
+                else
+                {
+                    _logger.LogWarning("Creating Unlinked HA. No compoundId provided for HitAssessment: {HitAssessmentId}", request.Id);
+                }
                 return Unit.Value;
             }
             catch (Exception ex)

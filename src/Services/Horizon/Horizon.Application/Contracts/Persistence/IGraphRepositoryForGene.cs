@@ -2,7 +2,7 @@
 using Horizon.Domain.Genes;
 using Horizon.Domain.Strains;
 
-namespace Horizon.Application.Contracts.Persistance
+namespace Horizon.Application.Contracts.Persistence
 {
     public interface IGraphRepositoryForGene
     {

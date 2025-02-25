@@ -22,6 +22,7 @@ namespace Daikon.Events.HitAssessment
 
         /* Associated Hit */
         public Guid HitId { get; set; }
+        public Guid HitCollectionId { get; set; }
         public Guid CompoundId { get; set; }
         public Dictionary<string, string> AssociatedHitIds { get; set; }
 
@@ -43,6 +44,7 @@ namespace Daikon.Events.HitAssessment
         public DVariable<DateTime>? StatusKnownLiabilityDate { get; set; }
         public DVariable<DateTime>? StatusCompleteFailedDate { get; set; }
         public DVariable<DateTime>? StatusCompleteSuccessDate { get; set; }
+        public DVariable<DateTime>? StatusPausedDate { get; set; }
 
         public DVariable<DateTime>? RemovalDate { get; set; }
         public DVariable<DateTime>? CompletionDate { get; set; }

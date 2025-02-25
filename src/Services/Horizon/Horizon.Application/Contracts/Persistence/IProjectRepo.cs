@@ -3,7 +3,7 @@
 
 using Horizon.Domain.Projects;
 
-namespace Horizon.Application.Contracts.Persistance
+namespace Horizon.Application.Contracts.Persistence
 {
     public interface IProjectRepo
     {

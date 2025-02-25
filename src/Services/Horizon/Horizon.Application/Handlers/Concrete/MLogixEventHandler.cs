@@ -1,6 +1,6 @@
 
 using Daikon.Events.MLogix;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.MLogix;
 using Microsoft.Extensions.Logging;
 

@@ -33,6 +33,8 @@ namespace Target.Application.Features.Queries.GetTarget
         public object Strategy { get; set; }
         public object Challenges { get; set; }
 
+        public int Priority { get; set; }
+
 
     }
 }

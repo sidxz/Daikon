@@ -1,5 +1,5 @@
 
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Application.Features.Calculation;
 using Horizon.Application.VMs.D3;
 using MediatR;

@@ -1,7 +1,7 @@
 
 using Horizon.Domain.Screens;
 
-namespace Horizon.Application.Contracts.Persistance
+namespace Horizon.Application.Contracts.Persistence
 {
     public interface IGraphRepositoryForHitCollection
     {
