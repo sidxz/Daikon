@@ -38,7 +38,7 @@ namespace DocuStore.Infrastructure.Repositories
             _parsedDocCollection.Indexes.CreateMany(new[]
             {
                 new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.Tags), new CreateIndexOptions { Unique = false }),
-                new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.FilePath), new CreateIndexOptions { Unique = true }),
+                new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.FilePath), new CreateIndexOptions { Unique = false }),
                 new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.PublicationDate), new CreateIndexOptions { Unique = false }),
                 new CreateIndexModel<ParsedDoc>(Builders<ParsedDoc>.IndexKeys.Ascending(doc => doc.Mentions), new CreateIndexOptions { Unique = false }),
             });
