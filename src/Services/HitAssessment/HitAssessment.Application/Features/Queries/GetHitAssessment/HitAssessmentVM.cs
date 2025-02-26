@@ -41,6 +41,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
         public object CompletionDate { get; set; }
         public object EOLDate { get; set; }
         public object H2LPredictedStartDate { get; set; }
+        public object StatusPausedDate { get; set; }
 
         /* Compound Evolution */
         public List<HaCompoundEvolutionVM> HaCompoundEvolution { get; set; }

@@ -57,6 +57,14 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
             if (!string.IsNullOrEmpty(request.EntraObjectId))
             {
                 var user = await _appUserRepository.GetUserByEntraObjectId(request.EntraObjectId);
+
+                // check if user is locked out
+                if (user != null && user.IsUserLocked)
+                {
+                    _logger.LogWarning("User {AppUserEmail} is locked out", user.NormalizedEmail);
+                    return false;
+                }
+
                 // Match with email if provided
                 if (user != null && !string.IsNullOrEmpty(request.Email) && user.NormalizedEmail != request.Email.ToUpperInvariant())
                 {
@@ -73,6 +81,14 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
             if (!string.IsNullOrEmpty(request.OIDCSub))
             {
                 var user = await _appUserRepository.GetUserByOIDCSub(request.OIDCSub);
+
+                if (user != null && user.IsUserLocked)
+                {
+                    _logger.LogWarning("User {AppUserEmail} is locked out", user.NormalizedEmail);
+                    return false;
+                }
+
+
                 // Match with email if provided
                 if (user != null && !string.IsNullOrEmpty(request.Email) && user.NormalizedEmail != request.Email.ToUpperInvariant())
                 {
@@ -89,8 +105,16 @@ namespace UserStore.Application.Features.Commands.Users.ValidateUserAccess
             if (!string.IsNullOrEmpty(request.Email))
             {
                 var user = await _appUserRepository.GetUserByEmail(request.Email);
+
+
                 if (user != null)
                 {
+                    if (user.IsUserLocked)
+                    {
+                        _logger.LogWarning("User {AppUserEmail} is locked out", user.NormalizedEmail);
+                        return false;
+                    }
+                    
                     UpdateResponseWithUserDetails(user, response);
                     await UpdateOAuth2AttributesForUser(user, request);
                     return true;

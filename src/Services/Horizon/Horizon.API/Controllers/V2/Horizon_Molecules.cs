@@ -15,5 +15,14 @@ namespace Horizon.API.Controllers.V2
             return Ok(relations);
 
         }
+
+        [HttpPost("find-molecule-relations")]
+        [MapToApiVersion("2.0")]
+        public async Task<IActionResult> FindMoleculeRelationsMultiple([FromBody] CompoundRelationsMultipleQuery request)
+        {
+            var relations = await _mediator.Send(request);
+
+            return Ok(relations);
+        }
     }
 }

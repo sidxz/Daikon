@@ -1,6 +1,6 @@
 
 using Daikon.Events.Screens;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.Screens;
 using Microsoft.Extensions.Logging;
 

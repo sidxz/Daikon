@@ -1,7 +1,7 @@
 
 using Horizon.Domain.Targets;
 
-namespace Horizon.Application.Contracts.Persistance
+namespace Horizon.Application.Contracts.Persistence
 {
     public interface IGraphRepositoryForTarget
     {

@@ -1,7 +1,7 @@
 
 using Horizon.Domain.MLogix;
 
-namespace Horizon.Application.Contracts.Persistance
+namespace Horizon.Application.Contracts.Persistence
 {
     public interface IGraphRepositoryForMLogix
     {

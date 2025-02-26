@@ -70,6 +70,7 @@ namespace Target.Application.Features.Command.NewTarget
         
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? Challenges { get; set; }
+        public int Priority { get; set; } = default!;
 
 
     }

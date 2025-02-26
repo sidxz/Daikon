@@ -65,6 +65,12 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     request.IsHASuccess = false;
                     request.H2LPredictedStartDate = new DVariable<DateTime>(now.AddDays(90));
                 }
+                else if (request.Status == nameof(HitAssessmentStatus.Paused))
+                {
+                    request.StatusPausedDate = now;
+                    request.IsHAComplete = false;
+                    request.IsHASuccess = false;
+                }
                 else if (request.Status == nameof(HitAssessmentStatus.IncorrectMz))
                 {
                     request.StatusIncorrectMzDate = now;

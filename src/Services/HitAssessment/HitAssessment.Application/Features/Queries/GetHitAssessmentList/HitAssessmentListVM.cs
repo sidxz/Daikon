@@ -13,6 +13,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessmentList
         public DateTime HaStartDate { get; set; }
         public DateTime HaPredictedStartDate { get; set; }
         public DateTime StatusLastModifiedDate { get; set; }
+        public DateTime StatusPausedDate { get; set; }
         public string? Status { get; set; }
 
         public Guid HitCollectionId { get; set; }
