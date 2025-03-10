@@ -43,5 +43,6 @@ namespace Daikon.Shared.VM.MLogix
         public int SaturatedHeterocycles { get; set; }
         public int SaturatedRings { get; set; }
         public bool RO5Compliant { get; set; }
+        public PainsVM Pains { get; set; }
     }
 }
