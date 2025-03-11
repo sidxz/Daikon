@@ -155,7 +155,7 @@ namespace MLogix.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("GetByName: Fetching molecule {moleculeName}", name);
 
-                return await _moleculeCollection.Find(m => m.Name == name).FirstOrDefaultAsync();
+                return await _moleculeCollection.Find(m => m.Name.Value == name).FirstOrDefaultAsync();
             }
             catch (MongoException ex)
             {

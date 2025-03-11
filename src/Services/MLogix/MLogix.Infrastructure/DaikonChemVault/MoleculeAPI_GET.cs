@@ -46,6 +46,21 @@ namespace MLogix.Infrastructure.DaikonChemVault
             return molecules;
         }
 
+        public async Task <MoleculeBase> FindByNameExact(string name, IDictionary<string, string> headers)
+        {
+            // Build the query string safely
+            var queryParams = new Dictionary<string, object>
+            {
+                { "name", name }
+            };
+            string queryString = BuildQueryString(queryParams);
+            string apiUrl = $"{_apiBaseUrl}/molecules/by-name-exact?{queryString}";
+
+            var molecule = await SendRequestAsync<MoleculeBase>(apiUrl, HttpMethod.Get, headers);
+
+            return molecule;
+        }
+
 
         public async Task<List<MoleculeBase>> FindByNameWithFilters(GetByNameQuery query, IDictionary<string, string> headers)
         {

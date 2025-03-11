@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.Contracts.Persistence;
 using MLogix.Application.DTOs.DaikonChemVault;
+using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
 
 namespace MLogix.Application.Features.Commands.RegisterMolecule
@@ -21,11 +22,12 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
         private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler;
         private readonly IMoleculeAPI _iMoleculeAPI;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMediator _mediator;
 
 
         public RegisterMoleculeHandler(IMapper mapper, ILogger<RegisterMoleculeHandler> logger,
         IMoleculeRepository moleculeRepository, IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler,
-        IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor)
+        IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor, IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -33,6 +35,8 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
             _iMoleculeAPI = iMoleculeAPI ?? throw new ArgumentNullException(nameof(_iMoleculeAPI));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+
         }
 
         public async Task<RegisterMoleculeResponseDTO> Handle(RegisterMoleculeCommand request, CancellationToken cancellationToken)
@@ -47,7 +51,20 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
             // check if smiles is blank throw exception
             if (string.IsNullOrEmpty(request.SMILES))
             {
-                throw new InvalidOperationException("SMILES is required");
+                if (!string.IsNullOrEmpty(request.Name))
+                {
+                    var registerUndisclosedDTO = await _mediator.Send(new RegisterUndisclosedCommand { Name = request.Name }, cancellationToken);
+                    _mapper.Map(registerUndisclosedDTO, registerMoleculeResponseDTO);
+                    registerMoleculeResponseDTO.Id = registerUndisclosedDTO.Id;
+                    registerMoleculeResponseDTO.WasAlreadyRegistered = registerUndisclosedDTO.WasAlreadyRegistered;
+                    registerMoleculeResponseDTO.Name = registerMoleculeResponseDTO.Name;
+                    return registerMoleculeResponseDTO;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Please enter a SMILES string or, if the molecule is undisclosed, provide its name.");
+                }
+
             }
 
             // register molecule in MolDB

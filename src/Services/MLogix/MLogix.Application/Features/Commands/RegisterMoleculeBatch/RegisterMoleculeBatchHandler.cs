@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.Contracts.Persistence;
 using MLogix.Application.Features.Commands.RegisterMolecule;
+using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
 
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
@@ -20,6 +21,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
         private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler;
         private readonly IMoleculeAPI _iMoleculeAPI;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMediator _mediator;
 
         public RegisterMoleculeBatchHandler(
             IMapper mapper,
@@ -27,7 +29,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             IMoleculeRepository moleculeRepository,
             IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler,
             IMoleculeAPI iMoleculeAPI,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -35,6 +38,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
             _iMoleculeAPI = iMoleculeAPI ?? throw new ArgumentNullException(nameof(iMoleculeAPI));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
         public async Task<List<RegisterMoleculeResponseDTO>> Handle(RegisterMoleculeBatchCommand request, CancellationToken cancellationToken)
@@ -58,24 +62,39 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     foreach (var command in batch)
                     {
                         command.SetCreateProperties(request.RequestorUserId);
-
-                        if (command.Id == Guid.Empty)
-                        {
-                            command.Id = Guid.NewGuid();
-                        }
-
-                        if (command.RegistrationId == Guid.Empty)
-                        {
-                            command.RegistrationId = Guid.NewGuid();
-                        }
-
-                        // temporarily set Id to be the same as RegistrationId for vault registration
-
-                        command.Id = command.RegistrationId;
+                        command.Id = command.Id == Guid.Empty ? Guid.NewGuid() : command.Id;
+                        command.RegistrationId = command.RegistrationId == Guid.Empty ? Guid.NewGuid() : command.RegistrationId;
+                        command.Id = command.RegistrationId; // Temporary ID for vault registration
                     }
 
+
+                    // Separate out undisclosed molecules
+                    var undisclosedBatch = batch
+                        .Where(c => string.IsNullOrEmpty(c.SMILES) && !string.IsNullOrEmpty(c.Name))
+                        .Select(c => _mapper.Map<RegisterUndisclosedCommand>(c))
+                        .ToList();
+
+                    // Disclosed Batch
+                    var disclosedBatch = batch.Where(c => !string.IsNullOrEmpty(c.SMILES)).ToList();
+
+                    // Now register the undisclosed molecules
+                    if (undisclosedBatch.Count > 0)
+                    {
+                        _logger.LogInformation("Registering undisclosed molecules, Count: {Count}", undisclosedBatch.Count);
+                        foreach (var undisclosedCommand in undisclosedBatch)
+                        {
+                            var registerUndisclosedDTO = await _mediator.Send(undisclosedCommand, cancellationToken);
+                            var registerMoleculeResponseDTO = _mapper.Map<RegisterMoleculeResponseDTO>(registerUndisclosedDTO);
+                            allResponses.Add(registerMoleculeResponseDTO);
+                        }
+                    }
+
+                    _logger.LogInformation("Registering batch of disclosed molecules, Count: {Count}", disclosedBatch.Count);
+
+
+
                     // Register batch of molecules in ChemVault
-                    var registrationResponses = await _iMoleculeAPI.RegisterBatch(batch, headers);
+                    var registrationResponses = await _iMoleculeAPI.RegisterBatch(disclosedBatch, headers);
 
                     foreach (var registrationReq in registrationResponses)
                     {

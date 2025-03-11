@@ -5,6 +5,7 @@ using Daikon.Shared.VM.MLogix;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
+using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;
 using MLogix.Domain.Entities;
@@ -32,6 +33,9 @@ namespace MLogix.Application.Mappings
             CreateMap<RegisterMoleculeCommand, RegisterMoleculeCommand>()
                 .ReverseMap();
 
+            CreateMap<MoleculeCreatedEvent, RegisterUndisclosedCommand>()
+                .ReverseMap();
+
 
             /* Events */
             CreateMap<MoleculeBase, MoleculeCreatedEvent>().ReverseMap();
@@ -44,13 +48,19 @@ namespace MLogix.Application.Mappings
             .ReverseMap();
 
             CreateMap<MoleculeBase, MoleculeVM>().ReverseMap();
-            
+
             CreateMap<Daikon.Shared.VM.MLogix.PainsVM, DTOs.DaikonChemVault.PainsVM>().ReverseMap();
             CreateMap<Molecule, SimilarMoleculeVM>().ReverseMap();
             CreateMap<SimilarMolecule, SimilarMoleculeVM>().ReverseMap();
 
             CreateMap<RegisterMoleculeResponseDTO, MoleculeBase>().ReverseMap();
             CreateMap<UpdateMoleculeResponseDTO, MoleculeBase>().ReverseMap();
+
+            CreateMap<RegisterMoleculeResponseDTO, RegisterUndisclosedDTO>().ReverseMap();
+
+
+
+            CreateMap<RegisterMoleculeCommandWithRegId, RegisterUndisclosedCommand>().ReverseMap();
         }
     }
 }

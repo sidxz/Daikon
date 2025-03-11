@@ -6,6 +6,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
 {
     public class RegisterMoleculeResponseDTO : MoleculeVM
     {
+        
         public bool WasAlreadyRegistered { get; set; }
     }
 }
