@@ -35,6 +35,7 @@ namespace MLogix.Infrastructure.Query.Converters
             {
                 "MoleculeCreatedEvent" => JsonSerializer.Deserialize<MoleculeCreatedEvent>(json, options),
                 "MoleculeUpdatedEvent" => JsonSerializer.Deserialize<MoleculeUpdatedEvent>(json, options),
+                "MoleculeDisclosedEvent" => JsonSerializer.Deserialize<MoleculeDisclosedEvent>(json, options),
                 "MoleculeDeletedEvent" => JsonSerializer.Deserialize<MoleculeDeletedEvent>(json, options),
               
                 _ => throw new UnknownEventDiscriminatorException($"Unknown discriminator value {typeDiscriminator}"),

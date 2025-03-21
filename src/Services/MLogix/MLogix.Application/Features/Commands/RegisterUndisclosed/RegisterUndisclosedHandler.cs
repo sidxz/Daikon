@@ -42,10 +42,11 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
 
             request.SetCreateProperties(request.RequestorUserId);
 
+            request.Id = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id;
 
             var registerUndisclosedResponseDTO = new RegisterUndisclosedDTO
             {
-                Id = Guid.NewGuid(),
+                Id = request.Id,
                 Name = request.Name,
                 WasAlreadyRegistered = false
             };
@@ -58,7 +59,7 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
 
             // check if molecule is already registered in chemvault
             var moleculeInChemVault = await _iMoleculeAPI.FindByNameExact(request.Name, headers);
-            
+
             if (moleculeInChemVault != null)
             {
 
@@ -84,9 +85,12 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
                 newMoleculeCreatedEvent.RegistrationId = Guid.NewGuid();
 
 
+
                 // create new molecule aggregate
                 var aggregate = new MoleculeAggregate(newMoleculeCreatedEvent);
                 await _moleculeEventSourcingHandler.SaveAsync(aggregate);
+
+                registerUndisclosedResponseDTO.RegistrationId = newMoleculeCreatedEvent.RegistrationId;
 
                 return registerUndisclosedResponseDTO;
 
@@ -99,7 +103,6 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
             }
 
 
-          
         }
     }
 

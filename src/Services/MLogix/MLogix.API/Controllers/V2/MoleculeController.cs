@@ -15,6 +15,8 @@ using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 using MLogix.Application.Features.Commands.ReregisterVault;
 using MLogix.Application.BackgroundServices;
 using MLogix.Application.Features.Commands.GenerateParentBatch;
+using MLogix.Application.Features.Commands.DiscloseMolecule;
+using MLogix.Application.Features.Previews.DiscloseMoleculePreview;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -130,6 +132,7 @@ namespace MLogix.API.Controllers.V2
             return Ok(updateMoleculeResponseDTO);
 
         }
+        
 
         [HttpPost("batch", Name = "RegisterMoleculeBatch")]
         [MapToApiVersion("2.0")]
@@ -161,6 +164,36 @@ namespace MLogix.API.Controllers.V2
             // Queue the background job
             _ = _vaultBackgroundServices.QueueGenerateParentBatchJobAsync(command, HttpContext.RequestAborted);
             return Accepted("GenerateParentBatch job has been queued and is processing in the background.");
+        }
+
+
+
+        [HttpPost("disclose-molecule-preview", Name = "DiscloseMoleculePreview")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> DiscloseMoleculePreview([FromBody] DiscloseMoleculePreviewQuery query)
+        {
+            var results = await _mediator.Send(query);
+            return Ok(results);
+        }
+
+
+        [HttpPut("disclose", Name = "DiscloseMolecule")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> DiscloseMolecule([FromBody] DiscloseMoleculeCommand command)
+        {
+            var discloseMoleculeResponseDTO = await _mediator.Send(command);
+            return Ok(discloseMoleculeResponseDTO);
+        }
+
+        [HttpPut("disclose-batch", Name = "DiscloseMoleculeBatch")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> DiscloseMoleculeBatch([FromBody] DiscloseMoleculeBatchCommand command)
+        {
+            var discloseMoleculeResponseDTO = await _mediator.Send(command);
+            return Ok(discloseMoleculeResponseDTO);
         }
 
 

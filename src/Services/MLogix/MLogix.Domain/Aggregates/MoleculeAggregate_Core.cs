@@ -48,6 +48,19 @@ namespace MLogix.Domain.Aggregates
             _registrationId = @event.RegistrationId;
         }
 
+        public void DiscloseMolecule(MoleculeDisclosedEvent @event)
+        {
+            if (!_active)
+                throw new InvalidOperationException("Molecule is not active");
+
+            RaiseEvent(@event);
+        }
+
+        public void Apply(MoleculeDisclosedEvent @event)
+        {
+            // Do nothing
+        }
+
         // Delete Molecule
         public void DeleteMolecule(MoleculeDeletedEvent @event)
         {

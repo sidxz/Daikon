@@ -61,6 +61,7 @@ namespace MLogix.Infrastructure
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<MoleculeCreatedEvent>();
             BsonClassMap.RegisterClassMap<MoleculeUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<MoleculeDisclosedEvent>();
             BsonClassMap.RegisterClassMap<MoleculeDeletedEvent>();
         }
 
