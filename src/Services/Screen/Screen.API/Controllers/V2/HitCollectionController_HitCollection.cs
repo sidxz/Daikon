@@ -4,6 +4,7 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Screen.Application.BackgroundServices;
 using Screen.Application.Features.Commands.DeleteHitCollection;
 using Screen.Application.Features.Commands.NewHitCollection;
 using Screen.Application.Features.Commands.RenameHitCollection;
@@ -21,11 +22,14 @@ namespace Screen.API.Controllers.V2
     {
         private readonly IMediator _mediator;
         private readonly ILogger<HitCollectionController> _logger;
+        private readonly HitBackgroundService _hitBackgroundService;
 
-        public HitCollectionController(IMediator mediator, ILogger<HitCollectionController> logger)
+
+        public HitCollectionController(IMediator mediator, ILogger<HitCollectionController> logger, HitBackgroundService hitBackgroundService)
         {
             _mediator = mediator;
             _logger = logger;
+            _hitBackgroundService = hitBackgroundService;
         }
 
         [HttpGet("{id}", Name = "GetHitCollectionById")]

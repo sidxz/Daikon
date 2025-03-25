@@ -72,6 +72,26 @@ namespace Screen.Domain.Aggregates
 
         }
 
+        /* Hit Molecule Updated */
+        public void HitMoleculeUpdated(HitMoleculeUpdatedEvent @event)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This hitCollection has been deleted.");
+            }
+
+            if (!_hits.ContainsKey(@event.HitId))
+            {
+                throw new Exception("Hit does not exist.");
+            }
+            RaiseEvent(@event);
+        }
+
+        public void Apply(HitMoleculeUpdatedEvent @event)
+        {
+            _hits[@event.HitId].RequestedSMILES = @event.RequestedSMILES;
+        }
+
         /* Delete Hit */
         public void DeleteHit(HitDeletedEvent hitDeletedEvent)
         {

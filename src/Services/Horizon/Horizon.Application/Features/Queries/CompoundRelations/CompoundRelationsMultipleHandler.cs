@@ -15,7 +15,9 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
         private readonly IGraphQueryRepository _graphQueryRepository;
         private readonly ILogger<CompoundRelationsMultipleHandler> _logger;
 
-        public CompoundRelationsMultipleHandler(IGraphQueryRepository graphQueryRepository, ILogger<CompoundRelationsMultipleHandler> logger)
+        public CompoundRelationsMultipleHandler(
+            IGraphQueryRepository graphQueryRepository,
+            ILogger<CompoundRelationsMultipleHandler> logger)
         {
             _graphQueryRepository = graphQueryRepository ?? throw new ArgumentNullException(nameof(graphQueryRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -30,7 +32,7 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
 
             try
             {
-                const int batchSize = 50; // Split into batches of 50 IDs
+                const int batchSize = 50;
                 var results = new Dictionary<Guid, List<CompoundRelationsVM>>();
 
                 var idBatches = request.Ids.Select((id, index) => new { id, index })
@@ -41,11 +43,18 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                 foreach (var batch in idBatches)
                 {
                     var query = @"
-                MATCH (n:Molecule)-[r]-(related)
-                WHERE n.uniId IN $uniIds
-                RETURN n.uniId AS moleculeId, n, r, related";
+    MATCH (n:Molecule)
+    WHERE n.uniId IN $uniIds
+    MATCH (n)-[r]-(related)
+    OPTIONAL MATCH (related:HitCollection)-[:HIT_COLLECTION_OF]-(s:Screen)
+    RETURN n.uniId AS moleculeId, related, r, s";
 
-                    var parameters = new Dictionary<string, object> { { "uniIds", batch.Select(id => id.ToString()).ToList() } };
+
+                    var parameters = new Dictionary<string, object>
+                {
+                    { "uniIds", batch.Select(id => id.ToString()).ToList() }
+                };
+
                     var cursor = await _graphQueryRepository.RunAsync(query, parameters);
 
                     while (await cursor.FetchAsync())
@@ -79,10 +88,20 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                             }
                         }
 
+                        // Inline screen info if available
+                        if (cursor.Current.Keys.Contains("s") && cursor.Current["s"] is INode screenNode)
+                        {
+                            vm.NodeProperties["screenId"] = screenNode.Properties["uniId"].As<string>();
+                            vm.NodeProperties["screenType"] = screenNode.Properties["screenType"].As<string>();
+                            vm.NodeProperties["screenStatus"] = screenNode.Properties["status"].As<string>();
+                            vm.NodeProperties["orgId"] = screenNode.Properties["primaryOrgId"].As<string>();
+                        }
+
                         if (!results.ContainsKey(moleculeId))
                         {
                             results[moleculeId] = new List<CompoundRelationsVM>();
                         }
+
                         results[moleculeId].Add(vm);
                     }
                 }
@@ -96,4 +115,5 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
             }
         }
     }
+
 }

@@ -74,6 +74,7 @@ namespace Screen.Infrastructure
             BsonClassMap.RegisterClassMap<HitCollectionAssociatedScreenUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HitAddedEvent>();
             BsonClassMap.RegisterClassMap<HitUpdatedEvent>();
+            BsonClassMap.RegisterClassMap<HitMoleculeUpdatedEvent>();
             BsonClassMap.RegisterClassMap<HitDeletedEvent>();
         }
 

@@ -3,6 +3,7 @@ using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
+using Screen.Application.Features.Batch.HitHandleUnattachedMolecules;
 using Screen.Application.Features.Commands.DeleteHit;
 using Screen.Application.Features.Commands.NewHit;
 using Screen.Application.Features.Commands.UpdateHit;
@@ -81,6 +82,16 @@ namespace Screen.API.Controllers.V2
             var hitProperties = await _mediator.Send(new GetHitPropertiesQuery { Id = hitId });
             return StatusCode(StatusCodes.Status200OK, hitProperties);
 
+        }
+
+        [HttpPut("HitMoleculeAttachBatch", Name = "HandleUnattachedMolecules")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> HandleUnattachedMolecules(CancellationToken cancellationToken)
+        {
+            var command = new HitHandleUnattachedMoleculesCommand();
+            await _hitBackgroundService.QueueHandleUnattachedHitsJobAsync(command, cancellationToken);
+            return Ok("Hit job queued successfully.");
         }
     }
 }

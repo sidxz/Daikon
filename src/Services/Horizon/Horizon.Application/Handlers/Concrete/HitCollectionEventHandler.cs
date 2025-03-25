@@ -106,6 +106,24 @@ namespace Horizon.Application.Handlers
             await _graphRepository.UpdateHit(hit);
         }
 
+        public Task OnEvent(HitMoleculeUpdatedEvent @event)
+        {
+            _logger.LogInformation($"Horizon: HitMoleculeUpdatedEvent: {@event.Id} {@event.HitId}");
+            return _graphRepository.UpdateHitMolecule(new Hit
+            {
+                HitId = @event.HitId.ToString(),
+                HitCollectionId = @event.Id.ToString(),
+                MoleculeId = @event.MoleculeId.ToString(),
+                MoleculeRegistrationId = @event.MoleculeRegistrationId.ToString(),
+                Library = @event.Library ?? "",
+                RequestedSMILES = @event.RequestedSMILES ?? "",
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
+            });
+        }
+
         public Task OnEvent(HitDeletedEvent @event)
         {
             _logger.LogInformation($"Horizon: HitDeletedEvent: {@event.Id}");

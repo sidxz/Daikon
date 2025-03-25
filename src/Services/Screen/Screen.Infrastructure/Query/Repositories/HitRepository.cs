@@ -161,10 +161,32 @@ namespace Screen.Infrastructure.Query.Repositories
         }
 
 
+        public async Task<List<Hit>> GetHitsWithRequestedMoleculeNameButNoMoleculeId()
+        {
+            try
+            {
+                _logger.LogInformation("Fetching hits where MoleculeId is null and RequestedMoleculeName is not null and exists.");
+
+                var filter = Builders<Hit>.Filter.Eq(h => h.MoleculeId, null) &
+                             Builders<Hit>.Filter.Ne(h => h.RequestedMoleculeName, null) &
+                             Builders<Hit>.Filter.Exists(h => h.RequestedMoleculeName, true);
+
+                return await _hit.Find(filter).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while querying hits with MoleculeId null and valid RequestedMoleculeName");
+                throw new RepositoryException(nameof(HitRepository), "Error querying filtered hits", ex);
+            }
+        }
+
+
+
         public async Task<HitRevision> GetHitRevisions(Guid Id)
         {
             var hitRevision = await _versionHub.GetVersions(Id);
             return hitRevision;
         }
+
     }
 }

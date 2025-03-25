@@ -64,6 +64,7 @@ namespace Horizon.Infrastructure.Query.Converters
                 "HitAddedEvent" => JsonSerializer.Deserialize<HitAddedEvent>(json, options),
                 "HitUpdatedEvent" => JsonSerializer.Deserialize<HitUpdatedEvent>(json, options),
                 "HitDeletedEvent" => JsonSerializer.Deserialize<HitDeletedEvent>(json, options),
+                "HitMoleculeUpdatedEvent" => JsonSerializer.Deserialize<HitMoleculeUpdatedEvent>(json, options),
 
                 "MoleculeCreatedEvent" => JsonSerializer.Deserialize<MoleculeCreatedEvent>(json, options),
                 "MoleculeUpdatedEvent" => JsonSerializer.Deserialize<MoleculeUpdatedEvent>(json, options),

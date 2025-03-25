@@ -14,6 +14,7 @@ namespace Horizon.Application.Handlers
         Task OnEvent(HitAddedEvent @event);
         Task OnEvent(HitUpdatedEvent @event);
         Task OnEvent(HitDeletedEvent @event);
+        Task OnEvent(HitMoleculeUpdatedEvent @event);
 
     }
 }
