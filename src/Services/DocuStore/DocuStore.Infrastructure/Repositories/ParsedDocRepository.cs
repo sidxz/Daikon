@@ -2,7 +2,6 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Handlers;
 using DocuStore.Application.Contracts.Persistence;
 using DocuStore.Domain.Entities;
-using DocuStore.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
@@ -15,12 +14,10 @@ namespace DocuStore.Infrastructure.Repositories
     {
         private readonly IMongoCollection<ParsedDoc> _parsedDocCollection;
         private readonly ILogger<ParsedDocRepository> _logger;
-        private readonly IVersionHub<ParsedDocRevision> _versionHub;
 
         public ParsedDocRepository(
             IConfiguration configuration,
-            ILogger<ParsedDocRepository> logger,
-            IVersionHub<ParsedDocRevision> versionMaintainer)
+            ILogger<ParsedDocRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("DocuStoreMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("DocuStoreMongoDbSettings:DatabaseName"));
@@ -29,7 +26,6 @@ namespace DocuStore.Infrastructure.Repositories
             // Create indexes for optimized queries
             CreateIndexes();
 
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -54,7 +50,6 @@ namespace DocuStore.Infrastructure.Repositories
 
 
                 await _parsedDocCollection.InsertOneAsync(parsedDoc);
-                await _versionHub.CommitVersion(parsedDoc);
             }
             catch (MongoWriteException ex) when (ex.WriteError?.Category == ServerErrorCategory.DuplicateKey)
             {
@@ -246,7 +241,6 @@ namespace DocuStore.Infrastructure.Repositories
             {
                 _logger.LogInformation("UpdateParsedDoc: Updating parsed document {ParsedDocId}, {ParsedDoc}", parsedDoc.Id, parsedDoc.ToJson());
                 await _parsedDocCollection.ReplaceOneAsync(doc => doc.Id == parsedDoc.Id, parsedDoc);
-                await _versionHub.CommitVersion(parsedDoc);
             }
             catch (MongoException ex)
             {
@@ -269,9 +263,5 @@ namespace DocuStore.Infrastructure.Repositories
             }
         }
 
-        public async Task<ParsedDocRevision> GetRevisions(Guid id)
-        {
-            return await _versionHub.GetVersions(id);
-        }
     }
 }

@@ -1,7 +1,7 @@
 
 using CQRS.Core.Domain;
 using CQRS.Core.Event;
-
+using Daikon.Shared.Embedded.DocuStore;
 namespace Daikon.Events.DocuStore
 {
     public class ParsedDocUpdatedEvent : BaseEvent
@@ -30,6 +30,8 @@ namespace Daikon.Events.DocuStore
 
 
         public DVariable<DateTime>? PublicationDate { get; set; }
+        public List<Reviews> Reviews { get; set; } = [];
+        public List<Rating> Ratings { get; set; } = [];
 
     }
 }

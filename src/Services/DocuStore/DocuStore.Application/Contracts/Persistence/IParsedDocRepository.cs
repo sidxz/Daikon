@@ -1,6 +1,5 @@
 
 using DocuStore.Domain.Entities;
-using DocuStore.Domain.EntityRevisions;
 
 namespace DocuStore.Application.Contracts.Persistence
 {
@@ -95,6 +94,5 @@ namespace DocuStore.Application.Contracts.Persistence
         /// </summary>
         /// <param name="id">The unique identifier of the ParsedDoc.</param>
         /// <returns>A list of revisions for the specified ParsedDoc.</returns>
-        Task<ParsedDocRevision> GetRevisions(Guid id);
     }
 }

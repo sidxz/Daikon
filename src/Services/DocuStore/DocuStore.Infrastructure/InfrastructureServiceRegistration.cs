@@ -19,12 +19,12 @@ using Daikon.VersionStore.Repositories;
 using Daikon.VersionStore.Settings;
 using DocuStore.Application.Contracts.Persistence;
 using DocuStore.Domain.Aggregates;
-using DocuStore.Domain.EntityRevisions;
 using DocuStore.Infrastructure.Consumers;
 using DocuStore.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Conventions;
 
 namespace DocuStore.Infrastructure
 {
@@ -32,6 +32,11 @@ namespace DocuStore.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
+
+            var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
+            ConventionRegistry.Register("IgnoreExtraElementsGlobally", conventionPack, t => true);
+
+            
             BsonClassMap.RegisterClassMap<DocMetadata>();
             BsonClassMap.RegisterClassMap<BaseEvent>();
             BsonClassMap.RegisterClassMap<ParsedDocAddedEvent>();
@@ -81,19 +86,6 @@ namespace DocuStore.Infrastructure
 
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<ParsedDocAggregate>, EventSourcingHandler<ParsedDocAggregate>>();
-
-
-            /* Version Store */
-            var parsedDocVersionStore = new VersionDatabaseSettings<ParsedDocRevision>
-            {
-                ConnectionString = configuration.GetValue<string>("DocuStoreMongoDbSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ParsedDocRevision>.ConnectionString)),
-                DatabaseName = configuration.GetValue<string>("DocuStoreMongoDbSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ParsedDocRevision>.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("DocuStoreMongoDbSettings:ParsedDocRevisionCollectionName") ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<ParsedDocRevision>.CollectionName))
-            };
-            services.AddSingleton<IVersionDatabaseSettings<ParsedDocRevision>>(parsedDocVersionStore);
-            services.AddScoped<IVersionStoreRepository<ParsedDocRevision>, VersionStoreRepository<ParsedDocRevision>>();
-            services.AddScoped<IVersionHub<ParsedDocRevision>, VersionHub<ParsedDocRevision>>();
-
 
             /* Query */
             services.AddScoped<IParsedDocRepository, ParsedDocRepository>();
