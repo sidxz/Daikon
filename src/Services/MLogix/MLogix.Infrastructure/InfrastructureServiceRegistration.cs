@@ -70,6 +70,7 @@ namespace MLogix.Infrastructure
 
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>();
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
             services.AddScoped<IEventStore<MoleculeAggregate>, EventStore<MoleculeAggregate>>();
         }
 

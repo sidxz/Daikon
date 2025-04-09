@@ -38,6 +38,8 @@ namespace Gene.Infrastructure
             var eventDatabaseSettings = GetEventDatabaseSettings(configuration);
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>();
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
+
             services.AddScoped<IEventStore<GeneAggregate>, EventStore<GeneAggregate>>();
             services.AddScoped<IEventStore<StrainAggregate>, EventStore<StrainAggregate>>();
 

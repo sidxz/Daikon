@@ -37,6 +37,7 @@ namespace Project.Infrastructure
             var eventDatabaseSettings = GetEventDatabaseSettings(configuration);
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>();
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
             services.AddScoped<IEventStore<ProjectAggregate>, EventStore<ProjectAggregate>>();
 
             /* Kafka Producer */

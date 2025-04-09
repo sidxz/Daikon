@@ -42,6 +42,7 @@ namespace Comment.Infrastructure
             };
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
 
             services.AddScoped<IEventStore<CommentAggregate>, EventStore<CommentAggregate>>();
 

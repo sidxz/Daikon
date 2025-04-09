@@ -17,9 +17,7 @@ using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 using Screen.Infrastructure.Query.Consumers;
 using Screen.Infrastructure.Query.Repositories;
-using System.Text.Json;
-using Screen.Infrastructure.Query.Converters;
-using System.Text.Json.Serialization;
+
 
 namespace Screen.Infrastructure
 {

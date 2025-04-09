@@ -46,6 +46,7 @@ namespace DocuStore.Infrastructure
             };
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
 
             services.AddScoped<IEventStore<ParsedDocAggregate>, EventStore<ParsedDocAggregate>>();
 
