@@ -79,9 +79,8 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -130,7 +129,7 @@ services:
         ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -171,9 +170,8 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -218,7 +216,7 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -262,7 +260,7 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -333,7 +331,7 @@ services:
       # Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       # Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -389,7 +387,7 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -434,7 +432,7 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
       - "UserStoreAPI:Url=http://userstore-api/api/v2"
       - "GeneAPI:Url=http://gene-api/api/v2"
       - "TargetAPI:Url=http://target-api/api/v2"
@@ -455,7 +453,7 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      - "EventDatabaseSettings:CollectionName=Events"
+      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
