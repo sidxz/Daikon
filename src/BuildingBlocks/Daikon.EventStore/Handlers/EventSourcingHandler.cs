@@ -8,6 +8,10 @@ using Newtonsoft.Json;
 
 namespace Daikon.EventStore.Handlers
 {
+    /*
+     Generic event sourcing handler responsible for loading, saving, and snapshotting aggregates.
+     Works with any aggregate type that inherits from AggregateRoot.
+    */
     public class EventSourcingHandler<TAggregate> : IEventSourcingHandler<TAggregate>
         where TAggregate : AggregateRoot, new()
     {
@@ -15,8 +19,13 @@ namespace Daikon.EventStore.Handlers
         private readonly ISnapshotRepository _snapshotRepository;
         private readonly ILogger<EventSourcingHandler<TAggregate>> _logger;
         private readonly JsonSerializerSettings _jsonSettings;
+
+        /* Snapshot threshold - a snapshot is created every 250 events */
         private const int SnapshotThreshold = 250;
 
+        /*
+         Constructor initializes dependencies and sets up JSON serialization settings
+        */
         public EventSourcingHandler(
             IEventStore<TAggregate> eventStore,
             ISnapshotRepository snapshotRepository,
@@ -39,29 +48,39 @@ namespace Daikon.EventStore.Handlers
             };
         }
 
+        /*
+         Loads an aggregate from the event store (and snapshot if available) by its ID.
+         Replays events that occurred after the latest snapshot to bring it to the current state.
+        */
         public async Task<TAggregate> GetByAsyncId(Guid aggregateId)
         {
             _logger.LogInformation("🔍 Loading aggregate with ID: {AggregateId}", aggregateId);
+
             var aggregate = new TAggregate();
             int snapshotVersion = -1;
 
+            /* Attempt to load the latest snapshot */
             var snapshot = await _snapshotRepository.GetLatestSnapshotAsync(aggregateId);
             if (snapshot != null)
             {
                 _logger.LogInformation("📦 Snapshot found for aggregate ID: {AggregateId}, version: {Version}", aggregateId, snapshot.Version);
+
                 aggregate = JsonConvert.DeserializeObject<TAggregate>(snapshot.Data, _jsonSettings) ?? new TAggregate();
                 snapshotVersion = snapshot.Version;
                 aggregate.Version = snapshotVersion;
             }
 
-            // ⚠️ ONLY apply events after the snapshot
+            /* Replay events that occurred after the snapshot version */
             var events = await _eventStore.GetEventsAfterVersionAsync(aggregateId, snapshotVersion);
             aggregate.ReplayEvents(events);
 
             return aggregate;
         }
 
-
+        /*
+         Persists the uncommitted changes of an aggregate to the event store.
+         Also triggers snapshot creation when threshold is met.
+        */
         public async Task SaveAsync(AggregateRoot aggregate)
         {
             if (aggregate == null)
@@ -74,10 +93,15 @@ namespace Daikon.EventStore.Handlers
 
             _logger.LogInformation("📥 Saved {EventCount} events for aggregate ID: {AggregateId}", uncommitted.Count, aggregate.Id);
 
+            /*
+             If aggregate has reached snapshot threshold, create a new snapshot.
+             This helps optimize future loads.
+            */
             if (aggregate is TAggregate agg && agg.Version % SnapshotThreshold == 0)
             {
                 _logger.LogInformation("📸 Creating snapshot for aggregate ID: {AggregateId} at version {Version}", agg.Id, agg.Version);
 
+                /* Create a clean copy of the aggregate with no uncommitted events */
                 var cleanAggregate = (TAggregate)agg.CloneWithoutChanges();
 
                 var snapshot = new SnapshotModel
@@ -93,9 +117,13 @@ namespace Daikon.EventStore.Handlers
             }
             else
             {
-                _logger.LogInformation("🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}", aggregate.Version, SnapshotThreshold);
+                // _logger.LogInformation(
+                //     "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
+                //     aggregate.Version,
+                //     SnapshotThreshold);
             }
 
+            /* Mark changes as committed to clear uncommitted event list */
             aggregate.MarkChangesAsCommitted();
         }
     }

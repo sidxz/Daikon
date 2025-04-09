@@ -5,49 +5,47 @@ using MongoDB.Driver;
 
 namespace Daikon.EventStore.Repositories
 {
+    /*
+     EventStoreRepository is responsible for interacting with the MongoDB event store.
+     It supports storing and retrieving event streams for a given aggregate.
+    */
     public class EventStoreRepository : IEventStoreRepository
     {
         private readonly IMongoCollection<EventModel> _eventStoreCollection;
         private readonly ILogger<EventStoreRepository> _logger;
 
+        /*
+         Constructor sets up the MongoDB collection and indexes.
+        */
         public EventStoreRepository(IEventDatabaseSettings settings, ILogger<EventStoreRepository> logger)
         {
-            // Initialize MongoDB client and database
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            /* Initialize MongoDB client and select database and collection */
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
             _eventStoreCollection = database.GetCollection<EventModel>(settings.CollectionName);
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            // Create indexes
-            _eventStoreCollection.Indexes.CreateOne(
+            /* Define and create necessary indexes for performance */
+            var indexModels = new List<CreateIndexModel<EventModel>>
+            {
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Descending(e => e.TimeStamp),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateIdentifier),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateType),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Ascending(e => e.EventType),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys
                         .Ascending(e => e.AggregateIdentifier)
@@ -56,25 +54,23 @@ namespace Daikon.EventStore.Repositories
                         .Descending(e => e.TimeStamp),
                     new CreateIndexOptions { Unique = false }
                 )
-            );
+            };
+
+            _eventStoreCollection.Indexes.CreateMany(indexModels);
         }
 
-
         /*
-         FindByAggregateId(Guid aggregateId):
-         
-         Retrieves events by aggregate ID.
+         Finds all events for a given aggregate ID and returns them ordered by version.
         */
         public async Task<List<EventModel>> FindByAggregateId(Guid aggregateId)
         {
             try
             {
                 return await _eventStoreCollection
-                        .Find(x => x.AggregateIdentifier == aggregateId)
-                        .SortBy(x => x.Version)
-                        .ToListAsync()
-                        .ConfigureAwait(false);
-
+                    .Find(x => x.AggregateIdentifier == aggregateId)
+                    .SortBy(x => x.Version)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -84,17 +80,18 @@ namespace Daikon.EventStore.Repositories
         }
 
         /*
-         SaveAsync(EventModel @event):
-         
-         Saves a single event asynchronously.
+         Saves a single event to the event store asynchronously.
         */
         public async Task SaveAsync(EventModel @event)
         {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
 
             try
             {
-                await _eventStoreCollection.InsertOneAsync(@event).ConfigureAwait(false);
+                await _eventStoreCollection
+                    .InsertOneAsync(@event)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -104,20 +101,23 @@ namespace Daikon.EventStore.Repositories
         }
 
         /*
-         SaveBatchAsync(IEnumerable<EventModel> events):
-         
-         Saves multiple events asynchronously.
+         Saves a batch of events to the event store asynchronously.
+         Skips operation if the list is empty.
         */
         public async Task SaveBatchAsync(IEnumerable<EventModel> events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
 
             var eventList = events.ToList();
-            if (!eventList.Any()) return; // No events to save
+            if (!eventList.Any())
+                return;
 
             try
             {
-                await _eventStoreCollection.InsertManyAsync(eventList).ConfigureAwait(false);
+                await _eventStoreCollection
+                    .InsertManyAsync(eventList)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -125,8 +125,5 @@ namespace Daikon.EventStore.Repositories
                 throw new ApplicationException("An error occurred while saving events.", ex);
             }
         }
-
-
-
     }
 }

@@ -1,36 +1,44 @@
-
-
 using Daikon.EventStore.Models;
 
 namespace Daikon.EventStore.Repositories
 {
-    /// <summary>
-    /// Defines the contract for interacting with the event store repository.
-    /// Provides methods for saving, querying, and retrieving event models from the event store.
-    /// </summary>
+    /*
+     Defines the contract for interacting with the event store.
+     Supports operations for saving and retrieving domain events.
+    */
     public interface IEventStoreRepository
     {
-        /// <summary>
-        /// Saves a single event asynchronously into the event store.
-        /// </summary>
-        /// <param name="event">The event to be saved.</param>
-        /// <returns>A Task representing the asynchronous operation.</returns>
+        /*
+         Saves a single event asynchronously into the event store.
+
+         Parameters:
+         - event: The event to be persisted.
+
+         Returns:
+         - A Task representing the asynchronous operation.
+        */
         Task SaveAsync(EventModel @event);
 
-        /// <summary>
-        /// Retrieves all events associated with a specific aggregate identifier asynchronously.
-        /// </summary>
-        /// <param name="aggregateId">The identifier of the aggregate for which to retrieve events.</param>
-        /// <returns>A Task representing the asynchronous operation, with a list of matching events.</returns>
+        /*
+         Retrieves all events for a given aggregate ID, ordered by version.
+
+         Parameters:
+         - aggregateId: The identifier of the aggregate.
+
+         Returns:
+         - A Task containing a list of matching events.
+        */
         Task<List<EventModel>> FindByAggregateId(Guid aggregateId);
 
-        /// <summary>
-        /// Saves a batch of events asynchronously into the event store.
-        /// </summary>
-        /// <param name="events">The collection of events to be saved.</param>
-        /// <returns>A Task representing the asynchronous operation.</returns>
-        Task SaveBatchAsync(IEnumerable<EventModel> events);
+        /*
+         Saves multiple events in a single batch operation.
 
-        
+         Parameters:
+         - events: The collection of events to save.
+
+         Returns:
+         - A Task representing the asynchronous operation.
+        */
+        Task SaveBatchAsync(IEnumerable<EventModel> events);
     }
 }
