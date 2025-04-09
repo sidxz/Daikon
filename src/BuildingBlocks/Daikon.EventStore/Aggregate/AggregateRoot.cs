@@ -58,14 +58,24 @@ namespace Daikon.EventStore.Aggregate
             If the event is new (indicated by the isNew parameter), it adds the event to the list of uncommitted changes.
             Throws NotImplementedException if the corresponding Apply method is not implemented.
         */
+        private static readonly Dictionary<Type, Action<AggregateRoot, BaseEvent>> _applyMethodsCache = new();
+
         private void ApplyChange(BaseEvent @event, bool isNew)
         {
-            var method = this.GetType()
-                .GetMethod("Apply", [@event.GetType()])
-                ?? throw new
-                NotImplementedException($"Apply method not implemented for {@event.GetType().Name}");
+            var eventType = @event.GetType();
 
-            method.Invoke(this, [@event]);
+            if (!_applyMethodsCache.TryGetValue(eventType, out var applyAction))
+            {
+                var methodInfo = this.GetType().GetMethod("Apply", new[] { eventType });
+                if (methodInfo == null)
+                    throw new NotImplementedException($"Apply method not implemented for {eventType.Name}");
+
+                // Create delegate (Action<AggregateRoot, BaseEvent>) using reflection
+                applyAction = (aggregate, evt) => methodInfo.Invoke(aggregate, new[] { evt });
+                _applyMethodsCache[eventType] = applyAction;
+            }
+
+            applyAction(this, @event);
 
             if (isNew)
             {

@@ -71,9 +71,11 @@ namespace Daikon.EventStore.Repositories
             try
             {
                 return await _eventStoreCollection
-                    .Find(x => x.AggregateIdentifier == aggregateId)
-                    .ToListAsync()
-                    .ConfigureAwait(false);
+                        .Find(x => x.AggregateIdentifier == aggregateId)
+                        .SortBy(x => x.Version)
+                        .ToListAsync()
+                        .ConfigureAwait(false);
+
             }
             catch (Exception ex)
             {
