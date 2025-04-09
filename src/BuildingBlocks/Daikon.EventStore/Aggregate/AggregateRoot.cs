@@ -27,7 +27,7 @@ namespace Daikon.EventStore.Aggregate
         /*
          Returns a read-only collection of uncommitted events.
         */
-        public IEnumerable<BaseEvent> GetUncommittedChanges() => _uncommittedChanges.AsReadOnly();
+        public IEnumerable<BaseEvent> GetUncommittedChanges() => _uncommittedChanges.AsEnumerable();
 
         /*
          Clears the list of uncommitted changes after they have been persisted.

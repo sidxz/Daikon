@@ -117,10 +117,10 @@ namespace Daikon.EventStore.Handlers
             }
             else
             {
-                // _logger.LogInformation(
-                //     "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
-                //     aggregate.Version,
-                //     SnapshotThreshold);
+                _logger.LogInformation(
+                    "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
+                    aggregate.Version,
+                    SnapshotThreshold);
             }
 
             /* Mark changes as committed to clear uncommitted event list */
