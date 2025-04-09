@@ -1,4 +1,5 @@
 using Daikon.EventStore.Models;
+using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using EventHistory.Application.Contracts.Persistence;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,7 @@ namespace EventHistory.Infrastructure.Query.Repositories
             // Initialize MongoDB client and collection
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _eventStoreCollection = database.GetCollection<EventModel>(settings.CollectionName);
+            _eventStoreCollection = database.GetCollection<EventModel>(RepositoryConstants.EventStoreCollectionName);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         /*

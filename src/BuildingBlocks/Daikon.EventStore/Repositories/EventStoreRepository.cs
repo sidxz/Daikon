@@ -25,7 +25,7 @@ namespace Daikon.EventStore.Repositories
             /* Initialize MongoDB client and select database and collection */
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _eventStoreCollection = database.GetCollection<EventModel>(settings.CollectionName);
+            _eventStoreCollection = database.GetCollection<EventModel>(RepositoryConstants.EventStoreCollectionName);
 
             /* Define and create necessary indexes for performance */
             var indexModels = new List<CreateIndexModel<EventModel>>

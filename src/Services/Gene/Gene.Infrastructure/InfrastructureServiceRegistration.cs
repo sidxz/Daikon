@@ -108,9 +108,7 @@ namespace Gene.Infrastructure
                 ConnectionString = configuration.GetValue<string>("EventDatabaseSettings:ConnectionString")
                                     ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString), "Event Database connection string is required."),
                 DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName")
-                                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName), "Event Database name is required."),
-                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName")
-                                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName), "Event Database collection name is required.")
+                                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName), "Event Database name is required.")
             };
         }
 

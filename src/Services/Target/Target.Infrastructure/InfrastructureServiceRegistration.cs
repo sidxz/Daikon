@@ -1,6 +1,5 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
-using CQRS.Core.Domain;
 using Daikon.EventStore.Event;
 using Daikon.EventStore.Handlers;
 using Daikon.Events.Targets;
@@ -64,8 +63,6 @@ namespace Target.Infrastructure
                     ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString), "Event Database connection string is required."),
                 DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName")
                     ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName), "Event Database name is required."),
-                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName")
-                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName), "Event Database collection name is required.")
             };
 
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);

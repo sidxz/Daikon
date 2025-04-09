@@ -23,7 +23,7 @@ namespace Daikon.EventStore.Repositories
             var client = new MongoClient(settings.ConnectionString);
             var db = client.GetDatabase(settings.DatabaseName);
 
-            _snapshotCollection = db.GetCollection<SnapshotModel>("AggregateSnapshots");
+            _snapshotCollection = db.GetCollection<SnapshotModel>(RepositoryConstants.SnapshotCollectionName);
 
             /* Create compound index to optimize latest snapshot lookup */
             _snapshotCollection.Indexes.CreateOne(
