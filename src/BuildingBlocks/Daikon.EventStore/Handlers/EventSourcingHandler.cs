@@ -1,4 +1,3 @@
-using CQRS.Core.Domain;
 using Daikon.EventStore.Aggregate;
 using Daikon.EventStore.Models;
 using Daikon.EventStore.Repositories;
