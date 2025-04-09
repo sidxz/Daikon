@@ -4,6 +4,7 @@ using Daikon.EventStore.Aggregate;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Producers;
 using CQRS.Core.Exceptions;
+using Daikon.EventStore.Models;
 
 namespace Daikon.EventStore.Stores
 {
@@ -50,27 +51,33 @@ namespace Daikon.EventStore.Stores
         /// </summary>
         public async Task SaveEventAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion)
         {
-            var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
+            var existingEvents = await _eventStoreRepository.FindByAggregateId(aggregateId);
+            var lastVersion = existingEvents.LastOrDefault()?.Version ?? -1;
 
-            if (expectedVersion != -1 && eventStream.Any() && eventStream[^1].Version != expectedVersion)
+            if (expectedVersion != -1 && lastVersion != expectedVersion)
             {
-                throw new ConcurrencyException($"Aggregate {aggregateId} has been modified since the last read.");
+                throw new ConcurrencyException($"Aggregate {aggregateId} has been modified. Expected version {expectedVersion}, but found {lastVersion}.");
             }
 
             var version = expectedVersion;
-            var eventModels = events.Select(@event =>
+            var orderedEvents = events.ToList();
+
+            foreach (var @event in orderedEvents)
             {
                 version++;
                 @event.Version = version;
-                return ConvertToEventModel(@event, aggregateId, version);
-            }).ToList();
+            }
 
-            await _eventStoreRepository.SaveBatchAsync(eventModels);
-            foreach (var eventModel in eventModels)
+            await _eventStoreRepository.SaveBatchAsync(orderedEvents.Select(e =>
+                ConvertToEventModel(e, aggregateId, e.Version)).ToList());
+
+            foreach (var @event in orderedEvents)
             {
-                await ProduceEvent(eventModel.EventData);
+                await ProduceEvent(@event);
             }
         }
+
+
 
         /// <summary>
         /// Converts a BaseEvent to an EventModel with additional metadata.
@@ -122,5 +129,17 @@ namespace Daikon.EventStore.Stores
 
             await _eventProducer.ProduceAsync(topic, @event);
         }
+
+
+        public async Task<List<BaseEvent>> GetEventsAfterVersionAsync(Guid aggregateId, int version)
+        {
+            var allEvents = await _eventStoreRepository.FindByAggregateId(aggregateId);
+            return allEvents
+                .Where(x => x.Version > version)
+                .OrderBy(x => x.Version)
+                .Select(x => x.EventData)
+                .ToList();
+        }
+
     }
 }

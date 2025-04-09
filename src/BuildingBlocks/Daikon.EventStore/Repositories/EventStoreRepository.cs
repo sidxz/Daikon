@@ -1,5 +1,4 @@
-using CQRS.Core.Domain;
-using Daikon.EventStore.Event;
+using Daikon.EventStore.Models;
 using Daikon.EventStore.Settings;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;

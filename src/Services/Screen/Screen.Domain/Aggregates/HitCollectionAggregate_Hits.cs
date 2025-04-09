@@ -9,7 +9,7 @@ namespace Screen.Domain.Aggregates
 {
     public partial class HitCollectionAggregate : AggregateRoot
     {
-        private readonly Dictionary<Guid, Hit> _hits = [];
+        private  Dictionary<Guid, Hit> _hits = [];
 
         /* Add Hit */
         public void AddHit(HitAddedEvent @event)

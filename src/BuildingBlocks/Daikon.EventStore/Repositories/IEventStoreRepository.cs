@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Daikon.EventStore.Event;
+
+
+using Daikon.EventStore.Models;
 
 namespace Daikon.EventStore.Repositories
 {

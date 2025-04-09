@@ -88,23 +88,47 @@ namespace Daikon.EventStore.Aggregate
          RaiseEvent(BaseEvent): 
             A protected method used to raise a new event. It applies the event and marks it as new.
         */
-        protected void RaiseEvent(BaseEvent @event) => ApplyChange(@event, true);
-
-
-
+        protected void RaiseEvent(BaseEvent @event)
+        {
+            ApplyChange(@event, true);
+        }
         /*
          ReplayEvents(IEnumerable<BaseEvent>):
 
             Applies a sequence of events to the aggregate, typically used to rebuild the aggregate's state from its event history.
             Increments the Version of the aggregate for each applied event.
         */
+
         public void ReplayEvents(IEnumerable<BaseEvent> events)
         {
-            foreach (var @event in events)
+            var orderedEvents = events.OrderBy(e => e.Version).ToList();
+
+            for (int i = 0; i < orderedEvents.Count; i++)
             {
+                var @event = orderedEvents[i];
+
+                if (i > 0 && orderedEvents[i - 1].Version + 1 != @event.Version)
+                {
+                    throw new InvalidOperationException($"Event stream is not sequential at index {i}. Expected version {orderedEvents[i - 1].Version + 1}, but got {@event.Version}.");
+                }
+
                 ApplyChange(@event, false);
-                Version++;
+                Version = @event.Version;
             }
         }
+
+        public AggregateRoot CloneWithoutChanges()
+        {
+            var clone = (AggregateRoot)this.MemberwiseClone();
+
+            var changesField = typeof(AggregateRoot)
+                .GetField("_changes", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            changesField?.SetValue(clone, new List<BaseEvent>());
+
+            return clone;
+        }
+
+
     }
 }

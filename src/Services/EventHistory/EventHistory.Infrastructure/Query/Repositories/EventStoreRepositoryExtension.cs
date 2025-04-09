@@ -1,4 +1,4 @@
-using Daikon.EventStore.Event;
+using Daikon.EventStore.Models;
 using Daikon.EventStore.Settings;
 using EventHistory.Application.Contracts.Persistence;
 using Microsoft.Extensions.Logging;

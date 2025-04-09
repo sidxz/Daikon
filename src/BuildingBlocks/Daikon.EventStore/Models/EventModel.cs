@@ -1,10 +1,11 @@
+using Daikon.EventStore.Event;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 /// <summary>
 /// Represents an event model that contains information about an event.
 /// </summary>
-namespace Daikon.EventStore.Event
+namespace Daikon.EventStore.Models
 {
     public class EventModel
     {

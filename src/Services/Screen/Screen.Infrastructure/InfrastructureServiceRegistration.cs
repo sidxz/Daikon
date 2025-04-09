@@ -17,6 +17,9 @@ using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
 using Screen.Infrastructure.Query.Consumers;
 using Screen.Infrastructure.Query.Repositories;
+using System.Text.Json;
+using Screen.Infrastructure.Query.Converters;
+using System.Text.Json.Serialization;
 
 namespace Screen.Infrastructure
 {
@@ -24,7 +27,7 @@ namespace Screen.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddHttpContextAccessor();
+            services.AddHttpContextAccessor();            
 
             ConfigureMongoDbConventions();
             RegisterBsonClassMaps();
@@ -81,8 +84,11 @@ namespace Screen.Infrastructure
                     ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName), "Event Database collection name is required.")
             };
 
+
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>();
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
+
             services.AddScoped<IEventStore<ScreenAggregate>, EventStore<ScreenAggregate>>();
             services.AddScoped<IEventStore<HitCollectionAggregate>, EventStore<HitCollectionAggregate>>();
         }

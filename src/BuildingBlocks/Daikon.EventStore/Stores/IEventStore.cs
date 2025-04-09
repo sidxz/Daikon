@@ -8,6 +8,7 @@ namespace Daikon.EventStore.Stores
     {
         Task SaveEventAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion);
         Task<List<BaseEvent>> GetEventsAsync(Guid aggregateId);
+        Task<List<BaseEvent>> GetEventsAfterVersionAsync(Guid aggregateId, int version);
     }
 }
 

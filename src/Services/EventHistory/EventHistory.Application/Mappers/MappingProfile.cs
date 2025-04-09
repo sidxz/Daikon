@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using Daikon.EventStore.Event;
+using Daikon.EventStore.Models;
 using EventHistory.Application.Features.Queries.GetEventHistory;
 
 namespace EventHistory.Application.Mappers

@@ -6,7 +6,7 @@ namespace Screen.Domain.Aggregates
 {
     public partial class ScreenAggregate : AggregateRoot
     {
-        private readonly Dictionary<Guid, ScreenRun> _screenRuns = [];
+        private  Dictionary<Guid, ScreenRun> _screenRuns = [];
 
 
         /* Add Screen Run */
