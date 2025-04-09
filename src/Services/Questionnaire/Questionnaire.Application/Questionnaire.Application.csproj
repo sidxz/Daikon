@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\BuildingBlocks\CQRS.Core\CQRS.Core.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.EventStore\Daikon.EventStore.csproj" />
-    <ProjectReference Include="..\..\..\BuildingBlocks\Daikon.VersionStore\Daikon.VersionStore.csproj" />
     <ProjectReference Include="..\Questionnaire.Domain\Questionnaire.Domain.csproj" />
 
   </ItemGroup>

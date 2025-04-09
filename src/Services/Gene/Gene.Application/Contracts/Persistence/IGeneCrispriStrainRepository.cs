@@ -1,6 +1,5 @@
 
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 
 namespace Gene.Application.Contracts.Persistence
 {
@@ -13,7 +12,6 @@ namespace Gene.Application.Contracts.Persistence
         Task UpdateCrispriStrain(CrispriStrain crispriStrain);
         Task DeleteCrispriStrain(Guid id);
         Task DeleteAllCrispriStrainsOfGene(Guid geneId);
-        Task<CrispriStrainRevision> GetCrispriStrainRevisions(Guid Id);
 
     }
 }

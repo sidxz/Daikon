@@ -1,17 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using CQRS.Core.Event;
-using CQRS.Core.Exceptions;
-using Daikon.Events.HitAssessment;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Settings;
 using EventHistory.Application.Contracts.Persistence;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace EventHistory.Infrastructure.Query.Repositories

@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 /// <summary>
 /// Represents an event model that contains information about an event.
 /// </summary>
-namespace CQRS.Core.Event
+namespace Daikon.EventStore.Event
 {
     public class EventModel
     {

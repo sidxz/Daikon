@@ -1,9 +1,9 @@
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Exceptions;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Settings;
+using Daikon.EventStore.Aggregate;
+using Daikon.EventStore.Repositories;
+using Daikon.EventStore.Producers;
+using CQRS.Core.Exceptions;
 
 namespace Daikon.EventStore.Stores
 {

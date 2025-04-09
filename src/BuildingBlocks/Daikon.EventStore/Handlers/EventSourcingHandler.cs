@@ -1,9 +1,6 @@
-using CQRS.Core.Domain;
-using CQRS.Core.Handlers;
-using CQRS.Core.Infrastructure;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
+using Daikon.EventStore.Aggregate;
+using Daikon.EventStore.Stores;
 
 namespace Daikon.EventStore.Handlers
 {

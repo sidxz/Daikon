@@ -11,6 +11,5 @@ namespace HitAssessment.Application.Contracts.Persistence
         Task<List<Domain.Entities.HitAssessment>> GetHaListByStrainId(Guid strainId);
         Task UpdateHa(Domain.Entities.HitAssessment ha);
         Task DeleteHa(Guid id);
-        Task<Domain.EntityRevisions.HitAssessmentRevision> GetHaRevisions(Guid Id);
     }
 }

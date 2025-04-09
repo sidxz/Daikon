@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
 
-namespace CQRS.Core.Infrastructure
+using Daikon.EventStore.Aggregate;
+using Daikon.EventStore.Event;
+
+namespace Daikon.EventStore.Stores
 {
     public interface IEventStore<TAggregate> where TAggregate : AggregateRoot
     {

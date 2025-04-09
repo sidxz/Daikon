@@ -15,6 +15,5 @@ namespace Screen.Application.Contracts.Persistence
         Task DeleteHits(List<Guid> hitIds);
 
         Task<List<Hit>> GetHitsWithRequestedMoleculeNameButNoMoleculeId();
-        Task<Domain.EntityRevisions.HitRevision> GetHitRevisions(Guid Id);
     }
 }

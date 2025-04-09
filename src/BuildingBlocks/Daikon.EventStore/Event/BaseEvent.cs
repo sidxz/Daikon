@@ -1,9 +1,8 @@
 
-using System.Text.Json.Serialization;
 using CQRS.Core.Domain;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace CQRS.Core.Event
+namespace Daikon.EventStore.Event
 {
     [BsonDiscriminator(Required = true)]
 

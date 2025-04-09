@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using CQRS.Core.Converters;
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Daikon.Events.HitAssessment

@@ -8,8 +8,6 @@ using Gene.Application.Features.Queries.GetGene;
 using Gene.Application.Features.Queries.GetGene.ByAccession;
 using Gene.Application.Features.Queries.GetGene.ById;
 using Gene.Application.Features.Queries.GetGenesList;
-using Gene.Application.Features.Queries.GetGeneVersions;
-using Gene.Application.Features.Queries.GetGeneVersions.ById;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -103,16 +101,6 @@ namespace Gene.API.Controllers.V2
                 Message = "Gene deleted successfully",
             });
 
-        }
-
-        [HttpGet("revision/{id}", Name = "GetGeneRevision")]
-        [MapToApiVersion("2.0")]
-        [ProducesResponseType(typeof(GeneVersionsVM), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<GeneVM>> GetGeneRevision(Guid id)
-        {
-            var geneRevision = await _mediator.Send(new GetGeneVersionsQuery { Id = id });
-            return Ok(geneRevision);
         }
     }
 }

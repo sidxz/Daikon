@@ -1,6 +1,5 @@
 
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 
 namespace Gene.Application.Contracts.Persistence
 {
@@ -13,7 +12,5 @@ namespace Gene.Application.Contracts.Persistence
         Task UpdateUnpublishedStructuralInformation(UnpublishedStructuralInformation essentiality);
         Task DeleteUnpublishedStructuralInformation(Guid id);
         Task DeleteAllUnpublishedStructuralInformationsOfGene(Guid geneId);
-        Task<UnpublishedStructuralInformationRevision> GetUnpublishedStructuralInformationRevisions(Guid Id);
-
     }
 }

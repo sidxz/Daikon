@@ -1,6 +1,6 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;

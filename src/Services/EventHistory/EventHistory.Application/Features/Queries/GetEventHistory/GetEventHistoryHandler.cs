@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using AutoMapper;
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using Daikon.Events.HitAssessment;
 using EventHistory.Application.Contracts.Persistence;
 using EventHistory.Application.Features.Processors;

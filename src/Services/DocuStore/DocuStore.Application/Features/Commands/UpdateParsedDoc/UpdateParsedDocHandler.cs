@@ -1,5 +1,5 @@
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.DocuStore;
 using Daikon.Shared.APIClients.MLogix;
 using DocuStore.Application.Contracts.Persistence;

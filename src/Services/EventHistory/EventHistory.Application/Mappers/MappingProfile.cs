@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using EventHistory.Application.Features.Queries.GetEventHistory;
 
 namespace EventHistory.Application.Mappers

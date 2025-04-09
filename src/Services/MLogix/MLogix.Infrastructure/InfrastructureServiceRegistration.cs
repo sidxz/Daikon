@@ -1,21 +1,14 @@
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Handlers;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
-using Daikon.Events.MLogix;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Handlers;
+using Daikon.Events.MLogix;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
-using Daikon.VersionStore.Handlers;
-using Daikon.VersionStore.Repositories;
-using Daikon.VersionStore.Settings;
 using MLogix.Application.Contracts.Persistence;
 using MLogix.Domain.Aggregates;
-using MLogix.Domain.EntityRevisions;
 using MLogix.Infrastructure.Query.Consumers;
 using MLogix.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -40,8 +33,6 @@ namespace MLogix.Infrastructure
 
             ConfigureEventDatabase(services, configuration);
             ConfigureKafkaProducer(services, configuration);
-            ConfigureVersionStore(services, configuration);
-
             /* Query */
             services.AddScoped<IMoleculeRepository, MoleculeRepository>();
 
@@ -108,21 +99,5 @@ namespace MLogix.Infrastructure
             services.AddScoped<IEventSourcingHandler<MoleculeAggregate>, EventSourcingHandler<MoleculeAggregate>>();
         }
 
-        private static void ConfigureVersionStore(IServiceCollection services, IConfiguration configuration)
-        {
-            var moleculeVersionStoreSettings = new VersionDatabaseSettings<MoleculeRevision>
-            {
-                ConnectionString = configuration.GetValue<string>("MLxMongoDbSettings:ConnectionString")
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<MoleculeRevision>.ConnectionString), "Version Store connection string is required."),
-                DatabaseName = configuration.GetValue<string>("MLxMongoDbSettings:DatabaseName")
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<MoleculeRevision>.DatabaseName), "Version Store database name is required."),
-                CollectionName = configuration.GetValue<string>("MLxMongoDbSettings:MoleculeRevisionCollectionName")
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<MoleculeRevision>.CollectionName), "Version Store collection name is required.")
-            };
-
-            services.AddSingleton<IVersionDatabaseSettings<MoleculeRevision>>(moleculeVersionStoreSettings);
-            services.AddScoped<IVersionStoreRepository<MoleculeRevision>, VersionStoreRepository<MoleculeRevision>>();
-            services.AddScoped<IVersionHub<MoleculeRevision>, VersionHub<MoleculeRevision>>();
-        }
     }
 }

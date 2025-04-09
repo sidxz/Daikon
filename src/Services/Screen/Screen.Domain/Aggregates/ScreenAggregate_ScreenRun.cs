@@ -1,5 +1,5 @@
-using CQRS.Core.Domain;
 using Daikon.Events.Screens;
+using Daikon.EventStore.Aggregate;
 using Screen.Domain.Entities;
 
 namespace Screen.Domain.Aggregates

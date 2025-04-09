@@ -116,18 +116,6 @@ services:
       - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
       - "GeneMongoDbSettings:GeneExpansionPropCollectionName=GeneExpansionProps"
 
-      - "GeneMongoDbSettings:GeneRevisionCollectionName=GenesRevisions"
-      - "GeneMongoDbSettings:StrainRevisionCollectionName=StrainsRevisions"
-      - "GeneMongoDbSettings:GeneEssentialityRevisionCollectionName=EssentialitiesRevisions"
-      - "GeneMongoDbSettings:GeneProteinProductionRevisionCollectionName=ProteinProductionsRevisions"
-      - "GeneMongoDbSettings:GeneProteinActivityAssayRevisionCollectionName=ProteinActivityAssaysRevisions"
-      - "GeneMongoDbSettings:GeneHypomorphRevisionCollectionName=HypomorphsRevisions"
-      - "GeneMongoDbSettings:GeneCrispriStrainRevisionCollectionName=CrispriStrainsRevisions"
-      - "GeneMongoDbSettings:GeneResistanceMutationRevisionCollectionName=ResistanceMutationsRevisions"
-      - "GeneMongoDbSettings:GeneVulnerabilityRevisionCollectionName=VulnerabilitiesRevisions"
-      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationRevisionCollectionName=UnpublishedStructuralInformationsRevisions"
-      - "GeneMongoDbSettings:ExpansionPropRevisionCollectionName=GeneExpansionPropsRevisions"
-
     ports:
       - "8001:80"
 
@@ -168,9 +156,7 @@ services:
 
       - "TargetMongoDbSettings:TargetCollectionName=Targets"
       - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
-      - "TargetMongoDbSettings:TargetRevisionCollectionName=TargetsRevisions"
       - "TargetMongoDbSettings:TargetToxicologyCollectionName=TargetToxicologies"
-      - "TargetMongoDbSettings:TargetToxicologyRevisionCollectionName=TargetToxicologiesRevisions"
 
     ports:
       - "8002:80"
@@ -215,11 +201,6 @@ services:
       - "ScreenMongoDbSettings:HitCollectionCollectionName=HitCollections"
       - "ScreenMongoDbSettings:HitCollectionName=Hits"
 
-      - "ScreenMongoDbSettings:ScreenRevisionCollectionName=ScreensRevisions"
-      - "ScreenMongoDbSettings:ScreenRunRevisionCollectionName=ScreenRunsRevisions"
-      - "ScreenMongoDbSettings:HitCollectionRevisionCollectionName=HitCollectionsRevisions"
-      - "ScreenMongoDbSettings:HitRevisionCollectionName=HitRevisions"
-
       ## Internal APIs
       - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
@@ -263,8 +244,6 @@ services:
       - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
       - "HAMongoDbSettings:HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
 
-      - "HAMongoDbSettings:HitAssessmentRevisionCollectionName=HitAssessmentsRevisions"
-      - "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName=HaCompoundEvolutionsRevisions"
 
       ## Internal APIs
       - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
@@ -309,9 +288,6 @@ services:
 
       - "ProjectMongoDbSettings:ProjectCollectionName=Projects"
       - "ProjectMongoDbSettings:ProjectCompoundEvolutionCollectionName=ProjectCompoundEvolutions"
-
-      - "ProjectMongoDbSettings:ProjectRevisionCollectionName=ProjectsRevisions"
-      - "ProjectMongoDbSettings:ProjectCompoundEvolutionRevisionCollectionName=ProjectCompoundEvolutionsRevisions"
 
       ## Internal APIs
       - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
@@ -380,7 +356,7 @@ services:
       - MLxMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
       - "MLxMongoDbSettings:DatabaseName=MoleculeLogix"
       - "MLxMongoDbSettings:MoleculeCollectionName=Molecules"
-      - "MLxMongoDbSettings:MoleculeRevisionCollectionName=MoleculesRevisions"
+
 
       # Internal APIs
       - "MolDbAPI:Url=http://moldb-api:8101/api/v2/mol-db"
@@ -438,10 +414,8 @@ services:
       - "CommentMongoDbSettings:DatabaseName=Comments"
 
       - "CommentMongoDbSettings:CommentCollectionName=Comments"
-      - "CommentMongoDbSettings:CommentRevisionCollectionName=CommentsRevisions"
-
       - "CommentMongoDbSettings:CommentReplyCollectionName=CommentReplies"
-      - "CommentMongoDbSettings:CommentReplyRevisionCollectionName=CommentReplyRevisions"
+
 
       ## Internal APIs
       - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
@@ -506,8 +480,6 @@ services:
       - "DocuStoreMongoDbSettings:DatabaseName=DocuStore"
 
       - "DocuStoreMongoDbSettings:ParsedDocCollectionName=ParsedDocs"
-      - "DocuStoreMongoDbSettings:ParsedDocRevisionCollectionName=ParsedDocsRevisions"
-
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 

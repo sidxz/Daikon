@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 
-namespace CQRS.Core.Domain
+namespace Daikon.EventStore.Repositories
 {
     /// <summary>
     /// Defines the contract for interacting with the event store repository.

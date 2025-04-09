@@ -1,6 +1,3 @@
-
-using CQRS.Core.Event;
-
 /*
 == Overview ==
 The AggregateRoot class, part of the CQRS.Core.Domain namespace, is an abstract base class designed to represent 
@@ -25,7 +22,9 @@ Version (int): Public property representing the version of the aggregate, initia
 
 */
 
-namespace CQRS.Core.Domain
+using Daikon.EventStore.Event;
+
+namespace Daikon.EventStore.Aggregate
 {
     public abstract class AggregateRoot
     {

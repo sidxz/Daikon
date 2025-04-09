@@ -1,26 +1,19 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Handlers;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
-using Daikon.Events.Targets;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Handlers;
+using Daikon.Events.Targets;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
-using Daikon.VersionStore.Handlers;
-using Daikon.VersionStore.Repositories;
-using Daikon.VersionStore.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
-using Target.Domain.EntityRevisions;
 using Target.Infrastructure.Query.Consumers;
 using Target.Infrastructure.Query.Repositories;
 
@@ -35,9 +28,6 @@ namespace Target.Infrastructure
 
             ConfigureEventDatabase(services, configuration);
             ConfigureKafkaProducer(services, configuration);
-
-            ConfigureVersionStores(services, configuration);
-
             ConfigureRepositories(services);
             ConfigureConsumers(services);
 
@@ -103,30 +93,6 @@ namespace Target.Infrastructure
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<TargetAggregate>, EventSourcingHandler<TargetAggregate>>();
             services.AddScoped<IEventSourcingHandler<TPQuestionnaireAggregate>, EventSourcingHandler<TPQuestionnaireAggregate>>();
-        }
-
-        private static void ConfigureVersionStores(IServiceCollection services, IConfiguration configuration)
-        {
-            ConfigureVersionStore<TargetRevision>(services, configuration, "TargetMongoDbSettings:TargetRevisionCollectionName");
-            ConfigureVersionStore<ToxicologyRevision>(services, configuration, "TargetMongoDbSettings:TargetToxicologyRevisionCollectionName", "TargetToxicologiesRevisions");
-        }
-
-        private static void ConfigureVersionStore<T>(IServiceCollection services, IConfiguration configuration, string collectionNameKey, string defaultCollectionName = "")
-            where T : CQRS.Core.Domain.Historical.BaseVersionEntity
-        {
-            var versionDatabaseSettings = new VersionDatabaseSettings<T>
-            {
-                ConnectionString = configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString")
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.ConnectionString), "Version Store connection string is required."),
-                DatabaseName = configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName")
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.DatabaseName), "Version Store database name is required."),
-                CollectionName = configuration.GetValue<string>(collectionNameKey) ?? defaultCollectionName
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.CollectionName), $"Collection name for {typeof(T).Name} is required.")
-            };
-
-            services.AddSingleton<IVersionDatabaseSettings<T>>(versionDatabaseSettings);
-            services.AddScoped<IVersionStoreRepository<T>, VersionStoreRepository<T>>();
-            services.AddScoped<IVersionHub<T>, VersionHub<T>>();
         }
 
         private static void ConfigureRepositories(IServiceCollection services)

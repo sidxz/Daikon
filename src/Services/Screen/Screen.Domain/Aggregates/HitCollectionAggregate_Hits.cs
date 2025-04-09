@@ -1,7 +1,7 @@
 using AutoMapper;
-using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
+using Daikon.EventStore.Aggregate;
 using Daikon.Shared.Constants.AppScreen;
 using Screen.Domain.Entities;
 

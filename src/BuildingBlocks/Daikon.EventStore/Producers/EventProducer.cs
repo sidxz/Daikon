@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Confluent.Kafka;
-using CQRS.Core.Event;
-using CQRS.Core.Producers;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Settings;
 using Microsoft.Extensions.Logging;
 

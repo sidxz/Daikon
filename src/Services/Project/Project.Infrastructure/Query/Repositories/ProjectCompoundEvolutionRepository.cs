@@ -1,9 +1,7 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Entities;
-using Project.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -15,9 +13,8 @@ namespace Project.Infrastructure.Query.Repositories
 
         private readonly IMongoCollection<ProjectCompoundEvolution> _projectCompoundEvoCollection;
         private readonly ILogger<ProjectCompoundEvolutionRepository> _logger;
-        private readonly IVersionHub<ProjectCompoundEvolutionRevision> _versionHub;
 
-        public ProjectCompoundEvolutionRepository(IConfiguration configuration, ILogger<ProjectCompoundEvolutionRepository> logger, IVersionHub<ProjectCompoundEvolutionRevision> versionMaintainer)
+        public ProjectCompoundEvolutionRepository(IConfiguration configuration, ILogger<ProjectCompoundEvolutionRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("ProjectMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("ProjectMongoDbSettings:DatabaseName"));
@@ -29,7 +26,6 @@ namespace Project.Infrastructure.Query.Repositories
                                                 new CreateIndexOptions { Unique = false }));
 
 
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -42,7 +38,6 @@ namespace Project.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateProjectCompoundEvolution: Creating projectCompoundEvolution {ProjectCompoundEvolutionId}, {ProjectCompoundEvolution}", projectCompoundEvolution.Id, projectCompoundEvolution.ToJson());
                 await _projectCompoundEvoCollection.InsertOneAsync(projectCompoundEvolution);
-                await _versionHub.CommitVersion(projectCompoundEvolution);
             }
             catch (MongoException ex)
             {
@@ -58,7 +53,6 @@ namespace Project.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteProjectCompoundEvolution: Deleting projectCompoundEvolution {ProjectCompoundEvolutionId}", id);
                 await _projectCompoundEvoCollection.DeleteOneAsync(projectCompoundEvolution => projectCompoundEvolution.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -139,20 +133,12 @@ namespace Project.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateProjectCompoundEvolution: Updating projectCompoundEvolution {ProjectCompoundEvolutionId}, {ProjectCompoundEvolution}", projectCompoundEvolution.Id, projectCompoundEvolution.ToJson());
                 await _projectCompoundEvoCollection.ReplaceOneAsync(t => t.Id == projectCompoundEvolution.Id, projectCompoundEvolution);
-                await _versionHub.CommitVersion(projectCompoundEvolution);
             }
             catch (MongoException ex)
             {
                 _logger.LogError(ex, "An error occurred while updating the projectCompoundEvolution with ID {ProjectCompoundEvolutionId}", projectCompoundEvolution.Id);
                 throw new RepositoryException(nameof(ProjectCompoundEvolutionRepository), "Error updating projectCompoundEvolution", ex);
             }
-        }
-
-
-        public async Task<ProjectCompoundEvolutionRevision> GetProjectCompoundEvolutionRevisions(Guid Id)
-        {
-            var projectCompoundEvolutionRevision = await _versionHub.GetVersions(Id);
-            return projectCompoundEvolutionRevision;
         }
     }
 }

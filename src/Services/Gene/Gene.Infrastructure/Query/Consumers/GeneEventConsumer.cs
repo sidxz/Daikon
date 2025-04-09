@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Gene.Application.Query.EventHandlers;
 using Gene.Infrastructure.Query.Converters;

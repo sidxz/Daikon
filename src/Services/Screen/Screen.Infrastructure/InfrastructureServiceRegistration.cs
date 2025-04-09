@@ -1,27 +1,20 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Handlers;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
-using Daikon.Events.Screens;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Handlers;
+using Daikon.Events.Screens;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
 using Daikon.Shared.APIClients.MLogix;
-using Daikon.VersionStore.Handlers;
-using Daikon.VersionStore.Repositories;
-using Daikon.VersionStore.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Aggregates;
-using Screen.Domain.EntityRevisions;
 using Screen.Infrastructure.Query.Consumers;
 using Screen.Infrastructure.Query.Repositories;
 
@@ -38,8 +31,6 @@ namespace Screen.Infrastructure
 
             ConfigureEventDatabase(services, configuration);
             ConfigureKafkaProducer(services, configuration);
-
-            ConfigureVersionStores(services, configuration);
 
             ConfigureRepositories(services);
             ConfigureConsumers(services);
@@ -115,32 +106,6 @@ namespace Screen.Infrastructure
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<ScreenAggregate>, EventSourcingHandler<ScreenAggregate>>();
             services.AddScoped<IEventSourcingHandler<HitCollectionAggregate>, EventSourcingHandler<HitCollectionAggregate>>();
-        }
-
-        private static void ConfigureVersionStores(IServiceCollection services, IConfiguration configuration)
-        {
-            ConfigureVersionStore<ScreenRevision>(services, configuration, "ScreenMongoDbSettings:ScreenRevisionCollectionName");
-            ConfigureVersionStore<ScreenRunRevision>(services, configuration, "ScreenMongoDbSettings:ScreenRunRevisionCollectionName");
-            ConfigureVersionStore<HitCollectionRevision>(services, configuration, "ScreenMongoDbSettings:HitCollectionRevisionCollectionName");
-            ConfigureVersionStore<HitRevision>(services, configuration, "ScreenMongoDbSettings:HitRevisionCollectionName");
-        }
-
-        private static void ConfigureVersionStore<T>(IServiceCollection services, IConfiguration configuration, string collectionNameKey)
-            where T : CQRS.Core.Domain.Historical.BaseVersionEntity
-        {
-            var versionDatabaseSettings = new VersionDatabaseSettings<T>
-            {
-                ConnectionString = configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString")
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.ConnectionString), "Version Store connection string is required."),
-                DatabaseName = configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName")
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.DatabaseName), "Version Store database name is required."),
-                CollectionName = configuration.GetValue<string>(collectionNameKey)
-                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.CollectionName), $"Collection name for {typeof(T).Name} is required.")
-            };
-
-            services.AddSingleton<IVersionDatabaseSettings<T>>(versionDatabaseSettings);
-            services.AddScoped<IVersionStoreRepository<T>, VersionStoreRepository<T>>();
-            services.AddScoped<IVersionHub<T>, VersionHub<T>>();
         }
 
         private static void ConfigureRepositories(IServiceCollection services)

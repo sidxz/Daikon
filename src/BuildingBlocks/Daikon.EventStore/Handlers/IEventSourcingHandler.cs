@@ -1,7 +1,6 @@
+using Daikon.EventStore.Aggregate;
 
-using CQRS.Core.Domain;
-
-namespace CQRS.Core.Handlers
+namespace Daikon.EventStore.Handlers
 {
     public interface IEventSourcingHandler<TAggregate> where TAggregate : AggregateRoot
     {

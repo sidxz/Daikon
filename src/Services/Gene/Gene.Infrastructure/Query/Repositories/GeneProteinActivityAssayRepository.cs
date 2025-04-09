@@ -1,9 +1,8 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -13,29 +12,26 @@ namespace Gene.Infrastructure.Query.Repositories
     public class GeneProteinActivityAssayRepository : IGeneProteinActivityAssayRepository
     {
 
-        private readonly IMongoCollection<ProteinActivityAssay> _proteinActivityAssayCollection; 
-        private readonly IVersionHub<ProteinActivityAssayRevision> _versionHub;
+        private readonly IMongoCollection<ProteinActivityAssay> _proteinActivityAssayCollection;
         private readonly ILogger<GeneProteinActivityAssayRepository> _logger;
 
-        public GeneProteinActivityAssayRepository(IConfiguration configuration, IVersionHub<ProteinActivityAssayRevision> versionMaintainer, ILogger<GeneProteinActivityAssayRepository> logger)
+        public GeneProteinActivityAssayRepository(IConfiguration configuration, ILogger<GeneProteinActivityAssayRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
             _proteinActivityAssayCollection = database.GetCollection<ProteinActivityAssay>(
-                configuration.GetValue<string>("GeneMongoDbSettings:GeneProteinActivityAssayCollectionName") ?? 
+                configuration.GetValue<string>("GeneMongoDbSettings:GeneProteinActivityAssayCollectionName") ??
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "ProteinActivityAssay");
 
             _proteinActivityAssayCollection.Indexes.CreateOne
                 (new CreateIndexModel<ProteinActivityAssay>(Builders<ProteinActivityAssay>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
 
         public async Task<ProteinActivityAssay> Read(Guid id)
         {
-            try 
+            try
             {
                 return await _proteinActivityAssayCollection.Find(proteinActivityAssay => proteinActivityAssay.Id == id).FirstOrDefaultAsync();
             }
@@ -87,7 +83,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("AddProteinActivityAssay: Creating ProteinActivityAssay {ProteinActivityAssayId}, {proteinActivityAssay}", proteinActivityAssay.Id, proteinActivityAssay.ToJson());
                 await _proteinActivityAssayCollection.InsertOneAsync(proteinActivityAssay);
-                await _versionHub.CommitVersion(proteinActivityAssay);
             }
             catch (MongoException ex)
             {
@@ -104,7 +99,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateProteinActivityAssay: Updating ProteinActivityAssay {ProteinActivityAssayId}, {proteinActivityAssay}", proteinActivityAssay.Id, proteinActivityAssay.ToJson());
                 await _proteinActivityAssayCollection.ReplaceOneAsync(p => p.Id == proteinActivityAssay.Id, proteinActivityAssay);
-                await _versionHub.CommitVersion(proteinActivityAssay);
             }
             catch (MongoException ex)
             {
@@ -122,7 +116,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteProteinActivityAssay: Deleting ProteinActivityAssay {ProteinActivityAssay}", id);
                 await _proteinActivityAssayCollection.DeleteOneAsync(p => p.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -141,14 +134,13 @@ namespace Gene.Infrastructure.Query.Repositories
             foreach (var proteinActivityAssay in proteinActivityAssays)
             {
                 _logger.LogInformation("DeleteProteinActivityAssaysOfGene: Archiving ProteinActivityAssay {ProteinActivityAssayId}", proteinActivityAssay.Id);
-                await _versionHub.ArchiveEntity(proteinActivityAssay.Id);
             }
             // delete all proteinActivityAssays of gene
             try
             {
                 _logger.LogInformation("DeleteProteinActivityAssaysOfGene: Deleting ProteinActivityAssays of Gene {GeneId}", geneId);
                 await _proteinActivityAssayCollection.DeleteManyAsync(proteinActivityAssay => proteinActivityAssay.GeneId == geneId);
-                
+
             }
             catch (MongoException ex)
             {
@@ -156,13 +148,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 throw new RepositoryException(nameof(GeneProteinActivityAssayRepository), "Error deleting ProteinActivityAssays of Gene", ex);
             }
 
-        }
-
-
-        public async Task<ProteinActivityAssayRevision> GetProteinActivityAssayRevisions(Guid Id)
-        {
-            var proteinActivityAssayRevision = await _versionHub.GetVersions(Id);
-            return proteinActivityAssayRevision;
         }
     }
 }

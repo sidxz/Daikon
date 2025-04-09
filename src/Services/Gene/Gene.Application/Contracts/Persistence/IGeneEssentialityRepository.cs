@@ -1,6 +1,5 @@
 
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 
 namespace Gene.Application.Contracts.Persistence
 {
@@ -13,7 +12,6 @@ namespace Gene.Application.Contracts.Persistence
         Task UpdateEssentiality(Essentiality essentiality);
         Task DeleteEssentiality(Guid id);
         Task DeleteAllEssentialitiesOfGene(Guid geneId);
-        Task<EssentialityRevision> GetEssentialityRevisions(Guid Id);
 
     }
 }

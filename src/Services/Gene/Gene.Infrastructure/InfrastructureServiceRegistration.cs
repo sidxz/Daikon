@@ -1,24 +1,16 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Handlers;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
+using Daikon.EventStore.Event;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Daikon.Events.Strains;
-using Daikon.EventStore.Handlers;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
-using Daikon.VersionStore.Handlers;
-using Daikon.VersionStore.Repositories;
-using Daikon.VersionStore.Settings;
 using Gene.Application.Contracts.Infrastructure;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
-using Gene.Domain.EntityRevisions;
 using Gene.Infrastructure.Batch;
 using Gene.Infrastructure.Query.Consumers;
 using Gene.Infrastructure.Query.Repositories;
@@ -55,18 +47,6 @@ namespace Gene.Infrastructure
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<GeneAggregate>, EventSourcingHandler<GeneAggregate>>();
             services.AddScoped<IEventSourcingHandler<StrainAggregate>, EventSourcingHandler<StrainAggregate>>();
-
-            /* Version Store */
-            ConfigureVersionStore<GeneRevision>(services, configuration, "GeneMongoDbSettings:GeneRevisionCollectionName");
-            ConfigureVersionStore<EssentialityRevision>(services, configuration, "GeneMongoDbSettings:EssentialityRevisionCollectionName", "Essentiality");
-            ConfigureVersionStore<ProteinProductionRevision>(services, configuration, "GeneMongoDbSettings:ProteinProductionRevisionCollectionName", "ProteinProduction");
-            ConfigureVersionStore<ProteinActivityAssayRevision>(services, configuration, "GeneMongoDbSettings:ProteinActivityAssayRevisionCollectionName", "ProteinActivityAssay");
-            ConfigureVersionStore<HypomorphRevision>(services, configuration, "GeneMongoDbSettings:HypomorphRevisionCollectionName", "Hypomorph");
-            ConfigureVersionStore<CrispriStrainRevision>(services, configuration, "GeneMongoDbSettings:CrispriStrainRevisionCollectionName", "CrispriStrain");
-            ConfigureVersionStore<ResistanceMutationRevision>(services, configuration, "GeneMongoDbSettings:ResistanceMutationRevisionCollectionName", "ResistanceMutation");
-            ConfigureVersionStore<VulnerabilityRevision>(services, configuration, "GeneMongoDbSettings:VulnerabilityRevisionCollectionName", "Vulnerability");
-            ConfigureVersionStore<UnpublishedStructuralInformationRevision>(services, configuration, "GeneMongoDbSettings:UnpublishedStructuralInformationRevisionCollectionName", "UnpublishedStructuralInformation");
-            ConfigureVersionStore<GeneExpansionPropRevision>(services, configuration, "GeneMongoDbSettings:ExpansionPropRevisionCollectionName", "ExpansionPropRevision");
 
             /* Repositories */
             ConfigureRepositories(services);
@@ -154,26 +134,6 @@ namespace Gene.Infrastructure
             }
 
             return kafkaProducerSettings;
-        }
-
-        private static void ConfigureVersionStore<T>(IServiceCollection services, IConfiguration configuration, string collectionNameKey, string defaultSuffix = "")
-            where T : CQRS.Core.Domain.Historical.BaseVersionEntity
-        {
-            var collectionName = configuration.GetValue<string>(collectionNameKey)
-                               ?? configuration.GetValue<string>("GeneMongoDbSettings:GeneRevisionCollectionName") + defaultSuffix;
-
-            var versionDatabaseSettings = new VersionDatabaseSettings<T>
-            {
-                ConnectionString = configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString")
-                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.ConnectionString), "Version Store connection string is required."),
-                DatabaseName = configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName")
-                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.DatabaseName), "Version Store database name is required."),
-                CollectionName = collectionName
-            };
-
-            services.AddSingleton<IVersionDatabaseSettings<T>>(versionDatabaseSettings);
-            services.AddScoped<IVersionStoreRepository<T>, VersionStoreRepository<T>>();
-            services.AddScoped<IVersionHub<T>, VersionHub<T>>();
         }
 
         private static void ConfigureRepositories(IServiceCollection services)

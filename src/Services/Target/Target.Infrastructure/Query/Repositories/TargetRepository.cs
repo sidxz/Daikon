@@ -1,11 +1,9 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Target.Application.Contracts.Persistence;
-using Target.Domain.EntityRevisions;
 
 namespace Target.Infrastructure.Query.Repositories
 {
@@ -13,18 +11,14 @@ namespace Target.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Domain.Entities.Target> _targetCollection;
         private readonly ILogger<TargetRepository> _logger;
-        private readonly IVersionHub<TargetRevision> _versionHub;
 
-        public TargetRepository(IConfiguration configuration, ILogger<TargetRepository> logger, IVersionHub<TargetRevision> versionMaintainer)
+        public TargetRepository(IConfiguration configuration, ILogger<TargetRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName"));
             _targetCollection = database.GetCollection<Domain.Entities.Target>(configuration.GetValue<string>("TargetMongoDbSettings:TargetCollectionName"));
             _targetCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Target>(Builders<Domain.Entities.Target>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
             _targetCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Target>(Builders<Domain.Entities.Target>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -39,7 +33,6 @@ namespace Target.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateTarget: Creating target {TargetId}, {Target}", target.Id, target.ToJson());
                 await _targetCollection.InsertOneAsync(target);
-                await _versionHub.CommitVersion(target);
             }
             catch (MongoException ex)
             {
@@ -100,7 +93,6 @@ namespace Target.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateTarget: Updating target {TargetId}, {Target}", target.Id, target.ToJson());
                 await _targetCollection.ReplaceOneAsync(t => t.Id == target.Id, target);
-                await _versionHub.CommitVersion(target);
             }
             catch (MongoException ex)
             {
@@ -117,20 +109,12 @@ namespace Target.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteTarget: Deleting target {TargetId}, {Target}", target.Id, target.ToJson());
                 await _targetCollection.DeleteOneAsync(t => t.Id == target.Id);
-                await _versionHub.ArchiveEntity(target.Id);
             }
             catch (MongoException ex)
             {
                 _logger.LogError(ex, "An error occurred while deleting the target with ID {TargetId}", target.Id);
                 throw new RepositoryException(nameof(TargetRepository), "Error deleting target", ex);
             }
-        }
-
-
-        public async Task<TargetRevision> GetTargetRevisions(Guid Id)
-        {
-            var targetRevision = await _versionHub.GetVersions(Id);
-            return targetRevision;
         }
     }
 }

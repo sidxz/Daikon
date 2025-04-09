@@ -1,8 +1,8 @@
 
-using CQRS.Core.Domain;
 using Daikon.Events.Targets;
 using CQRS.Core.Comparators;
 using Daikon.Shared.Constants.AppTarget;
+using Daikon.EventStore.Aggregate;
 namespace Target.Domain.Aggregates
 {
     public partial class TargetAggregate : AggregateRoot
