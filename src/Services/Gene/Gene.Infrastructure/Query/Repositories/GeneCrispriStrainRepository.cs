@@ -1,9 +1,8 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -14,10 +13,9 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<CrispriStrain> _crispriStrainCollection;
-        private readonly IVersionHub<CrispriStrainRevision> _versionHub;
         private readonly ILogger<GeneCrispriStrainRepository> _logger;
 
-        public GeneCrispriStrainRepository(IConfiguration configuration, IVersionHub<CrispriStrainRevision> versionMaintainer, ILogger<GeneCrispriStrainRepository> logger)
+        public GeneCrispriStrainRepository(IConfiguration configuration, ILogger<GeneCrispriStrainRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -27,7 +25,6 @@ namespace Gene.Infrastructure.Query.Repositories
 
             _crispriStrainCollection.Indexes.CreateOne
                 (new CreateIndexModel<CrispriStrain>(Builders<CrispriStrain>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -87,7 +84,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _crispriStrainCollection.InsertOneAsync(crispriStrain);
-                await _versionHub.CommitVersion(crispriStrain);
             }
             catch (MongoException ex)
             {
@@ -105,7 +101,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _crispriStrainCollection.ReplaceOneAsync(crispr => crispr.Id == crispriStrain.Id, crispriStrain);
-                await _versionHub.CommitVersion(crispriStrain);
             }
             catch (MongoException ex)
             {
@@ -124,7 +119,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteCrispriStrain: Deleting CrispriStrain {CrispriStrain}", id);
                 await _crispriStrainCollection.DeleteOneAsync(crispr => crispr.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -143,7 +137,6 @@ namespace Gene.Infrastructure.Query.Repositories
             foreach (var crispriStrain in crispriStrains)
             {
                 _logger.LogInformation("DeleteCrispriStrainsOfGene: Archiving CrispriStrain {CrispriStrainId}", crispriStrain.Id);
-                await _versionHub.ArchiveEntity(crispriStrain.Id);
             }
             // delete all crispriStrains of gene
             try
@@ -158,12 +151,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 throw new RepositoryException(nameof(GeneCrispriStrainRepository), "Error deleting CrispriStrains of Gene", ex);
             }
 
-        }
-
-        public async Task<CrispriStrainRevision> GetCrispriStrainRevisions(Guid Id)
-        {
-            var crispriStrainRevision = await _versionHub.GetVersions(Id);
-            return crispriStrainRevision;
         }
     }
 }

@@ -1,5 +1,5 @@
-using CQRS.Core.Domain;
 using Daikon.Events.Comment;
+using Daikon.EventStore.Aggregate;
 
 namespace Comment.Domain.Aggregates
 {

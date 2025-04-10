@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Persistence;
 using MLogix.Domain.Entities;
-using MLogix.Domain.EntityRevisions;
 using MongoDB.Driver;
 
 namespace MLogix.Infrastructure.Query.Repositories
@@ -17,10 +12,9 @@ namespace MLogix.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Molecule> _moleculeCollection;
         private readonly ILogger<MoleculeRepository> _logger;
-        private readonly IVersionHub<MoleculeRevision> _versionHub;
 
 
-        public MoleculeRepository(IConfiguration configuration, ILogger<MoleculeRepository> logger, IVersionHub<MoleculeRevision> versionMaintainer)
+        public MoleculeRepository(IConfiguration configuration, ILogger<MoleculeRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("MLxMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("MLxMongoDbSettings:DatabaseName"));
@@ -44,7 +38,6 @@ namespace MLogix.Infrastructure.Query.Repositories
                         new CreateIndexOptions { Unique = false, Sparse = true }));
             }
 
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -57,7 +50,6 @@ namespace MLogix.Infrastructure.Query.Repositories
                 _logger.LogInformation("NewMolecule: Creating molecule {moleculeId}, {molecule}", molecule.Id, molecule.ToJson());
 
                 await _moleculeCollection.InsertOneAsync(molecule);
-                await _versionHub.CommitVersion(molecule);
             }
             catch (MongoException ex)
             {
@@ -74,7 +66,6 @@ namespace MLogix.Infrastructure.Query.Repositories
                 _logger.LogInformation("UpdateMolecule: Updating molecule {moleculeId}, {molecule}", molecule.Id, molecule.ToJson());
 
                 await _moleculeCollection.ReplaceOneAsync(m => m.Id == molecule.Id, molecule);
-                await _versionHub.CommitVersion(molecule);
             }
             catch (MongoException ex)
             {
@@ -91,7 +82,6 @@ namespace MLogix.Infrastructure.Query.Repositories
                 _logger.LogInformation("DeleteMolecule: Deleting molecule {moleculeId}", id);
 
                 await _moleculeCollection.DeleteOneAsync(m => m.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {

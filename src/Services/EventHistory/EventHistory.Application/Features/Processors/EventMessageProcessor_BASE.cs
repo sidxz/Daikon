@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using Daikon.Events.Gene;
 using Daikon.Events.HitAssessment;
 using Daikon.Events.Project;

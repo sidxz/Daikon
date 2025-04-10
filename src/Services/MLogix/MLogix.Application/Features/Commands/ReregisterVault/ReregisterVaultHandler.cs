@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Extensions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;

@@ -1,7 +1,7 @@
 using AutoMapper;
-using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
+using Daikon.EventStore.Aggregate;
 using Daikon.Shared.Constants.AppScreen;
 using Screen.Domain.Entities;
 
@@ -9,7 +9,7 @@ namespace Screen.Domain.Aggregates
 {
     public partial class HitCollectionAggregate : AggregateRoot
     {
-        private readonly Dictionary<Guid, Hit> _hits = [];
+        private  Dictionary<Guid, Hit> _hits = [];
 
         /* Add Hit */
         public void AddHit(HitAddedEvent @event)

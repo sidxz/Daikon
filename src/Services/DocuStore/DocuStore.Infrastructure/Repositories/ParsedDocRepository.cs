@@ -1,5 +1,5 @@
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using DocuStore.Application.Contracts.Persistence;
 using DocuStore.Domain.Entities;
 using Microsoft.Extensions.Configuration;

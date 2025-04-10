@@ -1,6 +1,5 @@
 
 using Project.Domain.Entities;
-using Project.Domain.EntityRevisions;
 
 namespace Project.Application.Contracts.Persistence
 {
@@ -12,6 +11,5 @@ namespace Project.Application.Contracts.Persistence
         public Task<Dictionary<Guid, List<ProjectCompoundEvolution>>> GetProjectCompoundEvolutionsOfProjects(List<Guid> projectIDs);
         Task UpdateProjectCompoundEvolution(ProjectCompoundEvolution projectCompoundEvolution);
         Task DeleteProjectCompoundEvolution(Guid id);
-        Task<ProjectCompoundEvolutionRevision> GetProjectCompoundEvolutionRevisions(Guid Id);
     }
 }

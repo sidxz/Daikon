@@ -90,3 +90,11 @@ services:
     build:
       context: .
       dockerfile: ApiGateways/SimpleGW/SimpleGW.API/Dockerfile
+
+
+  event-management-api:
+    container_name: "event-management-api"
+    image: ${DOCKER_REGISTRY-}event-management
+    build:
+      context: .
+      dockerfile: Extensions/Daikon.EventManagement/Dockerfile

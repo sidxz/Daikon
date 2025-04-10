@@ -11,6 +11,5 @@ namespace Screen.Application.Contracts.Persistence
         Task<List<Domain.Entities.HitCollection>> GetHitCollectionsListByScreenId(Guid screenId);
         Task UpdateHitCollection(Domain.Entities.HitCollection hitCollection);
         Task DeleteHitCollection(Guid id);
-        Task<Domain.EntityRevisions.HitCollectionRevision> GetHitCollectionRevisions(Guid Id);
     }
 }

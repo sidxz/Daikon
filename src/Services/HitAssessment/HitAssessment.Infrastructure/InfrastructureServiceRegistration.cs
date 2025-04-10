@@ -1,23 +1,16 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Handlers;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
-using Daikon.Events.HitAssessment;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Handlers;
+using Daikon.Events.HitAssessment;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
 using Daikon.Shared.APIClients.MLogix;
-using Daikon.VersionStore.Handlers;
-using Daikon.VersionStore.Repositories;
-using Daikon.VersionStore.Settings;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
-using HitAssessment.Domain.EntityRevisions;
 using HitAssessment.Infrastructure.Query.Consumers;
 using HitAssessment.Infrastructure.Query.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -44,6 +37,7 @@ namespace HitAssessment.Infrastructure
             var eventDatabaseSettings = GetEventDatabaseSettings(configuration);
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>();
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
             services.AddScoped<IEventStore<HaAggregate>, EventStore<HaAggregate>>();
 
             /* Kafka Producer */
@@ -51,10 +45,6 @@ namespace HitAssessment.Infrastructure
             services.AddSingleton<IKafkaProducerSettings>(kafkaProducerSettings);
             services.AddScoped<IEventProducer, EventProducer>();
             services.AddScoped<IEventSourcingHandler<HaAggregate>, EventSourcingHandler<HaAggregate>>();
-
-            /* Version Store */
-            ConfigureVersionStore<HitAssessmentRevision>(services, configuration, "HAMongoDbSettings:HitAssessmentRevisionCollectionName");
-            ConfigureVersionStore<HaCompoundEvolutionRevision>(services, configuration, "HAMongoDbSettings:HaCompoundEvolutionRevisionCollectionName");
 
             /* Query Repositories */
             services.AddScoped<IHitAssessmentRepository, HitAssessmentRepository>();
@@ -91,8 +81,7 @@ namespace HitAssessment.Infrastructure
                                     ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString), "Event Database connection string is required."),
                 DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName")
                                     ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName), "Event Database name is required."),
-                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName")
-                                    ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName), "Event Database collection name is required.")
+                
             };
         }
 
@@ -118,24 +107,6 @@ namespace HitAssessment.Infrastructure
             }
 
             return kafkaProducerSettings;
-        }
-
-        private static void ConfigureVersionStore<T>(IServiceCollection services, IConfiguration configuration, string collectionNameKey)
-            where T : CQRS.Core.Domain.Historical.BaseVersionEntity
-        {
-            var versionDatabaseSettings = new VersionDatabaseSettings<T>
-            {
-                ConnectionString = configuration.GetValue<string>("HAMongoDbSettings:ConnectionString")
-                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.ConnectionString), "Version Store connection string is required."),
-                DatabaseName = configuration.GetValue<string>("HAMongoDbSettings:DatabaseName")
-                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.DatabaseName), "Version Store database name is required."),
-                CollectionName = configuration.GetValue<string>(collectionNameKey)
-                                    ?? throw new ArgumentNullException(nameof(VersionDatabaseSettings<T>.CollectionName), $"Collection name for {typeof(T).Name} is required.")
-            };
-
-            services.AddSingleton<IVersionDatabaseSettings<T>>(versionDatabaseSettings);
-            services.AddScoped<IVersionStoreRepository<T>, VersionStoreRepository<T>>();
-            services.AddScoped<IVersionHub<T>, VersionHub<T>>();
         }
     }
 }

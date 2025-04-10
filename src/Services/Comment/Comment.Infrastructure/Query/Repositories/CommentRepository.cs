@@ -1,13 +1,10 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Comment.Application.Contracts.Persistence;
-using Comment.Domain.EntityRevisions;
 using MongoDB.Bson;
-using System.Text.RegularExpressions;
 
 namespace Comment.Infrastructure.Query.Repositories
 {
@@ -15,9 +12,7 @@ namespace Comment.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Domain.Entities.Comment> _commentCollection;
         private readonly ILogger<CommentRepository> _logger;
-        private readonly IVersionHub<CommentRevision> _versionHub;
-
-        public CommentRepository(IConfiguration configuration, ILogger<CommentRepository> logger, IVersionHub<CommentRevision> versionMaintainer)
+        public CommentRepository(IConfiguration configuration, ILogger<CommentRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("CommentMongoDbSettings:ConnectionString"));
 
@@ -38,9 +33,6 @@ namespace Comment.Infrastructure.Query.Repositories
 
             _commentCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Comment>(
             Builders<Domain.Entities.Comment>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -53,7 +45,6 @@ namespace Comment.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateComment: Creating comment {CommentId}, {Comment}", comment.Id, comment.ToJson());
                 await _commentCollection.InsertOneAsync(comment);
-                await _versionHub.CommitVersion(comment);
             }
             catch (MongoException ex)
             {
@@ -67,7 +58,6 @@ namespace Comment.Infrastructure.Query.Repositories
             try
             {
                 return await _commentCollection.Find(comment => comment.Id == id).FirstOrDefaultAsync();
-
             }
             catch (MongoException ex)
             {
@@ -178,7 +168,6 @@ namespace Comment.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateComment: Updating comment {CommentId}, {Comment}", comment.Id, comment.ToJson());
                 await _commentCollection.ReplaceOneAsync(c => c.Id == comment.Id, comment);
-                await _versionHub.CommitVersion(comment);
             }
             catch (MongoException ex)
             {
@@ -199,11 +188,6 @@ namespace Comment.Infrastructure.Query.Repositories
                 _logger.LogError(ex, "An error occurred while deleting the comment with ID {CommentId}", id);
                 throw new RepositoryException(nameof(CommentRepository), "Error deleting comment", ex);
             }
-        }
-
-        public async Task<CommentRevision> GetRevisions(Guid Id)
-        {
-            return await _versionHub.GetVersions(Id);
         }
     }
 }

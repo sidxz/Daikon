@@ -1,11 +1,9 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using HitAssessment.Application.Contracts.Persistence;
-using HitAssessment.Domain.EntityRevisions;
 
 namespace HitAssessment.Infrastructure.Query.Repositories
 {
@@ -13,9 +11,8 @@ namespace HitAssessment.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Domain.Entities.HitAssessment> _haCollection;
         private readonly ILogger<HitAssessmentRepository> _logger;
-        private readonly IVersionHub<HitAssessmentRevision> _versionHub;
 
-        public HitAssessmentRepository(IConfiguration configuration, ILogger<HitAssessmentRepository> logger, IVersionHub<HitAssessmentRevision> versionMaintainer)
+        public HitAssessmentRepository(IConfiguration configuration, ILogger<HitAssessmentRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("HAMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("HAMongoDbSettings:DatabaseName"));
@@ -23,9 +20,6 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
             _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
             _haCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.HitAssessment>(Builders<Domain.Entities.HitAssessment>.IndexKeys.Descending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -38,7 +32,6 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateHitAssessment: Creating ha {HitAssessmentId}, {HitAssessment}", ha.Id, ha.ToJson());
                 await _haCollection.InsertOneAsync(ha);
-                await _versionHub.CommitVersion(ha);
             }
             catch (MongoException ex)
             {
@@ -99,7 +92,6 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateHitAssessment: Updating ha {HitAssessmentId}, {HitAssessment}", ha.Id, ha.ToJson());
                 await _haCollection.ReplaceOneAsync(t => t.Id == ha.Id, ha);
-                await _versionHub.CommitVersion(ha);
             }
             catch (MongoException ex)
             {
@@ -116,20 +108,12 @@ namespace HitAssessment.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteHitAssessment: Deleting ha {HitAssessmentId}", id);
                 await _haCollection.DeleteOneAsync(t => t.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
                 _logger.LogError(ex, "An error occurred while deleting the ha with ID {HitAssessmentId}", id);
                 throw new RepositoryException(nameof(HitAssessmentRepository), "Error deleting ha", ex);
             }
-        }
-
-
-        public async Task<HitAssessmentRevision> GetHaRevisions(Guid Id)
-        {
-            var haRevision = await _versionHub.GetVersions(Id);
-            return haRevision;
         }
     }
 }

@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
 using MediatR;

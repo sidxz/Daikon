@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
+
+
+using Daikon.EventStore.Models;
 
 namespace EventHistory.Application.Contracts.Persistence
 {

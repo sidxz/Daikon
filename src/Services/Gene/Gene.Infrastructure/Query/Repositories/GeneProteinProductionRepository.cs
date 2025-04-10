@@ -1,9 +1,7 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -14,10 +12,9 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<ProteinProduction> _proteinProductionCollection;
-        private readonly IVersionHub<ProteinProductionRevision> _versionHub;
         private readonly ILogger<GeneProteinProductionRepository> _logger;
 
-        public GeneProteinProductionRepository(IConfiguration configuration, IVersionHub<ProteinProductionRevision> versionMaintainer, ILogger<GeneProteinProductionRepository> logger)
+        public GeneProteinProductionRepository(IConfiguration configuration, ILogger<GeneProteinProductionRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -27,8 +24,6 @@ namespace Gene.Infrastructure.Query.Repositories
 
             _proteinProductionCollection.Indexes.CreateOne
                 (new CreateIndexModel<ProteinProduction>(Builders<ProteinProduction>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-                
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -36,7 +31,7 @@ namespace Gene.Infrastructure.Query.Repositories
 
         public async Task<ProteinProduction> Read(Guid id)
         {
-           try
+            try
             {
                 return await _proteinProductionCollection.Find(proteinProduction => proteinProduction.Id == id).FirstOrDefaultAsync();
             }
@@ -91,7 +86,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("AddProteinProduction: Creating ProteinProduction {ProteinProductionId}, {proteinProduction}", proteinProduction.Id, proteinProduction.ToJson());
                 await _proteinProductionCollection.InsertOneAsync(proteinProduction);
-                await _versionHub.CommitVersion(proteinProduction);
             }
             catch (MongoException ex)
             {
@@ -109,7 +103,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateProteinProduction: Updating ProteinProduction {ProteinProductionId}, {proteinProduction}", proteinProduction.Id, proteinProduction.ToJson());
                 await _proteinProductionCollection.ReplaceOneAsync(p => p.Id == proteinProduction.Id, proteinProduction);
-                await _versionHub.CommitVersion(proteinProduction);
             }
             catch (MongoException ex)
             {
@@ -128,7 +121,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteProteinProduction: Deleting ProteinProduction {ProteinProduction}", id);
                 await _proteinProductionCollection.DeleteOneAsync(p => p.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -147,7 +139,6 @@ namespace Gene.Infrastructure.Query.Repositories
             foreach (var proteinProduction in proteinProductions)
             {
                 _logger.LogInformation("DeleteProteinProductionsOfGene: Archiving ProteinProduction {ProteinProductionId}", proteinProduction.Id);
-                await _versionHub.ArchiveEntity(proteinProduction.Id);
             }
             // delete all proteinProductions of gene
             try
@@ -163,13 +154,5 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
-        public async Task<ProteinProductionRevision> GetProteinProductionRevisions(Guid Id)
-        {
-            var proteinProductionRevision = await _versionHub.GetVersions(Id);
-            return proteinProductionRevision;
-        }
-
-
     }
 }

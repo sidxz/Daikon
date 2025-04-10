@@ -3,20 +3,14 @@
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Handlers;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
-using Daikon.Events.DocuStore;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Handlers;
+using Daikon.Events.DocuStore;
 using Daikon.EventStore.Producers;
 using Daikon.EventStore.Repositories;
 using Daikon.EventStore.Settings;
 using Daikon.EventStore.Stores;
 using Daikon.Shared.APIClients.MLogix;
-using Daikon.VersionStore.Handlers;
-using Daikon.VersionStore.Repositories;
-using Daikon.VersionStore.Settings;
 using DocuStore.Application.Contracts.Persistence;
 using DocuStore.Domain.Aggregates;
 using DocuStore.Infrastructure.Consumers;
@@ -48,10 +42,10 @@ namespace DocuStore.Infrastructure
             {
                 ConnectionString = configuration.GetValue<string>("EventDatabaseSettings:ConnectionString") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.ConnectionString)),
                 DatabaseName = configuration.GetValue<string>("EventDatabaseSettings:DatabaseName") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.DatabaseName)),
-                CollectionName = configuration.GetValue<string>("EventDatabaseSettings:CollectionName") ?? throw new ArgumentNullException(nameof(EventDatabaseSettings.CollectionName))
             };
             services.AddSingleton<IEventDatabaseSettings>(eventDatabaseSettings);
             services.AddScoped<IEventStoreRepository, EventStoreRepository>(); // Depends on IEventDatabaseSettings
+            services.AddScoped<ISnapshotRepository, SnapshotRepository>();
 
             services.AddScoped<IEventStore<ParsedDocAggregate>, EventStore<ParsedDocAggregate>>();
 

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using FluentValidation;
 using Gene.Application.Features.Command.NewGene;
 using Gene.Application.Mappings;

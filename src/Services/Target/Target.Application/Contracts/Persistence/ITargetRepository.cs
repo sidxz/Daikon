@@ -11,6 +11,5 @@ namespace Target.Application.Contracts.Persistence
         Task<List<Domain.Entities.Target>> GetTargetsListByStrainId(Guid strainId);
         Task UpdateTarget(Domain.Entities.Target target);
         Task DeleteTarget(Domain.Entities.Target target);
-        Task<Domain.EntityRevisions.TargetRevision> GetTargetRevisions(Guid Id);
     }
 }

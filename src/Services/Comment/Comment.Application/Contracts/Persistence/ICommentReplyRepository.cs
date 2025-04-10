@@ -8,8 +8,6 @@ namespace Comment.Application.Contracts.Persistence
         Task<List<Domain.Entities.CommentReply>> ListByCommentId(Guid CommentId);
         Task Update(Domain.Entities.CommentReply commentReply);
         Task Delete(Guid id);
-        Task DeleteAllByCommentId(Guid CommentId);
-        Task<Domain.EntityRevisions.CommentReplyRevision> GetRevisions(Guid Id);
-        
+        Task DeleteAllByCommentId(Guid CommentId);        
     }
 }
