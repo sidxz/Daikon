@@ -31,7 +31,8 @@ namespace Daikon.EventStore.Producers
             _config = new ProducerConfig
             {
                 BootstrapServers = _kafkaProducerSettings.BootstrapServers,
-                SecurityProtocol = _kafkaProducerSettings.SecurityProtocol
+                SecurityProtocol = _kafkaProducerSettings.SecurityProtocol,
+                //Debug = "all",
             };
 
             /* Optionally configure SASL credentials */
@@ -56,7 +57,7 @@ namespace Daikon.EventStore.Producers
         {
             if (string.IsNullOrWhiteSpace(topic))
                 throw new ArgumentException("Kafka topic must be specified.", nameof(topic));
-
+            
             if (@event == null)
                 throw new ArgumentNullException(nameof(@event), "Event cannot be null.");
 

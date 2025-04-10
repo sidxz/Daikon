@@ -486,6 +486,27 @@ services:
     networks:
       - daikon-be-net
 
+  event-management-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+      
+
+      ## Kafka Producer
+      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings:Topic=${KafkaTopic}
+
+    ports:
+      - "8015:80"
+    networks:
+      - daikon-be-net
+
   
 
 networks:

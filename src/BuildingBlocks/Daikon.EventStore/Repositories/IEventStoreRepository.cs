@@ -40,5 +40,13 @@ namespace Daikon.EventStore.Repositories
          - A Task representing the asynchronous operation.
         */
         Task SaveBatchAsync(IEnumerable<EventModel> events);
+
+        /*
+         Retrieves all aggregate IDs stored in the event store.
+
+         Returns:
+         - A Task containing a collection of aggregate IDs.
+        */
+        Task<IEnumerable<Guid>> GetAllAggregateIds();
     }
 }

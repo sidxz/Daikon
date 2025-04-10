@@ -1,6 +1,7 @@
 using Daikon.EventStore.Models;
 using Daikon.EventStore.Settings;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Daikon.EventStore.Repositories
@@ -125,5 +126,31 @@ namespace Daikon.EventStore.Repositories
                 throw new ApplicationException("An error occurred while saving events.", ex);
             }
         }
+
+        /*
+         Retrieves all unique aggregate IDs from the event store.
+        */
+
+        public async Task<IEnumerable<Guid>> GetAllAggregateIds()
+        {
+            // Aggregate by "AggregateIdentifier" and sort by TimeStamp to get the events in chronological order
+            var pipeline = new BsonDocument[]
+            {
+        new BsonDocument("$sort", new BsonDocument("TimeStamp", 1)), // Ascending TimeStamp order
+        new BsonDocument("$group", new BsonDocument
+        {
+            { "_id", "$AggregateIdentifier" }
+        }),
+        new BsonDocument("$sort", new BsonDocument("_id", 1)) // Sort by Aggregate ID if needed
+            };
+
+            var result = await _eventStoreCollection
+                .Aggregate<BsonDocument>(pipeline)
+                .ToListAsync();
+
+            // Return sorted aggregate IDs
+            return result.Select(doc => doc["_id"].AsGuid);
+        }
+
     }
 }
