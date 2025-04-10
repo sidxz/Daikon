@@ -1,3 +1,14 @@
+/*
+ * ReplayStatusTracker
+ * -------------------
+ * Tracks the progress and status of an event replay operation.
+ *
+ * Responsibilities:
+ * - Maintains counters for total/processed aggregates and events.
+ * - Exposes replay configuration (e.g., filters, dry run flag).
+ * - Provides cancellation support via CancellationTokenSource.
+ * - Helps monitor replay progress for UI or logs.
+ */
 
 namespace Daikon.EventManagement.Services
 {
@@ -15,8 +26,14 @@ namespace Daikon.EventManagement.Services
         public DateTime? ToDate { get; private set; }
         public CancellationTokenSource? CancelToken { get; private set; }
 
+        /*
+         * Initializes the tracker for a new replay session.
+         */
         public void Start(int totalAggregates, bool isDryRun, string? eventTypeFilter, DateTime? fromDate, DateTime? toDate)
         {
+            /* Dispose previous token if any to avoid leaks */
+            CancelToken?.Dispose();
+
             IsReplaying = true;
             TotalAggregates = totalAggregates;
             ProcessedAggregates = 0;
@@ -30,12 +47,18 @@ namespace Daikon.EventManagement.Services
             CancelToken = new CancellationTokenSource();
         }
 
+        /*
+         * Updates current progress with a new aggregate being processed.
+         */
         public void UpdateCurrent(Guid aggregateId, int eventCount)
         {
             CurrentAggregate = aggregateId.ToString();
             TotalEvents += eventCount;
         }
 
+        /*
+         * Marks the current aggregate as fully processed.
+         */
         public void MarkAggregateComplete(int eventCount)
         {
             ProcessedAggregates++;
@@ -43,6 +66,9 @@ namespace Daikon.EventManagement.Services
             CurrentAggregate = null;
         }
 
+        /*
+         * Finalizes the tracking session and releases resources.
+         */
         public void Finish()
         {
             IsReplaying = false;
@@ -50,10 +76,15 @@ namespace Daikon.EventManagement.Services
             CancelToken = null;
         }
 
+        /*
+         * Signals cancellation to any listeners observing the token.
+         */
         public void Cancel()
         {
-            CancelToken?.Cancel();
+            if (CancelToken?.IsCancellationRequested == false)
+            {
+                CancelToken.Cancel();
+            }
         }
     }
-
 }
