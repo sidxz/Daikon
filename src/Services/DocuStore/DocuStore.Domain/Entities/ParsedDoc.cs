@@ -29,10 +29,10 @@ namespace DocuStore.Domain.Entities
         public List<Reviews> Reviews { get; set; } = [];
         public List<Rating> Ratings { get; set; } = [];
 
-        /// <summary>
-        /// Gets the average rating score, or null if there are no ratings.
-        /// This property is not persisted to MongoDB.
-        /// </summary>
+        /*
+         * Gets the average rating score, or null if there are no ratings.
+         * This property is not persisted to MongoDB.
+        */
         public double? AverageRating => Ratings.Count > 0 ? Ratings.Average(r => r.Score) : null;
         
 
