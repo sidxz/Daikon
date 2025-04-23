@@ -20,7 +20,7 @@ namespace Daikon.EventStore.Handlers
         private readonly JsonSerializerSettings _jsonSettings;
 
         /* Snapshot threshold - a snapshot is created every 250 events */
-        private const int SnapshotThreshold = 250;
+        private const int SnapshotThreshold = 5;
 
         /*
          Constructor initializes dependencies and sets up JSON serialization settings
@@ -65,12 +65,29 @@ namespace Daikon.EventStore.Handlers
                 _logger.LogInformation("📦 Snapshot found for aggregate ID: {AggregateId}, version: {Version}", aggregateId, snapshot.Version);
 
                 aggregate = JsonConvert.DeserializeObject<TAggregate>(snapshot.Data, _jsonSettings) ?? new TAggregate();
+                // log the deserialized aggregate
+                _logger.LogInformation("📦 Deserialized aggregate: {Aggregate}", JsonConvert.SerializeObject(aggregate, _jsonSettings));
                 snapshotVersion = snapshot.Version;
                 aggregate.Version = snapshotVersion;
             }
 
             /* Replay events that occurred after the snapshot version */
             var events = await _eventStore.GetEventsAfterVersionAsync(aggregateId, snapshotVersion);
+
+
+            // 🚨 Guardrail check for version mismatch
+            if (events.Any() && events.First().Version != snapshotVersion + 1)
+            {
+                _logger.LogWarning(
+                    "🚨 Event stream version mismatch for aggregate ID {AggregateId}. " +
+                    "Expected next version: {ExpectedVersion}, but found: {ActualVersion}.",
+                    aggregateId,
+                    snapshotVersion + 1,
+                    events.First().Version
+                );
+            }
+
+
             aggregate.ReplayEvents(events);
 
             return aggregate;
@@ -86,6 +103,15 @@ namespace Daikon.EventStore.Handlers
                 throw new ArgumentNullException(nameof(aggregate));
 
             var uncommitted = aggregate.GetUncommittedChanges().ToList();
+
+            /*
+                Why expectedVersion is the standard name
+                In event sourcing, the concept of versioning is centered around:
+                “What is the version of the aggregate that the caller believes to be current?”
+                This version is passed to the event store which verifies  what is in the database, updates the version, and saves the events.
+                If the version in the database is not the same as the one passed, it means that another process has modified the aggregate.
+                This is a concurrency control mechanism to ensure that the caller is working with the latest version of the aggregate.
+            */
             var expectedVersion = aggregate.Version;
 
             await _eventStore.SaveEventAsync(aggregate.Id, uncommitted, expectedVersion);
@@ -96,31 +122,49 @@ namespace Daikon.EventStore.Handlers
              If aggregate has reached snapshot threshold, create a new snapshot.
              This helps optimize future loads.
             */
-            if (aggregate is TAggregate agg && agg.Version % SnapshotThreshold == 0)
+            if (aggregate is TAggregate agg)
             {
-                _logger.LogInformation("📸 Creating snapshot for aggregate ID: {AggregateId} at version {Version}", agg.Id, agg.Version);
 
-                /* Create a clean copy of the aggregate with no uncommitted events */
-                var cleanAggregate = (TAggregate)agg.CloneWithoutChanges();
+                var latestVersion = uncommitted.LastOrDefault()?.Version ?? aggregate.Version;
 
-                var snapshot = new SnapshotModel
+                var crossedSnapshotVersions = Enumerable
+                        .Range(expectedVersion + 1, latestVersion - expectedVersion)
+                        .Where(v => v % SnapshotThreshold == 0)
+                        .ToList();
+                _logger.LogInformation("📸 Crossed snapshot versions: {Versions}", string.Join(", ", crossedSnapshotVersions));
+
+                if (crossedSnapshotVersions.Any())
                 {
-                    AggregateIdentifier = agg.Id,
-                    AggregateType = typeof(TAggregate).Name,
-                    Data = JsonConvert.SerializeObject(cleanAggregate, _jsonSettings),
-                    Version = agg.Version,
-                    TimeStamp = DateTime.UtcNow
-                };
+                    /* Create a clean copy of the aggregate with no uncommitted events */
+                    var cleanAggregate = (TAggregate)agg.CloneWithoutChanges();
+                    var snapshotVersion = latestVersion; // Snapshot the latest version
 
-                await _snapshotRepository.SaveSnapshotAsync(snapshot);
+                    cleanAggregate.Version = snapshotVersion;
+
+                    _logger.LogInformation("📸 Creating snapshot for aggregate ID: {AggregateId} at version {Version}", agg.Id, snapshotVersion);
+                    // log both aggVersion and latestVersion
+
+
+                    var snapshot = new SnapshotModel
+                    {
+                        AggregateIdentifier = agg.Id,
+                        AggregateType = typeof(TAggregate).Name,
+                        Data = JsonConvert.SerializeObject(cleanAggregate, _jsonSettings),
+                        Version = cleanAggregate.Version,
+                        TimeStamp = DateTime.UtcNow
+                    };
+
+                    await _snapshotRepository.SaveSnapshotAsync(snapshot);
+                }
+                else
+                {
+                    _logger.LogInformation(
+                        "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
+                        aggregate.Version,
+                        SnapshotThreshold);
+                }
             }
-            else
-            {
-                _logger.LogInformation(
-                    "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
-                    aggregate.Version,
-                    SnapshotThreshold);
-            }
+
 
             /* Mark changes as committed to clear uncommitted event list */
             aggregate.MarkChangesAsCommitted();
