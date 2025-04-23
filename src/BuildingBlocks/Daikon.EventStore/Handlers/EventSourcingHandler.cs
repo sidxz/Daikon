@@ -21,7 +21,7 @@ namespace Daikon.EventStore.Handlers
         private readonly JsonSerializerSettings _jsonSettings;
 
         /* Snapshot threshold - a snapshot is created every 250 events */
-        private const int SnapshotThreshold = 5;
+        private const int SnapshotThreshold = 250;
 
         /*
          Constructor initializes dependencies and sets up JSON serialization settings
