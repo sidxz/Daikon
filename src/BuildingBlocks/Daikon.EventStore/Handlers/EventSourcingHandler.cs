@@ -1,3 +1,4 @@
+using CQRS.Core.Exceptions;
 using Daikon.EventStore.Aggregate;
 using Daikon.EventStore.Models;
 using Daikon.EventStore.Repositories;
@@ -8,9 +9,9 @@ using Newtonsoft.Json;
 namespace Daikon.EventStore.Handlers
 {
     /*
-     Generic event sourcing handler responsible for loading, saving, and snapshotting aggregates.
-     Works with any aggregate type that inherits from AggregateRoot.
-    */
+     * Generic event sourcing handler responsible for managing the lifecycle of an aggregate.
+     * Supports event replay, snapshot recovery, and persistence.
+     */
     public class EventSourcingHandler<TAggregate> : IEventSourcingHandler<TAggregate>
         where TAggregate : AggregateRoot, new()
     {
@@ -48,61 +49,78 @@ namespace Daikon.EventStore.Handlers
         }
 
         /*
-         Loads an aggregate from the event store (and snapshot if available) by its ID.
-         Replays events that occurred after the latest snapshot to bring it to the current state.
-        */
+         * Retrieves an aggregate by ID, using snapshot and event replay for reconstruction.
+         */
         public async Task<TAggregate> GetByAsyncId(Guid aggregateId)
         {
             _logger.LogInformation("🔍 Loading aggregate with ID: {AggregateId}", aggregateId);
 
-            var aggregate = new TAggregate();
+            TAggregate aggregate;
             int snapshotVersion = -1;
 
             /* Attempt to load the latest snapshot */
             var snapshot = await _snapshotRepository.GetLatestSnapshotAsync(aggregateId);
-            if (snapshot != null)
+            try
             {
-                _logger.LogInformation("📦 Snapshot found for aggregate ID: {AggregateId}, version: {Version}", aggregateId, snapshot.Version);
+                if (snapshot != null)
+                {
+                    _logger.LogInformation("📦 Snapshot found (ID: {AggregateId}, Version: {Version})", aggregateId, snapshot.Version);
 
-                aggregate = JsonConvert.DeserializeObject<TAggregate>(snapshot.Data, _jsonSettings) ?? new TAggregate();
-                // log the deserialized aggregate
-                _logger.LogInformation("📦 Deserialized aggregate: {Aggregate}", JsonConvert.SerializeObject(aggregate, _jsonSettings));
-                snapshotVersion = snapshot.Version;
-                aggregate.Version = snapshotVersion;
+                    aggregate = JsonConvert.DeserializeObject<TAggregate>(snapshot.Data, _jsonSettings) ?? new TAggregate();
+                    _logger.LogDebug("📦 Deserialized aggregate: {Aggregate}", JsonConvert.SerializeObject(aggregate, _jsonSettings));
+
+                    snapshotVersion = snapshot.Version;
+                    aggregate.Version = snapshotVersion;
+                }
+
+                else
+                {
+                    aggregate = new TAggregate();
+                }
+
+                /* Replay events that occurred after the snapshot version */
+                var subsequentEvents = await _eventStore.GetEventsAfterVersionAsync(aggregateId, snapshotVersion);
+
+
+                if (snapshot == null && !subsequentEvents.Any())
+                    throw new AggregateNotFoundException($"Aggregate with ID {aggregateId} not found");
+
+
+                // 🚨 Guardrail check for version mismatch
+                if (subsequentEvents.Any() && subsequentEvents.First().Version != snapshotVersion + 1)
+                {
+                    _logger.LogWarning(
+                        "🚨 Event version mismatch (ID: {AggregateId}, Expected: {Expected}, Actual: {Actual})",
+                        aggregateId, snapshotVersion + 1, subsequentEvents.First().Version);
+
+                }
+
+
+                aggregate.ReplayEvents(subsequentEvents);
+
+                return aggregate;
             }
-
-            /* Replay events that occurred after the snapshot version */
-            var events = await _eventStore.GetEventsAfterVersionAsync(aggregateId, snapshotVersion);
-
-
-            // 🚨 Guardrail check for version mismatch
-            if (events.Any() && events.First().Version != snapshotVersion + 1)
+            catch (JsonSerializationException ex)
             {
-                _logger.LogWarning(
-                    "🚨 Event stream version mismatch for aggregate ID {AggregateId}. " +
-                    "Expected next version: {ExpectedVersion}, but found: {ActualVersion}.",
-                    aggregateId,
-                    snapshotVersion + 1,
-                    events.First().Version
-                );
+                _logger.LogError(ex, "Failed to deserialize snapshot for aggregate ID: {AggregateId}", aggregateId);
+                throw;
             }
-
-
-            aggregate.ReplayEvents(events);
-
-            return aggregate;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load snapshot for aggregate ID: {AggregateId}", aggregateId);
+                throw;
+            }
         }
 
         /*
-         Persists the uncommitted changes of an aggregate to the event store.
-         Also triggers snapshot creation when threshold is met.
-        */
+          * Saves uncommitted events of the aggregate to the event store.
+          * Creates a snapshot if snapshot threshold is crossed.
+          */
         public async Task SaveAsync(AggregateRoot aggregate)
         {
-            if (aggregate == null)
-                throw new ArgumentNullException(nameof(aggregate));
+            ArgumentNullException.ThrowIfNull(aggregate);
 
-            var uncommitted = aggregate.GetUncommittedChanges().ToList();
+            var uncommittedEvents = aggregate.GetUncommittedChanges().ToList();
 
             /*
                 Why expectedVersion is the standard name
@@ -114,9 +132,16 @@ namespace Daikon.EventStore.Handlers
             */
             var expectedVersion = aggregate.Version;
 
-            await _eventStore.SaveEventAsync(aggregate.Id, uncommitted, expectedVersion);
-
-            _logger.LogInformation("📥 Saved {EventCount} events for aggregate ID: {AggregateId}", uncommitted.Count, aggregate.Id);
+            try
+            {
+                await _eventStore.SaveEventAsync(aggregate.Id, uncommittedEvents, expectedVersion);
+                _logger.LogInformation("📥 Saved {EventCount} events for aggregate ID: {AggregateId}", uncommittedEvents.Count, aggregate.Id);
+            }
+            catch (ConcurrencyException ex)
+            {
+                _logger.LogWarning(ex, "❌ Concurrency conflict saving aggregate {AggregateId}", aggregate.Id);
+                throw;
+            }
 
             /*
              If aggregate has reached snapshot threshold, create a new snapshot.
@@ -125,23 +150,21 @@ namespace Daikon.EventStore.Handlers
             if (aggregate is TAggregate agg)
             {
 
-                var latestVersion = uncommitted.LastOrDefault()?.Version ?? aggregate.Version;
+                var latestEventVersion = uncommittedEvents.LastOrDefault()?.Version ?? aggregate.Version;
 
-                var crossedSnapshotVersions = Enumerable
-                        .Range(expectedVersion + 1, latestVersion - expectedVersion)
+                var crossedThresholds = Enumerable
+                        .Range(expectedVersion + 1, latestEventVersion - expectedVersion)
                         .Where(v => v % SnapshotThreshold == 0)
                         .ToList();
-                _logger.LogInformation("📸 Crossed snapshot versions: {Versions}", string.Join(", ", crossedSnapshotVersions));
+                _logger.LogInformation("📸 Crossed snapshot versions: {Versions}", string.Join(", ", crossedThresholds));
 
-                if (crossedSnapshotVersions.Any())
+                if (crossedThresholds.Any())
                 {
                     /* Create a clean copy of the aggregate with no uncommitted events */
                     var cleanAggregate = (TAggregate)agg.CloneWithoutChanges();
-                    var snapshotVersion = latestVersion; // Snapshot the latest version
+                    cleanAggregate.Version = latestEventVersion;
 
-                    cleanAggregate.Version = snapshotVersion;
-
-                    _logger.LogInformation("📸 Creating snapshot for aggregate ID: {AggregateId} at version {Version}", agg.Id, snapshotVersion);
+                    _logger.LogInformation("📸 Creating snapshot for aggregate ID: {AggregateId} at version {Version}", agg.Id, cleanAggregate.Version);
                     // log both aggVersion and latestVersion
 
 
@@ -160,7 +183,7 @@ namespace Daikon.EventStore.Handlers
                 {
                     _logger.LogInformation(
                         "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
-                        aggregate.Version,
+                        latestEventVersion,
                         SnapshotThreshold);
                 }
             }

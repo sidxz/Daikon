@@ -62,6 +62,26 @@ namespace Daikon.EventStore.Stores
             var existingEvents = await _eventStoreRepository.FindByAggregateId(aggregateId);
             var lastVersion = existingEvents.LastOrDefault()?.Version ?? -1;
 
+
+
+            /* Check if the expected version matches the last version in the store
+            This is a safety mechanism to prevent conflicting writes.
+
+                Example:
+
+                Client A loads version 3 of the aggregate.
+
+                Client B loads version 3 too.
+
+                Client A saves an event (now version 4).
+
+                Client B tries to save an event based on version 3 — this check fails and throws.
+
+                ✅ This ensures only one client can modify the aggregate at a time.
+            
+             */
+
+             
             if (expectedVersion != -1 && lastVersion != expectedVersion)
             {
                 throw new ConcurrencyException(
