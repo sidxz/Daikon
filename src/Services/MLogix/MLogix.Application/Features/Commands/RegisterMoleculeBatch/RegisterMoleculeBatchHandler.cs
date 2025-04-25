@@ -13,13 +13,18 @@ using MLogix.Domain.Aggregates;
 
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 {
+    /* Represents the original incoming ID and SMILES of a molecule */
+    public record OriginalRequestInfo(Guid OriginalId, string? SMILES);
+
     public class RegisterMoleculeBatchHandler : IRequestHandler<RegisterMoleculeBatchCommand, List<RegisterMoleculeResponseDTO>>
     {
+        private const int BatchSize = 500;
+
         private readonly IMapper _mapper;
         private readonly ILogger<RegisterMoleculeBatchHandler> _logger;
         private readonly IMoleculeRepository _moleculeRepository;
-        private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler;
-        private readonly IMoleculeAPI _iMoleculeAPI;
+        private readonly IEventSourcingHandler<MoleculeAggregate> _eventSourcingHandler;
+        private readonly IMoleculeAPI _moleculeAPI;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMediator _mediator;
 
@@ -27,121 +32,172 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             IMapper mapper,
             ILogger<RegisterMoleculeBatchHandler> logger,
             IMoleculeRepository moleculeRepository,
-            IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler,
-            IMoleculeAPI iMoleculeAPI,
+            IEventSourcingHandler<MoleculeAggregate> eventSourcingHandler,
+            IMoleculeAPI moleculeAPI,
             IHttpContextAccessor httpContextAccessor,
             IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
-            _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
-            _iMoleculeAPI = iMoleculeAPI ?? throw new ArgumentNullException(nameof(iMoleculeAPI));
+            _eventSourcingHandler = eventSourcingHandler ?? throw new ArgumentNullException(nameof(eventSourcingHandler));
+            _moleculeAPI = moleculeAPI ?? throw new ArgumentNullException(nameof(moleculeAPI));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
         public async Task<List<RegisterMoleculeResponseDTO>> Handle(RegisterMoleculeBatchCommand request, CancellationToken cancellationToken)
         {
-            var headers = _httpContextAccessor.HttpContext.Request.Headers
-                        .ToDictionary(h => h.Key, h => h.Value.ToString());
+            if (request?.Commands == null || request.Commands.Count == 0)
+                throw new ArgumentException("Molecule batch request must contain at least one command.");
 
-            var allResponses = new List<RegisterMoleculeResponseDTO>();
+            var requestHeaders = _httpContextAccessor.HttpContext?.Request?.Headers?
+                .ToDictionary(h => h.Key, h => h.Value.ToString()) ?? new Dictionary<string, string>();
 
-            // deep copy the request
-            var originalRequest = _mapper.Map<RegisterMoleculeBatchCommand>(request);
+            var responses = new List<RegisterMoleculeResponseDTO>();
+            var originalIdMapping = new Dictionary<Guid, OriginalRequestInfo>();
 
-            // Split the list of commands into batches of 500
-            var batches = request.Commands.Batch(500);
+            /* STEP 1: Prepare and normalize commands */
+            foreach (var cmd in request.Commands)
+            {
+                cmd.RegistrationId = cmd.RegistrationId == Guid.Empty ? Guid.NewGuid() : cmd.RegistrationId;
+                cmd.Id = cmd.Id == Guid.Empty ? Guid.NewGuid() : cmd.Id;
 
-            foreach (var batch in batches)
+                originalIdMapping[cmd.RegistrationId] = new OriginalRequestInfo(cmd.Id, cmd.SMILES);
+                cmd.Id = cmd.RegistrationId;
+            }
+
+            LogOriginalMapping(originalIdMapping);
+
+            /* STEP 2: Process in batches */
+            foreach (var batch in request.Commands.Batch(BatchSize))
             {
                 try
                 {
-                    // check if Id and RegistrationId are set, if not create new Guid
-                    foreach (var command in batch)
-                    {
-                        command.SetCreateProperties(request.RequestorUserId);
-                        command.Id = command.Id == Guid.Empty ? Guid.NewGuid() : command.Id;
-                        command.RegistrationId = command.RegistrationId == Guid.Empty ? Guid.NewGuid() : command.RegistrationId;
-                        command.Id = command.RegistrationId; // Temporary ID for vault registration
-                    }
+                    foreach (var cmd in batch)
+                        cmd.SetCreateProperties(request.RequestorUserId);
 
-
-                    // Separate out undisclosed molecules
-                    var undisclosedBatch = batch
+                    var undisclosedCommands = batch
                         .Where(c => string.IsNullOrEmpty(c.SMILES) && !string.IsNullOrEmpty(c.Name))
                         .Select(c => _mapper.Map<RegisterUndisclosedCommand>(c))
                         .ToList();
 
-                    // Disclosed Batch
-                    var disclosedBatch = batch.Where(c => !string.IsNullOrEmpty(c.SMILES)).ToList();
+                    var disclosedCommands = batch
+                        .Where(c => !string.IsNullOrEmpty(c.SMILES))
+                        .ToList();
 
-                    // Now register the undisclosed molecules
-                    if (undisclosedBatch.Count > 0)
-                    {
-                        _logger.LogInformation("Registering undisclosed molecules, Count: {Count}", undisclosedBatch.Count);
-                        foreach (var undisclosedCommand in undisclosedBatch)
-                        {
-                            var registerUndisclosedDTO = await _mediator.Send(undisclosedCommand, cancellationToken);
-                            var registerMoleculeResponseDTO = _mapper.Map<RegisterMoleculeResponseDTO>(registerUndisclosedDTO);
-                            allResponses.Add(registerMoleculeResponseDTO);
-                        }
-                    }
+                    if (undisclosedCommands.Any())
+                        await ProcessUndisclosedMoleculesAsync(undisclosedCommands, responses, cancellationToken);
 
-                    _logger.LogInformation("Registering batch of disclosed molecules, Count: {Count}", disclosedBatch.Count);
-
-
-
-                    // Register batch of molecules in ChemVault
-                    var registrationResponses = await _iMoleculeAPI.RegisterBatch(disclosedBatch, headers);
-
-                    foreach (var registrationReq in registrationResponses)
-                    {
-                        // Check if molecule already exists in our system
-                        var molecule = await _moleculeRepository.GetMoleculeByRegistrationId(registrationReq.Id);
-                        RegisterMoleculeResponseDTO registerMoleculeResponseDTO;
-
-                        if (molecule != null)
-                        {
-                            _logger.LogInformation("Molecule {Name} already exists in our system, returning existing molecule", registrationReq.Name);
-                            registerMoleculeResponseDTO = _mapper.Map<RegisterMoleculeResponseDTO>(registrationReq);
-                            registerMoleculeResponseDTO.WasAlreadyRegistered = true;
-                            registerMoleculeResponseDTO.RegistrationId = registrationReq.Id;
-                            registerMoleculeResponseDTO.Id = molecule.Id;
-                        }
-                        else
-                        {
-                            // Create new molecule
-                            _logger.LogInformation("Creating new molecule {Name} in our system", registrationReq.Name);
-                            var newMoleculeCreatedEvent = _mapper.Map<MoleculeCreatedEvent>(registrationReq);
-                            newMoleculeCreatedEvent.Id = originalRequest.Commands.First(x => x.RegistrationId == registrationReq.Id).Id;
-                            newMoleculeCreatedEvent.RegistrationId = registrationReq.Id;
-                            newMoleculeCreatedEvent.RequestedSMILES = request.Commands.First(x => x.RegistrationId == registrationReq.Id).SMILES;
-                            newMoleculeCreatedEvent.SmilesCanonical = registrationReq.SmilesCanonical;
-
-                            // Create new molecule aggregate
-                            var aggregate = new MoleculeAggregate(newMoleculeCreatedEvent);
-                            await _moleculeEventSourcingHandler.SaveAsync(aggregate);
-
-                            // Return response
-                            registerMoleculeResponseDTO = _mapper.Map<RegisterMoleculeResponseDTO>(registrationReq);
-                            registerMoleculeResponseDTO.WasAlreadyRegistered = false;
-                            registerMoleculeResponseDTO.RegistrationId = registrationReq.Id;
-                            registerMoleculeResponseDTO.Id = newMoleculeCreatedEvent.Id;
-                        }
-
-                        allResponses.Add(registerMoleculeResponseDTO);
-                    }
+                    if (disclosedCommands.Any())
+                        await ProcessDisclosedMoleculesAsync(disclosedCommands, originalIdMapping, requestHeaders, responses, cancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "An error occurred while processing a batch of molecules");
-                    throw new InvalidOperationException("An error occurred while processing a batch of molecules");
+                    _logger.LogError(ex, "Batch processing failed. Error: {Message}", ex.Message);
+                    throw new InvalidOperationException("An error occurred while processing molecule batch.", ex);
                 }
             }
 
-            return allResponses;
+            LogFinalResponses(responses);
+            return responses;
+        }
+
+        /* Logs original mappings of RegistrationId to original Id and SMILES */
+        private void LogOriginalMapping(Dictionary<Guid, OriginalRequestInfo> originalMap)
+        {
+            _logger.LogInformation("==== ORIGINAL REQUEST ====");
+            foreach (var entry in originalMap)
+            {
+                _logger.LogInformation("RegistrationId: {RegId}, OriginalId: {Id}, SMILES: {SMILES}",
+                    entry.Key, entry.Value.OriginalId, entry.Value.SMILES);
+            }
+            _logger.LogInformation("==========================");
+        }
+
+        /* Handles undisclosed molecule registration one-by-one via mediator */
+        private async Task ProcessUndisclosedMoleculesAsync(
+            List<RegisterUndisclosedCommand> undisclosedBatch,
+            List<RegisterMoleculeResponseDTO> allResponses,
+            CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Processing undisclosed molecules: Count = {Count}", undisclosedBatch.Count);
+
+            foreach (var cmd in undisclosedBatch)
+            {
+                var result = await _mediator.Send(cmd, cancellationToken);
+                var responseDto = _mapper.Map<RegisterMoleculeResponseDTO>(result);
+                allResponses.Add(responseDto);
+            }
+        }
+
+        /* Handles disclosed molecule registration via API and event sourcing */
+        private async Task ProcessDisclosedMoleculesAsync(
+            List<RegisterMoleculeCommandWithRegId> disclosedBatch,
+            Dictionary<Guid, OriginalRequestInfo> originalMap,
+            Dictionary<string, string> headers,
+            List<RegisterMoleculeResponseDTO> allResponses,
+            CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Processing disclosed molecules: Count = {Count}", disclosedBatch.Count);
+
+            var apiResponses = await _moleculeAPI.RegisterBatch(disclosedBatch, headers);
+
+            _logger.LogInformation("Molecule API responded with {Count} entries", apiResponses.Count);
+
+            foreach (var apiResponse in apiResponses)
+            {
+                var existing = await _moleculeRepository.GetMoleculeByRegistrationId(apiResponse.Id);
+                RegisterMoleculeResponseDTO dto;
+
+                if (existing != null)
+                {
+                    dto = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
+                    dto.WasAlreadyRegistered = true;
+                    dto.Id = existing.Id;
+                    dto.RegistrationId = apiResponse.Id;
+
+                    _logger.LogInformation("Molecule '{Name}' already registered.", apiResponse.Name);
+                }
+                else
+                {
+                    var newEvent = _mapper.Map<MoleculeCreatedEvent>(apiResponse);
+
+                    if (originalMap.TryGetValue(apiResponse.Id, out var original))
+                    {
+                        newEvent.Id = original.OriginalId;
+                        newEvent.RequestedSMILES = original.SMILES;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Missing original mapping for RegistrationId: {Id}", apiResponse.Id);
+                        throw new InvalidOperationException($"Missing original mapping for RegistrationId: {apiResponse.Id}");
+                    }
+
+                    newEvent.RegistrationId = apiResponse.Id;
+                    newEvent.SmilesCanonical = apiResponse.SmilesCanonical;
+
+                    var aggregate = new MoleculeAggregate(newEvent);
+                    await _eventSourcingHandler.SaveAsync(aggregate);
+
+                    dto = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
+                    dto.WasAlreadyRegistered = false;
+                    dto.Id = newEvent.Id;
+                    dto.RegistrationId = apiResponse.Id;
+                }
+
+                allResponses.Add(dto);
+            }
+        }
+
+        /* Logs all molecule registration responses */
+        private void LogFinalResponses(IEnumerable<RegisterMoleculeResponseDTO> responses)
+        {
+            foreach (var res in responses)
+            {
+                _logger.LogInformation("Registered Molecule: {Name}, Id: {Id}, RegId: {RegId}, AlreadyRegistered: {Status}",
+                    res.Name, res.Id, res.RegistrationId, res.WasAlreadyRegistered);
+            }
         }
     }
 }

@@ -5,8 +5,11 @@ using CQRS.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Screen.Application.Features.Batch.HitHandleUnattachedMolecules;
 using Screen.Application.Features.Commands.DeleteHit;
+using Screen.Application.Features.Commands.DeleteHitBatch;
 using Screen.Application.Features.Commands.NewHit;
+using Screen.Application.Features.Commands.NewHitBatch;
 using Screen.Application.Features.Commands.UpdateHit;
+using Screen.Application.Features.Commands.UpdateHitBatch;
 using Screen.Application.Features.Queries.GetHit.ById;
 using Screen.Application.Features.Views.GetHitProperties;
 using Screen.Domain.Entities;
@@ -34,6 +37,24 @@ namespace Screen.API.Controllers.V2
             });
         }
 
+        [HttpPost("{id}/hit/batch", Name = "AddHitBatch")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> AddHitBatch(Guid Id, [FromBody] List<NewHitCommand> commands)
+        {
+            // set the Id for each command
+            foreach (var command in commands)
+            {
+                command.Id = Id;
+            }
+            var resp = await _mediator.Send(new RegisterHitBatchCommand
+            {
+                Commands = commands
+            });
+
+            return StatusCode(StatusCodes.Status201Created, resp);
+        }
+
         [HttpPut("{id}/hit/{hitId}", Name = "UpdateHit")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -52,6 +73,24 @@ namespace Screen.API.Controllers.V2
 
         }
 
+        [HttpPut("{id}/hit/batch", Name = "UpdateHitBatch")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> UpdateHitBatch(Guid id, [FromBody] List<UpdateHitCommand> commands)
+        {
+            // set the Id for each command
+            foreach (var command in commands)
+            {
+                command.Id = id;
+            }
+            var resp = await _mediator.Send(new UpdateHitBatchCommand
+            {
+                Commands = commands
+            });
+
+            return StatusCode(StatusCodes.Status200OK, resp);
+        }
+
         [HttpDelete("{id}/hit/{hitId}", Name = "DeleteHit")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -63,6 +102,24 @@ namespace Screen.API.Controllers.V2
             {
                 Message = "Hit deleted successfully",
             });
+        }
+
+        [HttpDelete("{id}/hit/batch", Name = "DeleteHitBatch")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<ActionResult> DeleteHitBatch(Guid id, [FromBody] List<DeleteHitCommand> commands)
+        {
+            // set the Id for each command
+            foreach (var command in commands)
+            {
+                command.Id = id;
+            }
+            var resp = await _mediator.Send(new DeleteHitBatchCommand
+            {
+                Commands = commands
+            });
+
+            return StatusCode(StatusCodes.Status200OK, resp);
         }
 
         [HttpGet("hit/{hitId}", Name = "GetHit")]

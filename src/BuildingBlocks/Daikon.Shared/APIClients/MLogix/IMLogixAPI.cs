@@ -10,5 +10,6 @@ namespace Daikon.Shared.APIClients.MLogix
         public Task<MoleculeVM> GetMoleculeBySmiles(string SMILES);
         public Task<List<MoleculeVM>> GetMoleculesByIds(List<Guid> Ids);
         public Task<MoleculeVM> RegisterMolecule(RegisterMoleculeDTO request);
+        public Task<List<MoleculeVM>> RegisterBatch(List<RegisterMoleculeDTO> request);
     }
 }
