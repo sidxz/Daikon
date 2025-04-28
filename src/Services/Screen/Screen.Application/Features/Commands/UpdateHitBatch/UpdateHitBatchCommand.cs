@@ -1,7 +1,6 @@
 using MediatR;
 using Screen.Application.Features.Commands.UpdateHit;
-using Screen.Application.Features.Queries.ViewModels;
-
+using Daikon.Shared.VM.Screen;
 namespace Screen.Application.Features.Commands.UpdateHitBatch
 {
     public class UpdateHitBatchCommand : IRequest<List<HitVM>>

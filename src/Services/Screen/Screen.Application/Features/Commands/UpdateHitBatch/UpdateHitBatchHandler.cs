@@ -4,8 +4,7 @@ using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Screen.Application.Features.Queries.ViewModels;
-using Screen.Domain.Aggregates;
+using Daikon.Shared.VM.Screen;using Screen.Domain.Aggregates;
 using Screen.Domain.Entities;
 using CQRS.Core.Extensions;
 using Screen.Application.Features.Commands.UpdateHit;
@@ -97,6 +96,7 @@ namespace Screen.Application.Features.Commands.UpdateHitBatch
         {
             foreach (var command in commands)
             {
+                command.RequestorUserId = requestorUserId;
                 command.SetUpdateProperties(requestorUserId);
 
                 if (command.VoteToAdd != null)

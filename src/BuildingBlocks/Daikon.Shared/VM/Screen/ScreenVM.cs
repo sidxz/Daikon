@@ -14,7 +14,7 @@ namespace Daikon.Shared.VM.Screen
         public object Status { get; set; }
         public object LatestStatusChangeDate { get; set; }
         public object Notes { get; set; }
-        public Guid PrimaryOrgId { get; set; }
+        public object PrimaryOrgId { get; set; }
         public object PrimaryOrgName { get; set; }
 
         public string Owner { get; set; }
@@ -23,5 +23,7 @@ namespace Daikon.Shared.VM.Screen
         public Dictionary<string, string> ParticipatingOrgs { get; set; }
         public List<ScreenRunVM> ScreenRuns { get; set; }
         //public List<HitCollectionVM> HitCollections { get; set; }
+
+        public DateTime DeepLastUpdated { get; set; }
     }
 }

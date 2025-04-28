@@ -1,7 +1,7 @@
 
 using CQRS.Core.Query;
+using Daikon.Shared.VM.Screen;
 using MediatR;
-using Screen.Application.Features.Queries.ViewModels;
 
 namespace Screen.Application.Features.Queries.GetHitCollection.ById
 {

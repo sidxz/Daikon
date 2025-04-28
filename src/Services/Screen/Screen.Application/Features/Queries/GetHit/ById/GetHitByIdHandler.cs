@@ -17,7 +17,7 @@ namespace Screen.Application.Features.Queries.GetHit.ById
         private readonly ILogger<GetHitByIdHandler> _logger;
         private readonly IMLogixAPI _mLogixAPIService;
 
-        public GetHitByIdHandler(IMapper mapper, IHitRepository hitRepository, ILogger<GetHitByIdHandler> logger, 
+        public GetHitByIdHandler(IMapper mapper, IHitRepository hitRepository, ILogger<GetHitByIdHandler> logger,
         IMLogixAPI mLogixAPIService)
         {
             _mapper = mapper;
@@ -28,11 +28,8 @@ namespace Screen.Application.Features.Queries.GetHit.ById
 
         public async Task<Hit> Handle(GetHitByIdCommand request, CancellationToken cancellationToken)
         {
-            var hit = await _hitRepository.ReadHitById(request.Id);
-            if (hit == null)
-            {
-                throw new AggregateNotFoundException(nameof(Hit));
-            }
+            var hit = await _hitRepository.ReadHitById(request.Id)
+                ?? throw new AggregateNotFoundException(nameof(Hit));
             return hit;
         }
     }

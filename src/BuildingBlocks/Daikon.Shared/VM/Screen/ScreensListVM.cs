@@ -1,7 +1,7 @@
 
 using CQRS.Core.Domain;
 
-namespace Screen.Application.Features.Queries.ViewModels
+namespace Daikon.Shared.VM.Screen
 {
     public class ScreensListVM : VMMeta
     {

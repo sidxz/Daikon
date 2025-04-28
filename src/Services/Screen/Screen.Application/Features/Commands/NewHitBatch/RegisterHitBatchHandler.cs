@@ -9,8 +9,7 @@ using Microsoft.Extensions.Logging;
 using Screen.Domain.Aggregates;
 using CQRS.Core.Extensions;
 using Screen.Domain.Entities;
-using Screen.Application.Features.Queries.ViewModels;
-using Daikon.Shared.VM.MLogix;
+using Daikon.Shared.VM.Screen;using Daikon.Shared.VM.MLogix;
 
 namespace Screen.Application.Features.Commands.NewHitBatch
 {
@@ -48,6 +47,7 @@ namespace Screen.Application.Features.Commands.NewHitBatch
                 // Step 1: Set creation metadata and fallback HitId
                 foreach (var cmd in batch)
                 {
+                    cmd.RequestorUserId = request.RequestorUserId;
                     cmd.SetCreateProperties(request.RequestorUserId);
                     cmd.HitId = (cmd.HitId ?? Guid.Empty) == Guid.Empty ? Guid.NewGuid() : cmd.HitId;
                 }

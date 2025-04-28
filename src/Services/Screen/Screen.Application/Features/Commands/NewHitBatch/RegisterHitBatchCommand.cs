@@ -1,8 +1,7 @@
 using CQRS.Core.Command;
 using MediatR;
 using Screen.Application.Features.Commands.NewHit;
-using Screen.Application.Features.Queries.ViewModels;
-
+using Daikon.Shared.VM.Screen;
 namespace Screen.Application.Features.Commands.NewHitBatch
 {
     public class RegisterHitBatchCommand : BaseCommand, IRequest<List<HitVM>>

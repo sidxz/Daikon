@@ -12,8 +12,7 @@ using Screen.Application.Features.Commands.UpdateScreenAssociatedTargets;
 using Screen.Application.Features.Queries.GetScreen.ById;
 using Screen.Application.Features.Queries.GetScreen.ByName;
 using Screen.Application.Features.Queries.GetScreensList;
-using Screen.Application.Features.Queries.ViewModels;
-
+using Daikon.Shared.VM.Screen;
 namespace Screen.API.Controllers.V2
 {
     [ApiController]

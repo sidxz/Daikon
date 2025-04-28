@@ -38,6 +38,7 @@ namespace Screen.Application.Features.Commands.DeleteHitBatch
 
                     foreach (var cmd in group)
                     {
+                        cmd.RequestorUserId = request.RequestorUserId;
                         cmd.SetUpdateProperties(request.RequestorUserId);
                         var evt = _mapper.Map<HitDeletedEvent>(cmd);
                         aggregate.DeleteHit(evt);
