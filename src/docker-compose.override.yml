@@ -43,15 +43,13 @@ services:
       - "EndPointRouting:questionnaire=http://questionnaire-api"
       - "EndPointRouting:comment=http://comment-api"
       - "EndPointRouting:docu-store=http://docustore-api"
-
       - "EndPointRouting:event-history=http://event-history-api"
+      - "EndPointRouting:user-preferences=http://user-preferences-api"
 
     ports:
       - "8010:80"
     networks:
       - daikon-be-net
-  
-
 
   userstore-api:
     environment:
@@ -80,7 +78,6 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -129,7 +126,6 @@ services:
         ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -171,7 +167,6 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -216,7 +211,6 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -242,7 +236,6 @@ services:
       - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
       - "HAMongoDbSettings:HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
 
-
       ## Internal APIs
       - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
@@ -260,7 +253,6 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -331,7 +323,6 @@ services:
       # Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       # Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -354,7 +345,6 @@ services:
       - MLxMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
       - "MLxMongoDbSettings:DatabaseName=MoleculeLogix"
       - "MLxMongoDbSettings:MoleculeCollectionName=Molecules"
-
 
       # Internal APIs
       - "MolDbAPI:Url=http://moldb-api:8101/api/v2/mol-db"
@@ -387,7 +377,6 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -414,7 +403,6 @@ services:
       - "CommentMongoDbSettings:CommentCollectionName=Comments"
       - "CommentMongoDbSettings:CommentReplyCollectionName=CommentReplies"
 
-
       ## Internal APIs
       - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
@@ -432,7 +420,7 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
+
       - "UserStoreAPI:Url=http://userstore-api/api/v2"
       - "GeneAPI:Url=http://gene-api/api/v2"
       - "TargetAPI:Url=http://target-api/api/v2"
@@ -453,7 +441,6 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -494,7 +481,6 @@ services:
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-      
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -507,7 +493,47 @@ services:
     networks:
       - daikon-be-net
 
-  
+  user-preferences-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
+
+      ## Kafka Producer
+      - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings:Topic=${KafkaTopic}
+
+      ## Kafka Consumer
+      - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
+
+      - "KafkaConsumerSettings:GroupId=user-preferences-consumer-group"
+      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings:EnableAutoCommit=true"
+      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
+
+      ## MongoDb Data Store
+      - UserPreferencesMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
+
+      - "UserPreferencesMongoDbSettings:DatabaseName=UserPreferences"
+
+      - "UserPreferencesMongoDbSettings:TableDefaultsCollectionName=TableDefaults"
+      - "UserPreferencesMongoDbSettings:TableGlobalConfigCollectionName=TableGlobalConfig"
+      - "UserPreferencesMongoDbSettings:TableUserCustomizationCollectionName=TableUserCustomization"
+      ## Internal APIs
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+
+    ports:
+      - "8016:80"
+    networks:
+      - daikon-be-net
 
 networks:
   daikon-be-net:

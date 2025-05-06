@@ -98,3 +98,10 @@ services:
     build:
       context: .
       dockerfile: Extensions/Daikon.EventManagement/Dockerfile
+
+  user-preferences-api:
+    container_name: "user-preferences-api"
+    image: ${DOCKER_REGISTRY-}user-preferences-api
+    build:
+      context: .
+      dockerfile: Services/UserPreferences/UserPreferences.API/Dockerfile

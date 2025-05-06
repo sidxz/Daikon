@@ -72,7 +72,7 @@ namespace Daikon.Shared.Embedded.Screens
          * Example: True if DMSO-treated well or positive control compound.
          * Nullable — leave empty if not specified.
          */
-        public bool? IsControl { get; set; }
+        public bool? x { get; set; }
     }
 
 }
