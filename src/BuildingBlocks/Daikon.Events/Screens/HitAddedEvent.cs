@@ -44,6 +44,9 @@ namespace Daikon.Events.Screens
         public DVariable<string>? TGIUnit { get; set; }
         public DVariable<string>? LD50 { get; set; }
         public DVariable<string>? LD50Unit { get; set; }
+        public DVariable<string>? PctInhibition { get; set; }
+        public DVariable<string>? PctInhibitionConcentration { get; set; }
+        public DVariable<string>? PctInhibitionConcentrationUnit { get; set; }
 
         /* Full Dose-Response Data */
         public List<DoseResponse>? DoseResponses { get; set; }

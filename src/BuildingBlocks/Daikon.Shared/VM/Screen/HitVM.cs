@@ -40,6 +40,9 @@ namespace Daikon.Shared.VM.Screen
         public object TGIUnit { get; set; }
         public object LD50 { get; set; }
         public object LD50Unit { get; set; }
+        public object PctInhibition { get; set; }
+        public object PctInhibitionConcentration { get; set; }
+        public object PctInhibitionConcentrationUnit { get; set; }
 
         /* Full Dose-Response Data */
         public List<DoseResponse> DoseResponses { get; set; } = new();

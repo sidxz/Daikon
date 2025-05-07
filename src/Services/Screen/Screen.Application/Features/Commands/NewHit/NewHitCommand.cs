@@ -90,6 +90,14 @@ namespace Screen.Application.Features.Commands.NewHit
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? LD50Unit { get; set; }
 
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PctInhibition { get; set; }
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PctInhibitionConcentration { get; set; }
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? PctInhibitionConcentrationUnit { get; set; }
+
         /* Full Dose-Response Data */
         public List<DoseResponse>? DoseResponses { get; set; }
 

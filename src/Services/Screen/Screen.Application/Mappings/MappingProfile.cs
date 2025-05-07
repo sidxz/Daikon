@@ -162,6 +162,9 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.TGIUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.TGIUnit)))
                 .ForMember(dest => dest.LD50, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.LD50)))
                 .ForMember(dest => dest.LD50Unit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.LD50Unit)))
+                .ForMember(dest => dest.PctInhibition, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.PctInhibition)))
+                .ForMember(dest => dest.PctInhibitionConcentration, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.PctInhibitionConcentration)))
+                .ForMember(dest => dest.PctInhibitionConcentrationUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.PctInhibitionConcentrationUnit)))
 
                 /* Dose Responses */
                 .ForMember(dest => dest.DoseResponses, opt => opt.MapFrom(src => src.DoseResponses))

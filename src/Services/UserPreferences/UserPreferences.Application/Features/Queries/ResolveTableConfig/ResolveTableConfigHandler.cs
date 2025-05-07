@@ -43,7 +43,7 @@ namespace UserPreferences.Application.Features.Queries.ResolveTableConfig
                 var globalConfig = globalConfigTask.Result;
                 var defaultConfig = defaultConfigTask.Result;
 
-                int currentVersion = globalConfig?.Version ?? defaultConfig?.Version ?? 1;
+                int currentVersion = globalConfig?.Version ?? defaultConfig?.Version ?? 0;
 
                 if (userConfig != null && userConfig.Version == currentVersion)
                 {

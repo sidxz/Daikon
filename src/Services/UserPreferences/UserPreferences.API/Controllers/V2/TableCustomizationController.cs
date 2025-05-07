@@ -6,6 +6,7 @@ using UserPreferences.Application.Features.Commands.RemoveTableUserCustom;
 using UserPreferences.Application.Features.Commands.SetTableDefaults;
 using UserPreferences.Application.Features.Commands.SetTableGlobal;
 using UserPreferences.Application.Features.Commands.SetTableUserCustom;
+using UserPreferences.Application.Features.Queries.GetDefaults;
 using UserPreferences.Application.Features.Queries.ResolveTableConfig;
 
 namespace UserPreferences.API.Controllers.V2
@@ -16,6 +17,19 @@ namespace UserPreferences.API.Controllers.V2
     public class TableCustomizationController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+
+        [HttpGet("get-table-defaults")]
+        [ProducesResponseType(typeof(List<Domain.Table.TableDefaults>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult<List<Domain.Table.TableDefaults>>> GetDefaults([FromQuery] string tableType)
+        {
+            var query = new GetDefaultsQuery
+            {
+                TableType = tableType
+            };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
 
         [HttpPost("set-table-defaults")]
         [ProducesResponseType(typeof(Domain.Table.TableDefaults), (int)HttpStatusCode.OK)]

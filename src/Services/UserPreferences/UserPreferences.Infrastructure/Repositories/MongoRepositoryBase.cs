@@ -53,6 +53,10 @@ namespace UserPreferences.Infrastructure.Repositories
         {
             return await _collection.Find(predicate).ToListAsync();
         }
+        public virtual async Task<List<T>> FindAllAsync()
+        {
+            return await _collection.Find(_ => true).ToListAsync();
+        }
 
         public virtual async Task ReplaceAsync(Expression<Func<T, bool>> predicate, T entity)
         {

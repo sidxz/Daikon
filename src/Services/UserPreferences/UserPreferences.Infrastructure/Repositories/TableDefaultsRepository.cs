@@ -10,9 +10,14 @@ namespace UserPreferences.Infrastructure.Repositories
     {
         public TableDefaultsRepository(IConfiguration config, ILogger<TableDefaultsRepository> logger)
             : base(config, "TableDefaults", logger) { }
+
         public Task<TableDefaults?> GetByTableTypeAsync(string tableType)
         {
             return FindOneAsync(x => x.TableType == tableType);
+        }
+        public Task<List<TableDefaults>> GetAllAsync()
+        {
+            return FindAllAsync();
         }
 
         public Task ReplaceAsync(string tableType, TableDefaults updated)

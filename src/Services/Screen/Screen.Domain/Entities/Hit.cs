@@ -93,6 +93,10 @@ namespace Screen.Domain.Entities
          */
         public DVariable<string>? LD50Unit { get; set; }
 
+        public DVariable<string>? PctInhibition { get; set; }
+        public DVariable<string>? PctInhibitionConcentration { get; set; }
+        public DVariable<string>? PctInhibitionConcentrationUnit { get; set; }
+
         /* Full dose-response measurements if available.
          * Used for plotting curves or re-fitting IC50/EC50 values.
          */
