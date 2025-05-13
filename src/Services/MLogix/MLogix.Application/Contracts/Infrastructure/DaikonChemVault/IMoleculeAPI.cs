@@ -1,4 +1,6 @@
 
+using Daikon.Shared.DTO.MLogix;
+using Daikon.Shared.VM.MLogix;
 using MediatR;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.RegisterMolecule;
@@ -26,5 +28,7 @@ namespace MLogix.Application.Contracts.Infrastructure.DaikonChemVault
 
         public Task<List<MoleculeBase>> RegisterBatch(List<RegisterMoleculeCommandWithRegId> registerMoleculeCommands, IDictionary<string, string> headers);
         public Task<Unit> BatchCreateParents(IDictionary<string, string> headers);
+
+        public Task<List<ClusterVM>> CalculateClusters(List<ClusterDTO> Molecules, IDictionary<string, string> headers);
     }
 }

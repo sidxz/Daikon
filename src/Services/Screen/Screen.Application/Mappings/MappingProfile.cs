@@ -109,6 +109,10 @@ namespace Screen.Application.Mappings
             CreateMap<Domain.Entities.Hit, HitUpdatedEvent>().ReverseMap();
             CreateMap<Domain.Entities.Hit, HitMoleculeUpdatedEvent>().ReverseMap();
 
+
+            CreateMap<UpdateHitCommand, Hit>().ReverseMap();
+
+
             /* Queries */
 
             CreateMap<Domain.Entities.Screen, ScreensListVM>().ReverseMap();
@@ -190,8 +194,6 @@ namespace Screen.Application.Mappings
 
                 /* Reverse Mapping */
                 .ReverseMap();
-
-
         }
 
     }

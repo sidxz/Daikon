@@ -17,6 +17,8 @@ using MLogix.Application.BackgroundServices;
 using MLogix.Application.Features.Commands.GenerateParentBatch;
 using MLogix.Application.Features.Commands.DiscloseMolecule;
 using MLogix.Application.Features.Previews.DiscloseMoleculePreview;
+using MLogix.Application.Features.Calculations.Clustering;
+using Daikon.Shared.DTO.MLogix;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -132,7 +134,7 @@ namespace MLogix.API.Controllers.V2
             return Ok(updateMoleculeResponseDTO);
 
         }
-        
+
 
         [HttpPost("batch", Name = "RegisterMoleculeBatch")]
         [MapToApiVersion("2.0")]
@@ -197,5 +199,21 @@ namespace MLogix.API.Controllers.V2
         }
 
 
+        // cluster
+        [HttpPost("cluster", Name = "GenerateCluster")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GenerateCluster([FromBody] List<ClusterDTO> molecules)
+        {
+            var command = new GenerateClusterCommand
+            {
+                Molecules = molecules
+            };
+            {
+
+                var clusterResults = await _mediator.Send(command);
+                return Ok(clusterResults);
+            }
+        }
     }
 }

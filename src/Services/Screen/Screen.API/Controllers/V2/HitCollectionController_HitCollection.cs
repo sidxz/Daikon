@@ -5,6 +5,7 @@ using CQRS.Core.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Screen.Application.BackgroundServices;
+using Screen.Application.Features.Commands.ClusterHitCollection;
 using Screen.Application.Features.Commands.DeleteHitCollection;
 using Screen.Application.Features.Commands.NewHitCollection;
 using Screen.Application.Features.Commands.RenameHitCollection;
@@ -87,6 +88,22 @@ namespace Screen.API.Controllers.V2
             {
                 Message = "Hit collection updated successfully",
             });
+
+        }
+
+        [HttpPut("{id}/cluster", Name = "ClusterHitCollection")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> ClusterHitCollection(Guid id)
+        {
+            var command = new ClusterHitCollectionCommand
+            {
+                Id = id,
+            };
+            var resp = await _mediator.Send(command);
+            return StatusCode(StatusCodes.Status200OK, resp);
 
         }
 
