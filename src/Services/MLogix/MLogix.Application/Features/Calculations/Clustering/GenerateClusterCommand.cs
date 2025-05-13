@@ -9,6 +9,7 @@ namespace MLogix.Application.Features.Calculations.Clustering
 {
     public class GenerateClusterCommand : BaseCommand, IRequest<List<ClusterVM>>
     {
+        public double CutOff { get; set; }
         public List<ClusterDTO> Molecules { get; set; }
     }
 }

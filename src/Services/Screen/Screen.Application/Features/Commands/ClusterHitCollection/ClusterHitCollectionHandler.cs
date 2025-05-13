@@ -51,7 +51,7 @@ namespace Screen.Application.Features.Commands.ClusterHitCollection
         public async Task<List<HitVM>> Handle(ClusterHitCollectionCommand request, CancellationToken cancellationToken)
         {
 
-    
+
             var (existingHits, moleculeDict) = await GetHitsOfCollectionAsyncNoVoteData(request.Id, cancellationToken);
             if (existingHits == null || existingHits.Count == 0)
             {
@@ -65,7 +65,7 @@ namespace Screen.Application.Features.Commands.ClusterHitCollection
                 return null;
             }
 
-            var clusteredHits = await GetClusteredHitsFromApiAsync(moleculesForClustering, request.Id);
+            var clusteredHits = await GetClusteredHitsFromApiAsync(moleculesForClustering, request.CutOff, request.Id);
             if (clusteredHits == null || clusteredHits.Count == 0)
             {
                 return null;
@@ -134,7 +134,9 @@ namespace Screen.Application.Features.Commands.ClusterHitCollection
         private List<ClusterDTO> PrepareMoleculesForClustering(List<Hit> hits, Dictionary<Guid, MoleculeVM> moleculeDict)
         {
             var molecules = hits
-                .Where(hit => hit.MoleculeId.HasValue && moleculeDict.ContainsKey(hit.MoleculeId.Value))
+                .Where(hit => hit.MoleculeId.HasValue
+                              && moleculeDict.TryGetValue(hit.MoleculeId.Value, out var molecule)
+                              && !string.IsNullOrWhiteSpace(molecule.Smiles))
                 .Select(hit =>
                 {
                     var molecule = moleculeDict[hit.MoleculeId.Value];
@@ -149,18 +151,20 @@ namespace Screen.Application.Features.Commands.ClusterHitCollection
 
             if (molecules.Count == 0)
             {
-                _logger.LogWarning("No molecules found to cluster for provided Hits.");
+                _logger.LogWarning("No molecules with valid SMILES found to cluster for provided Hits.");
             }
 
             return molecules;
         }
 
 
-        private async Task<List<ClusterVM>> GetClusteredHitsFromApiAsync(List<ClusterDTO> molecules, Guid hitCollectionId)
+
+        private async Task<List<ClusterVM>> GetClusteredHitsFromApiAsync(List<ClusterDTO> molecules, double CutOff, Guid hitCollectionId)
         {
+
             try
             {
-                var clusteredHits = await _mLogixAPIService.CalculateClusters(molecules);
+                var clusteredHits = await _mLogixAPIService.CalculateClusters(molecules, CutOff);
 
                 if (clusteredHits == null || clusteredHits.Count == 0)
                 {
@@ -183,12 +187,15 @@ namespace Screen.Application.Features.Commands.ClusterHitCollection
 
             foreach (var hit in existingHits)
             {
-                if (!clusteredHitDictionary.TryGetValue(hit.Id, out var clusteredHit))
+                hit.ClusterGroup = 99; // Default to 99 if not clustered
+                // Check if the hit is clustered and assign the cluster group
+                // If the hit is clustered, assign the cluster group
+                if (clusteredHitDictionary.TryGetValue(hit.Id, out var clusteredHit))
                 {
-                    continue;
+                   hit.ClusterGroup = clusteredHit.Cluster;
                 }
 
-                hit.ClusterGroup = clusteredHit.Cluster;
+                
 
                 var updateCommand = _mapper.Map<UpdateHitCommand>(hit);
 

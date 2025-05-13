@@ -55,7 +55,7 @@ namespace MLogix.Application.Features.Calculations.Clustering
                     ?? new Dictionary<string, string>();
 
                 // Call the Molecule API to calculate clusters
-                var clusterResults = await _moleculeAPI.CalculateClusters(request.Molecules, headers);
+                var clusterResults = await _moleculeAPI.CalculateClusters(request.Molecules, request.CutOff, headers);
 
                 return clusterResults ?? new List<ClusterVM>();
             }

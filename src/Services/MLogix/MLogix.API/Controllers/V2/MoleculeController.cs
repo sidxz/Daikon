@@ -203,10 +203,12 @@ namespace MLogix.API.Controllers.V2
         [HttpPost("cluster", Name = "GenerateCluster")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GenerateCluster([FromBody] List<ClusterDTO> molecules)
+        public async Task<IActionResult> GenerateCluster(double CutOff, [FromBody] List<ClusterDTO> molecules)
         {
             var command = new GenerateClusterCommand
+
             {
+                CutOff = CutOff,
                 Molecules = molecules
             };
             {

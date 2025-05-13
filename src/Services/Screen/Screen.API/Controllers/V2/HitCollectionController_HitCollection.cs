@@ -96,11 +96,12 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> ClusterHitCollection(Guid id)
+        public async Task<ActionResult> ClusterHitCollection(Guid id, Double CutOff)
         {
             var command = new ClusterHitCollectionCommand
             {
                 Id = id,
+                CutOff = CutOff,
             };
             var resp = await _mediator.Send(command);
             return StatusCode(StatusCodes.Status200OK, resp);

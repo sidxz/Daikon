@@ -10,6 +10,6 @@ namespace Screen.Application.Features.Commands.ClusterHitCollection
 {
     public class ClusterHitCollectionCommand : BaseCommand, IRequest<List<HitVM>>
     {
-    
+        public double CutOff { get; set; }
     }
 }
