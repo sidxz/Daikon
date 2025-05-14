@@ -93,6 +93,9 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
             moleculeDisclosedEvent.RegistrationId = existingMolecule.RegistrationId;
             moleculeDisclosedEvent.RequestedSMILES = request.RequestedSMILES;
             moleculeDisclosedEvent.SmilesCanonical = registeredMolecule.SmilesCanonical;
+            moleculeDisclosedEvent.StructureDisclosedDate = DateTime.UtcNow;
+            moleculeDisclosedEvent.StructureDisclosedByUserId = request.RequestorUserId;
+            moleculeDisclosedEvent.IsStructureDisclosed = true;
 
 
             try
