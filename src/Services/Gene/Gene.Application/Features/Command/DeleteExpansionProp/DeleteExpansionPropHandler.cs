@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
@@ -28,6 +28,7 @@ namespace Gene.Application.Features.Command.DeleteExpansionProp
         {
             try
             {
+                request.SetUpdateProperties(request.RequestorUserId);
                 var expansionPropDeletedEvent = _mapper.Map<GeneExpansionPropDeletedEvent>(request);
 
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

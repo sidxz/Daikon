@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Project;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
@@ -34,9 +34,7 @@ namespace Project.Application.Features.Commands.UpdateProjectCompoundEvolution
         public async Task<Unit> Handle(UpdateProjectCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
 
-            var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             // log stage
             // _logger.LogInformation("++++++++++++++++++++  UpdateProjectCompoundEvolutionCommand: {CompoundEvolutionId} {Stage}", request.CompoundEvolutionId, request.Stage);

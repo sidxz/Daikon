@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using MediatR;
@@ -26,6 +26,7 @@ namespace Gene.Application.Features.Command.DeleteProteinProduction
     public async Task<Unit> Handle(DeleteProteinProductionCommand request, CancellationToken cancellationToken)
     {
       _logger.LogInformation("DeleteProteinProductionCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
 
       var proteinProductionDeletedEvent = _mapper.Map<GeneProteinProductionDeletedEvent>(request);
       try

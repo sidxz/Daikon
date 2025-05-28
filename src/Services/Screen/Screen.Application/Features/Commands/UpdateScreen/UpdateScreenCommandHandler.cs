@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -35,7 +35,7 @@ namespace Screen.Application.Features.Commands.UpdateScreen
 
         public async Task<Unit> Handle(UpdateScreenCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             var existingScreen = await _screenRepository.ReadScreenById(request.Id);
 
             if (existingScreen == null)

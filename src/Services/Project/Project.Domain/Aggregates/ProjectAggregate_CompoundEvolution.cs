@@ -1,6 +1,6 @@
 
-using CQRS.Core.Domain;
 using Daikon.Events.Project;
+using Daikon.EventStore.Aggregate;
 using Project.Domain.Entities;
 
 namespace Project.Domain.Aggregates

@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -33,7 +33,7 @@ namespace Screen.Application.Features.Commands.RenameScreen
 
         public async Task<Unit> Handle(RenameScreenCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             var existingScreen = await _screenRepository.ReadScreenById(request.Id);
 
             // check if name is available

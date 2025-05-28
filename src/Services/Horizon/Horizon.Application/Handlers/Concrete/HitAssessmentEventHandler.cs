@@ -1,7 +1,7 @@
 
 using CQRS.Core.Exceptions;
 using Daikon.Events.HitAssessment;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.HitAssessment;
 using Microsoft.Extensions.Logging;
 
@@ -56,9 +56,16 @@ namespace Horizon.Application.Handlers
             {
                 UniId = @event.Id.ToString(),
                 HitAssessmentId = @event.Id.ToString(),
+
+
                 Status = @event.Status,
                 IsHAComplete = @event.IsHAComplete,
                 IsHASuccess = @event.IsHASuccess,
+
+                HitCollectionId = @event.HitCollectionId.ToString(),
+                PrimaryMoleculeId = @event.CompoundId.ToString(),
+                AssociatedMoleculeIds = @event.AssociatedHitIds.Keys.ToList(),
+
                 OrgId = @event?.PrimaryOrgId?.ToString() ?? "",
 
                 DateModified = @event?.DateModified ?? DateTime.Now,

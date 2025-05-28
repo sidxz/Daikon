@@ -1,9 +1,7 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -14,10 +12,9 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<ResistanceMutation> _resistanceMutationCollection;
-        private readonly IVersionHub<ResistanceMutationRevision> _versionHub;
         private readonly ILogger<GeneResistanceMutationRepository> _logger;
 
-        public GeneResistanceMutationRepository(IConfiguration configuration, IVersionHub<ResistanceMutationRevision> versionMaintainer, ILogger<GeneResistanceMutationRepository> logger)
+        public GeneResistanceMutationRepository(IConfiguration configuration, ILogger<GeneResistanceMutationRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -27,8 +24,6 @@ namespace Gene.Infrastructure.Query.Repositories
             _resistanceMutationCollection.Indexes.CreateOne
                 (new CreateIndexModel<ResistanceMutation>(Builders<ResistanceMutation>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
                 
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -89,7 +84,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("AddResistanceMutation: Creating ResistanceMutation {ResistanceMutationId}, {resistanceMutation}", resistanceMutation.Id, resistanceMutation.ToJson());
                 await _resistanceMutationCollection.InsertOneAsync(resistanceMutation);
-                await _versionHub.CommitVersion(resistanceMutation);
             }
             catch (MongoException ex)
             {
@@ -107,7 +101,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateResistanceMutation: Updating ResistanceMutation {ResistanceMutationId}, {resistanceMutation}", resistanceMutation.Id, resistanceMutation.ToJson());
                 await _resistanceMutationCollection.ReplaceOneAsync(r => r.Id == resistanceMutation.Id, resistanceMutation);
-                await _versionHub.CommitVersion(resistanceMutation);
             }
             catch (MongoException ex)
             {
@@ -126,7 +119,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteResistanceMutation: Deleting ResistanceMutation {ResistanceMutation}", id);
                 await _resistanceMutationCollection.DeleteOneAsync(gene => gene.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -145,7 +137,6 @@ namespace Gene.Infrastructure.Query.Repositories
             foreach (var resistanceMutation in resistanceMutations)
             {
                 _logger.LogInformation("DeleteResistanceMutationsOfGene: Archiving ResistanceMutation {ResistanceMutationId}", resistanceMutation.Id);
-                await _versionHub.ArchiveEntity(resistanceMutation.Id);
             }
             // delete all resistanceMutations of gene
             try
@@ -160,13 +151,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 throw new RepositoryException(nameof(GeneResistanceMutationRepository), "Error deleting ResistanceMutations of Gene", ex);
             }
 
-        }
-
-
-        public async Task<ResistanceMutationRevision> GetResistanceMutationRevisions(Guid Id)
-        {
-            var resistanceMutationRevision = await _versionHub.GetVersions(Id);
-            return resistanceMutationRevision;
         }
     }
 }

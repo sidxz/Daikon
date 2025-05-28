@@ -26,9 +26,14 @@ namespace Screen.Application.EventHandlers
             hit.DateCreated = DateTime.UtcNow;
             hit.IsModified = false;
 
+            var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(@event.Id);
+            var screen = await _screenRepository.ReadScreenById(hitCollection.ScreenId);
+            screen.DeepLastUpdated = DateTime.UtcNow;
+
             try
             {
                 await _hitRepository.CreateHit(hit);
+                await _screenRepository.UpdateScreen(screen);
             }
             catch (RepositoryException ex)
             {
@@ -94,15 +99,47 @@ namespace Screen.Application.EventHandlers
                 }
             }
 
+            var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(@event.Id);
+            var screen = await _screenRepository.ReadScreenById(hitCollection.ScreenId);
+            screen.DeepLastUpdated = DateTime.UtcNow;
+
             try
             {
                 await _hitRepository.UpdateHit(hit);
+                await _screenRepository.UpdateScreen(screen);
             }
             catch (RepositoryException ex)
             {
                 throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating hit {@event.HitId} in HitUpdatedEvent", ex);
             }
 
+        }
+
+        public async Task OnEvent(HitMoleculeUpdatedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: HitMoleculeUpdatedEvent: {Id}", @event.Id);
+
+            var hit = await _hitRepository.ReadHitById(@event.HitId) ?? throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating hit {@event.HitId} in HitMoleculeUpdatedEvent", new Exception("Hit not found"));
+            var hitId = hit.Id;
+            var hitCollectionId = hit.HitCollectionId;
+
+            _mapper.Map(@event, hit);
+
+            hit.Id = hitId;
+            hit.HitCollectionId = hitCollectionId;
+
+            hit.DateModified = DateTime.UtcNow;
+            hit.IsModified = true;
+            hit.IsModified = true;
+            
+            try
+            {
+                await _hitRepository.UpdateHit(hit);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating hit {@event.HitId} in HitMoleculeUpdatedEvent", ex);
+            }
         }
 
         public async Task OnEvent(HitDeletedEvent @event)
@@ -115,9 +152,14 @@ namespace Screen.Application.EventHandlers
                 throw new EventHandlerException(nameof(EventHandler), $"Error occurred while deleting hit {@event.HitId} in HitDeletedEvent", new Exception("Hit not found"));
             }
 
+            var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(@event.Id);
+            var screen = await _screenRepository.ReadScreenById(hitCollection.ScreenId);
+            screen.DeepLastUpdated = DateTime.UtcNow;
+
             try
             {
                 await _hitRepository.DeleteHit(@event.HitId);
+                await _screenRepository.UpdateScreen(screen);
             }
             catch (RepositoryException ex)
             {

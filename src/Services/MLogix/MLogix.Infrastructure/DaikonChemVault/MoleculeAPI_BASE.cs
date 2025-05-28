@@ -1,4 +1,5 @@
 
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -48,6 +49,11 @@ namespace MLogix.Infrastructure.DaikonChemVault
                 {
                     string result = await response.Content.ReadAsStringAsync();
                     return JsonSerializer.Deserialize<T>(result, _jsonOptions);
+                }
+                else if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    _logger.LogWarning("API request failed. URL: {ApiUrl}, Status Code: {StatusCode}", apiUrl, response.StatusCode);
+                    return default;
                 }
                 else
                 {

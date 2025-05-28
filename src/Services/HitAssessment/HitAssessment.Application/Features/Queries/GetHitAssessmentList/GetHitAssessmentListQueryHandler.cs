@@ -25,12 +25,17 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAsse
             {
                 // Get the list of HitAssessments
                 var haS = await _haRepository.GetHaList();
-                
+
                 // Map the HitAssessments to ViewModels
                 var hasVM = _mapper.Map<List<HitAssessmentListVM>>(haS);
 
                 // Get all HaIds from the list
                 var haIds = hasVM.Select(ha => ha.Id).ToList();
+
+                if (haIds == null || haIds.Count == 0)
+                {
+                    return hasVM ?? [];
+                }
 
                 // Fetch all compound evolutions for these HaIds in a single call
                 var haCompoundEvolutionsMap = await _haCompoundEvoRepository.GetHaCompoundEvolutionsOfHAs(haIds);
@@ -50,7 +55,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment.GetHitAsse
                     }
                 }
 
-                return hasVM;
+                return hasVM ?? [];
             }
             catch (RepositoryException ex)
             {

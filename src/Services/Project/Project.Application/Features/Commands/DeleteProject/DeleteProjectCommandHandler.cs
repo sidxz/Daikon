@@ -1,6 +1,6 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
@@ -26,9 +26,10 @@ namespace Project.Application.Features.Commands.DeleteProject
     public async Task<Unit> Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
     {
 
-
       try
       {
+        request.SetUpdateProperties(request.RequestorUserId);
+        
         var aggregate = await _projectEventSourcingHandler.GetByAsyncId(request.Id);
 
         var projectDeletedEvent = _mapper.Map<ProjectDeletedEvent>(request);

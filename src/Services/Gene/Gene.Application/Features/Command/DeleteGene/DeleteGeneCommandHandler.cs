@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using MediatR;
@@ -25,6 +25,7 @@ namespace Gene.Application.Features.Command.DeleteGene
     public async Task<Unit> Handle(DeleteGeneCommand request, CancellationToken cancellationToken)
     {
       _logger.LogInformation($"Handling DeleteGeneCommand: {request}");
+      request.SetUpdateProperties(request.RequestorUserId);
       try
       {
         var geneDeletedEvent = _mapper.Map<GeneDeletedEvent>(request);

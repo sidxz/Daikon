@@ -42,6 +42,11 @@ namespace Project.Application.Features.Queries.GetProjectList
                 // Get all ProjectIds from the list
                 var projectIds = projectsVM.Select(project => project.Id).ToList();
 
+                if (projectIds == null || projectIds.Count == 0)
+                {
+                    return projectsVM ?? [];
+                }
+
                 // Fetch all compound evolutions for these ProjectIds in a single call
                 var projectCompoundEvolutionsMap = await _projectCompoundEvolutionRepository.GetProjectCompoundEvolutionsOfProjects(projectIds);
 

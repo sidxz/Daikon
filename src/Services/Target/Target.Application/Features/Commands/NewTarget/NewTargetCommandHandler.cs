@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -33,8 +33,8 @@ namespace Target.Application.Features.Command.NewTarget
         public async Task<Unit> Handle(NewTargetCommand request, CancellationToken cancellationToken)
         {
 
+            request.SetCreateProperties(request.RequestorUserId);
             // check if target (targetName) already exists within same strain ; reject if it does
-
             var existingTarget = await _targetRepository.ReadTargetByName(request.Name);
             if (existingTarget!= null && (existingTarget.Name == request.Name && existingTarget.StrainId == request.StrainId))
             {

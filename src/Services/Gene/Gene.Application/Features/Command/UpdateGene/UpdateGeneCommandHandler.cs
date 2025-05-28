@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
@@ -36,8 +36,7 @@ namespace Gene.Application.Features.Command.UpdateGene
             _logger.LogInformation($"Handling UpdateGeneCommand: {request}");
 
             
-           request.DateModified = DateTime.UtcNow;
-           request.IsModified = true;
+           request.SetUpdateProperties(request.RequestorUserId);
 
            var geneUpdatedEvent = _mapper.Map<GeneUpdatedEvent>(request);
            geneUpdatedEvent.LastModifiedById = request.RequestorUserId;

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Gene.Application.Query.EventHandlers;
 using Gene.Infrastructure.Query.Converters;
@@ -108,7 +108,7 @@ namespace Gene.Infrastructure.Query.Consumers
                         }
                         catch (UnknownEventDiscriminatorException ex)
                         {
-                            _logger.LogInformation("GeneEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                            _logger.LogDebug("GeneEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
                             continue;
                         }

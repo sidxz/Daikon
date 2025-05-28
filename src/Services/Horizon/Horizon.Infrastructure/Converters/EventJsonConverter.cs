@@ -1,7 +1,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Daikon.Events.HitAssessment;
@@ -64,9 +64,11 @@ namespace Horizon.Infrastructure.Query.Converters
                 "HitAddedEvent" => JsonSerializer.Deserialize<HitAddedEvent>(json, options),
                 "HitUpdatedEvent" => JsonSerializer.Deserialize<HitUpdatedEvent>(json, options),
                 "HitDeletedEvent" => JsonSerializer.Deserialize<HitDeletedEvent>(json, options),
+                "HitMoleculeUpdatedEvent" => JsonSerializer.Deserialize<HitMoleculeUpdatedEvent>(json, options),
 
                 "MoleculeCreatedEvent" => JsonSerializer.Deserialize<MoleculeCreatedEvent>(json, options),
                 "MoleculeUpdatedEvent" => JsonSerializer.Deserialize<MoleculeUpdatedEvent>(json, options),
+                "MoleculeDisclosedEvent" => JsonSerializer.Deserialize<MoleculeDisclosedEvent>(json, options),
 
                 "HaCreatedEvent" => JsonSerializer.Deserialize<HaCreatedEvent>(json, options),
                 "HaUpdatedEvent" => JsonSerializer.Deserialize<HaUpdatedEvent>(json, options),

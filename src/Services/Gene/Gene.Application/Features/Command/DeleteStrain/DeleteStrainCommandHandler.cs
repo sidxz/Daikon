@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Strains;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
@@ -31,6 +31,7 @@ namespace Gene.Application.Features.Command.DeleteStrain
     public async Task<Unit> Handle(DeleteStrainCommand request, CancellationToken cancellationToken)
     {
       _logger.LogInformation("DeleteStrainCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
 
       /* reject if genes exists for this strain */
       var genes = await _geneRepository.GetGenesListByStrainId(request.Id);

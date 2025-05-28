@@ -1,6 +1,6 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -24,7 +24,7 @@ namespace Target.Application.Features.Command.DeleteTarget
 
     public async Task<Unit> Handle(DeleteTargetCommand request, CancellationToken cancellationToken)
     {
-
+      request.SetUpdateProperties(request.RequestorUserId);
 
       try
       {

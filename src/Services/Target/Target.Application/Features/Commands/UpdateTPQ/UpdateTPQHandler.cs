@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Target.Application.Contracts.Persistence;
@@ -30,7 +30,7 @@ namespace Target.Application.Features.Commands.UpdateTPQ
 
         public async Task<Unit> Handle(UpdateTPQCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             _logger.LogInformation($"Handling UpdateTPQCommand:");
             // fetch the existing TPQ.
             var existingTPQ = await _pqResponseRepository.ReadById(request.Id);
@@ -42,9 +42,13 @@ namespace Target.Application.Features.Commands.UpdateTPQ
             {
                 tpqUpdatedEvent = _mapper.Map<TargetPromotionQuestionnaireUpdatedEvent>(existingTPQ);
                 tpqUpdatedEvent.Response = request.Response;
+                tpqUpdatedEvent.IsModified = request.IsModified;
+                tpqUpdatedEvent.LastModifiedById = request.LastModifiedById;
+                tpqUpdatedEvent.DateModified = request.DateModified;
 
             }
-            else {
+            else
+            {
                 tpqUpdatedEvent.IsVerified = false;
             }
 

@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Strains;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
@@ -34,8 +34,7 @@ namespace Gene.Application.Features.Command.NewStrain
         {
             _logger.LogInformation("NewStrainCommandHandler {request}", request);
 
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
 
             var strainExists = await _strainRepository.ReadStrainByName(request.Name);
             if (strainExists != null)

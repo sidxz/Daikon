@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -31,8 +31,7 @@ namespace Screen.Application.Features.Commands.UpdateScreenRun
 
         public async Task<Unit> Handle(UpdateScreenRunCommand request, CancellationToken cancellationToken)
         {
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var screenRunUpdatedEvent = _mapper.Map<ScreenRunUpdatedEvent>(request);
             screenRunUpdatedEvent.LastModifiedById = request.RequestorUserId;

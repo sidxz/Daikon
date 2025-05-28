@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using MediatR;
@@ -28,6 +28,7 @@ namespace Gene.Application.Features.Command.DeleteHypomorph
     {
 
       _logger.LogInformation("DeleteHypomorphCommandHandler {request}", request);
+      request.SetUpdateProperties(request.RequestorUserId);
       var geneHypomorphDeletedEvent = _mapper.Map<GeneHypomorphDeletedEvent>(request);
       try
       {

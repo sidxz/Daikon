@@ -1,39 +1,41 @@
-
 using System.Text.Json;
 using Confluent.Kafka;
-using CQRS.Core.Event;
-using CQRS.Core.Producers;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Settings;
 using Microsoft.Extensions.Logging;
 
-/*
-== Overview ==
-The EventProducer class, part of the Daikon.EventStore.Producers namespace, implements the IEventProducer interface and is responsible 
-for producing events to a Kafka topic. 
-It is designed to work within systems using the CQRS (Command Query Responsibility Segregation) and Event Sourcing patterns, 
-specifically for event production in a Kafka-based messaging environment.
-
-*/
 namespace Daikon.EventStore.Producers
 {
-    public class EventProducer : IEventProducer
+    /*
+     EventProducer is responsible for serializing and publishing domain events to a Kafka topic.
+     Includes retry logic with exponential backoff for recoverable errors.
+    */
+    public class EventProducer : IEventProducer, IDisposable
     {
         private readonly ProducerConfig _config;
         private readonly IKafkaProducerSettings _kafkaProducerSettings;
         private readonly ILogger<EventProducer> _logger;
+        private readonly IProducer<string, string> _producer;
 
-        private readonly int maxRetries = 5;
+        private readonly int _maxRetries = 5;
+        private readonly TimeSpan _initialDelay = TimeSpan.FromSeconds(1); // Initial delay between retries
 
+        /*
+         Constructor initializes Kafka producer with configuration from settings.
+        */
         public EventProducer(IKafkaProducerSettings kafkaProducerSettings, ILogger<EventProducer> logger)
         {
-            _kafkaProducerSettings = kafkaProducerSettings;
+            _kafkaProducerSettings = kafkaProducerSettings ?? throw new ArgumentNullException(nameof(kafkaProducerSettings));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
             _config = new ProducerConfig
             {
                 BootstrapServers = _kafkaProducerSettings.BootstrapServers,
                 SecurityProtocol = _kafkaProducerSettings.SecurityProtocol,
+                //Debug = "all",
             };
 
-            // Check if SASL settings are provided and apply them
+            /* Optionally configure SASL credentials */
             if (!string.IsNullOrEmpty(_kafkaProducerSettings.SaslUsername) &&
                 !string.IsNullOrEmpty(_kafkaProducerSettings.SaslPassword))
             {
@@ -42,63 +44,87 @@ namespace Daikon.EventStore.Producers
                 _config.SaslPassword = _kafkaProducerSettings.SaslPassword;
             }
 
-            _logger = logger;
+            _producer = new ProducerBuilder<string, string>(_config)
+                .SetKeySerializer(Serializers.Utf8)
+                .SetValueSerializer(Serializers.Utf8)
+                .Build();
         }
 
         /*
-         ProduceAsync<TEvent>(string topic, TEvent @event):
-            Asynchronously produces an event of type TEvent (where TEvent is a subclass of BaseEvent) to the specified Kafka topic.
-            Utilizes System.Text.Json.JsonSerializer for serializing the event object into a JSON string.
-            Generates a unique key for each message using Guid.NewGuid().
-            Throws an exception if the message is not persisted successfully in Kafka.
+         Produces an event to the specified Kafka topic with retry and exponential backoff.
         */
         public async Task ProduceAsync<TEvent>(string topic, TEvent @event) where TEvent : BaseEvent
         {
-            int retryCount = 0;
-            TimeSpan delay = TimeSpan.FromSeconds(1); // Initial delay, will increase exponentially
+            if (string.IsNullOrWhiteSpace(topic))
+                throw new ArgumentException("Kafka topic must be specified.", nameof(topic));
+            
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event), "Event cannot be null.");
 
-            while (true)
+            int retryCount = 0;
+            TimeSpan delay = _initialDelay;
+
+            while (retryCount <= _maxRetries)
             {
                 try
                 {
-                    using var producer = new ProducerBuilder<string, string>(_config)
-                                 .SetKeySerializer(Serializers.Utf8)
-                                 .SetValueSerializer(Serializers.Utf8)
-                                 .Build();
+                    /* Prepare Kafka message */
                     var eventMessage = new Message<string, string>
                     {
                         Key = Guid.NewGuid().ToString(),
                         Value = JsonSerializer.Serialize(@event, @event.GetType())
                     };
 
-                    var deliveryResult = await producer.ProduceAsync(topic, eventMessage);
-                    _logger.LogInformation($"Produced {@event.GetType().Name} message to topic {topic} - {deliveryResult.Message}");
-                    _logger.LogDebug($"DEBUG: {@event.GetType().Name} eventMessage.Value" + eventMessage.Value);
+                    /* Send message to Kafka */
+                    var deliveryResult = await _producer.ProduceAsync(topic, eventMessage);
+
+                    _logger.LogInformation("✅ Successfully produced {EventType} to topic '{Topic}'.", @event.GetType().Name, topic);
 
                     if (deliveryResult.Status == PersistenceStatus.NotPersisted)
                     {
-                        _logger.LogWarning($"[Retry {retryCount} of {maxRetries}] Failed to produce {@event.GetType().Name} message to topic {topic} - {deliveryResult.Message}");
+                        _logger.LogWarning("⚠️ Kafka message not persisted: {EventType} -> '{Topic}'.", @event.GetType().Name, topic);
                     }
 
-                    break;
+                    break; // Exit loop on success
                 }
-                catch (ProduceException<string, string> ex) when (ex.Error.IsFatal == false)
+                catch (ProduceException<string, string> ex) when (!ex.Error.IsFatal)
                 {
-                    if (retryCount++ == maxRetries)
+                    retryCount++;
+
+                    if (retryCount > _maxRetries)
                     {
-                        _logger.LogError($"Failed to produce {@event.GetType().Name} message to topic {topic} - {ex.Error.Reason}");
-                        throw new Exception($"Failed to produce {@event.GetType().Name} message to topic {topic} - {ex.Error.Reason}");
+                        _logger.LogError(ex, "❌ Max retries reached. Failed to produce {EventType} to topic '{Topic}'.", @event.GetType().Name, topic);
+                        throw new Exception($"Failed to produce {@event.GetType().Name} to topic '{topic}' after {_maxRetries} retries.", ex);
                     }
-                    else
-                    {
-                        await Task.Delay(delay);
-                        // Increase the delay for the next retry (exponential backoff)
-                        delay = TimeSpan.FromSeconds(delay.TotalSeconds * 2);
-                    }
+
+                    _logger.LogWarning(
+                        ex,
+                        "🔁 Retry {RetryCount} of {_maxRetries} - Kafka error producing {EventType} to '{Topic}': {Reason}. Retrying in {DelaySeconds}s...",
+                        retryCount,
+                        _maxRetries,
+                        @event.GetType().Name,
+                        topic,
+                        ex.Error.Reason,
+                        delay.TotalSeconds);
+
+                    await Task.Delay(delay);
+                    delay = TimeSpan.FromSeconds(delay.TotalSeconds * 2); // Exponential backoff
                 }
-
+                catch (ProduceException<string, string> ex) when (ex.Error.IsFatal)
+                {
+                    _logger.LogCritical(ex, "💥 Fatal Kafka error producing {EventType} to topic '{Topic}': {Reason}", @event.GetType().Name, topic, ex.Error.Reason);
+                    throw;
+                }
             }
+        }
 
+        /*
+         Flushes and disposes the Kafka producer.
+        */
+        public void Dispose()
+        {
+            _producer.Flush(TimeSpan.FromSeconds(5));
+            _producer.Dispose();
         }
     }
 }

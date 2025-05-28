@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Targets;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -35,6 +35,7 @@ namespace Target.Application.Features.Commands.AddOrUpdateToxicology
                 if (existingToxicology != null)
                 {
                     _logger.LogInformation("Toxicology already exists. Updating toxicology");
+
                     // check if toxicology has changed
                     // convert to json and pretty print existing and request to debug, use system.text.json
                     // var existingToxicologyJson = JsonSerializer.Serialize(existingToxicology, new JsonSerializerOptions { WriteIndented = true });
@@ -53,8 +54,7 @@ namespace Target.Application.Features.Commands.AddOrUpdateToxicology
                         return Unit.Value;
                     }
                     // update the existing toxicology
-                    request.DateModified = DateTime.UtcNow;
-                    request.IsModified = true;
+                    request.SetUpdateProperties(request.RequestorUserId);
                     var toxicologyUpdatedCommand = _mapper.Map<UpdateToxicologyCommand>(request);
                     toxicologyUpdatedCommand.Id = request.Id;
                     toxicologyUpdatedCommand.TargetId = request.Id;
@@ -66,8 +66,7 @@ namespace Target.Application.Features.Commands.AddOrUpdateToxicology
                 else
                 {
                     _logger.LogInformation("Toxicology does not exist. Adding toxicology");
-                    request.DateCreated = DateTime.UtcNow;
-                    request.IsModified = false;
+                    request.SetCreateProperties(request.RequestorUserId);
                     var toxicologyAddCommand = _mapper.Map<AddToxicologyCommand>(request);
                     var toxicologyId = Guid.NewGuid();
                     toxicologyAddCommand.Id = request.Id;

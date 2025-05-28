@@ -1,70 +1,155 @@
-
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
+using Daikon.EventStore.Models;
 using Daikon.EventStore.Settings;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
-/* 
-== Overview ==
-The EventStoreRepository class, part of the Daikon.EventStore.Repositories namespace, is responsible for 
-interacting with a MongoDB database to store and retrieve event data. 
-It implements the IEventStoreRepository interface, providing asynchronous methods for saving and querying EventModel objects.
-
-== Key Components ==
-IMongoCollection<EventModel> _eventStoreCollection: A MongoDB collection that holds EventModel objects.
-*/
 namespace Daikon.EventStore.Repositories
 {
+    /*
+     EventStoreRepository is responsible for interacting with the MongoDB event store.
+     It supports storing and retrieving event streams for a given aggregate.
+    */
     public class EventStoreRepository : IEventStoreRepository
     {
         private readonly IMongoCollection<EventModel> _eventStoreCollection;
+        private readonly ILogger<EventStoreRepository> _logger;
 
-        public EventStoreRepository(IEventDatabaseSettings settings)
+        /*
+         Constructor sets up the MongoDB collection and indexes.
+        */
+        public EventStoreRepository(IEventDatabaseSettings settings, ILogger<EventStoreRepository> logger)
         {
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            /* Initialize MongoDB client and select database and collection */
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
-            _eventStoreCollection = database.GetCollection<EventModel>(settings.CollectionName);
+            _eventStoreCollection = database.GetCollection<EventModel>(RepositoryConstants.EventStoreCollectionName);
+
+            /* Define and create necessary indexes for performance */
+            var indexModels = new List<CreateIndexModel<EventModel>>
+            {
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Descending(e => e.TimeStamp),
+                    new CreateIndexOptions { Unique = false }
+                ),
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateIdentifier),
+                    new CreateIndexOptions { Unique = false }
+                ),
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateType),
+                    new CreateIndexOptions { Unique = false }
+                ),
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Ascending(e => e.EventType),
+                    new CreateIndexOptions { Unique = false }
+                ),
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys
+                        .Ascending(e => e.AggregateIdentifier)
+                        .Ascending(e => e.AggregateType)
+                        .Ascending(e => e.EventType)
+                        .Descending(e => e.TimeStamp),
+                    new CreateIndexOptions { Unique = false }
+                )
+            };
+
+            _eventStoreCollection.Indexes.CreateMany(indexModels);
         }
 
         /*
-         FindByAggregateId(Guid aggregateId):
-
-            Asynchronously retrieves a list of EventModel objects from the MongoDB collection based on the specified aggregate identifier.
-            Returns a Task<List<EventModel>> representing the asynchronous operation.
+         Finds all events for a given aggregate ID and returns them ordered by version.
         */
         public async Task<List<EventModel>> FindByAggregateId(Guid aggregateId)
         {
-            return await _eventStoreCollection.Find(x => x.AggregateIdentifier == aggregateId)
-                            .ToListAsync().ConfigureAwait(false);
+            try
+            {
+                return await _eventStoreCollection
+                    .Find(x => x.AggregateIdentifier == aggregateId)
+                    .SortBy(x => x.Version)
+                    .ToListAsync()
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching events by aggregate ID: {AggregateId}", aggregateId);
+                throw new ApplicationException("An error occurred while fetching events by aggregate ID.", ex);
+            }
         }
 
         /*
-         InsertOneAsync(EventModel @event):
-
-            Asynchronously inserts a single EventModel object into the MongoDB collection.
-            Returns a Task representing the asynchronous operation.
+         Saves a single event to the event store asynchronously.
         */
         public async Task SaveAsync(EventModel @event)
         {
-            await _eventStoreCollection.InsertOneAsync(@event).ConfigureAwait(false);
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
+
+            try
+            {
+                await _eventStoreCollection
+                    .InsertOneAsync(@event)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving event: {EventId}", @event.Id);
+                throw new ApplicationException("An error occurred while saving the event.", ex);
+            }
         }
 
         /*
-         InsertManyAsync(IEnumerable<EventModel> events):
-
-            Asynchronously inserts a batch of EventModel objects into the MongoDB collection.
-            Returns a Task representing the asynchronous operation.
+         Saves a batch of events to the event store asynchronously.
+         Skips operation if the list is empty.
         */
         public async Task SaveBatchAsync(IEnumerable<EventModel> events)
         {
-            if (events == null || !events.Any())
-            {
-                return; // No events to save
-            }
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
 
-            await _eventStoreCollection
-                .InsertManyAsync(events)
-                .ConfigureAwait(false);
+            var eventList = events.ToList();
+            if (!eventList.Any())
+                return;
+
+            try
+            {
+                await _eventStoreCollection
+                    .InsertManyAsync(eventList)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving batch of events.");
+                throw new ApplicationException("An error occurred while saving events.", ex);
+            }
+        }
+
+        /*
+         Retrieves all unique aggregate IDs from the event store.
+        */
+
+        public async Task<IEnumerable<Guid>> GetAllAggregateIds()
+        {
+            // Aggregate by "AggregateIdentifier" and sort by TimeStamp to get the events in chronological order
+            var pipeline = new BsonDocument[]
+            {
+        new BsonDocument("$sort", new BsonDocument("TimeStamp", 1)), // Ascending TimeStamp order
+        new BsonDocument("$group", new BsonDocument
+        {
+            { "_id", "$AggregateIdentifier" }
+        }),
+        new BsonDocument("$sort", new BsonDocument("_id", 1)) // Sort by Aggregate ID if needed
+            };
+
+            var result = await _eventStoreCollection
+                .Aggregate<BsonDocument>(pipeline)
+                .ToListAsync();
+
+            // Return sorted aggregate IDs
+            return result.Select(doc => doc["_id"].AsGuid);
         }
 
     }

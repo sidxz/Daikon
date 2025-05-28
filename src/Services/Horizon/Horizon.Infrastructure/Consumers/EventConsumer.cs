@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Horizon.Application.Handlers;
 using Horizon.Application.Query.Handlers;
@@ -142,7 +142,7 @@ namespace Horizon.Infrastructure.Query.Consumers
                         }
                         catch (UnknownEventDiscriminatorException ex)
                         {
-                            _logger.LogInformation("Horizon: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                            _logger.LogDebug("Horizon: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
                             continue;
                         }

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Confluent.Kafka;
 using CQRS.Core.Consumers;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -111,7 +111,7 @@ namespace Screen.Infrastructure.Query.Consumers
                         }
                         catch (UnknownEventDiscriminatorException ex)
                         {
-                            _logger.LogInformation("ScreenEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                            _logger.LogDebug("ScreenEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
                             continue;
                         }

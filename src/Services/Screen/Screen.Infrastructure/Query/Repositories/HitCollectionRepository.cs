@@ -1,12 +1,10 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Entities;
-using Screen.Domain.EntityRevisions;
 
 namespace Screen.Infrastructure.Query.Repositories
 {
@@ -14,18 +12,14 @@ namespace Screen.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<HitCollection> _hitCollectionCollection;
         private readonly ILogger<HitCollectionRepository> _logger;
-        private readonly IVersionHub<HitCollectionRevision> _versionHub;
 
-        public HitCollectionRepository(IConfiguration configuration, ILogger<HitCollectionRepository> logger, IVersionHub<HitCollectionRevision> versionMaintainer)
+        public HitCollectionRepository(IConfiguration configuration, ILogger<HitCollectionRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName"));
             _hitCollectionCollection = database.GetCollection<HitCollection>(configuration.GetValue<string>("ScreenMongoDbSettings:HitCollectionCollectionName"));
             _hitCollectionCollection.Indexes.CreateOne(new CreateIndexModel<HitCollection>(Builders<HitCollection>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
             _hitCollectionCollection.Indexes.CreateOne(new CreateIndexModel<HitCollection>(Builders<HitCollection>.IndexKeys.Ascending(t => t.ScreenId), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -40,7 +34,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateHitCollection: Creating hitCollection {HitCollectionId}, {HitCollection}", hitCollection.Id, hitCollection.ToJson());
                 await _hitCollectionCollection.InsertOneAsync(hitCollection);
-                await _versionHub.CommitVersion(hitCollection);
             }
             catch (MongoException ex)
             {
@@ -99,7 +92,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateHitCollection: Updating hitCollection {HitCollectionId}, {HitCollection}", hitCollection.Id, hitCollection.ToJson());
                 await _hitCollectionCollection.ReplaceOneAsync(t => t.Id == hitCollection.Id, hitCollection);
-                await _versionHub.CommitVersion(hitCollection);
             }
             catch (MongoException ex)
             {
@@ -116,7 +108,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteHitCollection: Deleting hitCollection {HitCollectionId}", id);
                 await _hitCollectionCollection.DeleteOneAsync(t => t.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -125,11 +116,5 @@ namespace Screen.Infrastructure.Query.Repositories
             }
         }
 
-
-        public async Task<HitCollectionRevision> GetHitCollectionRevisions(Guid Id)
-        {
-            var hitCollectionRevision = await _versionHub.GetVersions(Id);
-            return hitCollectionRevision;
-        }
     }
 }

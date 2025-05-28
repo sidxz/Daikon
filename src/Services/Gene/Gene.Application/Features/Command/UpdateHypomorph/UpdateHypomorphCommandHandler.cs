@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Gene.Domain.Aggregates;
 using Gene.Domain.Entities;
@@ -29,8 +29,7 @@ namespace Gene.Application.Features.Command.UpdateHypomorph
         {
             _logger.LogInformation("UpdateHypomorphCommandHandler {request}", request);
 
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var geneHypomorphUpdatedEvent = _mapper.Map<GeneHypomorphUpdatedEvent>(request);
             geneHypomorphUpdatedEvent.LastModifiedById = request.RequestorUserId;

@@ -1,6 +1,6 @@
 
 using CQRS.Core.Domain;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 
 namespace Daikon.Events.Targets
 {
@@ -53,6 +53,7 @@ namespace Daikon.Events.Targets
         public DVariable<string> Strategy { get; set; }
 
         public DVariable<string> Challenges { get; set; }
+        public int Priority { get; set; } = default!;
         
     }
 }

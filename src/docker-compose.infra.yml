@@ -88,7 +88,7 @@ services:
   #     - "5432:5432"
 
   Neo4j:
-    image: neo4j:5.21-community
+    image: neo4j:5.25-community
     container_name: dk_neo4j
     ports:
       - "7474:7474" # HTTP
@@ -96,10 +96,11 @@ services:
     volumes:
       - neo4j_data:/data
       - neo4j_import:/var/lib/neo4j/import
-      - neo4j_logs:/logs
-      - neo4j_plugins:/plugins
+      # - neo4j_logs:/logs
+      # - neo4j_plugins:/plugins
     environment:
       - NEO4J_AUTH=${NEO4J_AUTH}
+
     networks:
       - daikon-be-net
 

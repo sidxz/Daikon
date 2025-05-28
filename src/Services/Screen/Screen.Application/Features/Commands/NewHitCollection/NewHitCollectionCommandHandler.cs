@@ -1,5 +1,5 @@
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -32,6 +32,7 @@ namespace Screen.Application.Features.Commands.NewHitCollection
         {
             try
             {
+                request.SetCreateProperties(request.RequestorUserId);
                 // Check if the name already exists in the hit collection repository
                 var existingHitCollection = await _hitCollectionRepository.ReadHitCollectionByName(request.Name);
                 if (existingHitCollection != null)

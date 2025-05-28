@@ -1,6 +1,8 @@
 
 using AutoMapper;
+using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -42,6 +44,10 @@ namespace MLogix.Application.Features.Queries.FindSimilarMolecules
                         // Fix Ids
                         similarMoleculeVM.RegistrationId = vaultMolecule.Id;
                         similarMoleculeVM.Id = molecule.Id;
+
+                        var trackableEntities = new List<VMMeta> { similarMoleculeVM };
+                        (similarMoleculeVM.PageLastUpdatedDate, similarMoleculeVM.PageLastUpdatedUser)
+                                    = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
 
                         res.Add(similarMoleculeVM);
                     }

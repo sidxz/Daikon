@@ -11,7 +11,6 @@ namespace Screen.Application.Contracts.Persistence
         Task UpdateScreenRun(Domain.Entities.ScreenRun screenRun);
         Task DeleteScreenRun(Guid id);
         Task DeleteScreenRunsByScreenId(Guid screenId);
-        Task<Domain.EntityRevisions.ScreenRunRevision> GetScreenRunRevisions(Guid Id);
        
     }
 }

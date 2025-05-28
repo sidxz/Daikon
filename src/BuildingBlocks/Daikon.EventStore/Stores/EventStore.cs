@@ -1,113 +1,147 @@
-
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using CQRS.Core.Exceptions;
-using CQRS.Core.Infrastructure;
-using CQRS.Core.Producers;
+using Daikon.EventStore.Event;
 using Daikon.EventStore.Settings;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
-
-/* 
-== Overview ==
-The EventStore<TAggregate> class, part of the Daikon.EventStore.Stores namespace, is a generic implementation of the IEventStore<TAggregate> interface. 
-It is designed to manage event sourcing operations for aggregates of type TAggregate, where TAggregate is a subclass of AggregateRoot.
-
-== Developer Notes ==
-_kafkaProducerSettings.Topic must be set in the application's configuration file.
-*/
+using Daikon.EventStore.Aggregate;
+using Daikon.EventStore.Repositories;
+using Daikon.EventStore.Producers;
+using CQRS.Core.Exceptions;
+using Daikon.EventStore.Models;
 
 namespace Daikon.EventStore.Stores
 {
+    /*
+     Generic EventStore implementation that supports saving and retrieving events for a given aggregate type.
+     Includes support for optimistic concurrency control and event publication to Kafka.
+    */
     public class EventStore<TAggregate> : IEventStore<TAggregate> where TAggregate : AggregateRoot
     {
         private readonly IEventStoreRepository _eventStoreRepository;
-
         private readonly IEventProducer _eventProducer;
-
         private readonly IKafkaProducerSettings _kafkaProducerSettings;
 
         private const string DefaultKafkaTopic = "default_topic";
 
-
-        public EventStore(IEventStoreRepository eventStoreRepository, IEventProducer eventProducer, IKafkaProducerSettings kafkaProducerSettings)
+        /*
+         Constructor to initialize dependencies.
+        */
+        public EventStore(
+            IEventStoreRepository eventStoreRepository,
+            IEventProducer eventProducer,
+            IKafkaProducerSettings kafkaProducerSettings)
         {
-            _eventStoreRepository = eventStoreRepository;
-            _eventProducer = eventProducer;
-            _kafkaProducerSettings = kafkaProducerSettings;
+            _eventStoreRepository = eventStoreRepository ?? throw new ArgumentNullException(nameof(eventStoreRepository));
+            _eventProducer = eventProducer ?? throw new ArgumentNullException(nameof(eventProducer));
+            _kafkaProducerSettings = kafkaProducerSettings ?? throw new ArgumentNullException(nameof(kafkaProducerSettings));
         }
 
         /*
-            GetEventsAsync(Guid aggregateId):
-
-            Asynchronously retrieves a list of events (List<BaseEvent>) for a specified aggregate ID.
-            Throws AggregateNotFoundException if no events are found for the given aggregate ID.
-            The events are ordered by their version number.
+         Retrieves all events for a given aggregate ID.
+         Throws AggregateNotFoundException if no events exist.
         */
         public async Task<List<BaseEvent>> GetEventsAsync(Guid aggregateId)
         {
             var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
+
             if (!eventStream.Any())
             {
-                throw new AggregateNotFoundException($"Aggregate with id {aggregateId} not found");
+                throw new AggregateNotFoundException($"Aggregate with ID {aggregateId} not found");
             }
 
-            return eventStream.OrderBy(x => x.Version).Select(x => x.EventData).ToList();
-
+            return eventStream
+                .OrderBy(x => x.Version)
+                .Select(x => x.EventData)
+                .ToList();
         }
 
         /*
-            SaveEventAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion):
-
-            Asynchronously saves a batch of events for a specified aggregate ID.
-            Ensures concurrency control by checking the expected version against the latest version in the event stream.
-            Throws ConcurrencyException if there is a version mismatch, indicating a concurrent modification.
-            Converts each BaseEvent to an EventModel and saves it to the repository. Then, it produces each event to the configured Kafka topic.
+         Saves a batch of events to the store and publishes them to Kafka.
+         Validates expected version to ensure concurrency safety.
+         Throws ConcurrencyException if there is a version conflict.
         */
         public async Task SaveEventAsync(Guid aggregateId, IEnumerable<BaseEvent> events, int expectedVersion)
         {
-            var eventStream = await _eventStoreRepository.FindByAggregateId(aggregateId);
+            var existingEvents = await _eventStoreRepository.FindByAggregateId(aggregateId);
+            var lastVersion = existingEvents.LastOrDefault()?.Version ?? -1;
 
-            //Console.WriteLine($"EventStream count: {eventStream.Count}");
-            // print event stream in json format using dotnet json serializer
-            var jsonWriterSettings = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            //Console.WriteLine($"EventStream: {eventStream.ToJson(jsonWriterSettings)}");
+
+
+            /* Check if the expected version matches the last version in the store
+            This is a safety mechanism to prevent conflicting writes.
+
+                Example:
+
+                Client A loads version 3 of the aggregate.
+
+                Client B loads version 3 too.
+
+                Client A saves an event (now version 4).
+
+                Client B tries to save an event based on version 3 — this check fails and throws.
+
+                ✅ This ensures only one client can modify the aggregate at a time.
             
-            
+             */
 
-
-            if (expectedVersion != -1 && eventStream[^1].Version != expectedVersion)
+             
+            if (expectedVersion != -1 && lastVersion != expectedVersion)
             {
-                throw new ConcurrencyException($"Aggregate {aggregateId} has been modified since last read");
+                throw new ConcurrencyException(
+                    $"Aggregate {aggregateId} has been modified. Expected version {expectedVersion}, but found {lastVersion}.");
             }
 
             var version = expectedVersion;
+            var orderedEvents = events.ToList();
 
-            var eventModels = new List<EventModel>();
-
-            foreach (var @event in events)
+            /* Assign version numbers to new events */
+            foreach (var @event in orderedEvents)
             {
                 version++;
                 @event.Version = version;
-
-                var eventModel = ConvertToEventModel(@event, aggregateId, version);
-                eventModels.Add(eventModel);
             }
+
+            /* Persist events to the database */
+            var eventModels = orderedEvents.Select(e =>
+                ConvertToEventModel(e, aggregateId, e.Version)).ToList();
 
             await _eventStoreRepository.SaveBatchAsync(eventModels);
-            foreach (var eventModel in eventModels)
-            {
-                await ProduceEvent(eventModel.EventData);
-            }
 
+            /* Publish each event to the Kafka topic */
+            foreach (var @event in orderedEvents)
+            {
+                await ProduceEvent(@event);
+            }
         }
 
+        /*
+         Retrieves all events after a specific version for a given aggregate.
+         Typically used when applying events after a snapshot.
+        */
+        public async Task<List<BaseEvent>> GetEventsAfterVersionAsync(Guid aggregateId, int version)
+        {
+            var allEvents = await _eventStoreRepository.FindByAggregateId(aggregateId);
+
+            return allEvents
+                .Where(x => x.Version > version)
+                .OrderBy(x => x.Version)
+                .Select(x => x.EventData)
+                .ToList();
+        }
+
+        /*
+         Converts a domain event into an EventModel suitable for persistence.
+         Optionally accepts metadata such as user/session context, correlation IDs, etc.
+        */
         private EventModel ConvertToEventModel(
-            BaseEvent @event, Guid aggregateId, int version,
-            string? userId = null, string? sessionId = null, string? source = null,
-            Guid correlationId = default, Guid causationId = default, string? metadata = null,
-            string? tenantId = null, string? eventState = null
-            )
+            BaseEvent @event,
+            Guid aggregateId,
+            int version,
+            string? userId = null,
+            string? sessionId = null,
+            string? source = null,
+            Guid correlationId = default,
+            Guid causationId = default,
+            string? metadata = null,
+            string? tenantId = null,
+            string? eventState = null)
         {
             return new EventModel
             {
@@ -124,22 +158,24 @@ namespace Daikon.EventStore.Stores
                 CausationId = causationId,
                 Metadata = metadata,
                 TenantId = tenantId,
-                EventState = eventState,
+                EventState = eventState
             };
         }
 
+        /*
+         Publishes the event to the configured Kafka topic.
+         Throws InvalidOperationException if the topic is missing.
+        */
         private async Task ProduceEvent(BaseEvent @event)
         {
             var topic = _kafkaProducerSettings.Topic ?? DefaultKafkaTopic;
+
             if (string.IsNullOrEmpty(topic))
             {
-                // Log a warning or notify administrators
-                // Continue to produce event with default topic or handle as per application logic
-                throw new Exception("KAFKA_TOPIC environment variable not set");
+                throw new InvalidOperationException("Kafka topic is not configured.");
             }
-            await _eventProducer.ProduceAsync<BaseEvent>(topic, @event);
+
+            await _eventProducer.ProduceAsync(topic, @event);
         }
-
-
     }
 }

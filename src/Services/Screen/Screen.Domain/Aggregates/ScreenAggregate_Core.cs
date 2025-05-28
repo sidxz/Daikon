@@ -1,8 +1,8 @@
 
 
-using CQRS.Core.Domain;
 using CQRS.Core.Comparators;
 using Daikon.Events.Screens;
+using Daikon.EventStore.Aggregate;
 
 namespace Screen.Domain.Aggregates
 {

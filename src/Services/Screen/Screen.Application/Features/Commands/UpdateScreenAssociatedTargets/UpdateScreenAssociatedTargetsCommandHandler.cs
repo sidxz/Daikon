@@ -1,6 +1,6 @@
 
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
@@ -30,7 +30,8 @@ namespace Screen.Application.Features.Commands.UpdateScreenAssociatedTargets
         }
         public async Task<Unit> Handle(UpdateScreenAssociatedTargetsCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
+            
             var screenAssociatedTargetsUpdatedEvent = _mapper.Map<ScreenAssociatedTargetsUpdatedEvent>(request);
             
             try

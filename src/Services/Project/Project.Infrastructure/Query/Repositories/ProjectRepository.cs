@@ -1,11 +1,9 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Project.Application.Contracts.Persistence;
-using Project.Domain.EntityRevisions;
 
 namespace Project.Infrastructure.Query.Repositories
 {
@@ -13,9 +11,8 @@ namespace Project.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Domain.Entities.Project> _projectCollection;
         private readonly ILogger<ProjectRepository> _logger;
-        private readonly IVersionHub<ProjectRevision> _versionHub;
 
-        public ProjectRepository(IConfiguration configuration, ILogger<ProjectRepository> logger, IVersionHub<ProjectRevision> versionMaintainer)
+        public ProjectRepository(IConfiguration configuration, ILogger<ProjectRepository> logger )
         {
             var client = new MongoClient(configuration.GetValue<string>("ProjectMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("ProjectMongoDbSettings:DatabaseName"));
@@ -23,9 +20,6 @@ namespace Project.Infrastructure.Query.Repositories
             _projectCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Project>(Builders<Domain.Entities.Project>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
             _projectCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Project>(Builders<Domain.Entities.Project>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
             _projectCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Project>(Builders<Domain.Entities.Project>.IndexKeys.Descending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-            
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -40,7 +34,6 @@ namespace Project.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateProject: Creating project {ProjectId}, {Project}", project.Id, project.ToJson());
                 await _projectCollection.InsertOneAsync(project);
-                await _versionHub.CommitVersion(project);
             }
             catch (MongoException ex)
             {
@@ -103,7 +96,6 @@ namespace Project.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateProject: Updating project {ProjectId}, {Project}", project.Id, project.ToJson());
                 await _projectCollection.ReplaceOneAsync(t => t.Id == project.Id, project);
-                await _versionHub.CommitVersion(project);
             }
             catch (MongoException ex)
             {
@@ -120,20 +112,12 @@ namespace Project.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteProject: Deleting project {ProjectId}", id);
                 await _projectCollection.DeleteOneAsync(t => t.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
                 _logger.LogError(ex, "An error occurred while deleting the project with ID {ProjectId}", id);
                 throw new RepositoryException(nameof(ProjectRepository), "Error deleting project", ex);
             }
-        }
-
-
-        public async Task<ProjectRevision> GetProjectRevisions(Guid Id)
-        {
-            var projectRevision = await _versionHub.GetVersions(Id);
-            return projectRevision;
         }
     }
 }

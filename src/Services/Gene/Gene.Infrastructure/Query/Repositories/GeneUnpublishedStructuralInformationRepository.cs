@@ -1,9 +1,8 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -14,10 +13,9 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<UnpublishedStructuralInformation> _unpublishedStructuralInformationCollection;
-        private readonly IVersionHub<UnpublishedStructuralInformationRevision> _versionHub;
         private readonly ILogger<GeneUnpublishedStructuralInformationRepository> _logger;
 
-        public GeneUnpublishedStructuralInformationRepository(IConfiguration configuration, IVersionHub<UnpublishedStructuralInformationRevision> versionMaintainer, ILogger<GeneUnpublishedStructuralInformationRepository> logger)
+        public GeneUnpublishedStructuralInformationRepository(IConfiguration configuration, ILogger<GeneUnpublishedStructuralInformationRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -26,8 +24,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 configuration.GetValue<string>("GeneMongoDbSettings:GeneCollectionName") + "UnpublishedStructuralInformation");
             _unpublishedStructuralInformationCollection.Indexes.CreateOne
                 (new CreateIndexModel<UnpublishedStructuralInformation>(Builders<UnpublishedStructuralInformation>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -62,7 +58,6 @@ namespace Gene.Infrastructure.Query.Repositories
             }
 
         }
-
         public async Task<List<UnpublishedStructuralInformation>> GetUnpublishedStructuralInformationOfGene(Guid geneId)
         {
             try
@@ -88,7 +83,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("AddUnpublishedStructuralInformation: Creating UnpublishedStructuralInformation {UnpublishedStructuralInformationId}, {unpublishedStructuralInformation}", unpublishedStructuralInformation.Id, unpublishedStructuralInformation.ToJson());
                 await _unpublishedStructuralInformationCollection.InsertOneAsync(unpublishedStructuralInformation);
-                await _versionHub.CommitVersion(unpublishedStructuralInformation);
             }
             catch (MongoException ex)
             {
@@ -105,7 +99,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateUnpublishedStructuralInformation: Updating UnpublishedStructuralInformation {UnpublishedStructuralInformationId}, {unpublishedStructuralInformation}", unpublishedStructuralInformation.Id, unpublishedStructuralInformation.ToJson());
                 await _unpublishedStructuralInformationCollection.ReplaceOneAsync(u => u.Id == unpublishedStructuralInformation.Id, unpublishedStructuralInformation);
-                await _versionHub.CommitVersion(unpublishedStructuralInformation);
             }
             catch (MongoException ex)
             {
@@ -124,7 +117,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteUnpublishedStructuralInformation: Deleting UnpublishedStructuralInformation {UnpublishedStructuralInformation}", id);
                 await _unpublishedStructuralInformationCollection.DeleteOneAsync(gene => gene.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -143,7 +135,6 @@ namespace Gene.Infrastructure.Query.Repositories
             foreach (var unpublishedStructuralInformation in unpublishedStructuralInformations)
             {
                 _logger.LogInformation("DeleteUnpublishedStructuralInformationsOfGene: Archiving UnpublishedStructuralInformation {UnpublishedStructuralInformationId}", unpublishedStructuralInformation.Id);
-                await _versionHub.ArchiveEntity(unpublishedStructuralInformation.Id);
             }
             // delete all unpublishedStructuralInformations of gene
             try
@@ -160,12 +151,5 @@ namespace Gene.Infrastructure.Query.Repositories
 
         }
 
-
-
-        public async Task<UnpublishedStructuralInformationRevision> GetUnpublishedStructuralInformationRevisions(Guid Id)
-        {
-            var unpublishedStructuralInformationRevision = await _versionHub.GetVersions(Id);
-            return unpublishedStructuralInformationRevision;
-        }
     }
 }

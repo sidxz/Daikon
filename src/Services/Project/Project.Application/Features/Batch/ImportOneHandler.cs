@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Domain;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Project;
 using Daikon.Shared.Constants.AppProject;
 using MediatR;

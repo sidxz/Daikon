@@ -1,7 +1,7 @@
 using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.HitAssessment;
 using Daikon.Shared.Constants.AppHitAssessment;
 using HitAssessment.Application.Contracts.Persistence;
@@ -44,8 +44,7 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
             }
 
             var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             // check if status has changed
             if (existingHitAssessment.Status != request.Status)
@@ -65,6 +64,12 @@ namespace HitAssessment.Application.Features.Commands.NewHitAssessment
                     request.IsHAComplete = false;
                     request.IsHASuccess = false;
                     request.H2LPredictedStartDate = new DVariable<DateTime>(now.AddDays(90));
+                }
+                else if (request.Status == nameof(HitAssessmentStatus.Paused))
+                {
+                    request.StatusPausedDate = now;
+                    request.IsHAComplete = false;
+                    request.IsHASuccess = false;
                 }
                 else if (request.Status == nameof(HitAssessmentStatus.IncorrectMz))
                 {

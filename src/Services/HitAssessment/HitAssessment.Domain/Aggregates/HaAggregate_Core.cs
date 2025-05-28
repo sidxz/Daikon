@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRS.Core.Domain;
+
 using Daikon.Events.HitAssessment;
+using Daikon.EventStore.Aggregate;
 
 namespace HitAssessment.Domain.Aggregates
 {
@@ -64,8 +61,8 @@ namespace HitAssessment.Domain.Aggregates
             }
 
             // HaUpdatedEvent doesn't allow name or HitId to be changed.
-            @event.CompoundId = _compoundId;
-            @event.HitId = _hitId;
+            _compoundId = @event.CompoundId;
+            _hitId = @event.HitId;
 
             RaiseEvent(@event);
         }
@@ -73,6 +70,8 @@ namespace HitAssessment.Domain.Aggregates
         public void Apply(HaUpdatedEvent @event)
         {
             _id = @event.Id;
+            _compoundId = @event.CompoundId;
+            _hitId = @event.HitId;
         }
 
         /* Rename Hit Assessment */

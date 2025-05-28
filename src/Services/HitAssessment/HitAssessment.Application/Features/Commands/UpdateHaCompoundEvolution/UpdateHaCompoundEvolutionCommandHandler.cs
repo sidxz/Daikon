@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.HitAssessment;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
@@ -34,10 +34,7 @@ namespace HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution
         public async Task<Unit> Handle(UpdateHaCompoundEvolutionCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Handling UpdateHaCompoundEvolutionCommand");
-            var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
-
+            request.SetUpdateProperties(request.RequestorUserId);
             // fetch existing CE
             var existingCEvo = await _haCompoundEvoRepository.ReadHaCompoundEvolutionById(request.CompoundEvolutionId)
                      ?? throw new ResourceNotFoundException(nameof(HaCompoundEvolution), request.CompoundEvolutionId);

@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
 using MediatR;
@@ -32,7 +32,7 @@ namespace Target.Application.Features.Command.UpdateTargetAssociatedGenes
 
         public async Task<Unit> Handle(UpdateTargetAssociatedGenesCommand request, CancellationToken cancellationToken)
         {
-
+            request.SetUpdateProperties(request.RequestorUserId);
             // check if name is modified; reject if it is
             var target = await _targetRepository.ReadTargetById(request.Id);
             

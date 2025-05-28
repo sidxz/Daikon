@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Extensions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -40,7 +40,13 @@ namespace MLogix.Application.Features.Commands.ReregisterVault
         public async Task<Unit> Handle(ReRegisterVaultCommand request, CancellationToken cancellationToken)
         {
             var headers = GetRequestHeaders();
-            var molecules = await _moleculeRepository.GetAllMolecules();
+            var allMolecules = await _moleculeRepository.GetAllMolecules();
+            // filter molecules that have a registration id and RequestedSMILES and Name
+            var molecules = allMolecules.Where(
+                m => m.RegistrationId != Guid.Empty && 
+                !string.IsNullOrWhiteSpace(m.RequestedSMILES) && 
+                !string.IsNullOrWhiteSpace(m.Name))
+                .ToList();
 
             // Prepare batch requests from molecules
             var batchRequests = molecules.Select(molecule => new RegisterMoleculeCommandWithRegId

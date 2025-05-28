@@ -3,7 +3,7 @@ using CQRS.Core.Domain;
 
 namespace HitAssessment.Application.Features.Queries.GetHitAssessment
 {
-    public class HitAssessmentVM : DocMetadata
+    public class HitAssessmentVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid? StrainId { get; set; }
@@ -41,6 +41,7 @@ namespace HitAssessment.Application.Features.Queries.GetHitAssessment
         public object CompletionDate { get; set; }
         public object EOLDate { get; set; }
         public object H2LPredictedStartDate { get; set; }
+        public object StatusPausedDate { get; set; }
 
         /* Compound Evolution */
         public List<HaCompoundEvolutionVM> HaCompoundEvolution { get; set; }

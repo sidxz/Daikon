@@ -3,7 +3,7 @@ using CQRS.Core.Domain;
 
 namespace Target.Application.Features.Queries.GetTarget
 {
-    public class TargetVM : DocMetadata
+    public class TargetVM : VMMeta
     {
         public Guid StrainId { get; set; }
         public Guid Id { get; set; }
@@ -32,6 +32,8 @@ namespace Target.Application.Features.Queries.GetTarget
         public object Enablement { get; set; }
         public object Strategy { get; set; }
         public object Challenges { get; set; }
+
+        public int Priority { get; set; }
 
 
     }

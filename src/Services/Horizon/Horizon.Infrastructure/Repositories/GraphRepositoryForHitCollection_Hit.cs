@@ -1,6 +1,6 @@
 
 using CQRS.Core.Exceptions;
-using Horizon.Application.Contracts.Persistance;
+using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.Screens;
 using Microsoft.Extensions.Logging;
 
@@ -71,6 +71,54 @@ namespace Horizon.Infrastructure.Repositories
                 throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Updating Hit In Graph", ex);
             }
         }
+
+        public async Task UpdateHitMolecule(Hit hit)
+        {
+            _logger.LogInformation("UpdateHitMolecule(): Updating hit with id {HitId} and MoleculeId {MoleculeId}", hit.HitId, hit.MoleculeId);
+
+            try
+            {
+                // Step 1: Delete existing molecule relationship (if any)
+                var deleteQuery = @"
+            MATCH (hc:HitCollection {uniId: $hitCollectionId})-[r:HIT_MOLECULE {hitId: $hitId}]->(m:Molecule)
+            DELETE r
+        ";
+
+                await _driver.ExecutableQuery(deleteQuery).WithParameters(new
+                {
+                    hitId = hit.HitId,
+                    hitCollectionId = hit.HitCollectionId
+                }).ExecuteAsync();
+
+                // Step 2: If MoleculeId is provided, create new relationship
+                if (!string.IsNullOrEmpty(hit.MoleculeId))
+                {
+
+                    var createQuery = @"
+                        MERGE (m:Molecule {uniId: $moleculeId})
+                        WITH m
+                        MATCH (hc:HitCollection {uniId: $hitCollectionId})
+                        MERGE (hc)-[r:HIT_MOLECULE {hitId: $hitId}]->(m)
+                        SET r.library = $library, r.requestedSMILES = $requestedSMILES
+            ";
+
+                    await _driver.ExecutableQuery(createQuery).WithParameters(new
+                    {
+                        hitId = hit.HitId,
+                        moleculeId = hit.MoleculeId,
+                        hitCollectionId = hit.HitCollectionId,
+                        library = hit.Library,
+                        requestedSMILES = hit.RequestedSMILES
+                    }).ExecuteAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in UpdateHitMolecule");
+                throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Updating Molecule Relationship", ex);
+            }
+        }
+
 
 
         public async Task DeleteHit(string hitId)

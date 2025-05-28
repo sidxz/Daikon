@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Targets;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -29,6 +29,8 @@ namespace Target.Application.Features.Commands.RenameTarget
         public async Task<Unit> Handle(RenameTargetCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Handling RenameTargetCommand");
+            request.SetUpdateProperties(request.RequestorUserId);
+            
             var existingTarget = await _targetRepository.ReadTargetById(request.Id) ?? throw new InvalidOperationException("Target not found");
             if (existingTarget.Name == request.Name)
             {

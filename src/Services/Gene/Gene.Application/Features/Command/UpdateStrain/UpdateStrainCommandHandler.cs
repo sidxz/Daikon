@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Strains;
 using Gene.Domain.Aggregates;
 using MediatR;
@@ -30,8 +30,7 @@ namespace Gene.Application.Features.Command.UpdateStrain
         public async Task<Unit> Handle(UpdateStrainCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("UpdateStrainCommandHandler {request}", request);
-            request.DateModified = DateTime.UtcNow;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var strainUpdatedEvent = _mapper.Map<StrainUpdatedEvent>(request);
             strainUpdatedEvent.LastModifiedById = request.RequestorUserId;

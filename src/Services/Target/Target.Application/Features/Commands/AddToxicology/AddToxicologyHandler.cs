@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Targets;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -21,8 +21,7 @@ namespace Target.Application.Features.Commands.AddToxicology
         {
             _logger.LogInformation("AddToxicologyCommand {request}", request);
 
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
 
             var targetToxicologyAddedEvent = _mapper.Map<TargetToxicologyAddedEvent>(request);
             targetToxicologyAddedEvent.CreatedById = request.RequestorUserId;

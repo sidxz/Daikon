@@ -4,7 +4,7 @@ using Gene.Domain.Entities;
 
 namespace Gene.Application.Features.Queries.GetGene
 {
-    public class GeneVM : DocMetadata
+    public class GeneVM : VMMeta
     {
         public Guid Id { get; set; }
         public Guid StrainId { get; set; }

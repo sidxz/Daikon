@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Gene;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Aggregates;
@@ -30,9 +30,8 @@ namespace Gene.Application.Features.Command.NewHypomorph
         public async Task<Unit> Handle(NewHypomorphCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Handling NewHypomorphCommand: {request}");
-
-            request.DateCreated = DateTime.UtcNow;
-            request.IsModified = false;
+            request.SetCreateProperties(request.RequestorUserId);
+            
             var geneHypomorphAddedEvent = _mapper.Map<GeneHypomorphAddedEvent>(request);
             geneHypomorphAddedEvent.CreatedById = request.RequestorUserId;
 

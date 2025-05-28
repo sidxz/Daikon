@@ -1,5 +1,5 @@
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Project;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
@@ -35,10 +35,9 @@ namespace Project.Application.Features.Commands.NewProject
             try
             {
                  // handle dates
-                var now = DateTime.UtcNow;
-                request.DateCreated = now;
-                request.IsModified = false;
-
+                request.SetCreateProperties(request.RequestorUserId);
+                var currentTime = DateTime.UtcNow;
+                
                 // serialize the request to json and log
                 var requestJson = JsonSerializer.Serialize(request);
                 _logger.LogInformation($"Handling NewProjectCommand: {requestJson}");
@@ -52,9 +51,9 @@ namespace Project.Application.Features.Commands.NewProject
                 }
                 
                 // set HAPredictedStartDate to 10 days now if not set
-                request.H2LPredictedStart ??= new DVariable<DateTime>(now);
-                request.H2LStart ??= new DVariable<DateTime>(now);
-                request.LOPredictedStart ??= new DVariable<DateTime>(now.AddDays(90));
+                request.H2LPredictedStart ??= new DVariable<DateTime>(currentTime);
+                request.H2LStart ??= new DVariable<DateTime>(currentTime);
+                request.LOPredictedStart ??= new DVariable<DateTime>(currentTime.AddDays(90));
                 
                 request.Stage ??= new DVariable<string>(nameof(ProjectStage.H2L));
                 request.IsProjectComplete ??= false;

@@ -1,6 +1,8 @@
 
 using AutoMapper;
+using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using Daikon.Shared.VM.MLogix;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +28,7 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ById
                             ?? throw new ResourceNotFoundException(nameof(GetMoleculeByIdHandler), request.Id);
 
             var moleculeVm = _mapper.Map<MoleculeVM>(molecule, opts => opts.Items["WithMeta"] = request.WithMeta);
+            
 
             try
             {
@@ -46,6 +49,9 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ById
                 _logger.LogError(ex, "Error in GetByIdHandler");
                 return moleculeVm;
             }
+            var trackableEntities = new List<VMMeta> { moleculeVm };
+            (moleculeVm.PageLastUpdatedDate, moleculeVm.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+            
             return moleculeVm;
 
         }

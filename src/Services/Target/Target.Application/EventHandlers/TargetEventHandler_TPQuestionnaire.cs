@@ -11,6 +11,7 @@ namespace Target.Application.EventHandlers
         {
             _logger.LogInformation("OnEvent: TargetPromotionQuestionnaireSubmittedEvent: {Id}", @event.Id);
             var tpqResp = _mapper.Map<Domain.Entities.PQResponse>(@event);
+            tpqResp.Id = @event.Id;
 
             try
             {
@@ -29,9 +30,12 @@ namespace Target.Application.EventHandlers
             var existingTpqR = await _pqResponseRepository.ReadById(@event.Id) ??
              throw new EventHandlerException(nameof(EventHandler), $"TargetPromotionQuestionnaireUpdatedEvent Error updating {@event.Id}", new Exception("TargetPromotionQuestionnaire not found"));
 
-            var tpqResp = _mapper.Map<Domain.Entities.PQResponse>(@event);
+            var tpqResp = _mapper.Map<Domain.Entities.PQResponse>(existingTpqR);
+            _mapper.Map(@event, tpqResp);
+
+            // Preserve the original creation date and creator
             tpqResp.DateCreated = existingTpqR.DateCreated;
-            tpqResp.IsModified = true;
+            tpqResp.CreatedById = existingTpqR.CreatedById;
 
             try
             {

@@ -1,12 +1,12 @@
-using CQRS.Core.Domain;
 using Daikon.Events.Screens;
+using Daikon.EventStore.Aggregate;
 using Screen.Domain.Entities;
 
 namespace Screen.Domain.Aggregates
 {
     public partial class ScreenAggregate : AggregateRoot
     {
-        private readonly Dictionary<Guid, ScreenRun> _screenRuns = [];
+        private  Dictionary<Guid, ScreenRun> _screenRuns = [];
 
 
         /* Add Screen Run */

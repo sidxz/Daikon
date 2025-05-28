@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.HitAssessment;
 using Daikon.Shared.APIClients.MLogix;
 using Daikon.Shared.DTO.MLogix;
@@ -39,9 +39,12 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
             {
                 _logger.LogInformation($"Handling NewHaCompoundEvolutionCommand");
                 // check if request.ImportMode is null, if it is, set it to false
+                var dateCreated = request.DateCreated;
+                request.SetCreateProperties(request.RequestorUserId);
+
+                // handle dates
                 request.ImportMode ??= false;
-                request.DateCreated = (bool)request.ImportMode ? request.DateCreated: DateTime.UtcNow;
-                request.IsModified = false;
+                request.DateCreated = (bool)request.ImportMode ? dateCreated : request.DateCreated;
 
                 var haCEAddedEvent = _mapper.Map<HaCompoundEvolutionAddedEvent>(request);
 
@@ -51,9 +54,6 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
                 {
                     Id = request.Id,
                 };
-
-
-
                 if (request.MoleculeId is null || request.MoleculeId == Guid.Empty)
                 {
                     if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)

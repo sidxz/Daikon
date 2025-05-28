@@ -16,7 +16,6 @@ namespace Comment.Application.Contracts.Persistence
 
         Task Update(Domain.Entities.Comment comment);
         Task Delete(Guid id);
-        Task<Domain.EntityRevisions.CommentRevision> GetRevisions(Guid Id);
         
     }
 }

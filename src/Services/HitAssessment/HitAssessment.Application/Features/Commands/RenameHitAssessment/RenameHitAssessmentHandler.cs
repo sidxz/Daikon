@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.HitAssessment;
 using HitAssessment.Application.Contracts.Persistence;
 using HitAssessment.Domain.Aggregates;
@@ -45,9 +45,7 @@ namespace HitAssessment.Application.Features.Commands.RenameHitAssessment
                 return Unit.Value;
             }
 
-            var now = DateTime.UtcNow;
-            request.DateModified = now;
-            request.IsModified = true;
+            request.SetUpdateProperties(request.RequestorUserId);
 
             var haRenamedEvent = _mapper.Map<HaRenamedEvent>(request);
 
@@ -70,7 +68,6 @@ namespace HitAssessment.Application.Features.Commands.RenameHitAssessment
                 _logger.LogError(ex, "An error occurred while handling UpdateHitAssessmentCommandHandler");
                 throw;
             }
-
             return Unit.Value;
         }
     }

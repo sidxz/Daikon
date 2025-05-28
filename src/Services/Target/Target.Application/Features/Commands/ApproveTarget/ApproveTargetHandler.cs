@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Target.Application.Contracts.Persistence;
@@ -60,6 +60,7 @@ namespace Target.Application.Features.Commands.ApproveTarget
             //     AssociatedGenes = request.AssociatedGenes,
             //     TargetType = request.AssociatedGenes.Count > 1 ? TargetType.ProteinComplex : TargetType.Protein  
             // };
+            request.SetCreateProperties(request.RequestorUserId);
 
             var newTargetCommand = _mapper.Map<NewTargetCommand>(request);
             newTargetCommand.Id = request.Id;
@@ -96,10 +97,6 @@ namespace Target.Application.Features.Commands.ApproveTarget
 
             _logger.LogInformation(" +++++++++++++++++ TPQ updated with new target");
 
-            return Unit.Value;
-
-
-            throw new NotImplementedException();
-        }
+            return Unit.Value;        }
     }
 }

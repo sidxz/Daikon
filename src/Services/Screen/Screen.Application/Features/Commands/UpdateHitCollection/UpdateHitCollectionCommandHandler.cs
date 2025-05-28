@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -32,6 +32,7 @@ namespace Screen.Application.Features.Commands.UpdateHitCollection
         }
         public async Task<Unit> Handle(UpdateHitCollectionCommand request, CancellationToken cancellationToken)
         {
+            request.SetUpdateProperties(request.RequestorUserId);
             try
             {
                 var hitCollectionUpdatedEvent = _mapper.Map<HitCollectionUpdatedEvent>(request);

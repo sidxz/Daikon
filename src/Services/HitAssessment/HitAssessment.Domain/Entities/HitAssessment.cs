@@ -39,6 +39,7 @@ namespace HitAssessment.Domain.Entities
         public DVariable<DateTime>? StatusKnownLiabilityDate { get; set; }
         public DVariable<DateTime>? StatusCompleteFailedDate { get; set; }
         public DVariable<DateTime>? StatusCompleteSuccessDate { get; set; }
+        public DVariable<DateTime>? StatusPausedDate { get; set; }
 
         public DVariable<DateTime>? RemovalDate { get; set; }
         public DVariable<DateTime>? CompletionDate { get; set; }

@@ -4,11 +4,14 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Screen.Application.BackgroundServices;
+using Screen.Application.Features.Commands.ClusterHitCollection;
 using Screen.Application.Features.Commands.DeleteHitCollection;
 using Screen.Application.Features.Commands.NewHitCollection;
 using Screen.Application.Features.Commands.RenameHitCollection;
 using Screen.Application.Features.Commands.UpdateHitCollection;
 using Screen.Application.Features.Commands.UpdateHitCollectionAssociatedScreen;
+using Screen.Application.Features.Queries.GetHitCollection.ById;
 using Screen.Application.Features.Queries.GetHitCollectionsOfScreen;
 
 namespace Screen.API.Controllers.V2
@@ -20,11 +23,25 @@ namespace Screen.API.Controllers.V2
     {
         private readonly IMediator _mediator;
         private readonly ILogger<HitCollectionController> _logger;
+        private readonly HitBackgroundService _hitBackgroundService;
 
-        public HitCollectionController(IMediator mediator, ILogger<HitCollectionController> logger)
+
+        public HitCollectionController(IMediator mediator, ILogger<HitCollectionController> logger, HitBackgroundService hitBackgroundService)
         {
             _mediator = mediator;
             _logger = logger;
+            _hitBackgroundService = hitBackgroundService;
+        }
+
+        [HttpGet("{id}", Name = "GetHitCollectionById")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> GetHitCollectionById(Guid id)
+        {
+            var hitCollection = await _mediator.Send(new GetHitCollectionByIdQuery { Id = id });
+            return Ok(hitCollection);
         }
 
         [HttpGet("by-screen/{screenId}", Name = "GetHitCollectionByScreen")]
@@ -71,6 +88,23 @@ namespace Screen.API.Controllers.V2
             {
                 Message = "Hit collection updated successfully",
             });
+
+        }
+
+        [HttpPut("{id}/cluster", Name = "ClusterHitCollection")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> ClusterHitCollection(Guid id, Double CutOff)
+        {
+            var command = new ClusterHitCollectionCommand
+            {
+                Id = id,
+                CutOff = CutOff,
+            };
+            var resp = await _mediator.Send(command);
+            return StatusCode(StatusCodes.Status200OK, resp);
 
         }
 

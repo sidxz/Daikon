@@ -1,6 +1,6 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Screen.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -29,6 +29,8 @@ namespace Screen.Application.Features.Commands.DeleteScreen
 
       try
       {
+        request.SetUpdateProperties(request.RequestorUserId);
+        
         var aggregate = await _screenEventSourcingHandler.GetByAsyncId(request.Id);
 
         var screenDeletedEvent = _mapper.Map<ScreenDeletedEvent>(request);

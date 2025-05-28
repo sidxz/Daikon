@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using Daikon.Shared.Constants.AppScreen;
 using MediatR;
@@ -35,6 +35,8 @@ namespace Screen.Application.Features.Commands.UpdateHit
 
         public async Task<Unit> Handle(UpdateHitCommand request, CancellationToken cancellationToken)
         {
+
+            request.SetUpdateProperties(request.RequestorUserId);
 
             try
             {

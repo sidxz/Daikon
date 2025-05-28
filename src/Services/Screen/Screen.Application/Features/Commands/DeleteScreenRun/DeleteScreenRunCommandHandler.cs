@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -33,6 +33,7 @@ namespace Screen.Application.Features.Commands.DeleteScreenRun
         public async Task<Unit> Handle(DeleteScreenRunCommand request, CancellationToken cancellationToken)
         {
 
+            request.SetUpdateProperties(request.RequestorUserId);
             var screenRunDeletedEvent = _mapper.Map<ScreenRunDeletedEvent>(request);
 
             try
