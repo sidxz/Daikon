@@ -1,11 +1,10 @@
 
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Entities;
-using Target.Domain.EntityRevisions;
 
 namespace Target.Infrastructure.Query.Repositories
 {
@@ -13,9 +12,8 @@ namespace Target.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Toxicology> _toxicologyCollection;
         private readonly ILogger<ToxicologyRepo> _logger;
-        private readonly IVersionHub<ToxicologyRevision> _versionHub;
 
-        public ToxicologyRepo(IConfiguration configuration, ILogger<ToxicologyRepo> logger, IVersionHub<ToxicologyRevision> versionMaintainer)
+        public ToxicologyRepo(IConfiguration configuration, ILogger<ToxicologyRepo> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("TargetMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("TargetMongoDbSettings:DatabaseName"));
@@ -30,7 +28,6 @@ namespace Target.Infrastructure.Query.Repositories
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
         }
         public async Task<Toxicology> Create(Toxicology toxicology)
         {
@@ -38,7 +35,6 @@ namespace Target.Infrastructure.Query.Repositories
             try
             {
                 await _toxicologyCollection.InsertOneAsync(toxicology);
-                await _versionHub.CommitVersion(toxicology);
                 return toxicology;
             }
             catch (MongoException ex)
@@ -54,7 +50,6 @@ namespace Target.Infrastructure.Query.Repositories
             try
             {
                 await _toxicologyCollection.DeleteOneAsync(t => t.ToxicologyId == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -68,13 +63,7 @@ namespace Target.Infrastructure.Query.Repositories
             ArgumentNullException.ThrowIfNull(targetId);
             try
             {
-                var toxicologies = await _toxicologyCollection.Find(t => t.TargetId == targetId).ToListAsync();
                 await _toxicologyCollection.DeleteManyAsync(t => t.TargetId == targetId);
-                foreach (var toxicology in toxicologies)
-                {
-                    await _versionHub.ArchiveEntity(toxicology.ToxicologyId);
-                }
-
             }
             catch (MongoException ex)
             {
@@ -138,7 +127,6 @@ namespace Target.Infrastructure.Query.Repositories
             try
             {
                 await _toxicologyCollection.ReplaceOneAsync(t => t.ToxicologyId == toxicology.ToxicologyId, toxicology);
-                await _versionHub.CommitVersion(toxicology);
                 return toxicology;
 
             }

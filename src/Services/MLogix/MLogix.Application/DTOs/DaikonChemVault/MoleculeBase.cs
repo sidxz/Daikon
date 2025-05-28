@@ -118,5 +118,8 @@ namespace MLogix.Application.DTOs.DaikonChemVault
 
         [JsonPropertyName("ro5_compliant")]
         public bool RO5Compliant { get; set; }
+
+        [JsonPropertyName("pains")]
+        public PainsVM Pains { get; set; }
     }
 }

@@ -1,12 +1,10 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Entities;
-using Screen.Domain.EntityRevisions;
 
 namespace Screen.Infrastructure.Query.Repositories
 {
@@ -14,18 +12,14 @@ namespace Screen.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Hit> _hit;
         private readonly ILogger<HitRepository> _logger;
-        private readonly IVersionHub<HitRevision> _versionHub;
 
-        public HitRepository(IConfiguration configuration, ILogger<HitRepository> logger, IVersionHub<HitRevision> versionMaintainer)
+        public HitRepository(IConfiguration configuration, ILogger<HitRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName"));
             _hit = database.GetCollection<Hit>(configuration.GetValue<string>("ScreenMongoDbSettings:HitCollectionName"));
             _hit.Indexes.CreateOne(new CreateIndexModel<Hit>(Builders<Hit>.IndexKeys.Ascending(t => t.MoleculeId), new CreateIndexOptions { Unique = false }));
             _hit.Indexes.CreateOne(new CreateIndexModel<Hit>(Builders<Hit>.IndexKeys.Ascending(t => t.HitCollectionId), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -40,7 +34,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateHit: Creating hit {HitId}, {Hit}", hit.Id, hit.ToJson());
                 await _hit.InsertOneAsync(hit);
-                await _versionHub.CommitVersion(hit);
             }
             catch (MongoException ex)
             {
@@ -93,7 +86,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateHit: Updating hit {HitId}, {Hit}", hit.Id, hit.ToJson());
                 await _hit.ReplaceOneAsync(t => t.Id == hit.Id, hit);
-                await _versionHub.CommitVersion(hit);
             }
             catch (MongoException ex)
             {
@@ -110,7 +102,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteHit: Deleting hit {HitId}", hitId);
                 await _hit.DeleteOneAsync(t => t.Id == hitId);
-                await _versionHub.ArchiveEntity(hitId);
             }
             catch (MongoException ex)
             {
@@ -125,13 +116,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteHitsByHitCollectionId: Deleting hits with hit collection ID {HitCollectionId}", hitCollectionId);
 
-                // Archive
-                var hits = await _hit.Find(t => t.HitCollectionId == hitCollectionId).ToListAsync();
-                foreach (var hit in hits)
-                {
-                    await _versionHub.ArchiveEntity(hit.Id);
-                }
-                // Delete
                 await _hit.DeleteManyAsync(t => t.HitCollectionId == hitCollectionId);
             }
             catch (MongoException ex)
@@ -147,10 +131,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteHits: Deleting hits with IDs {HitIds}", hitIds);
                 await _hit.DeleteManyAsync(t => hitIds.Contains(t.Id));
-                foreach (var hitId in hitIds)
-                {
-                    await _versionHub.ArchiveEntity(hitId);
-                }
 
             }
             catch (MongoException ex)
@@ -161,10 +141,24 @@ namespace Screen.Infrastructure.Query.Repositories
         }
 
 
-        public async Task<HitRevision> GetHitRevisions(Guid Id)
+        public async Task<List<Hit>> GetHitsWithRequestedMoleculeNameButNoMoleculeId()
         {
-            var hitRevision = await _versionHub.GetVersions(Id);
-            return hitRevision;
+            try
+            {
+                _logger.LogInformation("Fetching hits where MoleculeId is null and RequestedMoleculeName is not null and exists.");
+
+                var filter = Builders<Hit>.Filter.Eq(h => h.MoleculeId, null) &
+                             Builders<Hit>.Filter.Ne(h => h.RequestedMoleculeName, null) &
+                             Builders<Hit>.Filter.Exists(h => h.RequestedMoleculeName, true);
+
+                return await _hit.Find(filter).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while querying hits with MoleculeId null and valid RequestedMoleculeName");
+                throw new RepositoryException(nameof(HitRepository), "Error querying filtered hits", ex);
+            }
         }
+
     }
 }

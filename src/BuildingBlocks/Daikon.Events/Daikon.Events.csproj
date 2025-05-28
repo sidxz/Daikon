@@ -2,6 +2,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CQRS.Core\CQRS.Core.csproj" />
+    <ProjectReference Include="..\Daikon.Shared\Daikon.Shared.csproj" />
+    <ProjectReference Include="..\Daikon.EventStore\Daikon.EventStore.csproj" />
+
   </ItemGroup>
 
   <PropertyGroup>

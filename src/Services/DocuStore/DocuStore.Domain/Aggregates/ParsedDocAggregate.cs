@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRS.Core.Domain;
+
 using Daikon.Events.DocuStore;
+using Daikon.EventStore.Aggregate;
 
 namespace DocuStore.Domain.Aggregates
 {

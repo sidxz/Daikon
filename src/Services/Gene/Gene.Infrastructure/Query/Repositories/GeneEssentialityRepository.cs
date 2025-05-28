@@ -1,9 +1,7 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -14,10 +12,9 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<Essentiality> _essentialityCollection;
-        private readonly IVersionHub<EssentialityRevision> _versionHub;
         private readonly ILogger<GeneEssentialityRepository> _logger;
 
-        public GeneEssentialityRepository(IConfiguration configuration, IVersionHub<EssentialityRevision> versionMaintainer, ILogger<GeneEssentialityRepository> logger)
+        public GeneEssentialityRepository(IConfiguration configuration, ILogger<GeneEssentialityRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -27,9 +24,6 @@ namespace Gene.Infrastructure.Query.Repositories
             
             _essentialityCollection.Indexes.CreateOne
                 (new CreateIndexModel<Essentiality>(Builders<Essentiality>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -88,7 +82,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _essentialityCollection.InsertOneAsync(essentiality);
-                await _versionHub.CommitVersion(essentiality);
             }
             catch (MongoException ex)
             {
@@ -106,7 +99,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _essentialityCollection.ReplaceOneAsync(e => e.Id == essentiality.Id, essentiality);
-                await _versionHub.CommitVersion(essentiality);
             }
             catch (MongoException ex)
             {
@@ -126,7 +118,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _essentialityCollection.DeleteOneAsync(e => e.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -145,7 +136,6 @@ namespace Gene.Infrastructure.Query.Repositories
             foreach (var essentiality in essentialities)
             {
                 _logger.LogInformation("DeleteEssentialitiesOfGene: Archiving Essentiality {EssentialityId}", essentiality.Id);
-                await _versionHub.ArchiveEntity(essentiality.Id);
             }
             // delete all essentialities of gene
             try
@@ -160,14 +150,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 throw new RepositoryException(nameof(GeneEssentialityRepository), "Error deleting Essentialities of Gene", ex);
             }
 
-        }
-
-
-
-        public async Task<EssentialityRevision> GetEssentialityRevisions(Guid Id)
-        {
-            var essentialityRevision = await _versionHub.GetVersions(Id);
-            return essentialityRevision;
         }
     }
 }

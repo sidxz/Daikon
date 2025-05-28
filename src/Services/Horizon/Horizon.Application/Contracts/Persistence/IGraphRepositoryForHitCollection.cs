@@ -15,6 +15,7 @@ namespace Horizon.Application.Contracts.Persistence
 
         Task AddHit(Hit hit);
         Task UpdateHit(Hit hit);
+        Task UpdateHitMolecule(Hit hit);
         Task DeleteHit(string hitId);
         
     }

@@ -1,10 +1,7 @@
 
-using Amazon.Runtime.Internal.Util;
-using AutoMapper;
-using CQRS.Core.Domain;
+
 using Daikon.Events.Screens;
-using Microsoft.Extensions.Logging;
-using Screen.Domain.Entities;
+using Daikon.EventStore.Aggregate;
 
 namespace Screen.Domain.Aggregates
 {

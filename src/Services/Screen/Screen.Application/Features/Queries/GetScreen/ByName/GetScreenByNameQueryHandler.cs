@@ -5,8 +5,7 @@ using CQRS.Core.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
-using Screen.Application.Features.Queries.ViewModels;
-
+using Daikon.Shared.VM.Screen;
 namespace Screen.Application.Features.Queries.GetScreen.ByName
 {
     public class GetScreenByNameQueryHandler : IRequestHandler<GetScreenByNameQuery, ScreenVM>

@@ -90,3 +90,18 @@ services:
     build:
       context: .
       dockerfile: ApiGateways/SimpleGW/SimpleGW.API/Dockerfile
+
+
+  event-management-api:
+    container_name: "event-management-api"
+    image: ${DOCKER_REGISTRY-}event-management
+    build:
+      context: .
+      dockerfile: Extensions/Daikon.EventManagement/Dockerfile
+
+  user-preferences-api:
+    container_name: "user-preferences-api"
+    image: ${DOCKER_REGISTRY-}user-preferences-api
+    build:
+      context: .
+      dockerfile: Services/UserPreferences/UserPreferences.API/Dockerfile

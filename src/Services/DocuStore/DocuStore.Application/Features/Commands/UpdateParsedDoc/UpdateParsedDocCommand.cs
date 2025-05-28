@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using CQRS.Core.Command;
 using CQRS.Core.Converters;
 using CQRS.Core.Domain;
+using Daikon.Shared.Embedded.DocuStore;
 using DocuStore.Domain.Entities;
 using MediatR;
 
@@ -35,6 +36,8 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
 
         [JsonConverter(typeof(DVariableJsonConverter<DateTime>))]
         public DVariable<DateTime>? PublicationDate { get; set; }
+        public List<Reviews> Reviews { get; set; } = [];
+        public List<Rating> Ratings { get; set; } = [];
 
     }
 }

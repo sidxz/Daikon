@@ -56,5 +56,25 @@ namespace Horizon.Application.Handlers
 
             return _graphRepository.UpdateMolecule(molecule);
         }
+
+        public Task OnEvent(MoleculeDisclosedEvent @event)
+        {
+             _logger.LogInformation($"Horizon: MoleculeDisclosedEvent: {@event.Id} {@event.Name}");
+            var molecule = new Molecule
+            {
+                UniId = @event.Id.ToString(),
+                RegistrationId = @event.RegistrationId.ToString(),
+                MLogixId = @event.Id.ToString(),
+                Name = @event.Name,
+                RequestedSMILES = @event.RequestedSMILES,
+                SmilesCanonical = @event.SmilesCanonical,
+
+                DateModified = @event?.DateModified ?? DateTime.Now,
+                IsModified = @event?.IsModified ?? true,
+                IsDraft = @event?.IsDraft ?? false
+            };
+
+            return _graphRepository.UpdateMolecule(molecule);
+        }
     }
 }

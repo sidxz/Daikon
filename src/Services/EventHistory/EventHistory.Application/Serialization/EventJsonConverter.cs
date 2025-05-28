@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Comment;
 using Daikon.Events.Gene;

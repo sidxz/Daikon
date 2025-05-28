@@ -70,6 +70,33 @@ namespace MLogix.Application.EventHandlers
             }
         }
 
+        public async Task OnEvent(MoleculeDisclosedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: MoleculeDisclosedEvent: {Id}", @event.Id);
+            var existingMolecule = await _moleculeRepository.GetMoleculeById(@event.Id);
+
+            if (existingMolecule == null)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"MoleculeDisclosedEvent Error updating molecule with id @event.Id", new Exception("Molecule not found"));
+            }
+
+            var molecule = _mapper.Map<Molecule>(existingMolecule);
+            _mapper.Map(@event, molecule);
+
+            // Preserve the original creation date and creator
+            molecule.DateCreated = existingMolecule.DateCreated;
+            molecule.CreatedById = existingMolecule.CreatedById;
+
+            try
+            {
+                await _moleculeRepository.UpdateMolecule(molecule);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), "MoleculeDisclosedEvent Error updating molecule with id @event.Id", ex);
+            }
+        }
+
         public Task OnEvent(MoleculeDeletedEvent @event)
         {
             throw new NotImplementedException();

@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
-using Screen.Application.Features.Queries.ViewModels;
-
+using Daikon.Shared.VM.Screen;
 namespace Screen.Application.Features.Queries.GetHitCollectionsOfScreen
 {
     public class GetHitCollectionsOfScreenQueryHandler : IRequestHandler<GetHitCollectionsOfScreenQuery, List<HitCollectionVM>>

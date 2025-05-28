@@ -1,6 +1,5 @@
 
 using HitAssessment.Domain.Entities;
-using HitAssessment.Domain.EntityRevisions;
 
 namespace HitAssessment.Application.Contracts.Persistence
 {
@@ -12,6 +11,5 @@ namespace HitAssessment.Application.Contracts.Persistence
         Task<Dictionary<Guid, List<HaCompoundEvolution>>> GetHaCompoundEvolutionsOfHAs(List<Guid> haIds);
         Task UpdateHaCompoundEvolution(HaCompoundEvolution haCompoundEvolution);
         Task DeleteHaCompoundEvolution(Guid id);
-        Task<HaCompoundEvolutionRevision> GetHaCompoundEvolutionRevisions(Guid Id);
     }
 }

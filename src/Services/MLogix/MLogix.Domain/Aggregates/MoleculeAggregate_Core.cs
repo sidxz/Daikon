@@ -1,6 +1,6 @@
 
-using CQRS.Core.Domain;
 using Daikon.Events.MLogix;
+using Daikon.EventStore.Aggregate;
 
 namespace MLogix.Domain.Aggregates
 {
@@ -46,6 +46,19 @@ namespace MLogix.Domain.Aggregates
         public void Apply(MoleculeUpdatedEvent @event)
         {
             _registrationId = @event.RegistrationId;
+        }
+
+        public void DiscloseMolecule(MoleculeDisclosedEvent @event)
+        {
+            if (!_active)
+                throw new InvalidOperationException("Molecule is not active");
+
+            RaiseEvent(@event);
+        }
+
+        public void Apply(MoleculeDisclosedEvent @event)
+        {
+            // Do nothing
         }
 
         // Delete Molecule

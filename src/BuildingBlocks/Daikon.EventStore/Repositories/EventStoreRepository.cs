@@ -1,54 +1,52 @@
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
+using Daikon.EventStore.Models;
 using Daikon.EventStore.Settings;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Daikon.EventStore.Repositories
 {
+    /*
+     EventStoreRepository is responsible for interacting with the MongoDB event store.
+     It supports storing and retrieving event streams for a given aggregate.
+    */
     public class EventStoreRepository : IEventStoreRepository
     {
         private readonly IMongoCollection<EventModel> _eventStoreCollection;
         private readonly ILogger<EventStoreRepository> _logger;
 
+        /*
+         Constructor sets up the MongoDB collection and indexes.
+        */
         public EventStoreRepository(IEventDatabaseSettings settings, ILogger<EventStoreRepository> logger)
         {
-            // Initialize MongoDB client and database
-            var client = new MongoClient(settings.ConnectionString);
-            var database = client.GetDatabase(settings.DatabaseName);
-            _eventStoreCollection = database.GetCollection<EventModel>(settings.CollectionName);
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            // Create indexes
-            _eventStoreCollection.Indexes.CreateOne(
+            /* Initialize MongoDB client and select database and collection */
+            var client = new MongoClient(settings.ConnectionString);
+            var database = client.GetDatabase(settings.DatabaseName);
+            _eventStoreCollection = database.GetCollection<EventModel>(RepositoryConstants.EventStoreCollectionName);
+
+            /* Define and create necessary indexes for performance */
+            var indexModels = new List<CreateIndexModel<EventModel>>
+            {
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Descending(e => e.TimeStamp),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateIdentifier),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Ascending(e => e.AggregateType),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys.Ascending(e => e.EventType),
                     new CreateIndexOptions { Unique = false }
-                )
-            );
-
-            _eventStoreCollection.Indexes.CreateOne(
+                ),
                 new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys
                         .Ascending(e => e.AggregateIdentifier)
@@ -57,14 +55,13 @@ namespace Daikon.EventStore.Repositories
                         .Descending(e => e.TimeStamp),
                     new CreateIndexOptions { Unique = false }
                 )
-            );
+            };
+
+            _eventStoreCollection.Indexes.CreateMany(indexModels);
         }
 
-
         /*
-         FindByAggregateId(Guid aggregateId):
-         
-         Retrieves events by aggregate ID.
+         Finds all events for a given aggregate ID and returns them ordered by version.
         */
         public async Task<List<EventModel>> FindByAggregateId(Guid aggregateId)
         {
@@ -72,6 +69,7 @@ namespace Daikon.EventStore.Repositories
             {
                 return await _eventStoreCollection
                     .Find(x => x.AggregateIdentifier == aggregateId)
+                    .SortBy(x => x.Version)
                     .ToListAsync()
                     .ConfigureAwait(false);
             }
@@ -83,17 +81,18 @@ namespace Daikon.EventStore.Repositories
         }
 
         /*
-         SaveAsync(EventModel @event):
-         
-         Saves a single event asynchronously.
+         Saves a single event to the event store asynchronously.
         */
         public async Task SaveAsync(EventModel @event)
         {
-            if (@event == null) throw new ArgumentNullException(nameof(@event));
+            if (@event == null)
+                throw new ArgumentNullException(nameof(@event));
 
             try
             {
-                await _eventStoreCollection.InsertOneAsync(@event).ConfigureAwait(false);
+                await _eventStoreCollection
+                    .InsertOneAsync(@event)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -103,20 +102,23 @@ namespace Daikon.EventStore.Repositories
         }
 
         /*
-         SaveBatchAsync(IEnumerable<EventModel> events):
-         
-         Saves multiple events asynchronously.
+         Saves a batch of events to the event store asynchronously.
+         Skips operation if the list is empty.
         */
         public async Task SaveBatchAsync(IEnumerable<EventModel> events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
 
             var eventList = events.ToList();
-            if (!eventList.Any()) return; // No events to save
+            if (!eventList.Any())
+                return;
 
             try
             {
-                await _eventStoreCollection.InsertManyAsync(eventList).ConfigureAwait(false);
+                await _eventStoreCollection
+                    .InsertManyAsync(eventList)
+                    .ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -125,7 +127,30 @@ namespace Daikon.EventStore.Repositories
             }
         }
 
+        /*
+         Retrieves all unique aggregate IDs from the event store.
+        */
 
+        public async Task<IEnumerable<Guid>> GetAllAggregateIds()
+        {
+            // Aggregate by "AggregateIdentifier" and sort by TimeStamp to get the events in chronological order
+            var pipeline = new BsonDocument[]
+            {
+        new BsonDocument("$sort", new BsonDocument("TimeStamp", 1)), // Ascending TimeStamp order
+        new BsonDocument("$group", new BsonDocument
+        {
+            { "_id", "$AggregateIdentifier" }
+        }),
+        new BsonDocument("$sort", new BsonDocument("_id", 1)) // Sort by Aggregate ID if needed
+            };
+
+            var result = await _eventStoreCollection
+                .Aggregate<BsonDocument>(pipeline)
+                .ToListAsync();
+
+            // Return sorted aggregate IDs
+            return result.Select(doc => doc["_id"].AsGuid);
+        }
 
     }
 }

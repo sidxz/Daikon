@@ -1,8 +1,6 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -13,10 +11,9 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<Domain.Entities.Gene> _geneCollection;
-        private readonly IVersionHub<GeneRevision> _versionHub;
         private readonly ILogger<GeneRepository> _logger;
 
-        public GeneRepository(IConfiguration configuration, IVersionHub<GeneRevision> versionMaintainer, ILogger<GeneRepository> logger)
+        public GeneRepository(IConfiguration configuration, ILogger<GeneRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -24,7 +21,6 @@ namespace Gene.Infrastructure.Query.Repositories
             _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.AccessionNumber), new CreateIndexOptions { Unique = true }));
             _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.StrainId), new CreateIndexOptions { Unique = false }));
             _geneCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Gene>(Builders<Domain.Entities.Gene>.IndexKeys.Ascending(g => g.DateCreated), new CreateIndexOptions { Unique = false }));
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -99,7 +95,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateGene: Creating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
                 await _geneCollection.InsertOneAsync(gene);
-                await _versionHub.CommitVersion(gene);
             }
             catch (MongoException ex)
             {
@@ -116,7 +111,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateGene: Updating gene {GeneId}, {Gene}", gene.Id, gene.ToJson());
                 await _geneCollection.ReplaceOneAsync(g => g.Id == gene.Id, gene);
-                await _versionHub.CommitVersion(gene);
             }
             catch (MongoException ex)
             {
@@ -135,7 +129,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteGene: Deleting gene {GeneId}", id);
                 await _geneCollection.DeleteOneAsync(gene => gene.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -143,12 +136,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 throw new RepositoryException(nameof(GeneRepository), "Error deleting gene", ex);
             }
 
-        }
-
-        public async Task<GeneRevision> GetGeneRevisions(Guid Id)
-        {
-            var geneRevision = await _versionHub.GetVersions(Id);
-            return geneRevision;
         }
     }
 }

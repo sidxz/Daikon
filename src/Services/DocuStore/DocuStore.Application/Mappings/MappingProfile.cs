@@ -3,6 +3,7 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Resolvers;
 using Daikon.Events.DocuStore;
+using Daikon.Shared.Embedded.DocuStore;
 using Daikon.Shared.VM.DocuStore;
 using DocuStore.Application.Features.Commands.AddParsedDoc;
 using DocuStore.Application.Features.Commands.UpdateParsedDoc;
@@ -29,7 +30,13 @@ namespace DocuStore.Application.Mappings
 
             CreateMap<ParsedDoc, ParsedDocDeletedEvent>().ReverseMap();
 
+            CreateMap<Reviews, Reviews>().ReverseMap();
+            CreateMap<Rating, Rating>().ReverseMap();
+
+
+
             // Queries
+
 
             CreateMap<ParsedDoc, ParsedDocVM>()
             .ForMember(dest => dest.Title, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.Title)))
@@ -37,6 +44,7 @@ namespace DocuStore.Application.Mappings
             .ForMember(dest => dest.ShortSummary, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.ShortSummary)))
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.Notes)))
             .ForMember(dest => dest.PublicationDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<DateTime>, DateTime>(src => src.PublicationDate)))
+            .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => src.Ratings.Count > 0 ? src.Ratings.Average(r => r.Score) : (double?)null))
             .ReverseMap()
             ;
         }

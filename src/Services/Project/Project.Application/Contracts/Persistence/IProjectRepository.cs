@@ -11,6 +11,5 @@ namespace Project.Application.Contracts.Persistence
         Task<List<Domain.Entities.Project>> GetProjectListByStrainId(Guid strainId);
         Task UpdateProject(Domain.Entities.Project project);
         Task DeleteProject(Guid id);
-        Task<Domain.EntityRevisions.ProjectRevision> GetProjectRevisions(Guid Id);
     }
 }

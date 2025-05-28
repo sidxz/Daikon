@@ -1,9 +1,7 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -14,10 +12,9 @@ namespace Gene.Infrastructure.Query.Repositories
     {
 
         private readonly IMongoCollection<Hypomorph> _hypomorphCollection;
-        private readonly IVersionHub<HypomorphRevision> _versionHub;
         private readonly ILogger<GeneHypomorphRepository> _logger;
 
-        public GeneHypomorphRepository(IConfiguration configuration, IVersionHub<HypomorphRevision> versionMaintainer, ILogger<GeneHypomorphRepository> logger)
+        public GeneHypomorphRepository(IConfiguration configuration, ILogger<GeneHypomorphRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -28,8 +25,6 @@ namespace Gene.Infrastructure.Query.Repositories
             _hypomorphCollection.Indexes.CreateOne
                 (new CreateIndexModel<Hypomorph>(Builders<Hypomorph>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
                 
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -88,7 +83,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _hypomorphCollection.InsertOneAsync(hypomorph);
-                await _versionHub.CommitVersion(hypomorph);
             }
             catch (MongoException ex)
             {
@@ -105,7 +99,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _hypomorphCollection.ReplaceOneAsync(h => h.Id == hypomorph.Id, hypomorph);
-                await _versionHub.CommitVersion(hypomorph);
             }
             catch (MongoException ex)
             {
@@ -122,7 +115,6 @@ namespace Gene.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteHypomorph: Deleting Hypomorph {Hypomorph}", id);
                 await _hypomorphCollection.DeleteOneAsync(h => h.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -141,7 +133,6 @@ namespace Gene.Infrastructure.Query.Repositories
             foreach (var hypomorph in hypomorphs)
             {
                 _logger.LogInformation("DeleteHypomorphsOfGene: Archiving Hypomorph {HypomorphId}", hypomorph.Id);
-                await _versionHub.ArchiveEntity(hypomorph.Id);
             }
             // delete all hypomorphs of gene
             try
@@ -156,12 +147,6 @@ namespace Gene.Infrastructure.Query.Repositories
                 throw new RepositoryException(nameof(GeneHypomorphRepository), "Error deleting Hypomorphs of Gene", ex);
             }
 
-        }
-
-        public async Task<HypomorphRevision> GetHypomorphRevisions(Guid Id)
-        {
-            var hypomorphRevision = await _versionHub.GetVersions(Id);
-            return hypomorphRevision;
         }
     }
 }
