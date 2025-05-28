@@ -126,7 +126,7 @@ namespace Screen.Application.Features.Commands.NewHit
 
         [JsonConverter(typeof(DVariableJsonConverter<string>))]
         public DVariable<string>? RequestedSMILES { get; set; }
-        public string? MoleculeName { get; set; }
+        public required string MoleculeName { get; set; }
 
     }
 }

@@ -47,12 +47,12 @@ namespace Screen.Application.Features.Commands.NewHit
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
 
                 // Some molecules are proprietary and cannot be registered in MLogix
-                if (request.RequestedSMILES is not null && request.RequestedSMILES.Value.Length > 0)
-                {
-                    _logger.LogInformation("Will try to register molecule ...");
-                    newHitAddedEvent.IsStructureDisclosed = true;
-                    await RegisterMoleculeAndAssignToEvent(request, newHitAddedEvent);
-                }
+
+
+                _logger.LogInformation("Will try to register molecule ...");
+                newHitAddedEvent.IsStructureDisclosed = !string.IsNullOrWhiteSpace(request.RequestedSMILES?.Value);
+                await RegisterMoleculeAndAssignToEvent(request, newHitAddedEvent);
+
 
                 aggregate.AddHit(newHitAddedEvent);
 
