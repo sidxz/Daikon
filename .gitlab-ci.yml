@@ -36,14 +36,20 @@ build:
         DOCKERFILE: "Services/Horizon/Horizon.API/Dockerfile"
       - SERVICE: "mlogix-api"
         DOCKERFILE: "Services/MLogix/MLogix.API/Dockerfile"
-      - SERVICE: "moldb-api"
-        DOCKERFILE: "Services/Chem/MolDb.API/Dockerfile"
       - SERVICE: "questionnaire-api"
         DOCKERFILE: "Services/Questionnaire/Questionnaire.API/Dockerfile"
       - SERVICE: "comment-api"
         DOCKERFILE: "Services/Comment/Comment.API/Dockerfile"
       - SERVICE: "simplegw-api"
         DOCKERFILE: "ApiGateways/SimpleGW/SimpleGW.API/Dockerfile"
+      - SERVICE: "event-history-api"
+        DOCKERFILE: "Services/EventHistory/EventHistory.API/Dockerfile"
+      - SERVICE: "docustore-api"
+        DOCKERFILE: "Services/DocuStore/DocuStore.API/Dockerfile"
+      - SERVICE: "event-management-api"
+        DOCKERFILE: "Extensions/Daikon.EventManagement/Dockerfile"
+      - SERVICE: "user-preferences-api"
+        DOCKERFILE: "Services/UserPreferences/UserPreferences.API/Dockerfile"
   script:
         - docker build -t ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME -f ${DOCKERFILE} .
   only:
@@ -61,10 +67,13 @@ push:
       - SERVICE: "project-api"
       - SERVICE: "horizon-api"
       - SERVICE: "mlogix-api"
-      - SERVICE: "moldb-api"
       - SERVICE: "questionnaire-api"
       - SERVICE: "comment-api"
       - SERVICE: "simplegw-api"
+      - SERVICE: "event-history-api"
+      - SERVICE: "docustore-api"
+      - SERVICE: "event-management-api"
+      - SERVICE: "user-preferences-api"
   script:
     - docker info
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
