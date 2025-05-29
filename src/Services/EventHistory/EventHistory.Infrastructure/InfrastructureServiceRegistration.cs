@@ -13,6 +13,7 @@ using Daikon.Shared.APIClients.HitAssessment;
 using Daikon.Shared.APIClients.Screen;
 using Daikon.Shared.APIClients.Project;
 using Daikon.Shared.APIClients.Gene;
+using Daikon.Shared.Embedded.Screens;
 namespace EventHistory.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -131,6 +132,7 @@ namespace EventHistory.Infrastructure
                 }
             }
 
+            
         }
 
     }
