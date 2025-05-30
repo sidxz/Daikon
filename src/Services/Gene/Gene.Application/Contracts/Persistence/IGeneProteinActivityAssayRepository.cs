@@ -1,6 +1,5 @@
 
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 
 namespace Gene.Application.Contracts.Persistence
 {
@@ -13,7 +12,6 @@ namespace Gene.Application.Contracts.Persistence
         Task UpdateProteinActivityAssay(ProteinActivityAssay proteinActivityAssay);
         Task DeleteProteinActivityAssay(Guid id);
         Task DeleteAllProteinActivityAssaysOfGene(Guid geneId);
-        Task<ProteinActivityAssayRevision> GetProteinActivityAssayRevisions(Guid Id);
 
     }
 }

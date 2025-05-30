@@ -1,6 +1,5 @@
 
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 
 namespace Gene.Application.Contracts.Persistence
 {
@@ -13,7 +12,5 @@ namespace Gene.Application.Contracts.Persistence
         Task UpdateResistanceMutation(ResistanceMutation resistanceMutation);
         Task DeleteResistanceMutation(Guid id);
         Task DeleteAllResistanceMutationsOfGene(Guid geneId);
-        Task<ResistanceMutationRevision> GetResistanceMutationRevisions(Guid Id);
-
     }
 }

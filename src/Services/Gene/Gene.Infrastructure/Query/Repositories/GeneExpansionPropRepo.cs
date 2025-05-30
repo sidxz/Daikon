@@ -1,9 +1,7 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Gene.Application.Contracts.Persistence;
 using Gene.Domain.Entities;
-using Gene.Domain.EntityRevisions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
@@ -13,10 +11,9 @@ namespace Gene.Infrastructure.Query.Repositories
     public class GeneExpansionPropRepo : IGeneExpansionPropRepo
     {
         private readonly IMongoCollection<GeneExpansionProp> _expansionPropCollection;
-        private readonly IVersionHub<GeneExpansionPropRevision> _versionHub;
         private readonly ILogger<GeneExpansionPropRepo> _logger;
 
-        public GeneExpansionPropRepo(IConfiguration configuration, IVersionHub<GeneExpansionPropRevision> versionMaintainer, ILogger<GeneExpansionPropRepo> logger)
+        public GeneExpansionPropRepo(IConfiguration configuration, ILogger<GeneExpansionPropRepo> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("GeneMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("GeneMongoDbSettings:DatabaseName"));
@@ -27,9 +24,6 @@ namespace Gene.Infrastructure.Query.Repositories
             _expansionPropCollection.Indexes.CreateOne
                 (new CreateIndexModel<GeneExpansionProp>(Builders<GeneExpansionProp>.IndexKeys.Ascending(t => t.DateCreated), new CreateIndexOptions { Unique = false }));
                 
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -41,7 +35,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _expansionPropCollection.InsertOneAsync(geneExpansionProps);
-                await _versionHub.CommitVersion(geneExpansionProps);
             }
             catch (MongoException ex)
             {
@@ -57,7 +50,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _expansionPropCollection.DeleteOneAsync(geneExpansionProps => geneExpansionProps.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
@@ -139,7 +131,6 @@ namespace Gene.Infrastructure.Query.Repositories
             try
             {
                 await _expansionPropCollection.ReplaceOneAsync(p => p.Id == geneExpansionProps.Id, geneExpansionProps);
-                await _versionHub.CommitVersion(geneExpansionProps);
             }
             catch (MongoException ex)
             {

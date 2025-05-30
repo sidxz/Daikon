@@ -1,7 +1,7 @@
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
 
@@ -48,6 +48,7 @@ namespace Screen.Infrastructure.Query.Converters
                 "HitCollectionAssociatedScreenUpdatedEvent" => JsonSerializer.Deserialize<HitCollectionAssociatedScreenUpdatedEvent>(json, options),
                 "HitAddedEvent" => JsonSerializer.Deserialize<HitAddedEvent>(json, options),
                 "HitUpdatedEvent" => JsonSerializer.Deserialize<HitUpdatedEvent>(json, options),
+                "HitMoleculeUpdatedEvent" => JsonSerializer.Deserialize<HitMoleculeUpdatedEvent>(json, options),
                 "HitDeletedEvent" => JsonSerializer.Deserialize<HitDeletedEvent>(json, options),
 
 

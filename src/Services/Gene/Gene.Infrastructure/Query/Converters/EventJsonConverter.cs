@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using CQRS.Core.Event;
+using Daikon.EventStore.Event;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Gene;
 using Daikon.Events.Strains;

@@ -1,12 +1,10 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Screen.Application.Contracts.Persistence;
 using Screen.Domain.Entities;
-using Screen.Domain.EntityRevisions;
 
 namespace Screen.Infrastructure.Query.Repositories
 {
@@ -14,18 +12,14 @@ namespace Screen.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<ScreenRun> _screenRun;
         private readonly ILogger<ScreenRunRepository> _logger;
-        private readonly IVersionHub<ScreenRunRevision> _versionHub;
 
 
-        public ScreenRunRepository(IConfiguration configuration, ILogger<ScreenRunRepository> logger, IVersionHub<ScreenRunRevision> versionMaintainer)
+        public ScreenRunRepository(IConfiguration configuration, ILogger<ScreenRunRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName"));
             _screenRun = database.GetCollection<ScreenRun>(configuration.GetValue<string>("ScreenMongoDbSettings:ScreenRunCollectionName"));
             _screenRun.Indexes.CreateOne(new CreateIndexModel<ScreenRun>(Builders<ScreenRun>.IndexKeys.Ascending(t => t.ScreenId), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         public async Task CreateScreenRun(ScreenRun screenRun)
@@ -35,7 +29,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateScreenRun: Creating screenRun {ScreenRunId}, {ScreenRun}", screenRun.Id, screenRun.ToJson());
                 await _screenRun.InsertOneAsync(screenRun);
-                await _versionHub.CommitVersion(screenRun);
             }
             catch (MongoException ex)
             {
@@ -101,12 +94,6 @@ namespace Screen.Infrastructure.Query.Repositories
                 _logger.LogError(ex, "An error occurred while getting the screenRun list");
                 throw new RepositoryException(nameof(ScreenRunRepository), "Error getting screenRun list", ex);
             }
-        }
-
-        public async Task<ScreenRunRevision> GetScreenRunRevisions(Guid Id)
-        {
-            var screenRunRevision = await _versionHub.GetVersions(Id);
-            return screenRunRevision;
         }
 
         public Task<ScreenRun> ReadScreenRunById(Guid id)

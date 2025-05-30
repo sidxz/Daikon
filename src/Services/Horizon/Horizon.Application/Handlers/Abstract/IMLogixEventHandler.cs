@@ -7,5 +7,6 @@ namespace Horizon.Application.Handlers
     {
         Task OnEvent(MoleculeCreatedEvent @event);
         Task OnEvent(MoleculeUpdatedEvent @event);
+        Task OnEvent(MoleculeDisclosedEvent @event);
     }
 }

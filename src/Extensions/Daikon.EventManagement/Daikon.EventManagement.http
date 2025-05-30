@@ -1,0 +1,6 @@
+@Daikon.EventManagement_HostAddress = http://localhost:5023
+
+GET {{Daikon.EventManagement_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

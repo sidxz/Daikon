@@ -1,6 +1,6 @@
 
-using CQRS.Core.Domain;
 using Daikon.Events.Strains;
+using Daikon.EventStore.Aggregate;
 
 namespace Gene.Domain.Aggregates
 {

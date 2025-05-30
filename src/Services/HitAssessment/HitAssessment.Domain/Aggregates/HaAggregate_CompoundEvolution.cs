@@ -1,6 +1,6 @@
 
-using CQRS.Core.Domain;
 using Daikon.Events.HitAssessment;
+using Daikon.EventStore.Aggregate;
 using HitAssessment.Domain.Entities;
 
 namespace HitAssessment.Domain.Aggregates

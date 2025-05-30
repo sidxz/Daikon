@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Project;
 using Project.Application.Contracts.Persistence;
 using Project.Application.Features.Commands.UpdateProject;

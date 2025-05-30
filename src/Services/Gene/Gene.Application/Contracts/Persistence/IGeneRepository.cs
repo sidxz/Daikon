@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Gene.Application.Contracts.Persistence
 {
@@ -14,6 +10,5 @@ namespace Gene.Application.Contracts.Persistence
         Task DeleteGene(Guid id);
         Task<List<Domain.Entities.Gene>> GetGenesList();
         Task<List<Domain.Entities.Gene>> GetGenesListByStrainId(Guid strainId);
-        Task<Domain.EntityRevisions.GeneRevision> GetGeneRevisions(Guid id);
     }
 }

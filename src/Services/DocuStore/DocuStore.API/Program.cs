@@ -49,7 +49,12 @@ builder.Services.AddFluentValidationAutoValidation()
 // Add Swagger and OpenAPI support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.CustomSchemaIds(type => type.FullName); // or any unique naming strategy
+});
+
+
 
 // Register application and infrastructure services
 builder.Services.AddApplicationServices();

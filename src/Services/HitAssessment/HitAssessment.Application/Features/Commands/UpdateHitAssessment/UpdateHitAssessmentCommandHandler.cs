@@ -1,7 +1,7 @@
 using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.HitAssessment;
 using Daikon.Shared.Constants.AppHitAssessment;
 using HitAssessment.Application.Contracts.Persistence;

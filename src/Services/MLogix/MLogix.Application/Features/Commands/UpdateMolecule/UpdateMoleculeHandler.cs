@@ -1,7 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.MLogix;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -46,7 +46,7 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
             var moleculeUpdatedEvent = new MoleculeUpdatedEvent
             {
                 Id = existingMolecule.Id,
-                Name = request.Name ?? existingMolecule.Name ?? "UnNamed",
+                Name = request.Name ?? existingMolecule.Name ?? "",
                 RequestedSMILES = request.RequestedSMILES,
                 RegistrationId = existingMolecule.RegistrationId,
                 LastModifiedById = request.RequestorUserId,
@@ -67,7 +67,7 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                     var registrationReq = new RegisterMoleculeCommand()
                     {
                         Id = Guid.NewGuid(),
-                        Name = request.Name ?? "Untitled",
+                        Name = request.Name ?? "",
                         SMILES = request.RequestedSMILES,
                         DateCreated = DateTime.UtcNow,
                         IsModified = false

@@ -1,6 +1,5 @@
-
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.DocuStore;
 using Daikon.Shared.APIClients.MLogix;
 using DocuStore.Application.Contracts.Persistence;
@@ -19,7 +18,6 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
         private readonly IParsedDocRepository _parsedDocRepository;
         private readonly IEventSourcingHandler<ParsedDocAggregate> _parsedDocEventSourcingHandler;
         private readonly IMLogixAPI _mLogixAPIService;
-
         private readonly IMediator _mediator;
 
         public UpdateParsedDocHandler(
@@ -28,8 +26,7 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
             IParsedDocRepository parsedDocRepository,
             IEventSourcingHandler<ParsedDocAggregate> parsedDocEventSourcingHandler,
             IMLogixAPI mLogixAPIService,
-            IMediator mediator
-            )
+            IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -41,8 +38,6 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
 
         public async Task<ParsedDoc> Handle(UpdateParsedDocCommand request, CancellationToken cancellationToken)
         {
-            // Validate input
-
             if (string.IsNullOrWhiteSpace(request.FilePath))
             {
                 _logger.LogWarning("FilePath is missing or empty.");
@@ -51,51 +46,29 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
 
             try
             {
-                // Check if the document already exists in the repository
                 var existingDoc = await _parsedDocRepository.ReadByPath(request.FilePath);
                 if (existingDoc == null)
                 {
-                    _logger.LogWarning("Document does not exists: {FilePath}", request.FilePath);
-                    _logger.LogWarning("Will attempt to create a new document instead.");
-
-                    AddParsedDocCommand addParsedDocCommand = _mapper.Map<AddParsedDocCommand>(request);
-                    addParsedDocCommand.SetCreateProperties(request.RequestorUserId);
-                    addParsedDocCommand.Id = addParsedDocCommand.Id != Guid.Empty ? addParsedDocCommand.Id : Guid.NewGuid();
-
-                    return _mediator.Send(addParsedDocCommand, cancellationToken).Result;
-
-                    //throw new InvalidOperationException($"A document with the path '{request.FilePath}' does not exists.");
+                    _logger.LogWarning("Document does not exist: {FilePath}. Creating a new one.", request.FilePath);
+                    return await CreateNewParsedDoc(request, cancellationToken);
                 }
 
-                // Set metadata for the new document
                 request.SetUpdateProperties(request.RequestorUserId);
                 request.Id = existingDoc.Id;
 
-                // map molecule names to IDs
-                foreach (var smiles in request.ExtractedSMILES)
-                {
-                    var molecule = await _mLogixAPIService.GetMoleculeBySmiles(smiles);
-                    if (molecule != null)
-                    {
-                        string moleculeId = molecule.Id.ToString();
-                        string moleculeName = molecule.Name;
-                        request.Molecules.TryAdd(moleculeId, moleculeName);
-                        request.Tags.Add(moleculeName);
-                    }
-                }
+                await HandleSmilesExtraction(request);
+                UpdateReviews(request, existingDoc);
+                UpdateRatings(request, existingDoc);
 
-                // Map request to an event and initialize the aggregate
+
                 var parsedDocUpdatedEvent = _mapper.Map<ParsedDocUpdatedEvent>(request);
                 var aggregate = await _parsedDocEventSourcingHandler.GetByAsyncId(request.Id);
                 aggregate.UpdateParsedDoc(parsedDocUpdatedEvent);
-
-                // Persist the aggregate through the event sourcing handler
                 await _parsedDocEventSourcingHandler.SaveAsync(aggregate);
 
-                // Map the event back to a ParsedDoc entity for the response
                 var parsedDoc = _mapper.Map<ParsedDoc>(parsedDocUpdatedEvent);
-
                 _logger.LogInformation("Successfully updated parsed document: {FilePath}", request.FilePath);
+
                 return parsedDoc;
             }
             catch (InvalidOperationException ex)
@@ -105,9 +78,139 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while processing UpdateParsedDocCommand.");
-                throw new ApplicationException("An error occurred while adding the parsed document. Please try again later.", ex);
+                _logger.LogError(ex, "Unexpected error while processing UpdateParsedDocCommand.");
+                throw new ApplicationException("An error occurred while updating the parsed document.", ex);
             }
         }
+
+        private async Task<ParsedDoc> CreateNewParsedDoc(UpdateParsedDocCommand request, CancellationToken cancellationToken)
+        {
+            var addParsedDocCommand = _mapper.Map<AddParsedDocCommand>(request);
+            addParsedDocCommand.SetCreateProperties(request.RequestorUserId);
+            addParsedDocCommand.Id = addParsedDocCommand.Id != Guid.Empty
+                ? addParsedDocCommand.Id
+                : Guid.NewGuid();
+
+            return await _mediator.Send(addParsedDocCommand, cancellationToken);
+        }
+
+        private async Task HandleSmilesExtraction(UpdateParsedDocCommand request)
+        {
+            var uniqueSmiles = request.ExtractedSMILES?.Distinct() ?? Enumerable.Empty<string>();
+            var existingTags = new HashSet<string>(request.Tags ?? []);
+
+            foreach (var smiles in uniqueSmiles)
+            {
+                var molecule = await _mLogixAPIService.GetMoleculeBySmiles(smiles);
+                if (molecule != null)
+                {
+                    var moleculeId = molecule.Id.ToString();
+                    request.Molecules.TryAdd(moleculeId, molecule.Name);
+
+                    if (existingTags.Add(molecule.Name))
+                    {
+                        request.Tags.Add(molecule.Name);
+                    }
+                }
+            }
+        }
+
+        private void UpdateReviews(UpdateParsedDocCommand request, ParsedDoc existingDoc)
+        {
+            var requestorId = request.RequestorUserId;
+
+            // Preserve all reviews from other users
+            var updatedReviews = existingDoc.Reviews
+                .Where(r => r.Reviewer != requestorId)
+                .ToList();
+
+            // Map of existing user reviews for fast lookup
+            var existingUserReviews = existingDoc.Reviews
+                .Where(r => r.Reviewer == requestorId)
+                .ToDictionary(r => r.Id, r => r);
+
+            // Filter request to only include reviews from current user
+            var userSubmittedReviews = request.Reviews
+                .Where(r => r.Reviewer == requestorId)
+                .ToList();
+
+            foreach (var submittedReview in userSubmittedReviews)
+            {
+                if (submittedReview.Id != Guid.Empty && existingUserReviews.TryGetValue(submittedReview.Id, out var existingReview))
+                {
+                    // Update existing review
+                    existingReview.Review = submittedReview.Review;
+                    existingReview.ReviewDate = DateTime.UtcNow;
+                    updatedReviews.Add(existingReview);
+                }
+                else
+                {
+                    // Add new review
+                    submittedReview.Id = Guid.NewGuid();
+                    submittedReview.Reviewer = requestorId;
+                    submittedReview.ReviewDate = DateTime.UtcNow;
+                    updatedReviews.Add(submittedReview);
+                }
+            }
+
+            request.Reviews = updatedReviews;
+        }
+
+
+        private void UpdateRatings(UpdateParsedDocCommand request, ParsedDoc existingDoc)
+        {
+            var requestorId = request.RequestorUserId;
+
+            // Start with all ratings from other users
+            var updatedRatings = existingDoc.Ratings
+                .Where(r => r.UserId != requestorId)
+                .ToList();
+
+            // Get the submitted rating from the current user (only 1 should exist)
+            var submittedRating = request.Ratings
+                .FirstOrDefault(r => r.UserId == requestorId);
+
+            if (submittedRating != null)
+            {
+                // Ensure the rating has a valid ID
+                if (submittedRating.Id == Guid.Empty)
+                {
+                    submittedRating.Id = Guid.NewGuid();
+                }
+
+                // Validate the score range
+                if (submittedRating.Score < 0 || submittedRating.Score > 5)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(submittedRating.Score), "Score must be between 0 and 5.");
+                }
+
+                // Check if the user has previously rated this doc
+                var existingUserRating = existingDoc.Ratings
+                    .FirstOrDefault(r => r.UserId == requestorId);
+
+                if (existingUserRating != null)
+                {
+                    // Update the existing rating
+                    existingUserRating.Score = submittedRating.Score;
+                    existingUserRating.Comment = submittedRating.Comment;
+                    existingUserRating.RatedAt = DateTime.UtcNow;
+
+                    updatedRatings.Add(existingUserRating);
+                }
+                else
+                {
+                    // Add the new rating
+                    submittedRating.UserId = requestorId; // Enforce correct user
+                    submittedRating.RatedAt = DateTime.UtcNow;
+
+                    updatedRatings.Add(submittedRating);
+                }
+            }
+
+            // Set the final trusted rating list
+            request.Ratings = updatedRatings;
+        }
+
+
     }
 }

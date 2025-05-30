@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Domain;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using MediatR;
 using Microsoft.Extensions.Logging;

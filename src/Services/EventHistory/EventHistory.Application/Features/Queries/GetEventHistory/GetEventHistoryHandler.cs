@@ -1,16 +1,11 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using AutoMapper;
-using CQRS.Core.Domain;
-using CQRS.Core.Event;
-using Daikon.Events.HitAssessment;
+using Daikon.EventStore.Event;
 using EventHistory.Application.Contracts.Persistence;
 using EventHistory.Application.Features.Processors;
-using EventHistory.Application.Serialization;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using Daikon.EventStore.Models;
 
 namespace EventHistory.Application.Features.Queries.GetEventHistory
 {

@@ -1,5 +1,5 @@
-using System;
-using System.Threading.Tasks;
+
+using CQRS.Core.Resolvers;
 using Daikon.Events.Screens;
 using Microsoft.Extensions.Logging;
 
@@ -66,7 +66,7 @@ namespace EventHistory.Application.Features.Processors
                 {
                     screenName = screen.Name;
                     link = $"{GenerateScreenLink(screen.ScreenType, screen.Id)}/hits/{createdEvent.Id}";
-                    organizationName = await GetOrganizationNameAsync(screen.PrimaryOrgId);
+                    organizationName = await GetOrganizationNameAsync(ObjectToGuidResolver.TryExtractGuid(screen.PrimaryOrgId));
                 }
                 else
                 {
@@ -102,7 +102,7 @@ namespace EventHistory.Application.Features.Processors
                 {
                     screenName = screen.Name;
                     link = $"{GenerateScreenLink(screen.ScreenType, screen.Id)}/hits/{updatedEvent.Id}";
-                    organizationName = await GetOrganizationNameAsync(screen.PrimaryOrgId);
+                    organizationName = await GetOrganizationNameAsync(ObjectToGuidResolver.TryExtractGuid(screen.PrimaryOrgId));
                 }
                 else
                 {
@@ -145,7 +145,7 @@ namespace EventHistory.Application.Features.Processors
                     {
                         screenName = screen.Name;
                         link = $"{GenerateScreenLink(screen.ScreenType, screen.Id)}/hits/{hc.Id}";
-                        organizationName = await GetOrganizationNameAsync(screen.PrimaryOrgId);
+                        organizationName = await GetOrganizationNameAsync(ObjectToGuidResolver.TryExtractGuid(screen.PrimaryOrgId));
                     }
                     else
                     {

@@ -1,7 +1,7 @@
 using AutoMapper;
-using CQRS.Core.Domain;
 using CQRS.Core.Exceptions;
 using Daikon.Events.Screens;
+using Daikon.EventStore.Aggregate;
 using Daikon.Shared.Constants.AppScreen;
 using Screen.Domain.Entities;
 
@@ -9,7 +9,7 @@ namespace Screen.Domain.Aggregates
 {
     public partial class HitCollectionAggregate : AggregateRoot
     {
-        private readonly Dictionary<Guid, Hit> _hits = [];
+        private  Dictionary<Guid, Hit> _hits = [];
 
         /* Add Hit */
         public void AddHit(HitAddedEvent @event)
@@ -70,6 +70,26 @@ namespace Screen.Domain.Aggregates
             // _hits[@event.HitId].InitialCompoundStructure = @event.InitialCompoundStructure;
 
 
+        }
+
+        /* Hit Molecule Updated */
+        public void HitMoleculeUpdated(HitMoleculeUpdatedEvent @event)
+        {
+            if (!_active)
+            {
+                throw new InvalidOperationException("This hitCollection has been deleted.");
+            }
+
+            if (!_hits.ContainsKey(@event.HitId))
+            {
+                throw new Exception("Hit does not exist.");
+            }
+            RaiseEvent(@event);
+        }
+
+        public void Apply(HitMoleculeUpdatedEvent @event)
+        {
+            _hits[@event.HitId].RequestedSMILES = @event.RequestedSMILES;
         }
 
         /* Delete Hit */

@@ -1,11 +1,9 @@
 
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Screen.Application.Contracts.Persistence;
-using Screen.Domain.EntityRevisions;
 
 namespace Screen.Infrastructure.Query.Repositories
 {
@@ -13,18 +11,14 @@ namespace Screen.Infrastructure.Query.Repositories
     {
         private readonly IMongoCollection<Domain.Entities.Screen> _screenCollection;
         private readonly ILogger<ScreenRepository> _logger;
-        private readonly IVersionHub<ScreenRevision> _versionHub;
 
-        public ScreenRepository(IConfiguration configuration, ILogger<ScreenRepository> logger, IVersionHub<ScreenRevision> versionMaintainer)
+        public ScreenRepository(IConfiguration configuration, ILogger<ScreenRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("ScreenMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("ScreenMongoDbSettings:DatabaseName"));
             _screenCollection = database.GetCollection<Domain.Entities.Screen>(configuration.GetValue<string>("ScreenMongoDbSettings:ScreenCollectionName"));
             _screenCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Screen>(Builders<Domain.Entities.Screen>.IndexKeys.Ascending(t => t.Name), new CreateIndexOptions { Unique = false }));
             _screenCollection.Indexes.CreateOne(new CreateIndexModel<Domain.Entities.Screen>(Builders<Domain.Entities.Screen>.IndexKeys.Ascending(t => t.StrainId), new CreateIndexOptions { Unique = false }));
-
-            _versionHub = versionMaintainer ?? throw new ArgumentNullException(nameof(versionMaintainer));
-
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -39,7 +33,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("CreateScreen: Creating screen {ScreenId}, {Screen}", screen.Id, screen.ToJson());
                 await _screenCollection.InsertOneAsync(screen);
-                await _versionHub.CommitVersion(screen);
             }
             catch (MongoException ex)
             {
@@ -100,7 +93,6 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("UpdateScreen: Updating screen {ScreenId}, {Screen}", screen.Id, screen.ToJson());
                 await _screenCollection.ReplaceOneAsync(t => t.Id == screen.Id, screen);
-                await _versionHub.CommitVersion(screen);
             }
             catch (MongoException ex)
             {
@@ -117,20 +109,12 @@ namespace Screen.Infrastructure.Query.Repositories
             {
                 _logger.LogInformation("DeleteScreen: Deleting screen {ScreenId}", id);
                 await _screenCollection.DeleteOneAsync(t => t.Id == id);
-                await _versionHub.ArchiveEntity(id);
             }
             catch (MongoException ex)
             {
                 _logger.LogError(ex, "An error occurred while deleting the screen with ID {ScreenId}", id);
                 throw new RepositoryException(nameof(ScreenRepository), "Error deleting screen", ex);
             }
-        }
-
-
-        public async Task<ScreenRevision> GetScreenRevisions(Guid Id)
-        {
-            var screenRevision = await _versionHub.GetVersions(Id);
-            return screenRevision;
         }
     }
 }

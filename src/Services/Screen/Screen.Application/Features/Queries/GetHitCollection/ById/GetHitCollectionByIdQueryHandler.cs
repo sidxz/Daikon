@@ -2,10 +2,10 @@ using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Extensions;
 using Daikon.Shared.APIClients.MLogix;
+using Daikon.Shared.VM.Screen;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Screen.Application.Contracts.Persistence;
-using Screen.Application.Features.Queries.ViewModels;
 
 namespace Screen.Application.Features.Queries.GetHitCollection.ById
 {

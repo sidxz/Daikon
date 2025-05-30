@@ -115,6 +115,33 @@ namespace Screen.Application.EventHandlers
 
         }
 
+        public async Task OnEvent(HitMoleculeUpdatedEvent @event)
+        {
+            _logger.LogInformation("OnEvent: HitMoleculeUpdatedEvent: {Id}", @event.Id);
+
+            var hit = await _hitRepository.ReadHitById(@event.HitId) ?? throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating hit {@event.HitId} in HitMoleculeUpdatedEvent", new Exception("Hit not found"));
+            var hitId = hit.Id;
+            var hitCollectionId = hit.HitCollectionId;
+
+            _mapper.Map(@event, hit);
+
+            hit.Id = hitId;
+            hit.HitCollectionId = hitCollectionId;
+
+            hit.DateModified = DateTime.UtcNow;
+            hit.IsModified = true;
+            hit.IsModified = true;
+            
+            try
+            {
+                await _hitRepository.UpdateHit(hit);
+            }
+            catch (RepositoryException ex)
+            {
+                throw new EventHandlerException(nameof(EventHandler), $"Error occurred while updating hit {@event.HitId} in HitMoleculeUpdatedEvent", ex);
+            }
+        }
+
         public async Task OnEvent(HitDeletedEvent @event)
         {
             _logger.LogInformation("OnEvent: HitDeletedEvent: {Id}", @event.Id);

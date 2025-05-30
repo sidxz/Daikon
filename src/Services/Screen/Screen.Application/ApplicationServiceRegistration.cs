@@ -2,6 +2,7 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Screen.Application.BackgroundServices;
 using Screen.Application.EventHandlers;
 using Screen.Application.Features.Commands.NewScreen;
 using Screen.Application.Mappings;
@@ -23,6 +24,11 @@ namespace Screen.Application
 
             services.AddScoped<IScreenEventHandler, ScreenEventHandler>();
             services.AddScoped<IHitCollectionEventHandler, HitCollectionEventHandler>();
+
+            services.AddSingleton<HitBackgroundService>();
+            services.AddHostedService<HitBackgroundService>();
+            
+
 
             return services;
         }

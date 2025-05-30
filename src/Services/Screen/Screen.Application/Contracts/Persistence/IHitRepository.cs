@@ -1,4 +1,6 @@
 
+using Screen.Domain.Entities;
+
 namespace Screen.Application.Contracts.Persistence
 {
     public interface IHitRepository
@@ -11,6 +13,7 @@ namespace Screen.Application.Contracts.Persistence
         Task DeleteHit(Guid hitId);
         Task DeleteHitsByHitCollectionId(Guid hitCollectionId);
         Task DeleteHits(List<Guid> hitIds);
-        Task<Domain.EntityRevisions.HitRevision> GetHitRevisions(Guid Id);
+
+        Task<List<Hit>> GetHitsWithRequestedMoleculeNameButNoMoleculeId();
     }
 }

@@ -1,6 +1,6 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Screens;
 using Daikon.Shared.Constants.AppScreen;
 using MediatR;

@@ -1,5 +1,5 @@
 using AutoMapper;
-using CQRS.Core.Handlers;
+using Daikon.EventStore.Handlers;
 using Daikon.Events.Project;
 using Project.Application.Contracts.Persistence;
 using Project.Domain.Aggregates;
