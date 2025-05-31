@@ -48,9 +48,25 @@ namespace Daikon.EventStore.Repositories
                     new CreateIndexOptions { Unique = false }
                 ),
                 new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys.Ascending(e => e.Version),
+                    new CreateIndexOptions { Unique = false }
+                ),
+                new CreateIndexModel<EventModel>(
                     Builders<EventModel>.IndexKeys
                         .Ascending(e => e.AggregateIdentifier)
                         .Ascending(e => e.AggregateType)
+                        .Ascending(e => e.EventType)
+                        .Descending(e => e.TimeStamp),
+                    new CreateIndexOptions { Unique = false }
+                ),
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys
+                        .Ascending(e => e.AggregateIdentifier)
+                        .Ascending(e => e.Version),
+                    new CreateIndexOptions { Unique = false }
+                ),
+                new CreateIndexModel<EventModel>(
+                    Builders<EventModel>.IndexKeys
                         .Ascending(e => e.EventType)
                         .Descending(e => e.TimeStamp),
                     new CreateIndexOptions { Unique = false }
