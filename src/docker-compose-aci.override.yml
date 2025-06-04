@@ -295,6 +295,7 @@ services:
 
       # Internal APIs
       - "MolDbAPI__Url=https://daikon2-prd-moldb.azurewebsites.net/api/v2/mol-db"
+      - "DaikonChemVault__Url=https://daikon2-prd-chemvault-bcdmhsh5angzbnay.westus2-01.azurewebsites.net"
 
     ports:
       - "8007:80"
@@ -417,30 +418,121 @@ services:
       - "EndPointRouting__questionnaire=http://localhost:8008"
       - "EndPointRouting__comment=http://localhost:8009"
       - "EndPointRouting__mol_db=https://daikon2-prd-moldb.azurewebsites.net"
+      - "EndPointRouting__docu-store=http://localhost:8014"
+      - "EndPointRouting__event-history=http://localhost:8012"
+      - "EndPointRouting__user-preferences=http://localhost:8016"
+      - "EndPointRouting__event-management=http://localhost:8015"
+
+
 
     ports:
       - "8010:80"
 
-  moldb-api:
+  event-history-api:
     environment:
       
-      # MolDb Postgres
-      - MolDbUser=${MolDbUser}
-      - MolDbPassword=${MolDbPassword}
-      - MolDbHost=${MolDbHost}
-      - MolDbPort=${MolDbPort}
-      - MolDbDatabase=${MolDbDatabase}
-
-      # Kafka Consumer
-      - KafkaConsumerSettings_BootstrapServers=${KafkaBootstrapServers}
-      - KafkaConsumerSettings_ConnectionString=${KafkaConnectionString}
-      - KafkaConsumerSettings_SecurityProtocol=${KafkaSecurityProtocol}
-      - KafkaConsumerSettings_Topics=${KafkaConsumerTopics}
-      - "KafkaConsumerSettings_GroupId=moldb-consumer-group"
-      - "KafkaConsumerSettings_AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings_EnableAutoCommit=true"
-      - "KafkaConsumerSettings_AllowAutoCreateTopics=true"
+      - EventDatabaseSettings__ConnectionString=${MongoDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
 
     ports:
-      - "8101:8101"
+      - "8012:80"
 
+  docustore-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+      - "EventDatabaseSettings__CollectionName=Events"
+
+      ## Kafka Producer
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
+
+      ## Kafka Consumer
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
+
+      - "KafkaConsumerSettings__GroupId=docustore-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
+
+      ## MongoDb Data Store
+      - DocuStoreMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
+
+      - "DocuStoreMongoDbSettings__DatabaseName=DocuStore"
+
+      - "DocuStoreMongoDbSettings__ParsedDocCollectionName=ParsedDocs"
+      - "DocuStoreMongoDbSettings__ParsedDocRevisionCollectionName=ParsedDocsRevisions"
+
+      ## Internal APIs
+      - "MLogixAPI__Url=http://localhost:8007/api/v2"
+
+    ports:
+      - "8014:80"
+
+  event-management-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+
+      ## Kafka Producer
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
+
+    ports:
+      - "8015:80"
+
+  user-preferences-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      ## Event Store
+      - EventDatabaseSettings__ConnectionString=${EventDB_ConnectionString}
+      - "EventDatabaseSettings__DatabaseName=DaikonEventStore"
+
+      ## Kafka Producer
+      - KafkaProducerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaProducerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaProducerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaProducerSettings__Topic=${KafkaTopic}
+
+      ## Kafka Consumer
+      - KafkaConsumerSettings__BootstrapServers=${KafkaBootstrapServers}
+      - KafkaConsumerSettings__ConnectionString=${KafkaConnectionString}
+      - KafkaConsumerSettings__SecurityProtocol=${KafkaSecurityProtocol}
+      - KafkaConsumerSettings__Topics=${KafkaConsumerTopics}
+
+      - "KafkaConsumerSettings__GroupId=user-preferences-consumer-group"
+      - "KafkaConsumerSettings__AutoOffsetReset=Earliest"
+      - "KafkaConsumerSettings__EnableAutoCommit=true"
+      - "KafkaConsumerSettings__AllowAutoCreateTopics=true"
+
+      ## MongoDb Data Store
+      - UserPreferencesMongoDbSettings__ConnectionString=${MongoDB_ConnectionString}
+
+      - "UserPreferencesMongoDbSettings__DatabaseName=UserPreferences"
+
+      - "UserPreferencesMongoDbSettings__TableDefaultsCollectionName=TableDefaults"
+      - "UserPreferencesMongoDbSettings__TableGlobalConfigCollectionName=TableGlobalConfig"
+      - "UserPreferencesMongoDbSettings__TableUserCustomizationCollectionName=TableUserCustomization"
+      ## Internal APIs
+      - "MLogixAPI__Url=http://localhost:8007/api/v2"
+
+    ports:
+      - "8016:80"
