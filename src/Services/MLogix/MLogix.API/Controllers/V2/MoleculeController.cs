@@ -46,11 +46,11 @@ namespace MLogix.API.Controllers.V2
             return Ok(molecule);
 
         }
-        [HttpGet("by-ids", Name = "GetMoleculesByIds")]
+        [HttpPost("by-ids", Name = "GetMoleculesByIds")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetMoleculesByIds([FromQuery] GetMoleculeByIDsQuery query)
+        public async Task<IActionResult> GetMoleculesByIds([FromBody] GetMoleculeByIDsQuery query)
         {
             var molecules = await _mediator.Send(query);
             return Ok(molecules);
