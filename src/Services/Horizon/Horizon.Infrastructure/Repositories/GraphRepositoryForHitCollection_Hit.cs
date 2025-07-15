@@ -22,7 +22,8 @@ namespace Horizon.Infrastructure.Repositories
                         MERGE (m:Molecule {uniId: $moleculeId})
                         WITH m
                         MATCH (hc:HitCollection {uniId: $hitCollectionId})
-                        MERGE (hc)-[:HIT_MOLECULE {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES}]->(m)
+                        MERGE (hc)-[r:HIT_MOLECULE {hitId: $hitId}]->(m)
+                        SET r.library = $library, r.requestedSMILES = $requestedSMILES
                     ";
 
                     var (queryResults2, _) = await _driver
