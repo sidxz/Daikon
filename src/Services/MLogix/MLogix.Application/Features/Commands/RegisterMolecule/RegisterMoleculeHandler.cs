@@ -116,6 +116,11 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
                 {
                     scientist = fullName;
                 }
+                Guid disclosureOrgId = Guid.Empty;
+                if (headers.TryGetValue("AppOrg-Id", out var disclosureOrgIdFromHeader))
+                {
+                    disclosureOrgId = Guid.Parse(disclosureOrgIdFromHeader);
+                }
 
                 // create new molecule aggregate
                 var aggregate = new MoleculeAggregate(newMoleculeCreatedEvent);
@@ -131,6 +136,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
                     IsStructureDisclosed = true,
                     StructureDisclosedDate = request.DateCreated ?? DateTime.UtcNow,
                     DisclosureScientist = scientist,
+                    DisclosureOrgId = disclosureOrgId,
                     DisclosureReason = "Automatic registration",
                     DisclosureStage = request.DisclosureStage ?? string.Empty,
                     StructureDisclosedByUserId = request.RequestorUserId,

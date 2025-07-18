@@ -43,5 +43,13 @@ namespace Daikon.Shared.APIClients.MLogix
             var molecules = await SendRequestAsync<List<MoleculeVM>>(apiUrl, HttpMethod.Post, body);
             return molecules;
         }
+
+        public Task<List<MoleculeVM>> GetRecentDisclosures(DateTime? startDate, DateTime? endDate)
+        {
+            string apiUrl = $"{_apiBaseUrl}/molecule/recent-disclosure?startDate={startDate}&endDate={endDate}";
+            return SendRequestAsync<List<MoleculeVM>>(apiUrl, HttpMethod.Get);
+        }
+
+        
     }
 }

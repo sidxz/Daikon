@@ -188,6 +188,12 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                         scientist = fullName;
                     }
 
+                    Guid disclosureOrgId = Guid.Empty;
+                    if (headers.TryGetValue("AppOrg-Id", out var disclosureOrgIdFromHeader))
+                    {
+                        disclosureOrgId = Guid.Parse(disclosureOrgIdFromHeader);
+                    }
+
                     var moleculeDisclosedEvent = new MoleculeDisclosedEvent
                     {
                         RequestorUserId = newEvent.RequestorUserId,
@@ -199,6 +205,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                         IsStructureDisclosed = true,
                         StructureDisclosedDate = newEvent.DateCreated ?? DateTime.UtcNow,
                         DisclosureScientist = scientist,
+                        DisclosureOrgId = disclosureOrgId,
                         DisclosureReason = "Automatic registration",
                         DisclosureStage = disclosedStage,
                         StructureDisclosedByUserId = newEvent.RequestorUserId,

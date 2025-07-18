@@ -57,6 +57,9 @@ namespace Daikon.Shared.VM.MLogix
         // Name of the scientist who performed the disclosure
         public string DisclosureScientist { get; set; } = string.Empty;
 
+        // Organization ID of the entity that disclosed the structure
+        public Guid DisclosureOrgId { get; set; } = Guid.Empty;
+
         // Reason for disclosing the structure (e.g., "collaboration", "publication", "patent filing")
         public string DisclosureReason { get; set; } = string.Empty;
 

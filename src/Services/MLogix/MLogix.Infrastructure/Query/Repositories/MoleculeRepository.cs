@@ -168,5 +168,33 @@ namespace MLogix.Infrastructure.Query.Repositories
                 throw new RepositoryException(nameof(MoleculeRepository), "Error fetching all molecules", ex);
             }
         }
+
+
+        public async Task<List<Molecule>> GetDisclosedMolecules(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                DateTime from = startDate ?? DateTime.UtcNow.AddDays(-30);
+                DateTime to = endDate ?? DateTime.UtcNow;
+
+                _logger.LogInformation("GetDisclosedMolecules: Fetching molecules disclosed between {from} and {to}", from, to);
+
+                var filter = Builders<Molecule>.Filter.And(
+                    Builders<Molecule>.Filter.Gte(m => m.StructureDisclosedDate, from),
+                    Builders<Molecule>.Filter.Lte(m => m.StructureDisclosedDate, to)
+                );
+
+                var sort = Builders<Molecule>.Sort.Descending(m => m.StructureDisclosedDate);
+
+                return await _moleculeCollection.Find(filter).Sort(sort).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching disclosed molecules between the provided dates.");
+                throw new RepositoryException(nameof(MoleculeRepository), "Error fetching disclosed molecules", ex);
+            }
+        }
+
+
     }
 }
