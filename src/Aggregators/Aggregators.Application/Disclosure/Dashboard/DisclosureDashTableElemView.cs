@@ -4,6 +4,8 @@ using Daikon.Shared.VM.Horizon;
 using Daikon.Shared.VM.Screen;
 using Daikon.Shared.VM.MLogix;
 using CQRS.Core.Domain;
+using Daikon.Shared.VM.HitAssessment;
+using Daikon.Shared.VM.Project;
 
 namespace Aggregators.Application.Disclosure.Dashboard
 {
@@ -25,5 +27,8 @@ namespace Aggregators.Application.Disclosure.Dashboard
          * Each HitVM contains detailed assay and activity metadata.
          */
         public List<HitVM> Hits { get; set; } = new();
+        public List<HaCompoundEvolutionVM> HaCompoundEvolutions { get; set; } = new();
+        public List<CompoundEvolutionVM> ProjectCompoundEvolution { get; set; } = new();
+
     }
 }

@@ -8,16 +8,16 @@ namespace Aggregators.API.Controllers.V2
     [ApiController]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public partial class DisclosureController : ControllerBase
+    public class AggregatorsController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public DisclosureController(IMediator mediator)
+        public AggregatorsController(IMediator mediator)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
 
-        [HttpGet("/ping", Name = "ping")]
+        [HttpGet("ping", Name = "ping")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Ping()
@@ -25,7 +25,7 @@ namespace Aggregators.API.Controllers.V2
             return await Task.FromResult(Ok("Pong"));
         }
 
-        [HttpGet("generate-dashboard", Name = "GenerateDashboard")]
+        [HttpGet("disclosure/generate-dashboard", Name = "GenerateDashboard")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> GenerateDashboard([FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)

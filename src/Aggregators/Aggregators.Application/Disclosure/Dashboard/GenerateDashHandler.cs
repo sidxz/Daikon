@@ -8,7 +8,9 @@ using AutoMapper;
 using Daikon.Shared.APIClients.Horizon;
 using Daikon.Shared.APIClients.MLogix;
 using Daikon.Shared.APIClients.Screen;
+using Daikon.Shared.VM.HitAssessment;
 using Daikon.Shared.VM.Horizon;
+using Daikon.Shared.VM.Project;
 using Daikon.Shared.VM.Screen;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
@@ -80,8 +82,7 @@ namespace Aggregators.Application.Disclosure.Dashboard
                     var dashRow = _mapper.Map<DisclosureDashTableElemView>(molecule);
 
                     // Set horizon relations if found
-                    dashRow.HorizonRelations = compoundRelations?.Relations
-                        .GetValueOrDefault(molecule.Id, new List<CompoundRelationsVM>());
+                    dashRow.HorizonRelations = compoundRelations?.Relations.GetValueOrDefault(molecule.Id, new List<CompoundRelationsVM>());
 
                     var hitQuery = new DeepFindRelQuery
                     {
@@ -91,8 +92,10 @@ namespace Aggregators.Application.Disclosure.Dashboard
 
                     try
                     {
-                        var hitResult = await _mediator.Send(hitQuery, cancellationToken);
-                        dashRow.Hits = hitResult?.Hits ?? new List<HitVM>();
+                        var deepSearchResult = await _mediator.Send(hitQuery, cancellationToken);
+                        dashRow.Hits = deepSearchResult?.Hits ?? new List<HitVM>();
+                        dashRow.HaCompoundEvolutions = deepSearchResult?.HaCompoundEvolutions ?? new List<HaCompoundEvolutionVM>();
+                        dashRow.ProjectCompoundEvolution = deepSearchResult?.ProjectCompoundEvolution ?? new List<CompoundEvolutionVM>();
                     }
                     catch (Exception ex)
                     {

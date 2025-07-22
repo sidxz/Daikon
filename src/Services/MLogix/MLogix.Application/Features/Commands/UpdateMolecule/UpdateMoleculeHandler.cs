@@ -51,7 +51,19 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 RegistrationId = existingMolecule.RegistrationId,
                 LastModifiedById = request.RequestorUserId,
                 DateModified = request.DateModified,
-                IsModified = request.IsModified
+                IsModified = request.IsModified,
+                StructureDisclosedDate = request.StructureDisclosedDate,
+                DisclosureScientist = request.DisclosureScientist,
+                DisclosureOrgId = request.DisclosureOrgId,
+                DisclosureReason = request.DisclosureReason,
+                DisclosureSource = request.DisclosureSource,
+                DisclosureStage = request.DisclosureStage,
+                DisclosureNotes = request.DisclosureNotes,
+                DisclosureVersion = request.DisclosureVersion,
+                DisclosureType = request.DisclosureType,
+                LiteratureReferences = request.LiteratureReferences,
+                NumberOfUndisclosedAnalogues = request.NumberOfUndisclosedAnalogues,
+                DisclosureAdditionalNotes = request.DisclosureAdditionalNotes
             };
 
 
