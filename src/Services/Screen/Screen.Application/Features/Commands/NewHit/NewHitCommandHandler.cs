@@ -77,7 +77,8 @@ namespace Screen.Application.Features.Commands.NewHit
                 var response = await _mLogixAPIService.RegisterMolecule(new RegisterMoleculeDTO
                 {
                     Name = request.MoleculeName,
-                    SMILES = request.RequestedSMILES.Value
+                    SMILES = request.RequestedSMILES.Value,
+                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen
                 });
 
                 eventToAdd.MoleculeId = response.Id;

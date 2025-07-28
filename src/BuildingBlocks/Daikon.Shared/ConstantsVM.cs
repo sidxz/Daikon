@@ -3,6 +3,7 @@ using Daikon.Shared.Constants.AppHitAssessment;
 using Daikon.Shared.Constants.AppProject;
 using Daikon.Shared.Constants.AppScreen;
 using Daikon.Shared.Constants.AppTarget;
+using Daikon.Shared.Constants.Workflow;
 
 namespace Daikon.Shared
 {
@@ -36,8 +37,11 @@ namespace Daikon.Shared
                 AppProject = new
                 {
                     ProjectStages = ProjectStage.GetProjectStages()
+                },
+                AppWorkflow = new
+                {
+                    Stages = Stages.GetStages()
                 }
-
             };
         }
     }

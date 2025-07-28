@@ -127,5 +127,63 @@ namespace Horizon.Infrastructure.Repositories
                          }).ExecuteAsync()
                          ;
         }
+
+
+        public async Task RemoveDuplicateRelationsAsync()
+        {
+            _logger.LogInformation("Removing duplicate relations for (hc:HitCollection)-[r:HIT_MOLECULE]->(m:Molecule)");
+
+            var removeDuplicatesQueryScreen = @"
+                        MATCH (hc:HitCollection)-[r:HIT_MOLECULE]->(m:Molecule)
+                        WITH hc.uniId AS hcId, m.uniId AS mId, r.hitId AS hitId, collect(id(r)) AS relIds, count(r) AS relCount
+                        WHERE relCount > 1
+                        // Prepare list of IDs to delete (skip first)
+                        WITH relIds[1..] AS relIdsToDelete
+                        UNWIND relIdsToDelete AS relId
+                        MATCH ()-[r]->() WHERE id(r) = relId
+                        DELETE r
+
+            ";
+            await _driver
+                .ExecutableQuery(removeDuplicatesQueryScreen)
+                .ExecuteAsync();
+
+            _logger.LogInformation("Duplicate Hit Collection relations removed successfully.");
+
+            _logger.LogInformation("Removing duplicate relations for (p:Project)-[r:COMPOUND_EVO_MOLECULE]->(m:Molecule)");
+
+            var removeDuplicatesQueryProject = @"
+                    MATCH (p:Project)-[r:COMPOUND_EVO_MOLECULE]->(m:Molecule)
+                    WITH p.uniId AS pId, m.uniId AS mId, collect(id(r)) AS relIds, count(r) AS relCount
+                    WHERE relCount > 1
+                    WITH relIds[1..] AS relIdsToDelete
+                    UNWIND relIdsToDelete AS relId
+                    MATCH ()-[r]->() WHERE id(r) = relId
+                    DELETE r
+                                ";
+            await _driver
+                .ExecutableQuery(removeDuplicatesQueryProject)
+                .ExecuteAsync();
+
+            _logger.LogInformation("Duplicate Project relations removed successfully.");
+
+
+            _logger.LogInformation("Removing duplicate relations for (p:HitAssessment)-[r:COMPOUND_EVO_MOLECULE]->(m:Molecule)");
+
+            var removeDuplicatesQueryHA = @"
+                    MATCH (p:HitAssessment)-[r:COMPOUND_EVO_MOLECULE]->(m:Molecule)
+                    WITH p.uniId AS pId, m.uniId AS mId, collect(id(r)) AS relIds, count(r) AS relCount
+                    WHERE relCount > 1
+                    WITH relIds[1..] AS relIdsToDelete
+                    UNWIND relIdsToDelete AS relId
+                    MATCH ()-[r]->() WHERE id(r) = relId
+                    DELETE r
+                                ";
+            await _driver
+                .ExecutableQuery(removeDuplicatesQueryHA)
+                .ExecuteAsync();
+
+            _logger.LogInformation("Duplicate Hit Assessment relations removed successfully.");
+        }
     }
 }

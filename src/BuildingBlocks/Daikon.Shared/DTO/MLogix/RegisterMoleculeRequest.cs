@@ -11,5 +11,6 @@ namespace Daikon.Shared.DTO.MLogix
         public string? Name { get; set; }
         public string SMILES { get; set; }
         public Dictionary<string, string>? Ids { get; set; }
+        public string? DisclosureStage { get; set; } = string.Empty;
     }
 }
