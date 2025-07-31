@@ -44,7 +44,7 @@ namespace DocuStore.Application.Mappings
             .ForMember(dest => dest.ShortSummary, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.ShortSummary)))
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<string>, string>(src => src.Notes)))
             .ForMember(dest => dest.PublicationDate, opt => opt.MapFrom(new MapperDVariableMetaResolver<ParsedDoc, IValueProperty<DateTime>, DateTime>(src => src.PublicationDate)))
-            .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => src.Ratings.Count > 0 ? src.Ratings.Average(r => r.Score) : (double?)null))
+            .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => src.Ratings.Count > 0 ? src.Ratings.Average(r => r.Score) : (0.0)))
             .ReverseMap()
             ;
         }

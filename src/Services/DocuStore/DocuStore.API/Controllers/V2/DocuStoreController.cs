@@ -78,12 +78,10 @@ namespace DocuStore.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<ActionResult> UpdateDoc(UpdateParsedDocCommand command)
         {
-            
+
             var res = await _mediator.Send(command);
 
             return StatusCode(StatusCodes.Status200OK, res);
         }
-
-
     }
 }

@@ -28,7 +28,7 @@ namespace Daikon.Shared.VM.DocuStore
         public dynamic PublicationDate { get; set; }
         public List<Reviews> Reviews { get; set; } = [];
         public List<Rating> Ratings { get; set; } = [];
-        public double? AverageRating { get; set; }
+        public double? AverageRating { get; set; } = 0.0;
 
     }
 }

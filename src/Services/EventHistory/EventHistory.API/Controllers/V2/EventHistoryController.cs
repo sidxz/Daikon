@@ -1,4 +1,5 @@
 using System.Net;
+using EventHistory.Application.Features.Queries.GetAggregateHistory;
 using EventHistory.Application.Features.Queries.GetEventHistory;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,15 @@ namespace EventHistory.API.Controllers.V2
         {
             var eventHistory = await _mediator.Send(query);
             return Ok(eventHistory);
+        }
+
+        [HttpGet("aggregate-history", Name = "GetAggregateHistory")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<string>> GetAggregateHistory([FromQuery] GetAggregateHistoryQuery query)
+        {
+            var aggregateHistory = await _mediator.Send(query);
+            return Ok(aggregateHistory);
         }
     }
 }
