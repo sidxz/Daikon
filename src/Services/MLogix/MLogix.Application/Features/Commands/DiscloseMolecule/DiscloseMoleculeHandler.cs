@@ -86,6 +86,17 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
                 throw new InvalidOperationException(ErrorMoleculeRegistration);
             }
 
+            string scientist = string.Empty;
+            if (headers.TryGetValue("AppUser-FullName", out var fullName))
+            {
+                scientist = fullName;
+            }
+            Guid disclosureOrgId = Guid.Empty;
+            if (headers.TryGetValue("AppOrg-Id", out var disclosureOrgIdFromHeader))
+            {
+                disclosureOrgId = Guid.Parse(disclosureOrgIdFromHeader);
+            }
+
 
             // Now update the aggregate
             var moleculeDisclosedEvent = _mapper.Map<MoleculeDisclosedEvent>(request);
@@ -96,6 +107,8 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
             moleculeDisclosedEvent.StructureDisclosedDate = DateTime.UtcNow;
             moleculeDisclosedEvent.StructureDisclosedByUserId = request.RequestorUserId;
             moleculeDisclosedEvent.IsStructureDisclosed = true;
+            moleculeDisclosedEvent.DisclosureScientist = request.DisclosureScientist ?? scientist;
+            moleculeDisclosedEvent.DisclosureOrgId = disclosureOrgId;
 
 
             try

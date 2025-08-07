@@ -115,7 +115,7 @@ namespace Screen.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteHitCollection(Guid id)
         {
-            await _mediator.Send(new DeleteHitCollectionCommand { Id = id });
+            await _mediator.Send(new DeleteHitCollectionCommand { Id = id, HitCollectionId = id });
 
             return StatusCode(StatusCodes.Status200OK, new BaseResponse
             {

@@ -97,7 +97,8 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
                 var mLogiXResponse = await _mLogixAPIService.RegisterMolecule(new RegisterMoleculeDTO
                 {
                     Name = request.MoleculeName,
-                    SMILES = request.RequestedSMILES
+                    SMILES = request.RequestedSMILES,
+                    DisclosureStage = request.Stage ?? Daikon.Shared.Constants.Workflow.Stages.Portfolio
                 });
 
                 eventToAdd.MoleculeId = mLogiXResponse.Id;

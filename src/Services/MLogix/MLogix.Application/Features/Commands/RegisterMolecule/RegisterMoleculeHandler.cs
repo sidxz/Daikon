@@ -10,6 +10,7 @@ using MLogix.Application.Contracts.Persistence;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
+using MLogix.Domain.Entities;
 
 namespace MLogix.Application.Features.Commands.RegisterMolecule
 {
@@ -110,8 +111,40 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
                 newMoleculeCreatedEvent.RequestedSMILES = request.SMILES;
                 newMoleculeCreatedEvent.SmilesCanonical = registrationReq.SmilesCanonical;
 
+                string scientist = string.Empty;
+                if (headers.TryGetValue("AppUser-FullName", out var fullName))
+                {
+                    scientist = fullName;
+                }
+                Guid disclosureOrgId = Guid.Empty;
+                if (headers.TryGetValue("AppOrg-Id", out var disclosureOrgIdFromHeader))
+                {
+                    disclosureOrgId = Guid.Parse(disclosureOrgIdFromHeader);
+                }
+
                 // create new molecule aggregate
                 var aggregate = new MoleculeAggregate(newMoleculeCreatedEvent);
+                // Disclosure event
+                var moleculeDisclosedEvent = new MoleculeDisclosedEvent
+                {
+                    RequestorUserId = request.RequestorUserId,
+                    Id = newMoleculeCreatedEvent.Id,
+                    RegistrationId = newMoleculeCreatedEvent.RegistrationId,
+                    Name = newMoleculeCreatedEvent.Name,
+                    RequestedSMILES = newMoleculeCreatedEvent.RequestedSMILES,
+                    SmilesCanonical = newMoleculeCreatedEvent.SmilesCanonical,
+                    IsStructureDisclosed = true,
+                    StructureDisclosedDate = request.DateCreated ?? DateTime.UtcNow,
+                    DisclosureScientist = scientist,
+                    DisclosureOrgId = disclosureOrgId,
+                    DisclosureReason = "Automatic registration",
+                    DisclosureStage = request.DisclosureStage ?? string.Empty,
+                    StructureDisclosedByUserId = request.RequestorUserId,
+                };
+
+                aggregate.DiscloseMolecule(moleculeDisclosedEvent);
+
+
                 await _moleculeEventSourcingHandler.SaveAsync(aggregate);
 
                 // return response
@@ -120,6 +153,8 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
                 // fix Ids
                 registerMoleculeResponseDTO.RegistrationId = registrationReq.Id;
                 registerMoleculeResponseDTO.Id = request.Id;
+
+
 
 
                 return registerMoleculeResponseDTO;

@@ -24,6 +24,9 @@ namespace MLogix.Domain.Entities
         public string DisclosureScientist { get; set; } = string.Empty;
 
         // Reason for disclosing the structure (e.g., "collaboration", "publication", "patent filing")
+
+        public Guid DisclosureOrgId { get; set; }
+
         public string DisclosureReason { get; set; } = string.Empty;
 
         // Source of disclosure (e.g., "internal database", "publication DOI", "patent number")
@@ -35,11 +38,11 @@ namespace MLogix.Domain.Entities
         // Free text for additional comments, context, or caveats about the disclosure
         public string? DisclosureNotes { get; set; }
 
-        
+
         // Version number of the disclosure (helps track updates/iterations of the disclosed structure)
         public int DisclosureVersion { get; set; } = 1;
 
-        
+
         // High-level classification of disclosure type (e.g., "Public", "Confidential", "Restricted External")
         public string DisclosureType { get; set; } = "Confidential";
 

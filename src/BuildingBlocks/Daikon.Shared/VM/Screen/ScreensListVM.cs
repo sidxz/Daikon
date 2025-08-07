@@ -22,5 +22,6 @@ namespace Daikon.Shared.VM.Screen
 
         public List<ScreenRunVM> ScreenRuns { get; set; }
         public DateTime DeepLastUpdated { get; set; }
+        public string Notes { get; set; }
     }
 }

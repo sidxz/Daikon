@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Horizon.Application.Features.Queries.CompoundRelations
+namespace Daikon.Shared.VM.Horizon
 {
     public class CompoundRelationsMultipleVM
     {

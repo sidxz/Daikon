@@ -45,6 +45,7 @@ services:
       - "EndPointRouting:docu-store=http://docustore-api"
       - "EndPointRouting:event-history=http://event-history-api"
       - "EndPointRouting:user-preferences=http://user-preferences-api"
+      - "EndPointRouting:aggregators=http://aggregators-api"
 
     ports:
       - "8010:80"
@@ -532,6 +533,23 @@ services:
 
     ports:
       - "8016:80"
+    networks:
+      - daikon-be-net
+
+  aggregators-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - "MLogixAPI:Url=http://mlogix-api/api/v2"
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
+      - "GeneAPI:Url=http://gene-api/api/v2"
+      - "TargetAPI:Url=http://target-api/api/v2"
+      - "ScreenAPI:Url=http://screen-api/api/v2"
+      - "HitAssessmentAPI:Url=http://hitassessment-api/api/v2"
+      - "ProjectAPI:Url=http://project-api/api/v2"
+      - "HorizonAPI:Url=http://horizon-api/api/v2"
+    ports:
+      - "8017:80"
     networks:
       - daikon-be-net
 
