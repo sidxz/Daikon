@@ -6,12 +6,16 @@ services:
       - "7474:7474" # HTTP
       - "7687:7687" # Bolt
     volumes:
-      - neo4j-data:/data/pgdata
-      - neo4j-import:/var/lib/neo4j/import
-      - neo4j-logs:/logs/pglogs
-      - neo4j-plugins:/plugins/pgplugins
+      - neo4j-data:/mnt/data
+      - neo4j-import:/mnt/import
+      - neo4j-logs:/mnt/logs
+      - neo4j-plugins:/mnt/plugins
     environment:
       - NEO4J_AUTH=${HorizonNeo4jUser}/${HorizonNeo4jPassword}
+      - NEO4J_dbms_directories_data=/mnt/data
+      - NEO4J_dbms_directories_import=/mnt/import
+      - NEO4J_dbms_directories_logs=/mnt/logs
+      - NEO4J_dbms_directories_plugins=/mnt/plugins
 
   userstore-api:
     image: ${DOCKER_REGISTRY-}userstore
