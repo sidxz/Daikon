@@ -6,10 +6,10 @@ services:
       - "7474:7474" # HTTP
       - "7687:7687" # Bolt
     volumes:
-      - neo4j-data:/data
+      - neo4j-data:/data/pgdata
       - neo4j-import:/var/lib/neo4j/import
-      - neo4j-logs:/logs
-      - neo4j-plugins:/plugins
+      - neo4j-logs:/logs/pglogs
+      - neo4j-plugins:/plugins/pgplugins
     environment:
       - NEO4J_AUTH=${HorizonNeo4jUser}/${HorizonNeo4jPassword}
 
