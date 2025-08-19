@@ -9,6 +9,7 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
         public string? Name { get; set; }
         public string SMILES { get; set; } = string.Empty;
         public string? Synonyms { get; set; }
+        public string? DisclosureStage { get; set; } = string.Empty;
 
     }
 }

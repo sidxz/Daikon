@@ -17,9 +17,10 @@ namespace MLogix.Infrastructure.DaikonChemVault
 
         public async Task<List<MoleculeBase>> GetMoleculesByIds(List<Guid> registrationIds, IDictionary<string, string> headers)
         {
-            string idsQuery = string.Join("&", registrationIds.Select(id => $"ids={id}"));
-            string apiUrl = $"{_apiBaseUrl}/molecules/by-ids?{idsQuery}";
-            var molecules = await SendRequestAsync<List<MoleculeBase>>(apiUrl, HttpMethod.Get, headers);
+            // string idsQuery = string.Join("&", registrationIds.Select(id => $"ids={id}")); # Moved to POST query
+            string apiUrl = $"{_apiBaseUrl}/molecules/by-ids";
+            var body = new { ids = registrationIds };
+            var molecules = await SendRequestAsync<List<MoleculeBase>>(apiUrl, HttpMethod.Post, headers, body);
             return molecules;
         }
 

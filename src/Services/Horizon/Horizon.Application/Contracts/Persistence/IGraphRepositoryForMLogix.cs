@@ -9,5 +9,6 @@ namespace Horizon.Application.Contracts.Persistence
         Task CreateConstraintsAsync();
         Task AddMolecule(Molecule molecule);
         Task UpdateMolecule(Molecule molecule);
+        Task RemoveDuplicateRelationsAsync();
     }
 }

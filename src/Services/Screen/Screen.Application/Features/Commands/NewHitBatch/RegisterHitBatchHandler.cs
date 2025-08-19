@@ -9,7 +9,8 @@ using Microsoft.Extensions.Logging;
 using Screen.Domain.Aggregates;
 using CQRS.Core.Extensions;
 using Screen.Domain.Entities;
-using Daikon.Shared.VM.Screen;using Daikon.Shared.VM.MLogix;
+using Daikon.Shared.VM.Screen;
+using Daikon.Shared.VM.MLogix;
 
 namespace Screen.Application.Features.Commands.NewHitBatch
 {
@@ -56,7 +57,9 @@ namespace Screen.Application.Features.Commands.NewHitBatch
                 var moleculeDTOs = batch.Select(cmd => new RegisterMoleculeDTO
                 {
                     Name = cmd.MoleculeName,
-                    SMILES = cmd.RequestedSMILES
+                    SMILES = cmd.RequestedSMILES,
+                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen
+
                 }).ToList();
 
                 var registrationResults = await _mLogixAPIService.RegisterBatch(moleculeDTOs);

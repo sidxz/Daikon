@@ -51,7 +51,19 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                 RegistrationId = existingMolecule.RegistrationId,
                 LastModifiedById = request.RequestorUserId,
                 DateModified = request.DateModified,
-                IsModified = request.IsModified
+                IsModified = request.IsModified,
+                StructureDisclosedDate = request.StructureDisclosedDate,
+                DisclosureScientist = request.DisclosureScientist,
+                DisclosureOrgId = request.DisclosureOrgId,
+                DisclosureReason = request.DisclosureReason,
+                DisclosureSource = request.DisclosureSource,
+                DisclosureStage = request.DisclosureStage,
+                DisclosureNotes = request.DisclosureNotes,
+                DisclosureVersion = request.DisclosureVersion,
+                DisclosureType = request.DisclosureType,
+                LiteratureReferences = request.LiteratureReferences,
+                NumberOfUndisclosedAnalogues = request.NumberOfUndisclosedAnalogues,
+                DisclosureAdditionalNotes = request.DisclosureAdditionalNotes
             };
 
 
@@ -138,10 +150,11 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                     var vaultMolecule = await _iMoleculeAPI.Update(existingMolecule.RegistrationId, request, headers);
                     moleculeUpdatedEvent.SmilesCanonical = vaultMolecule.SmilesCanonical;
 
-                    // return response
-                    updateMoleculeResponseDTO = _mapper.Map<UpdateMoleculeResponseDTO>(vaultMolecule);
+                    // first map the vault molecule to UpdateMoleculeResponseDTO
+                    // and set the WasAlreadyRegistered to true
+                    updateMoleculeResponseDTO = _mapper.Map<UpdateMoleculeResponseDTO>(moleculeUpdatedEvent);
                     updateMoleculeResponseDTO.WasAlreadyRegistered = true;
-                    // fix Ids
+                    _mapper.Map(vaultMolecule, updateMoleculeResponseDTO);  // map calculated properties
                     updateMoleculeResponseDTO.RegistrationId = vaultMolecule.Id;
                     updateMoleculeResponseDTO.Id = request.Id;
                 }
