@@ -9,7 +9,7 @@ using Neo4j.Driver;
 
 namespace Horizon.Application.Features.Queries.FIndTargetRelations
 {
-    public class ListAllTargetRelationsHandler : IRequestHandler<ListAllTargetRelationsCommand, List<TargetRelationsVM>>
+    public class ListAllTargetRelationsHandler : IRequestHandler<ListAllTargetRelationsQuery, List<TargetRelationsVM>>
     {
 
         private readonly IGraphQueryRepository _graphQueryRepository;
@@ -23,13 +23,12 @@ namespace Horizon.Application.Features.Queries.FIndTargetRelations
             _mediator = mediator;
         }
 
-        public async Task<List<TargetRelationsVM>> Handle(ListAllTargetRelationsCommand request, CancellationToken cancellationToken)
+        public async Task<List<TargetRelationsVM>> Handle(ListAllTargetRelationsQuery request, CancellationToken cancellationToken)
         {
             // Graph query to get all target relations
             var query = @"MATCH (t:Target) RETURN t";
-            var parameters = new Dictionary<string, object> { };
-            var cursor = await _graphQueryRepository.RunAsync(query, parameters);
-            var targets = await cursor.ToListAsync(cancellationToken);
+            var parameters = new { };
+            var targets = await _graphQueryRepository.RunReadAsync(query, parameters, cancellationToken);
 
             var targetRelations = new List<TargetRelationsVM>();
 
@@ -37,7 +36,7 @@ namespace Horizon.Application.Features.Queries.FIndTargetRelations
             {
                 var targetId = target["t"].As<INode>().Properties["uniId"].ToString();
                 var targetName = target["t"].As<INode>().Properties["name"].ToString();
-                var highestRelationship = await _mediator.Send(new FindTargetRelationsCommand { UniId = targetId }, cancellationToken);
+                var highestRelationship = await _mediator.Send(new FindTargetRelationsQuery { UniId = targetId }, cancellationToken);
 
                 var targetRelation = new TargetRelationsVM
                 {

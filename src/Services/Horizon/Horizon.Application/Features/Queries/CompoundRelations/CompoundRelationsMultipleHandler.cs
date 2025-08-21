@@ -47,16 +47,13 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                         OPTIONAL MATCH (related:HitCollection)-[:HIT_COLLECTION_OF]-(s:Screen)
                         RETURN n.uniId AS moleculeId, related, r, s";
 
-                    var parameters = new Dictionary<string, object>
-                    {
-                        { "uniIds", batch.Select(id => id.ToString()).ToList() }
-                    };
+                    var parameters = new { uniIds = batch.Select(id => id.ToString()).ToList() };
 
-                    var cursor = await _graphQueryRepository.RunAsync(neo4jQuery, parameters);
+                    var records = await _graphQueryRepository.RunReadAsync(neo4jQuery, parameters, cancellationToken);
 
-                    while (await cursor.FetchAsync())
+                    foreach (var record in records)
                     {
-                        ProcessRecord(cursor, result);
+                        ProcessRecord(record, result);
                     }
                 }
 
@@ -79,9 +76,8 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
         }
 
         /// Processes a single Neo4j record and adds it to the result dictionary.
-        private void ProcessRecord(IResultCursor cursor, Dictionary<Guid, List<CompoundRelationsVM>> result)
+        private void ProcessRecord(IRecord record, Dictionary<Guid, List<CompoundRelationsVM>> result)
         {
-            var record = cursor.Current;
 
             var moleculeId = Guid.Parse(record["moleculeId"].As<string>());
             var relatedNode = record["related"].As<INode>();
