@@ -34,7 +34,7 @@ namespace Horizon.API.Controllers.V2
         [MapToApiVersion("2.0")]
         public async Task<IActionResult> ListTargetRelations()
         {
-            var targetRelations = await _mediator.Send(new ListAllTargetRelationsCommand { });
+            var targetRelations = await _mediator.Send(new ListAllTargetRelationsQuery { });
             return Ok(targetRelations);
         }
     }
