@@ -39,9 +39,8 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
             var query = @"MATCH (root {uniId : $uniId}) <-[rel*]-(node)
                           WHERE node:Gene OR node:Target OR node:Screen OR node:HitCollection OR node:HitAssessment OR node:Project
                           RETURN root, rel, node";
-            var parameters = new Dictionary<string, object> { { "uniId", rootId } };
-            var cursor = await _graphQueryRepository.RunAsync(query, parameters);
-            var records = await cursor.ToListAsync(cancellationToken);
+            var parameters = new { uniId = rootId };
+            var records = await _graphQueryRepository.RunReadAsync(query, parameters, cancellationToken);
 
             // var recordsJson = System.Text.Json.JsonSerializer.Serialize(records);
             // _logger.LogInformation($"Fetched records: {recordsJson}");
@@ -51,9 +50,8 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
                 query = @"MATCH (root {uniId : $uniId})
                           WHERE root:Gene OR root:Target OR root:Screen OR root:HitCollection OR root:HitAssessment OR root:Project
                           RETURN root";
-                parameters = new Dictionary<string, object> { { "uniId", rootId } };
-                cursor = await _graphQueryRepository.RunAsync(query, parameters);
-                records = await cursor.ToListAsync(cancellationToken);
+                parameters = new { uniId = rootId };
+                records = await _graphQueryRepository.RunReadAsync(query, parameters, cancellationToken);
 
                 if (records.Count == 1)
                 {
@@ -76,7 +74,7 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
             return rootNode;
         }
 
-        private D3Node ProcessSingleRecord(IList<IRecord> records)
+        private D3Node ProcessSingleRecord(IReadOnlyList<IRecord> records)
         {
             if (records.Count != 1)
             {
@@ -90,7 +88,7 @@ namespace Horizon.Application.Features.Queries.GenerateHorizon
         /// <summary>
         /// Represents a node in the D3 visualization.
         /// </summary>
-        private D3Node ProcessRecords(IList<IRecord> records)
+        private D3Node ProcessRecords(IReadOnlyList<IRecord> records)
         {
             if (records.Count == 0)
             {

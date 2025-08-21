@@ -25,15 +25,30 @@ namespace Horizon.Application.Features.Queries.FindRelatedTarget
             // Query to fetch the root node and its connected nodes.
             try
             {
-                var query = @"MATCH (t:Target)<-[*]-(x {uniId: $uniId})
-                                RETURN DISTINCT t";
-                var parameters = new Dictionary<string, object> { { "uniId", request.Id.ToString() } };
+                const string query = @"
+                    MATCH (x {uniId: $uniId})
+                    MATCH (t:Target)<-[*1..9]-(x)
+                    RETURN DISTINCT t
+                    LIMIT 1
+                ";
+                var parameters = new { uniId = request.Id.ToString() };
 
-                var cursor = await _graphQueryRepository.RunAsync(query, parameters);
 
-                var record = await cursor.SingleAsync();
+                var records = await _graphQueryRepository.RunReadAsync(query, parameters, cancellationToken);
 
-                var node = record["t"].As<INode>();
+                if (records.Count == 0)
+                {
+                    _logger.LogWarning("No related target found for ID: {Id}", request.Id);
+                    return new RelatedTargetVM
+                    {
+                        Id = request.Id,
+                        TargetId = Guid.Empty,
+                        Name = null,
+                        TargetType = null
+                    };
+                }
+
+                var node = records[0]["t"].As<INode>();
 
                 return new RelatedTargetVM
                 {

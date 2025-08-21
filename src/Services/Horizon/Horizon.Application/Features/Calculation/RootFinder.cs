@@ -131,47 +131,22 @@ namespace Horizon.Application.Features.Calculation
         // Helper method to find a root node based on a given Cypher query.
         private async Task<IRecord> FindNodeAsync(string uniqueId, string query)
         {
-            var parameters = new Dictionary<string, object> { { "uniqueId", uniqueId } };
-            var cursor = await _graphQueryRepository.RunAsync(query, parameters);
-            var records = await cursor.ToListAsync();
-            var firstNode = records.FirstOrDefault();
-
-            if (firstNode != null)
-            {
-                return firstNode;
-            }
-
-            // Return null if no root node is found.
-            return null;
+            var parameters = new { uniqueId };
+            var records = await _graphQueryRepository.RunReadAsync(query, parameters);
+            return records.FirstOrDefault();
         }
         private async Task<IRecord> FindLastNodeAsync(string uniqueId, string query)
         {
-            var parameters = new Dictionary<string, object> { { "uniqueId", uniqueId } };
-            var cursor = await _graphQueryRepository.RunAsync(query, parameters);
-            var records = await cursor.ToListAsync();
-            var lastNode = records.LastOrDefault();
-
-            if (lastNode != null)
-            {
-                return lastNode;
-            }
-
-            // Return null if no root node is found.
-            return null;
+            var parameters = new { uniqueId };
+            var records = await _graphQueryRepository.RunReadAsync(query, parameters);
+            return records.Count > 0 ? records[^1] : null;
         }
 
         private async Task<IRecord> FindGeneAsync(string accessionNumber, string query)
         {
-            var parameters = new Dictionary<string, object> { { "accessionNumber", accessionNumber } };
-            var cursor = await _graphQueryRepository.RunAsync(query, parameters);
-            var records = await cursor.ToListAsync();
-            var firstNode = records.FirstOrDefault();
-
-            if (firstNode != null)
-            {
-                return firstNode;
-            }
-            return null;
+            var parameters = new { accessionNumber };
+            var records = await _graphQueryRepository.RunReadAsync(query, parameters);
+            return records.FirstOrDefault();
         }
     }
 }
