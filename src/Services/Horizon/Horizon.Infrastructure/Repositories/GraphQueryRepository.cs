@@ -23,20 +23,20 @@ namespace Horizon.Infrastructure.Repositories
         * Returning IResultCursor defers session disposal to the caller and can exhaust the Neo4j
         * connection pool under load. Prefer a method that fully materializes results and disposes
         * the session internally (e.g., RunReadAsync). This will be phased out. */
-        public async Task<IResultCursor> RunAsync(string query, IDictionary<string, object> parameters)
-        {
-            try
-            {
-                var session = _driver.AsyncSession();
-                var cursor = await session.RunAsync(query, parameters);
-                return cursor;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error running query");
-                throw;
-            }
-        }
+        // public async Task<IResultCursor> RunAsync(string query, IDictionary<string, object> parameters)
+        // {
+        //     try
+        //     {
+        //         var session = _driver.AsyncSession();
+        //         var cursor = await session.RunAsync(query, parameters);
+        //         return cursor;
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, "Error running query");
+        //         throw;
+        //     }
+        // }
 
 
         public async Task<IReadOnlyList<IRecord>> RunReadAsync(
