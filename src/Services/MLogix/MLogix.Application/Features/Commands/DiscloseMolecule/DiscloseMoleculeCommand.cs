@@ -24,6 +24,7 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
 
         // Name of the scientist who performed the disclosure
         public string DisclosureScientist { get; set; } = string.Empty;
+        public Guid DisclosureOrgId { get; set; } = Guid.Empty;
 
         // Reason for disclosing the structure (e.g., "collaboration", "publication", "patent filing")
         public string DisclosureReason { get; set; } = string.Empty;

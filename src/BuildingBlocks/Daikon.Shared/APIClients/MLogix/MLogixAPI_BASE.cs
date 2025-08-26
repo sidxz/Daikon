@@ -47,7 +47,7 @@ namespace Daikon.Shared.APIClients.MLogix
                 if (content != null && (method == HttpMethod.Post || method == HttpMethod.Put || method.Method == "PATCH"))
                 {
                     request.Content = new StringContent(JsonSerializer.Serialize(content, _jsonOptions), Encoding.UTF8, "application/json");
-                    _logger.LogDebug("API request content: {Content}", request.Content.ReadAsStringAsync().Result);
+                    //_logger.LogDebug("API request content: {Content}", request.Content.ReadAsStringAsync().Result);
                 }
 
                 HttpResponseMessage response = await _httpClient.SendAsync(request);

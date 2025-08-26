@@ -38,7 +38,7 @@ namespace Target.Application.Features.Commands.ApproveTarget
         {
             // check if target (targetName) already exists within same strain ; reject if it does
             var existingTarget = await _targetRepository.ReadTargetByName(request.TargetName);
-            if (existingTarget!= null && 
+            if (existingTarget != null &&
                 (existingTarget.Name == request.TargetName && existingTarget.StrainId == request.StrainId))
             {
                 throw new DuplicateEntityRequestException(nameof(ApproveTargetCommand), request.TargetName);
@@ -71,7 +71,7 @@ namespace Target.Application.Features.Commands.ApproveTarget
 
 
             await _mediator.Send(newTargetCommand, cancellationToken);
-            _logger.LogInformation(" +++++++++++++++++ New Target created with Name {TargetName}", request.TargetName);
+            _logger.LogInformation("New Target created with Name {TargetName}", request.TargetName);
 
             // now update the TPQ to reflect the new target
 
@@ -95,8 +95,9 @@ namespace Target.Application.Features.Commands.ApproveTarget
                 _logger.LogError(ex, "Aggregate not found");
             }
 
-            _logger.LogInformation(" +++++++++++++++++ TPQ updated with new target");
+            _logger.LogInformation("TPQ updated with new target");
 
-            return Unit.Value;        }
+            return Unit.Value;
+        }
     }
 }
