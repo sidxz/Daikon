@@ -3,6 +3,7 @@ using System.Net;
 using CQRS.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Target.Application.Features.Commands.ApproveTarget;
+using Target.Application.Features.Commands.RejectTarget;
 using Target.Application.Features.Commands.SubmitTPQ;
 using Target.Application.Features.Commands.UpdateTPQ;
 using Target.Application.Features.Queries.ListTPQRespUnverified;
@@ -88,6 +89,19 @@ namespace Target.API.Controllers.V2
 
         }
 
-
+        // Reject & Delete
+        [HttpDelete("tpq/{tpqId}", Name = "RejectTPQ")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType(typeof(BaseResponse), (int)HttpStatusCode.OK)]
+        public async Task<ActionResult<BaseResponse>> RejectTPQ(Guid tpqId)
+        {
+            var rejectTargetCommand = new RejectTargetCommand { Id = tpqId };
+            var response = await _mediator.Send(rejectTargetCommand);
+            return StatusCode(StatusCodes.Status200OK, new AddResponse
+            {
+                Id = tpqId,
+                Message = "TPQ rejected successfully.",
+            });
+        }
     }
 }

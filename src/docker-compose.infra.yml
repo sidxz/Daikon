@@ -47,7 +47,7 @@ services:
     container_name: "eventstoredb"
     image: mongo:jammy
     restart: always
-    cpus: '0.1'
+    cpus: '1.0'
     ports:
       - "27017:27017"
     volumes:
