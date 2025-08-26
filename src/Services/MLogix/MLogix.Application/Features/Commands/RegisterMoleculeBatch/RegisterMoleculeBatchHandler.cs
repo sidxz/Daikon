@@ -14,7 +14,7 @@ using MLogix.Domain.Aggregates;
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 {
     /* Represents the original incoming ID and SMILES of a molecule */
-    public record OriginalRequestInfo(Guid OriginalId, string? SMILES, string? DisclosureStage);
+    public record OriginalRequestInfo(Guid OriginalId, string? SMILES, string? DisclosureStage, string? DisclosureScientist, Guid DisclosureOrgId);
 
     public class RegisterMoleculeBatchHandler : IRequestHandler<RegisterMoleculeBatchCommand, List<RegisterMoleculeResponseDTO>>
     {
@@ -63,7 +63,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 cmd.RegistrationId = cmd.RegistrationId == Guid.Empty ? Guid.NewGuid() : cmd.RegistrationId;
                 cmd.Id = cmd.Id == Guid.Empty ? Guid.NewGuid() : cmd.Id;
 
-                originalIdMapping[cmd.RegistrationId] = new OriginalRequestInfo(cmd.Id, cmd.SMILES, cmd.DisclosureStage);
+                originalIdMapping[cmd.RegistrationId] = new OriginalRequestInfo(cmd.Id, cmd.SMILES, cmd.DisclosureStage, cmd.DisclosureScientist, cmd.DisclosureOrgId);
                 cmd.Id = cmd.RegistrationId;
             }
 
@@ -109,8 +109,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             _logger.LogInformation("==== ORIGINAL REQUEST ====");
             foreach (var entry in originalMap)
             {
-                _logger.LogInformation("RegistrationId: {RegId}, OriginalId: {Id}, SMILES: {SMILES}",
-                    entry.Key, entry.Value.OriginalId, entry.Value.SMILES);
+                _logger.LogInformation("RegistrationId: {RegId}, OriginalId: {Id}, SMILES: {SMILES}, DisclosureScientist: {DisclosureScientist}, DisclosureOrgId: {DisclosureOrgId}",
+                    entry.Key, entry.Value.OriginalId, entry.Value.SMILES, entry.Value.DisclosureScientist, entry.Value.DisclosureOrgId);
             }
             _logger.LogInformation("==========================");
         }
@@ -163,12 +163,17 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 {
                     var newEvent = _mapper.Map<MoleculeCreatedEvent>(apiResponse);
                     string disclosedStage = string.Empty;
+                    string disclosureScientist = string.Empty;
+                    Guid disclosureOrgId = Guid.Empty;
+
 
                     if (originalMap.TryGetValue(apiResponse.Id, out var original))
                     {
                         newEvent.Id = original.OriginalId;
                         newEvent.RequestedSMILES = original.SMILES;
                         disclosedStage = original.DisclosureStage ?? string.Empty;
+                        disclosureScientist = original.DisclosureScientist ?? string.Empty;
+                        disclosureOrgId = original.DisclosureOrgId;
                     }
                     else
                     {
@@ -182,16 +187,26 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     var aggregate = new MoleculeAggregate(newEvent);
 
                     // try to get "AppUser-FullName" from headers
-                    string scientist = string.Empty;
+                    string scientistFromHeader = string.Empty;
                     if (headers.TryGetValue("AppUser-FullName", out var fullName))
                     {
-                        scientist = fullName;
+                        scientistFromHeader = fullName;
                     }
 
-                    Guid disclosureOrgId = Guid.Empty;
-                    if (headers.TryGetValue("AppOrg-Id", out var disclosureOrgIdFromHeader))
+                    string resolvedScientist = string.IsNullOrEmpty(disclosureScientist) ? scientistFromHeader : disclosureScientist;
+
+                    Guid disclosureOrgIdFromHeader = Guid.Empty;
+                    if (headers.TryGetValue("AppOrg-Id", out var disclosureOrgId_FromHeader))
                     {
-                        disclosureOrgId = Guid.Parse(disclosureOrgIdFromHeader);
+                        disclosureOrgIdFromHeader = Guid.Parse(disclosureOrgId_FromHeader);
+                    }
+
+                    Guid resolvedOrgId = disclosureOrgId == Guid.Empty ? disclosureOrgIdFromHeader : disclosureOrgId;
+
+                    Guid requestorUserId = Guid.Empty;
+                    if (headers.TryGetValue("AppUser-Id", out var requestorUserId_FromHeader))
+                    {
+                        requestorUserId = Guid.Parse(requestorUserId_FromHeader);
                     }
 
                     var moleculeDisclosedEvent = new MoleculeDisclosedEvent
@@ -204,11 +219,11 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                         SmilesCanonical = newEvent.SmilesCanonical,
                         IsStructureDisclosed = true,
                         StructureDisclosedDate = newEvent.DateCreated ?? DateTime.UtcNow,
-                        DisclosureScientist = scientist,
-                        DisclosureOrgId = disclosureOrgId,
+                        DisclosureScientist = resolvedScientist,
+                        DisclosureOrgId = resolvedOrgId,
                         DisclosureReason = "Automatic registration",
                         DisclosureStage = disclosedStage,
-                        StructureDisclosedByUserId = newEvent.RequestorUserId,
+                        StructureDisclosedByUserId = requestorUserId,
                     };
 
                     aggregate.DiscloseMolecule(moleculeDisclosedEvent);

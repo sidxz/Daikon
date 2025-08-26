@@ -58,7 +58,9 @@ namespace Screen.Application.Features.Commands.NewHitBatch
                 {
                     Name = cmd.MoleculeName,
                     SMILES = cmd.RequestedSMILES,
-                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen
+                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen,
+                    DisclosureScientist = cmd.DisclosureScientist,
+                    DisclosureOrgId = cmd.DisclosureOrgId
 
                 }).ToList();
 
