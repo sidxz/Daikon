@@ -130,7 +130,7 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
                 moleculeDisclosedEvent.StructureDisclosedByUserId = request.RequestorUserId;
                 moleculeDisclosedEvent.IsStructureDisclosed = true;
                 moleculeDisclosedEvent.DisclosureScientist = molecule.DisclosureScientist ?? scientist;
-                moleculeDisclosedEvent.DisclosureOrgId = disclosureOrgId;
+                moleculeDisclosedEvent.DisclosureOrgId = molecule.DisclosureOrgId == Guid.Empty ? disclosureOrgId : molecule.DisclosureOrgId;
 
                 try
                 {

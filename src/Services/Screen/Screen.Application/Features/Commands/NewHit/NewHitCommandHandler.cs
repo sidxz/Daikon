@@ -78,7 +78,9 @@ namespace Screen.Application.Features.Commands.NewHit
                 {
                     Name = request.MoleculeName,
                     SMILES = request.RequestedSMILES.Value,
-                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen
+                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen,
+                    DisclosureScientist = request.DisclosureScientist,
+                    DisclosureOrgId = request.DisclosureOrgId
                 });
 
                 eventToAdd.MoleculeId = response.Id;

@@ -128,5 +128,11 @@ namespace Screen.Application.Features.Commands.NewHit
         public DVariable<string>? RequestedSMILES { get; set; }
         public required string MoleculeName { get; set; }
 
+        /* Disclosure Information */
+
+        public string DisclosureScientist { get; set; } = string.Empty;
+        public Guid DisclosureOrgId { get; set; } = Guid.Empty;
+
+
     }
 }
