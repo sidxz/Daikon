@@ -20,6 +20,7 @@ using MLogix.Application.Features.Previews.DiscloseMoleculePreview;
 using MLogix.Application.Features.Calculations.Clustering;
 using Daikon.Shared.DTO.MLogix;
 using MLogix.Application.Features.Queries.GetRecentDisclosures;
+using MLogix.Application.Features.Previews.RegisterMoleculePreview;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -134,6 +135,15 @@ namespace MLogix.API.Controllers.V2
             var updateMoleculeResponseDTO = await _mediator.Send(command);
             return Ok(updateMoleculeResponseDTO);
 
+        }
+
+        [HttpPost("register-molecule-preview", Name = "RegisterMoleculePreview")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterMoleculePreview([FromBody] RegisterMoleculePreviewQuery query)
+        {
+            var results = await _mediator.Send(query);
+            return Ok(results);
         }
 
 
