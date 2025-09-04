@@ -15,7 +15,7 @@ namespace MLogix.Application.Features.Previews.RegisterMoleculePreview
 
     public class QueryItem
     {
-        public string Name { get; set; }
+        public string MoleculeName { get; set; }
         public string SMILES { get; set; }
     }
 }

@@ -64,15 +64,15 @@ namespace MLogix.Application.Features.Previews.RegisterMoleculePreview
 
         private async Task<RegisterMoleculePreviewDTO> ProcessQueryAsync(QueryItem query, Dictionary<string, string> headers, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(query.Name) || string.IsNullOrWhiteSpace(query.SMILES))
+            if (string.IsNullOrWhiteSpace(query.MoleculeName) || string.IsNullOrWhiteSpace(query.SMILES))
             {
-                _logger.LogWarning("Skipping query due to missing required fields. Name: {Name}, SMILES: {SMILES}", query.Name, query.SMILES);
+                _logger.LogWarning("Skipping query due to missing required fields. MoleculeName: {MoleculeName}, SMILES: {SMILES}", query.MoleculeName, query.SMILES);
                 return null;
             }
 
             var previewDto = new RegisterMoleculePreviewDTO
             {
-                Name = query.Name,
+                MoleculeName = query.MoleculeName,
                 SMILES = query.SMILES,
                 Errors = [],
                 IsValid = true,
@@ -80,11 +80,11 @@ namespace MLogix.Application.Features.Previews.RegisterMoleculePreview
             };
 
             // Check if the molecule exists in MLOGIX
-            var existingMolecule = await _moleculeRepository.GetByName(query.Name);
+            var existingMolecule = await _moleculeRepository.GetByName(query.MoleculeName);
             if (existingMolecule != null)
             {
-                _logger.LogWarning("Molecule found in MLOGIX: {Name}", query.Name);
-                previewDto.Errors.Add($"The Molecule Name '{query.Name}' is already registered.");
+                _logger.LogWarning("Molecule found in MLOGIX: {MoleculeName}", query.MoleculeName);
+                previewDto.Errors.Add($"The Molecule MoleculeName '{query.MoleculeName}' is already registered.");
                 previewDto.IsValid = false;
                 return previewDto;
             }
@@ -97,6 +97,8 @@ namespace MLogix.Application.Features.Previews.RegisterMoleculePreview
                 {
                     _logger.LogWarning("SMILES already registered in DaikonChemVault: {SMILES}", query.SMILES);
                     previewDto.IsSMILERegistered = true;
+                    previewDto.Errors.Add($"The SMILES '{query.SMILES}' is already registered in DaikonChemVault.");
+                    previewDto.IsValid = false;
                     return previewDto;
                 }
             }
