@@ -47,7 +47,7 @@ services:
     container_name: "eventstoredb"
     image: mongo:jammy
     restart: always
-    cpus: '1.0'
+    #cpus: '1.0'
     ports:
       - "27017:27017"
     volumes:
@@ -57,36 +57,20 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
     networks:
       - daikon-be-net
-
-  # MolDb_Postgres:
-  #   container_name: "moldb-postgres"
-  #   image: informaticsmatters/rdkit-cartridge-debian:Release_2024_03_3
-  #   environment:
-  #     POSTGRES_DB: chemdb
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   volumes:
-  #     - moldb_data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-  #   networks:
-  #     - daikon-be-net
-
-  # MolDb_Postgres:
-  #   container_name: "moldb-postgres"
-  #   image: ${DOCKER_REGISTRY-}rdkit-catridge
-  #   build:
-  #     context: .
-  #     dockerfile: docker-rdkit/Dockerfile-debian-rdkit-catridge
-  #   environment:
-  #     POSTGRES_DB: chemdb
-  #     POSTGRES_USER: ${POSTGRES_USER}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #   volumes:
-  #     - moldb_data:/var/lib/postgresql/data
-  #   ports:
-  #     - "5432:5432"
-
+  MongoDb:
+    container_name: "mongodb"
+    image: ${DOCKER_REGISTRY-}mongo
+    restart: always
+    #cpus: '1.0'
+    ports:
+      - "27018:27017"
+    volumes:
+      - "mongo_data:/data/db"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    networks:
+      - daikon-be-net
   Neo4j:
     image: neo4j:5.25-community
     container_name: dk_neo4j
@@ -118,7 +102,7 @@ services:
 
 volumes:
   portainer_data:
-  # moldb_data:
+  mongo_data:
   pgadmin_data:
   eventdb_mongo_data:
   kafka_data:

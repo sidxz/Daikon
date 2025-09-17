@@ -109,7 +109,7 @@ namespace HitAssessment.Infrastructure.Query.Consumers
                         }
                         catch (UnknownEventDiscriminatorException ex)
                         {
-                            _logger.LogDebug("HitAssessmentEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                            //_logger.LogDebug("HitAssessmentEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
                             continue;
                         }

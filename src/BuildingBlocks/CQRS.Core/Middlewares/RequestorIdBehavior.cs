@@ -5,6 +5,8 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using CQRS.Core.Command;
 using CQRS.Core.Query;
+using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace CQRS.Core.Middlewares
 {
@@ -15,28 +17,44 @@ namespace CQRS.Core.Middlewares
         where TRequest : IRequest<TResponse>
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ILogger<RequestorIdBehavior<TRequest, TResponse>> _logger;
 
-        public RequestorIdBehavior(IHttpContextAccessor httpContextAccessor)
+
+        public RequestorIdBehavior(
+            IHttpContextAccessor httpContextAccessor,
+            ILogger<RequestorIdBehavior<TRequest, TResponse>> logger)
         {
             _httpContextAccessor = httpContextAccessor;
+            _logger = logger;
         }
 
         public async Task<TResponse> Handle(
-            TRequest request, 
-            RequestHandlerDelegate<TResponse> next, 
+            TRequest request,
+            RequestHandlerDelegate<TResponse> next,
             CancellationToken cancellationToken)
         {
             try
             {
                 var requestorUserId = GetRequestorUserId();
-                
+                var traceId = GetTraceId();
+                var path = _httpContextAccessor.HttpContext?.Request?.Path.Value ?? "<no-path>";
+                var method = _httpContextAccessor.HttpContext?.Request?.Method ?? "<no-method>";
+
+
+                // log requestorUserId id and traceId if needed
+                _logger.LogInformation(
+                        "🔛 TraceId {TraceId} | RequestorUserId: {RequestorUserId} | {Method} {Path}",
+                        traceId, requestorUserId, method, path);
+
                 switch (request)
                 {
                     case BaseCommand baseCommand:
                         baseCommand.RequestorUserId = requestorUserId;
+                        baseCommand.TraceId = traceId;
                         break;
                     case BaseQuery baseQuery:
                         baseQuery.RequestorUserId = requestorUserId;
+                        baseQuery.TraceId = traceId;
                         break;
                 }
 
@@ -65,6 +83,15 @@ namespace CQRS.Core.Middlewares
             // Attempt to parse the AppUser-Id from headers
             var headers = _httpContextAccessor.HttpContext.Request.Headers;
             return Guid.TryParse(headers["AppUser-Id"], out var appUserId) ? appUserId : Guid.Empty;
+        }
+
+        private string GetTraceId()
+        {
+            if (_httpContextAccessor.HttpContext == null) return string.Empty;
+            var headers = _httpContextAccessor.HttpContext.Request.Headers;
+            return !string.IsNullOrWhiteSpace(headers["trace-id"])
+                ? headers["trace-id"].ToString()
+                : Activity.Current?.TraceId.ToString() ?? _httpContextAccessor.HttpContext.TraceIdentifier;
         }
     }
 }
