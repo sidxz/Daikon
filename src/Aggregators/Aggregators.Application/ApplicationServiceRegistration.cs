@@ -10,7 +10,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using Daikon.Shared.Constants.InternalSettings;
 
 namespace Aggregators.Application
 {
@@ -30,6 +30,7 @@ namespace Aggregators.Application
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["HorizonAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
             services.AddScoped<IHorizonAPI, HorizonAPI>();
 
@@ -38,6 +39,7 @@ namespace Aggregators.Application
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["ScreenAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
 
             services.AddScoped<IScreenAPI, ScreenAPI>();
@@ -47,6 +49,7 @@ namespace Aggregators.Application
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["HitAssessmentAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
             services.AddScoped<IHitAssessmentAPI, HitAssessmentAPI>();
 
@@ -55,6 +58,7 @@ namespace Aggregators.Application
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["ProjectAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
 
             services.AddScoped<IProjectAPI, ProjectAPI>();
