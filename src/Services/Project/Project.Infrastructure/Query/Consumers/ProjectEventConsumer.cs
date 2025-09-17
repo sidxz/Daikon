@@ -109,7 +109,7 @@ namespace Project.Infrastructure.Query.Consumers
                         }
                         catch (UnknownEventDiscriminatorException ex)
                         {
-                            _logger.LogDebug("ProjectEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
+                            //_logger.LogDebug("ProjectEventConsumer: Skipping event {message} as the event was not understood. (Acknowledged)", consumeResult.Message.Value);
 
                             continue;
                         }

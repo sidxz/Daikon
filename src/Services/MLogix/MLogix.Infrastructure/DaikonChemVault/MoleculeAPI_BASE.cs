@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CQRS.Core.Infrastructure;
+using Daikon.Shared.Constants.InternalSettings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
@@ -20,7 +21,10 @@ namespace MLogix.Infrastructure.DaikonChemVault
         private readonly JsonSerializerOptions _jsonOptions;
         public MoleculeAPI(ILogger<MoleculeAPI> logger, IConfiguration configuration)
         {
-            _httpClient = new HttpClient();
+            _httpClient = new HttpClient
+            {
+                Timeout = Timeouts.HttpClientTimeout
+            };
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _apiBaseUrl = configuration["DaikonChemVault:Url"] ?? throw new ArgumentNullException(nameof(_apiBaseUrl));
             _jsonOptions = new JsonSerializerOptions
