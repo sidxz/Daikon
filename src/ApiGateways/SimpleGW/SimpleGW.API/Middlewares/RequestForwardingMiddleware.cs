@@ -34,7 +34,7 @@ namespace SimpleGW.API.Middlewares
 
             try
             {
-                var client = _clientFactory.CreateClient();
+                var client = _clientFactory.CreateClient("SimpleGWClient");
                 var proxiedRequest = new HttpRequestMessage(new HttpMethod(context.Request.Method), targetUrl);
                 // Ensure our trace-id is forwarded
                 var traceId = context.Items["TraceId"] as string
