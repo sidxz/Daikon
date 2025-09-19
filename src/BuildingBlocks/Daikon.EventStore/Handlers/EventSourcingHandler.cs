@@ -67,7 +67,7 @@ namespace Daikon.EventStore.Handlers
                     _logger.LogInformation("📦 Snapshot found (ID: {AggregateId}, Version: {Version})", aggregateId, snapshot.Version);
 
                     aggregate = JsonConvert.DeserializeObject<TAggregate>(snapshot.Data, _jsonSettings) ?? new TAggregate();
-                    _logger.LogDebug("📦 Deserialized aggregate: {Aggregate}", JsonConvert.SerializeObject(aggregate, _jsonSettings));
+                    //_logger.LogDebug("📦 Deserialized aggregate: {Aggregate}", JsonConvert.SerializeObject(aggregate, _jsonSettings));
 
                     snapshotVersion = snapshot.Version;
                     aggregate.Version = snapshotVersion;
