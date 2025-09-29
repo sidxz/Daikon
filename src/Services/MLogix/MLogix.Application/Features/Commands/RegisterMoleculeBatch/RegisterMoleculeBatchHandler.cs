@@ -212,8 +212,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 
                     if (!originalMap.TryGetValue(apiResponse.Id, out var original))
                     {
-                        _logger.LogWarning("Missing original mapping for RegistrationId: {Id}", apiResponse.Id);
-                        throw new InvalidOperationException($"Missing original mapping for RegistrationId: {apiResponse.Id}");
+                        _logger.LogWarning("Missing original mapping for Name: {Name}, RegistrationId: {Id}", apiResponse.Name, apiResponse.Id);
+                        throw new InvalidOperationException($"Missing original mapping for  Name: {apiResponse.Name}, RegistrationId: {apiResponse.Id}");
                     }
 
                     // carry through original IDs/inputs
