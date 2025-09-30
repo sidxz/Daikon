@@ -32,6 +32,9 @@ namespace MLogix.Application.Features.Previews.RegisterMoleculePreview
 
         public async Task<List<RegisterMoleculePreviewDTO>> Handle(RegisterMoleculePreviewQuery request, CancellationToken cancellationToken)
         {
+            // log query count
+            _logger.LogInformation("Processing {Count} molecule preview queries", request.Queries?.Count ?? 0);
+
             if (request.Queries == null || request.Queries.Count == 0)
             {
                 throw new ArgumentException("At least one query must be provided.");
@@ -84,7 +87,7 @@ namespace MLogix.Application.Features.Previews.RegisterMoleculePreview
             if (existingMolecule != null)
             {
                 _logger.LogWarning("Molecule found in MLOGIX: {MoleculeName}", query.MoleculeName);
-                previewDto.Errors.Add($"The Molecule MoleculeName '{query.MoleculeName}' is already registered.");
+                previewDto.Errors.Add($"The Molecule MoleculeName '{query.MoleculeName}' is already registered in MLOGIX.");
                 previewDto.IsValid = false;
                 return previewDto;
             }
@@ -95,9 +98,9 @@ namespace MLogix.Application.Features.Previews.RegisterMoleculePreview
                 var vaultMolecule = await _moleculeAPI.GetMoleculeBySMILES(query.SMILES, headers);
                 if (vaultMolecule != null)
                 {
-                    _logger.LogWarning("SMILES already registered in DaikonChemVault: {SMILES}", query.SMILES);
+                    _logger.LogWarning("SMILES already registered in DaikonChemVault: {NAME}, {SMILES}", query.MoleculeName, query.SMILES);
                     previewDto.IsSMILERegistered = true;
-                    previewDto.Errors.Add($"The SMILES '{query.SMILES}' is already registered in DaikonChemVault.");
+                    previewDto.Errors.Add($"The SMILES '{query.SMILES}' is already registered in DaikonChemVault. Name: {vaultMolecule.Name}");
                     previewDto.IsValid = false;
                     return previewDto;
                 }
