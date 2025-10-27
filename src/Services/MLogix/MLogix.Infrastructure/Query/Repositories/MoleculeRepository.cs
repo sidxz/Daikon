@@ -111,7 +111,9 @@ namespace MLogix.Infrastructure.Query.Repositories
             ArgumentNullException.ThrowIfNull(ids);
             try
             {
-                _logger.LogInformation("GetMoleculesByIds: Fetching molecules {moleculeIds}", ids);
+                //_logger.LogInformation("GetMoleculesByIds: Fetching molecules {moleculeIds}", ids);
+                // log count of ids instead of full list
+                _logger.LogInformation("GetMoleculesByIds: Fetching {count} molecules", ids?.Count);
 
                 return await _moleculeCollection.Find(m => ids.Contains(m.Id)).ToListAsync();
             }

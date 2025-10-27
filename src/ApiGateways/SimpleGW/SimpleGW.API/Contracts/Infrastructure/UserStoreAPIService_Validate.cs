@@ -1,5 +1,6 @@
 
 
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using SimpleGW.DTOs;
@@ -40,7 +41,7 @@ namespace SimpleGW.Contracts.Infrastructure
             {
                 var client = _clientFactory.CreateClient();
                 HttpResponseMessage response = await client.PostAsync(fullUrl, content);
-
+                
                 if (response.IsSuccessStatusCode)
                 {
                     string result = await response.Content.ReadAsStringAsync();

@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CQRS.Core.Infrastructure;
+using Daikon.Shared.Constants.InternalSettings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
@@ -20,7 +21,10 @@ namespace MLogix.Infrastructure.DaikonChemVault
         private readonly JsonSerializerOptions _jsonOptions;
         public MoleculeAPI(ILogger<MoleculeAPI> logger, IConfiguration configuration)
         {
-            _httpClient = new HttpClient();
+            _httpClient = new HttpClient
+            {
+                Timeout = Timeouts.HttpClientTimeout
+            };
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _apiBaseUrl = configuration["DaikonChemVault:Url"] ?? throw new ArgumentNullException(nameof(_apiBaseUrl));
             _jsonOptions = new JsonSerializerOptions
@@ -40,7 +44,7 @@ namespace MLogix.Infrastructure.DaikonChemVault
                 if (content != null && (method == HttpMethod.Post || method == HttpMethod.Put || method.Method == "PATCH"))
                 {
                     request.Content = new StringContent(JsonSerializer.Serialize(content, _jsonOptions), Encoding.UTF8, "application/json");
-                    _logger.LogDebug("API request content: {Content}", request.Content.ReadAsStringAsync().Result);
+                    //_logger.LogDebug("API request content: {Content}", request.Content.ReadAsStringAsync().Result);
                 }
 
                 HttpResponseMessage response = await _httpClient.SendAsync(request);

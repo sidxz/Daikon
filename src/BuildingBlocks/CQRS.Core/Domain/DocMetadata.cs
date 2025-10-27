@@ -87,6 +87,10 @@ namespace CQRS.Core.Domain
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? DataQualityIndicator { get; set; }
 
+        /* Traceability Properties */
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? TraceId { get; set; } = string.Empty;
+
 
         /* Default Constructor */
         public DocMetadata()
@@ -113,6 +117,7 @@ namespace CQRS.Core.Domain
             VerifiedDate = default!;
             IsDraft = default!;
             DataQualityIndicator = default!;
+            TraceId = default!;
         }
         /* Copy Constructor */
         public DocMetadata(DocMetadata docMetadata)
@@ -139,6 +144,7 @@ namespace CQRS.Core.Domain
             VerifiedDate = docMetadata.VerifiedDate;
             IsDraft = docMetadata.IsDraft;
             DataQualityIndicator = docMetadata.DataQualityIndicator;
+            TraceId = docMetadata.TraceId;
         }
 
     }

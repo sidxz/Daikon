@@ -63,7 +63,7 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
             if (moleculeInChemVault != null)
             {
 
-                throw new InvalidOperationException("Molecule Name is already registered in chemvault id: " + moleculeInChemVault.Id);
+                throw new InvalidOperationException("ERROR: The Molecule is already disclosed. Molecule was registered in ChemVault with id: " + moleculeInChemVault.Id);
             }
 
             // check if name is already registered
@@ -72,6 +72,7 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
             {
                 _logger.LogInformation("Molecule already registered in MLogix");
                 registerUndisclosedResponseDTO.Id = molecule.Id;
+                registerUndisclosedResponseDTO.RegistrationId = molecule.RegistrationId;
                 registerUndisclosedResponseDTO.WasAlreadyRegistered = true;
                 return registerUndisclosedResponseDTO;
             }

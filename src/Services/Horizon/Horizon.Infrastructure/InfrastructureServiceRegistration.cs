@@ -40,9 +40,9 @@ namespace Horizon.Infrastructure
                     AuthTokens.Basic(neo4jUser, neo4jPassword),
                     new Action<ConfigBuilder>(config =>
                     {
-                        config.WithMaxConnectionPoolSize(100); 
-                        config.WithConnectionTimeout(TimeSpan.FromSeconds(60)); 
-                        config.WithMaxTransactionRetryTime(TimeSpan.FromSeconds(30)); 
+                        config.WithMaxConnectionPoolSize(120); 
+                        config.WithConnectionTimeout(TimeSpan.FromSeconds(120)); 
+                        config.WithMaxTransactionRetryTime(TimeSpan.FromSeconds(120)); 
                         config.WithEncryptionLevel(EncryptionLevel.None);
                     })
                 );
