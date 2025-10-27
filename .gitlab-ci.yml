@@ -50,6 +50,8 @@ build:
         DOCKERFILE: "Extensions/Daikon.EventManagement/Dockerfile"
       - SERVICE: "user-preferences-api"
         DOCKERFILE: "Services/UserPreferences/UserPreferences.API/Dockerfile"
+      - SERVICE: "aggregators-api"
+        DOCKERFILE: "Aggregators/Aggregators.API/Dockerfile"
   script:
         - docker build -t ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME -f ${DOCKERFILE} .
   only:
@@ -74,6 +76,7 @@ push:
       - SERVICE: "docustore-api"
       - SERVICE: "event-management-api"
       - SERVICE: "user-preferences-api"
+      - SERVICE: "aggregators-api"
   script:
     - docker info
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
