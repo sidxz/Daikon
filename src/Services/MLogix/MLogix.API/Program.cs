@@ -46,7 +46,25 @@ builder.Services.AddControllers(options =>
 // Add Swagger and OpenAPI support
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.CustomSchemaIds(type =>
+    {
+        // Prefer fully-qualified name so nested types are unique across namespaces
+        // Replace '+' (nested-class separator) for valid component keys
+        var fullName = type.FullName ?? type.Name;
+
+        // Optionally handle generics nicely
+        if (type.IsGenericType)
+        {
+            var genericArgs = string.Join("_", type.GetGenericArguments().Select(t => t.Name));
+            var bareName = type.Name.Contains('`') ? type.Name[..type.Name.IndexOf('`')] : type.Name;
+            return $"{type.Namespace}.{bareName}_{genericArgs}".Replace("+", ".");
+        }
+
+        return fullName.Replace("+", ".");
+    });
+});
 
 // Register application and infrastructure services
 builder.Services.AddApplicationServices();

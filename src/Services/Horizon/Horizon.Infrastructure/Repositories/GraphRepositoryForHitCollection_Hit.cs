@@ -1,9 +1,7 @@
-
 using CQRS.Core.Exceptions;
 using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.Screens;
 using Microsoft.Extensions.Logging;
-
 
 namespace Horizon.Infrastructure.Repositories
 {
@@ -22,20 +20,19 @@ namespace Horizon.Infrastructure.Repositories
                         MERGE (m:Molecule {uniId: $moleculeId})
                         WITH m
                         MATCH (hc:HitCollection {uniId: $hitCollectionId})
-                        MERGE (hc)-[:HIT_MOLECULE {hitId: $hitId, library: $library, requestedSMILES: $requestedSMILES}]->(m)
+                        MERGE (hc)-[r:HIT_MOLECULE {hitId: $hitId}]->(m)
+                        SET r.library = $library, r.requestedSMILES = $requestedSMILES
                     ";
 
                     var (queryResults2, _) = await _driver
-                             .ExecutableQuery(mergeMoleculeQuery).WithParameters(new
-                             {
-                                 hitId = hit.HitId,
-                                 moleculeId = hit.MoleculeId,
-                                 hitCollectionId = hit.HitCollectionId,
-                                 library = hit.Library,
-                                 requestedSMILES = hit.RequestedSMILES
-                             }).ExecuteAsync()
-                             ;
-
+                        .ExecutableQuery(mergeMoleculeQuery).WithParameters(new
+                        {
+                            hitId = hit.HitId,
+                            moleculeId = hit.MoleculeId,
+                            hitCollectionId = hit.HitCollectionId,
+                            library = hit.Library,
+                            requestedSMILES = hit.RequestedSMILES
+                        }).ExecuteAsync();
                 }
             }
             catch (Exception ex)
@@ -51,11 +48,10 @@ namespace Horizon.Infrastructure.Repositories
             try
             {
                 var query = @"
-                    MATCH (hc:HitCollection {uniId: $hitCollectionId})- [r:HIT_MOLECULE]->(m:Molecule)
+                    MATCH (hc:HitCollection {uniId: $hitCollectionId})-[r:HIT_MOLECULE]->(m:Molecule)
                     WHERE r.hitId = $hitId
-                    SET 
-                        r.library = $library
-        ";
+                    SET r.library = $library
+                ";
 
                 var (queryResults, _) = await _driver
                     .ExecutableQuery(query).WithParameters(new
@@ -80,9 +76,9 @@ namespace Horizon.Infrastructure.Repositories
             {
                 // Step 1: Delete existing molecule relationship (if any)
                 var deleteQuery = @"
-            MATCH (hc:HitCollection {uniId: $hitCollectionId})-[r:HIT_MOLECULE {hitId: $hitId}]->(m:Molecule)
-            DELETE r
-        ";
+                    MATCH (hc:HitCollection {uniId: $hitCollectionId})-[r:HIT_MOLECULE {hitId: $hitId}]->(m:Molecule)
+                    DELETE r
+                ";
 
                 await _driver.ExecutableQuery(deleteQuery).WithParameters(new
                 {
@@ -93,14 +89,13 @@ namespace Horizon.Infrastructure.Repositories
                 // Step 2: If MoleculeId is provided, create new relationship
                 if (!string.IsNullOrEmpty(hit.MoleculeId))
                 {
-
                     var createQuery = @"
                         MERGE (m:Molecule {uniId: $moleculeId})
                         WITH m
                         MATCH (hc:HitCollection {uniId: $hitCollectionId})
                         MERGE (hc)-[r:HIT_MOLECULE {hitId: $hitId}]->(m)
                         SET r.library = $library, r.requestedSMILES = $requestedSMILES
-            ";
+                    ";
 
                     await _driver.ExecutableQuery(createQuery).WithParameters(new
                     {
@@ -119,8 +114,6 @@ namespace Horizon.Infrastructure.Repositories
             }
         }
 
-
-
         public async Task DeleteHit(string hitId)
         {
             _logger.LogInformation("DeleteHit(): Deleting hit with id {HitId}", hitId);
@@ -131,13 +124,13 @@ namespace Horizon.Infrastructure.Repositories
                     MATCH (hc:HitCollection)-[r:HIT_MOLECULE]->(m:Molecule)
                     WHERE r.hitId = $_hitId
                     DELETE r
-        ";
+                ";
 
                 var (queryResults, _) = await _driver
-                             .ExecutableQuery(deleteHitQuery).WithParameters(new
-                             {
-                                 _hitId = hitId,
-                             }).ExecuteAsync();
+                    .ExecutableQuery(deleteHitQuery).WithParameters(new
+                    {
+                        _hitId = hitId,
+                    }).ExecuteAsync();
             }
             catch (Exception ex)
             {

@@ -12,6 +12,7 @@ namespace MLogix.Application.Contracts.Persistence
         Task<Molecule> GetMoleculeByRegistrationId(Guid id);
         Task<Molecule> GetByName(string name);
         Task<List<Molecule>> GetAllMolecules();
+        Task<List<Molecule>> GetDisclosedMolecules(DateTime? startDate = null, DateTime? endDate = null);
 
     }
 }

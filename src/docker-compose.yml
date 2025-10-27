@@ -105,3 +105,10 @@ services:
     build:
       context: .
       dockerfile: Services/UserPreferences/UserPreferences.API/Dockerfile
+      
+  aggregators-api:
+    container_name: "aggregators-api"
+    image: ${DOCKER_REGISTRY-}aggregators
+    build:
+      context: .
+      dockerfile: Aggregators/Aggregators.API/Dockerfile

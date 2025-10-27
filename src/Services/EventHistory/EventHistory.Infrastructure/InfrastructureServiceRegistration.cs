@@ -14,6 +14,7 @@ using Daikon.Shared.APIClients.Screen;
 using Daikon.Shared.APIClients.Project;
 using Daikon.Shared.APIClients.Gene;
 using Daikon.Shared.Embedded.Screens;
+using Daikon.Shared.Constants.InternalSettings;
 namespace EventHistory.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -28,6 +29,7 @@ namespace EventHistory.Infrastructure
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["UserStoreAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
 
 
@@ -36,6 +38,7 @@ namespace EventHistory.Infrastructure
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["GeneAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
 
 
@@ -44,6 +47,7 @@ namespace EventHistory.Infrastructure
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["ScreenAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
 
             services.AddHttpClient<IHitAssessmentAPI>(client =>
@@ -51,6 +55,7 @@ namespace EventHistory.Infrastructure
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["HitAssessmentAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
 
             services.AddHttpClient<IProjectAPI>(client =>
@@ -58,9 +63,10 @@ namespace EventHistory.Infrastructure
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["ProjectAPI:Url"]);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
             });
 
-            
+
 
             /* MongoDB Conventions */
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
@@ -132,7 +138,7 @@ namespace EventHistory.Infrastructure
                 }
             }
 
-            
+
         }
 
     }

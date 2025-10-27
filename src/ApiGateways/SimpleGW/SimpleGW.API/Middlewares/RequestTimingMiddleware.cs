@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,12 +19,35 @@ namespace SimpleGW.API.Middlewares
         public async Task InvokeAsync(HttpContext context)
         {
             var startTime = DateTime.UtcNow;
+            var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
+            context.Response.Headers["trace-id"] = traceId;
+            context.Response.Headers["trace-id"] = traceId;
 
-            await _next(context);
+            using (_logger.BeginScope(new Dictionary<string, object> { ["TraceId"] = traceId }))
+            {
+                var started = DateTime.UtcNow;
+                _logger.LogInformation("⛸️ [START] TraceId {TraceId} | Path {Path} | Method {Method}",
+                    traceId, context.Request.Path.Value, context.Request.Method);
+                try
+                {
+                    await _next(context);
+                    var durationMs = (DateTime.UtcNow - started).TotalMilliseconds;
 
-            var duration = DateTime.UtcNow - startTime;
-            // Log duration or send to a monitoring service
-            _logger.LogCritical($"Request duration: {context.Request.Path.Value} : {duration.TotalMilliseconds} ms");
+                    _logger.LogInformation("🔚 [END] TraceId {TraceId} | Path {Path} | Duration {DurationMs} ms",
+                        traceId, context.Request.Path.Value, durationMs);
+                }
+                catch (Exception ex)
+                {
+                    var durationMs = (DateTime.UtcNow - started).TotalMilliseconds;
+                    _logger.LogError(ex,
+                        "❌ [ERROR] TraceId {TraceId} | Path {Path} | Duration {DurationMs} ms | Exception: {Message}",
+                        traceId, context.Request.Path.Value, durationMs, ex.Message);
+
+                    throw;
+                }
+
+
+            }
         }
     }
 

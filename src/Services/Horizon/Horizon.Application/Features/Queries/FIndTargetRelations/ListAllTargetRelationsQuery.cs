@@ -7,8 +7,8 @@ using MediatR;
 
 namespace Horizon.Application.Features.Queries.FIndTargetRelations
 {
-    public class FindTargetRelationsCommand : BaseQuery, IRequest<TargetRelationsVM>
+    public class ListAllTargetRelationsQuery  : BaseQuery, IRequest<List<TargetRelationsVM>>
     {
-        public string UniId { get; set; }
+        
     }
 }

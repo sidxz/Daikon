@@ -92,7 +92,8 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
                 var mLogiXResponse = await _mLogixAPIService.RegisterMolecule(new RegisterMoleculeDTO
                 {
                     Name = request.MoleculeName,
-                    SMILES = request.RequestedSMILES
+                    SMILES = request.RequestedSMILES,
+                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.HA
                 });
 
                 eventToAdd.MoleculeId = mLogiXResponse.Id;

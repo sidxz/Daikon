@@ -67,7 +67,7 @@ namespace Daikon.EventStore.Handlers
                     _logger.LogInformation("📦 Snapshot found (ID: {AggregateId}, Version: {Version})", aggregateId, snapshot.Version);
 
                     aggregate = JsonConvert.DeserializeObject<TAggregate>(snapshot.Data, _jsonSettings) ?? new TAggregate();
-                    _logger.LogDebug("📦 Deserialized aggregate: {Aggregate}", JsonConvert.SerializeObject(aggregate, _jsonSettings));
+                    //_logger.LogDebug("📦 Deserialized aggregate: {Aggregate}", JsonConvert.SerializeObject(aggregate, _jsonSettings));
 
                     snapshotVersion = snapshot.Version;
                     aggregate.Version = snapshotVersion;
@@ -156,7 +156,7 @@ namespace Daikon.EventStore.Handlers
                         .Range(expectedVersion + 1, latestEventVersion - expectedVersion)
                         .Where(v => v % SnapshotThreshold == 0)
                         .ToList();
-                _logger.LogInformation("📸 Crossed snapshot versions: {Versions}", string.Join(", ", crossedThresholds));
+                //_logger.LogInformation("📸 Crossed snapshot versions: {Versions}", string.Join(", ", crossedThresholds));
 
                 if (crossedThresholds.Any())
                 {
@@ -181,10 +181,10 @@ namespace Daikon.EventStore.Handlers
                 }
                 else
                 {
-                    _logger.LogInformation(
-                        "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
-                        latestEventVersion,
-                        SnapshotThreshold);
+                    // _logger.LogInformation(
+                    //     "🛑 No snapshot created. Current version {Version} not divisible by threshold {Threshold}",
+                    //     latestEventVersion,
+                    //     SnapshotThreshold);
                 }
             }
 

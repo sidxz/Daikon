@@ -19,6 +19,8 @@ using MLogix.Application.Features.Commands.DiscloseMolecule;
 using MLogix.Application.Features.Previews.DiscloseMoleculePreview;
 using MLogix.Application.Features.Calculations.Clustering;
 using Daikon.Shared.DTO.MLogix;
+using MLogix.Application.Features.Queries.GetRecentDisclosures;
+using MLogix.Application.Features.Previews.RegisterMoleculePreview;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -46,11 +48,11 @@ namespace MLogix.API.Controllers.V2
             return Ok(molecule);
 
         }
-        [HttpGet("by-ids", Name = "GetMoleculesByIds")]
+        [HttpPost("by-ids", Name = "GetMoleculesByIds")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetMoleculesByIds([FromQuery] GetMoleculeByIDsQuery query)
+        public async Task<IActionResult> GetMoleculesByIds([FromBody] GetMoleculeByIDsQuery query)
         {
             var molecules = await _mediator.Send(query);
             return Ok(molecules);
@@ -135,6 +137,15 @@ namespace MLogix.API.Controllers.V2
 
         }
 
+        [HttpPost("register-molecule-preview", Name = "RegisterMoleculePreview")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> RegisterMoleculePreview([FromBody] RegisterMoleculePreviewQuery query)
+        {
+            var results = await _mediator.Send(query);
+            return Ok(results);
+        }
+
 
         [HttpPost("batch", Name = "RegisterMoleculeBatch")]
         [MapToApiVersion("2.0")]
@@ -216,6 +227,17 @@ namespace MLogix.API.Controllers.V2
                 var clusterResults = await _mediator.Send(command);
                 return Ok(clusterResults);
             }
+        }
+
+
+        [HttpGet("recent-disclosure", Name = "GetRecentDisclosures")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetRecentDisclosures([FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null)
+        {
+            var query = new GetRecentDisclosuresQuery { StartDate = startDate, EndDate = endDate };
+            var molecules = await _mediator.Send(query);
+            return Ok(molecules);
         }
     }
 }

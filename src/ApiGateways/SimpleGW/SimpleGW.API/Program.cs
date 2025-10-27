@@ -40,7 +40,11 @@ try
     }
 
     builder.Services.AddHttpContextAccessor();
-    builder.Services.AddHttpClient();
+    builder.Services.AddHttpClient("SimpleGWClient")
+        .ConfigureHttpClient(client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(5);
+        });
     builder.Services.AddMemoryCache();
 
 

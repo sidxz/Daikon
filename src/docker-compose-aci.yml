@@ -69,13 +69,6 @@ services:
       context: .
       dockerfile: Services/MLogix/MLogix.API/Dockerfile
 
-  moldb-api:
-    image: ${DOCKER_REGISTRY-}moldb
-    container_name: moldb-api
-    build:
-      context: .
-      dockerfile: Services/Chem/MolDb.API/Dockerfile
-
   questionnaire-api:
     image: ${DOCKER_REGISTRY-}questionnaire
     container_name: questionnaire-api
@@ -102,6 +95,34 @@ services:
     build:
       context: .
       dockerfile: ApiGateways/SimpleGW/SimpleGW.API/Dockerfile
+
+  docustore-api:
+    container_name: docustore-api
+    image: ${DOCKER_REGISTRY-}docustore
+    build:
+      context: .
+      dockerfile: Services/DocuStore/DocuStore.API/Dockerfile
+
+  event-management-api:
+    container_name: event-management-api
+    image: ${DOCKER_REGISTRY-}event-management
+    build:
+      context: .
+      dockerfile: Extensions/Daikon.EventManagement/Dockerfile
+
+  user-preferences-api:
+    container_name: user-preferences-api
+    image: ${DOCKER_REGISTRY-}user-preferences-api
+    build:
+      context: .
+      dockerfile: Services/UserPreferences/UserPreferences.API/Dockerfile
+
+  event-history-api:
+    container_name: event-history-api
+    image: ${DOCKER_REGISTRY-}event-history
+    build:
+      context: .
+      dockerfile: Services/EventHistory/EventHistory.API/Dockerfile
 
 volumes:
   moldb-data:

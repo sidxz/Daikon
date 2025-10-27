@@ -46,7 +46,6 @@ namespace Screen.Application.Features.Commands.NewHit
 
                 var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(request.Id);
 
-                // Some molecules are proprietary and cannot be registered in MLogix
 
 
                 _logger.LogInformation("Will try to register molecule ...");
@@ -78,7 +77,10 @@ namespace Screen.Application.Features.Commands.NewHit
                 var response = await _mLogixAPIService.RegisterMolecule(new RegisterMoleculeDTO
                 {
                     Name = request.MoleculeName,
-                    SMILES = request.RequestedSMILES
+                    SMILES = request.RequestedSMILES.Value,
+                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen,
+                    DisclosureScientist = request.DisclosureScientist,
+                    DisclosureOrgId = request.DisclosureOrgId
                 });
 
                 eventToAdd.MoleculeId = response.Id;

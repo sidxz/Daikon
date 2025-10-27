@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Daikon.Shared.VM.Horizon;
 using Horizon.Application.Contracts.Persistence;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -31,16 +32,16 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                 // Query to fetch the molecule and its related nodes
                 var query = @"MATCH (n:Molecule {uniId: $uniId})-[r]-(related)
                               RETURN n, r, related";
-                var parameters = new Dictionary<string, object> { { "uniId", request.Id.ToString() } };
+                var parameters = new { uniId = request.Id.ToString() };
 
-                var cursor = await _graphQueryRepository.RunAsync(query, parameters);
+                var records = await _graphQueryRepository.RunReadAsync(query, parameters, cancellationToken);
 
-                var results = new List<CompoundRelationsVM>();
+                var compoundRelations = new List<CompoundRelationsVM>();
 
-                while (await cursor.FetchAsync())
+                foreach (var record in records)
                 {
-                    var node = cursor.Current["related"].As<INode>();
-                    var relation = cursor.Current["r"].As<IRelationship>();
+                    var node = record["related"].As<INode>();
+                    var relation = record["r"].As<IRelationship>();
 
                     var vm = new CompoundRelationsVM
                     {
@@ -75,12 +76,12 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                     if (vm.NodeType == "HitCollection")
                     {
                         var screenQuery = @"MATCH (hc:HitCollection {uniId: $hitCollectionId}) -[r:HIT_COLLECTION_OF]-(s:Screen) RETURN s";
-                        var screenParameters = new Dictionary<string, object> { { "hitCollectionId", node.Properties["uniId"].As<string>() } };
+                        var screenParameters = new { hitCollectionId = node.Properties["uniId"].As<string>() };
 
-                        var screenCursor = await _graphQueryRepository.RunAsync(screenQuery, screenParameters);
-                        if (await screenCursor.FetchAsync())
+                        var screenRecords = await _graphQueryRepository.RunReadAsync(screenQuery, screenParameters, cancellationToken);
+                        if (screenRecords.Count > 0)
                         {
-                            var screenNode = screenCursor.Current["s"].As<INode>();
+                            var screenNode = screenRecords[0]["s"].As<INode>();
 
                             // Append Screen properties to the VM
                             vm.NodeProperties["screenId"] = screenNode.Properties["uniId"].As<string>();
@@ -90,10 +91,10 @@ namespace Horizon.Application.Features.Queries.CompoundRelations
                         }
                     }
 
-                    results.Add(vm);
+                    compoundRelations.Add(vm);
                 }
 
-                return results;
+                return compoundRelations;
             }
             catch (InvalidOperationException)
             {

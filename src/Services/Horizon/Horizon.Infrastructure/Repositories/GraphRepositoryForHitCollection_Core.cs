@@ -1,4 +1,3 @@
-
 using CQRS.Core.Exceptions;
 using Horizon.Application.Contracts.Persistence;
 using Horizon.Domain.Screens;
@@ -36,7 +35,6 @@ namespace Horizon.Infrastructure.Repositories
                 throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Creating Indexes In Graph", ex);
             }
         }
-
 
         public async Task CreateConstraintsAsync()
         {
@@ -76,7 +74,7 @@ namespace Horizon.Infrastructure.Repositories
                         FOREACH (ignoreMe IN CASE WHEN $screenId IS NOT NULL THEN [1] ELSE [] END |
                             MERGE (s:Screen {uniId: $screenId})
                             MERGE (h)-[:HIT_COLLECTION_OF]->(s)
-                    )
+                        )
                 ";
                 var (queryResults, _) = await _driver
                     .ExecutableQuery(query).WithParameters(new
@@ -87,9 +85,7 @@ namespace Horizon.Infrastructure.Repositories
                         strainId = hitCollection.StrainId,
                         primaryOrgName = hitCollection.PrimaryOrgName,
                         screenId = hitCollection.ScreenId
-                    }).ExecuteAsync()
-                    ;
-
+                    }).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -97,7 +93,6 @@ namespace Horizon.Infrastructure.Repositories
                 throw new RepositoryException(nameof(GraphRepositoryForHitCollection), "Error Adding HitCollection To Graph", ex);
             }
         }
-
 
         public async Task UpdateHitCollection(HitCollection hitCollection)
         {
@@ -108,11 +103,10 @@ namespace Horizon.Infrastructure.Repositories
                 var query = @"
                    MATCH (h:HitCollection {uniId: $uniId})
                         SET 
-                            h.name: $name,
-                            h.hitCollectionType: $hitCollectionType,
-                            h.strainId: $strainId,
-                            h.primaryOrgName: $primaryOrgName
-                    )
+                            h.name = $name,
+                            h.hitCollectionType = $hitCollectionType,
+                            h.strainId = $strainId,
+                            h.primaryOrgName = $primaryOrgName
                 ";
                 var (queryResults, _) = await _driver
                     .ExecutableQuery(query).WithParameters(new
@@ -122,9 +116,7 @@ namespace Horizon.Infrastructure.Repositories
                         hitCollectionType = hitCollection.HitCollectionType,
                         strainId = hitCollection.StrainId,
                         primaryOrgName = hitCollection.PrimaryOrgName
-                    }).ExecuteAsync()
-                    ;
-
+                    }).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -142,14 +134,12 @@ namespace Horizon.Infrastructure.Repositories
                 var query = @"
                    MATCH (s:HitCollection {uniId: $uniId})-[r:HIT_COLLECTION_OF]->(t:Screen)
                    DELETE r
-                    )
                 ";
                 var (queryResults, _) = await _driver
                     .ExecutableQuery(query).WithParameters(new
                     {
                         uniId = hitCollection.HitCollectionId,
-                    }).ExecuteAsync()
-                    ;
+                    }).ExecuteAsync();
 
                 // create the new relationship
                 var query2 = @"
@@ -162,8 +152,7 @@ namespace Horizon.Infrastructure.Repositories
                    {
                        uniId = hitCollection.HitCollectionId,
                        screenId = hitCollection.ScreenId,
-                   }).ExecuteAsync()
-                   ;
+                   }).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -181,14 +170,12 @@ namespace Horizon.Infrastructure.Repositories
                 var query = @"
                   MATCH (h:HitCollection {uniId: $uniId})
                   DETACH DELETE h
-                    )
                 ";
                 var (queryResults, _) = await _driver
                     .ExecutableQuery(query).WithParameters(new
                     {
                         uniId = hitCollectionId
-                    }).ExecuteAsync()
-                    ;
+                    }).ExecuteAsync();
             }
             catch (Exception ex)
             {
@@ -205,17 +192,15 @@ namespace Horizon.Infrastructure.Repositories
             {
                 var query = @"
                    MATCH (h:HitCollection {uniId: $uniId})
-                    SET 
-                        h.name = $_newName
-                    )
+                   SET 
+                       h.name = $_newName
                 ";
                 var (queryResults, _) = await _driver
                     .ExecutableQuery(query).WithParameters(new
                     {
                         uniId = hitCollectionId,
                         _newName = newName
-                    }).ExecuteAsync()
-                    ;
+                    }).ExecuteAsync();
             }
             catch (Exception ex)
             {

@@ -9,7 +9,7 @@ using Neo4j.Driver;
 
 namespace Horizon.Application.Features.Queries.FIndTargetRelations
 {
-    public class FindTargetRelationsHandler : IRequestHandler<FindTargetRelationsCommand, TargetRelationsVM>
+    public class FindTargetRelationsHandler : IRequestHandler<FindTargetRelationsQuery, TargetRelationsVM>
     {
         private readonly IGraphQueryRepository _graphQueryRepository;
         private readonly ILogger<FindTargetRelationsHandler> _logger;
@@ -20,15 +20,12 @@ namespace Horizon.Application.Features.Queries.FIndTargetRelations
             _logger = logger;
         }
 
-        public async Task<TargetRelationsVM> Handle(FindTargetRelationsCommand request, CancellationToken cancellationToken)
+        public async Task<TargetRelationsVM> Handle(FindTargetRelationsQuery request, CancellationToken cancellationToken)
         {
 
             var query = @"MATCH (t:Target {uniId: $uniId}) <-[rel*]- (x) RETURN x";
-            var parameters = new Dictionary<string, object> { { "uniId", request.UniId } };
-
-            var cursor = await _graphQueryRepository.RunAsync(query, parameters);
-            var records = await cursor.ToListAsync(cancellationToken);
-
+            var parameters = new { uniId = request.UniId };
+            var records = await _graphQueryRepository.RunReadAsync(query, parameters, cancellationToken);
             var highestRelationshipScore = 1;
 
             foreach (var record in records)

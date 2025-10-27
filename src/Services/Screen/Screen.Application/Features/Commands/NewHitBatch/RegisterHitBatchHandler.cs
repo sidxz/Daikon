@@ -9,7 +9,8 @@ using Microsoft.Extensions.Logging;
 using Screen.Domain.Aggregates;
 using CQRS.Core.Extensions;
 using Screen.Domain.Entities;
-using Daikon.Shared.VM.Screen;using Daikon.Shared.VM.MLogix;
+using Daikon.Shared.VM.Screen;
+using Daikon.Shared.VM.MLogix;
 
 namespace Screen.Application.Features.Commands.NewHitBatch
 {
@@ -56,13 +57,39 @@ namespace Screen.Application.Features.Commands.NewHitBatch
                 var moleculeDTOs = batch.Select(cmd => new RegisterMoleculeDTO
                 {
                     Name = cmd.MoleculeName,
-                    SMILES = cmd.RequestedSMILES
+                    SMILES = cmd.RequestedSMILES,
+                    DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen,
+                    DisclosureScientist = cmd.DisclosureScientist,
+                    DisclosureOrgId = cmd.DisclosureOrgId
+
                 }).ToList();
 
                 var registrationResults = await _mLogixAPIService.RegisterBatch(moleculeDTOs);
                 _logger.LogInformation("✅ Registered {Count} molecules", registrationResults.Count);
 
-                var resultMap = registrationResults.ToDictionary(r => r.Name, r => r);
+                //var resultMap = registrationResults.ToDictionary(r => r.Name, r => r);
+                /* Index by Name and Synonyms as well */
+                var resultMap = new Dictionary<string, MoleculeVM>(StringComparer.OrdinalIgnoreCase);
+                foreach (var r in registrationResults)
+                {
+                    // Always add the official name
+                    if (!string.IsNullOrWhiteSpace(r.Name))
+                        resultMap[r.Name] = r;
+
+                    // Add each synonym as a key too
+                    if (!string.IsNullOrWhiteSpace(r.Synonyms))
+                    {
+                        var synonyms = r.Synonyms.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var syn in synonyms)
+                        {
+                            var key = syn.Trim();
+                            if (!string.IsNullOrEmpty(key))
+                                resultMap[key] = r;
+                        }
+                    }
+                }
+
+
 
                 // Step 3: Group all hits by HitCollectionId
                 var grouped = batch.GroupBy(cmd => cmd.Id);

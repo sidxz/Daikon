@@ -13,6 +13,7 @@ using Target.Application.Features.Commands.AddOrUpdateToxicology;
 using Target.Application.Features.Commands.AddToxicology;
 using Target.Application.Features.Commands.ApproveTarget;
 using Target.Application.Features.Commands.DeleteToxicology;
+using Target.Application.Features.Commands.RejectTarget;
 using Target.Application.Features.Commands.RenameTarget;
 using Target.Application.Features.Commands.SubmitTPQ;
 using Target.Application.Features.Commands.UpdateToxicology;
@@ -44,6 +45,7 @@ namespace Target.Application.Mappings
             CreateMap<TargetUpdatedEvent, Domain.Entities.Target>().ReverseMap();
             CreateMap<TargetDeletedEvent, Domain.Entities.Target>().ReverseMap();
             CreateMap<TargetRenamedEvent, Domain.Entities.Target>().ReverseMap();
+
 
             CreateMap<Domain.Entities.Target, TargetVM>()
             .ForMember(dest => dest.Bucket, opt => opt.MapFrom(new MapperDVariableMetaResolver<Domain.Entities.Target, IValueProperty<string>, string>(src => src.Bucket)))
@@ -112,6 +114,8 @@ namespace Target.Application.Mappings
 
             CreateMap<TargetPromotionQuestionnaireSubmittedEvent, SubmitTPQCommand>().ReverseMap();
             CreateMap<TargetPromotionQuestionnaireUpdatedEvent, UpdateTPQCommand>().ReverseMap();
+            CreateMap<TargetPromotionQuestionnaireDeletedEvent, RejectTargetCommand>().ReverseMap();
+
 
             // Command to Domain
             CreateMap<NewTargetCommand, Domain.Entities.Target>().ReverseMap();

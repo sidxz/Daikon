@@ -66,7 +66,8 @@ namespace Screen.Application.Features.Batch.HitHandleUnattachedMolecules
                     var registerDto = new RegisterMoleculeDTO
                     {
                         Name = hit.RequestedMoleculeName,
-                        SMILES = hit.RequestedSMILES ?? string.Empty
+                        SMILES = hit.RequestedSMILES ?? string.Empty,
+                        DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.Screen
                     };
 
                     _logger.LogInformation("Name : {Name}", registerDto.Name);

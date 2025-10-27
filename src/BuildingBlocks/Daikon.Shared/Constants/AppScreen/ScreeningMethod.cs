@@ -14,6 +14,7 @@ namespace Daikon.Shared.Constants.AppScreen
         public const string Other = "other";
         public const string Hypomorph = "hypomorph";
         public const string Virtual = "virtual";
+        public const string Affinity = "affinity";
 
         public static List<NameValuePair> GetScreeningMethods()
         {
@@ -25,6 +26,7 @@ namespace Daikon.Shared.Constants.AppScreen
                 new() { Name = "Other", Value = Other },
                 new() { Name = "Hypomorph", Value = Hypomorph },
                 new() { Name = "Virtual", Value = Virtual },
+                new() { Name = "Affinity", Value = Affinity },
             }.OrderBy(dv => dv.Name)];
         }
     }

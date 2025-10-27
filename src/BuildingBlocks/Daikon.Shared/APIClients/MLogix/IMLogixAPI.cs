@@ -12,6 +12,7 @@ namespace Daikon.Shared.APIClients.MLogix
         public Task<MoleculeVM> RegisterMolecule(RegisterMoleculeDTO request);
         public Task<List<MoleculeVM>> RegisterBatch(List<RegisterMoleculeDTO> request);
         public Task<List<ClusterVM>> CalculateClusters(List<ClusterDTO> Molecules, double CutOff);
+        public Task<List<MoleculeVM>> GetRecentDisclosures(DateTime? startDate, DateTime? endDate);
 
     }
 }
