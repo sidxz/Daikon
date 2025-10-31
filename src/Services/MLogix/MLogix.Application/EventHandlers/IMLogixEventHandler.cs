@@ -11,5 +11,6 @@ namespace MLogix.Application.EventHandlers
         Task OnEvent(MoleculeUpdatedEvent @event);
         Task OnEvent(MoleculeDisclosedEvent @event);
         Task OnEvent(MoleculeDeletedEvent @event);
+        Task OnEvent(MoleculeNuisancePredictedEvent @event);
     }
 }

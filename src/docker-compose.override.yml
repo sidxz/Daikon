@@ -346,11 +346,12 @@ services:
       - MLxMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
       - "MLxMongoDbSettings:DatabaseName=MoleculeLogix"
       - "MLxMongoDbSettings:MoleculeCollectionName=Molecules"
+      - "MLxMongoDbSettings:MoleculePredictionsCollectionName=MoleculePredictions"
 
       # Internal APIs
-      - "MolDbAPI:Url=http://moldb-api:8101/api/v2/mol-db"
       - "DaikonChemVault:Url=http://daikon_chem_vault_api:10001"
-
+      - "CageFusion:NuisanceAPIURL=http://cage_fusion_nuisance_api:10002"
+  
     ports:
       - "8007:80"
     networks:

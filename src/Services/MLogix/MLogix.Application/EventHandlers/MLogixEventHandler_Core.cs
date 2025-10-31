@@ -7,15 +7,17 @@ using MLogix.Domain.Entities;
 
 namespace MLogix.Application.EventHandlers
 {
-    public class MLogixEventHandler : IMLogixEventHandler
+    public partial class MLogixEventHandler : IMLogixEventHandler
     {
         private readonly IMoleculeRepository _moleculeRepository;
+        private readonly IMoleculePredictionRepository _moleculePredictionRepository;
         private readonly IMapper _mapper;
         private readonly ILogger<MLogixEventHandler> _logger;
 
-        public MLogixEventHandler(IMoleculeRepository moleculeRepository, IMapper mapper, ILogger<MLogixEventHandler> logger)
+        public MLogixEventHandler(IMoleculeRepository moleculeRepository, IMoleculePredictionRepository moleculePredictionRepository, IMapper mapper, ILogger<MLogixEventHandler> logger)
         {
             _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
+            _moleculePredictionRepository = moleculePredictionRepository ?? throw new ArgumentNullException(nameof(moleculePredictionRepository));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
