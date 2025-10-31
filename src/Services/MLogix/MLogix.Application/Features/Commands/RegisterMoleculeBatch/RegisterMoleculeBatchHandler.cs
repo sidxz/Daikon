@@ -10,6 +10,8 @@ using MLogix.Application.Contracts.Persistence;
 using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
+using MLogix.Application.DTOs.CageFusion;
+using MLogix.Application.Features.Commands.PredictNuisance;
 
 
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
@@ -64,6 +66,11 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 
         public async Task<List<RegisterMoleculeResponseDTO>> Handle(RegisterMoleculeBatchCommand request, CancellationToken cancellationToken)
         {
+
+            // _logger.LogError("REQUESTOR USER ID: {UserId}", request.RequestorUserId);
+            // // dummy return and exit for now
+            // return new List<RegisterMoleculeResponseDTO>();
+
             if (request?.Commands == null || request.Commands.Count == 0)
                 throw new ArgumentException("Molecule batch request must contain at least one command.");
 
@@ -78,6 +85,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             {
                 cmd.RegistrationId = cmd.RegistrationId == Guid.Empty ? Guid.NewGuid() : cmd.RegistrationId;
                 cmd.Id = cmd.Id == Guid.Empty ? Guid.NewGuid() : cmd.Id;
+                cmd.SetCreateProperties(request.RequestorUserId);
 
                 var disclosedDate = cmd.StructureDisclosedDate == default
                     ? (DateTime?)null
@@ -187,13 +195,25 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             CancellationToken cancellationToken)
         {
             _logger.LogInformation("Processing disclosed molecules: Count = {Count}", disclosedBatch.Count);
+            var currentTime = DateTime.UtcNow;
 
             var apiResponses = await _moleculeAPI.RegisterBatch(disclosedBatch, headers);
 
             _logger.LogInformation("Molecule API responded with {Count} entries", apiResponses.Count);
 
+            List<NuisanceRequestTuple> checkForNuisanceList = [];
+
+            // Requestor user id from header (for audit)
+            Guid requestorUserId = Guid.Empty;
+            if (headers.TryGetValue("AppUser-Id", out var requestorUserId_FromHeader) &&
+                Guid.TryParse(requestorUserId_FromHeader, out var parsedRequestor))
+            {
+                requestorUserId = parsedRequestor;
+            }
+
             foreach (var apiResponse in apiResponses)
             {
+
                 var existing = await _moleculeRepository.GetMoleculeByRegistrationId(apiResponse.Id);
                 RegisterMoleculeResponseDTO dto;
 
@@ -217,6 +237,14 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     }
 
                     // carry through original IDs/inputs
+
+                    newEvent.RequestorUserId = requestorUserId;
+                    newEvent.CreatedById = requestorUserId;
+                    newEvent.DateCreated = currentTime;
+                    newEvent.IsModified = false;
+                    newEvent.LastModifiedById = requestorUserId;
+                    newEvent.DateModified = currentTime;
+
                     newEvent.Id = original.OriginalId;
                     newEvent.RequestedSMILES = original.RequestedSmiles;
                     newEvent.RegistrationId = apiResponse.Id;
@@ -233,20 +261,21 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     // OrgId precedence: command > header > Guid.Empty
                     var resolvedOrgId = ResolveOrgId(disclosure, headers);
 
-                    // Requestor user id from header (for audit)
-                    Guid requestorUserId = Guid.Empty;
-                    if (headers.TryGetValue("AppUser-Id", out var requestorUserId_FromHeader) &&
-                        Guid.TryParse(requestorUserId_FromHeader, out var parsedRequestor))
-                    {
-                        requestorUserId = parsedRequestor;
-                    }
+
 
                     // Disclosure date precedence: command > event created > now UTC
                     var resolvedDate = ResolveDisclosedDate(disclosure, newEvent.DateCreated);
 
                     var moleculeDisclosedEvent = new MoleculeDisclosedEvent
                     {
-                        RequestorUserId = newEvent.RequestorUserId,
+                        RequestorUserId = requestorUserId,
+                        CreatedById = requestorUserId,
+                        DateCreated = currentTime,
+                        IsModified = false,
+                        LastModifiedById = requestorUserId,
+                        DateModified = currentTime,
+
+
                         Id = newEvent.Id,
                         RegistrationId = newEvent.RegistrationId,
                         Name = newEvent.Name,
@@ -273,10 +302,36 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     dto.WasAlreadyRegistered = false;
                     dto.Id = newEvent.Id;
                     dto.RegistrationId = apiResponse.Id;
+
+                    checkForNuisanceList.Add(new NuisanceRequestTuple
+                    {
+                        Id = newEvent.Id.ToString(),
+                        SMILES = dto.SmilesCanonical
+                    });
                 }
 
                 allResponses.Add(dto);
             }
+            // Trigger nuisance prediction for newly registered molecules
+            if (checkForNuisanceList.Count > 0)
+            {
+                _logger.LogInformation("Triggering nuisance predictions for {Count} molecules", checkForNuisanceList.Count);
+                // log requestor user id
+                _logger.LogInformation("Nuisance Prediction Requestor User ID: {UserId}", requestorUserId);
+                var nuisanceCommand = new PredictNuisanceCommand
+                {
+                    NuisanceRequestTuple = checkForNuisanceList,
+                    PlotAllAttention = false,
+                    RequestorUserId = requestorUserId
+                    CreatedById = requestorUserId,
+                    DateCreated = currentTime,
+                    IsModified = false,
+                    LastModifiedById = requestorUserId,
+                    DateModified = currentTime,
+                };
+                await _mediator.Send(nuisanceCommand, cancellationToken);
+            }
+
         }
 
         /* Helper resolvers keep precedence rules explicit and testable */

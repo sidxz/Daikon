@@ -72,6 +72,10 @@ namespace MLogix.Application.Features.Commands.PredictNuisance
                 {
                     MoleculeNuisancePredictedEvent moleculeNuisancePredictedEvent = new MoleculeNuisancePredictedEvent
                     {
+                        RequestorUserId = request.RequestorUserId,
+                        CreatedById = request.RequestorUserId,
+                        LastModifiedById = request.RequestorUserId,
+                        DateModified = DateTime.UtcNow,
                         MoleculeId = id,
                         RequestedModelName = result.ModelName,
                         RequestDate = DateTime.UtcNow,

@@ -17,9 +17,12 @@ namespace MLogix.Application.EventHandlers
                 moleculePredictions = await _moleculePredictionRepository.GetByMoleculeIdAsync(@event.MoleculeId);
                 moleculePredictions ??= new MoleculePredictions
                 {
+                    Id = Guid.NewGuid(),
                     MoleculeId = @event.MoleculeId,
                     NuisanceRequestStatus = NuisanceStatus.Pending,
                     NuisanceModelPredictions = [],
+                    CreatedById = @event.CreatedById,
+                    DateCreated = @event.DateCreated
                 };
             }
             catch (Exception ex)
@@ -35,6 +38,8 @@ namespace MLogix.Application.EventHandlers
             }
 
             moleculePredictions.NuisanceRequestStatus = NuisanceStatus.Completed;
+            moleculePredictions.LastModifiedById = @event.CreatedById;
+            moleculePredictions.DateModified = @event.DateCreated;
 
             // find if the ModelName already exists, update it, else add new
             var existingNuisance = moleculePredictions.NuisanceModelPredictions
