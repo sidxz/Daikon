@@ -22,6 +22,7 @@ using Daikon.Shared.DTO.MLogix;
 using MLogix.Application.Features.Queries.GetRecentDisclosures;
 using MLogix.Application.Features.Previews.RegisterMoleculePreview;
 using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.Features.Batch.RefreshAllNuisancePredictions;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -31,11 +32,13 @@ namespace MLogix.API.Controllers.V2
     {
         private readonly IMediator _mediator;
         private readonly VaultBackgroundServices _vaultBackgroundServices;
+        private readonly MLogixBackgroundServices _mlogixBackgroundServices;
 
-        public MoleculeController(IMediator mediator, VaultBackgroundServices vaultBackgroundServices)
+        public MoleculeController(IMediator mediator, VaultBackgroundServices vaultBackgroundServices, MLogixBackgroundServices mlogixBackgroundServices)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _vaultBackgroundServices = vaultBackgroundServices ?? throw new ArgumentNullException(nameof(vaultBackgroundServices));
+            _mlogixBackgroundServices = mlogixBackgroundServices ?? throw new ArgumentNullException(nameof(mlogixBackgroundServices));
         }
 
         [HttpGet("{id}", Name = "GetMoleculeById")]
@@ -248,6 +251,16 @@ namespace MLogix.API.Controllers.V2
         {
             var response = await _mediator.Send(command);
             return Ok(response);
+        }
+
+        [HttpPost("refresh-all-nuisance", Name = "RefreshAllNuisancePredictions")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.Accepted)]
+        public IActionResult RefreshAllNuisancePredictions([FromBody] RefreshAllNuisancePredictionsCommand command)
+        {
+            // Queue the background job
+            _ = _mlogixBackgroundServices.QueueRefreshNuisance(command, HttpContext.RequestAborted);
+            return Accepted("RefreshAllNuisancePredictions job has been queued and is processing in the background.");
         }
     }
 }

@@ -37,10 +37,7 @@ namespace MLogix.Application.Features.Commands.PredictNuisance
 
         public async Task<NuisanceResponseDTO> Handle(PredictNuisanceCommand request, CancellationToken cancellationToken)
         {
-            var headers = _httpContextAccessor.HttpContext.Request.Headers
-                       .ToDictionary(h => h.Key, h => h.Value.ToString());
             request.SetUpdateProperties(request.RequestorUserId);
-
 
             // check if request is empty
             if (request.NuisanceRequestTuple == null || request.NuisanceRequestTuple.Count == 0)

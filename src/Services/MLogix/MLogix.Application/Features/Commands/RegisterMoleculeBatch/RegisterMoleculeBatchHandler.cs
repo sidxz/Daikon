@@ -315,21 +315,27 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             // Trigger nuisance prediction for newly registered molecules
             if (checkForNuisanceList.Count > 0)
             {
-                _logger.LogInformation("Triggering nuisance predictions for {Count} molecules", checkForNuisanceList.Count);
-                // log requestor user id
-                _logger.LogInformation("Nuisance Prediction Requestor User ID: {UserId}", requestorUserId);
+                
                 var nuisanceCommand = new PredictNuisanceCommand
                 {
                     NuisanceRequestTuple = checkForNuisanceList,
                     PlotAllAttention = false,
-                    RequestorUserId = requestorUserId
+                    RequestorUserId = requestorUserId,
                     CreatedById = requestorUserId,
                     DateCreated = currentTime,
                     IsModified = false,
                     LastModifiedById = requestorUserId,
                     DateModified = currentTime,
                 };
-                await _mediator.Send(nuisanceCommand, cancellationToken);
+                try
+                {
+                    await _mediator.Send(nuisanceCommand, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to trigger nuisance predictions.");
+                }
+
             }
 
         }

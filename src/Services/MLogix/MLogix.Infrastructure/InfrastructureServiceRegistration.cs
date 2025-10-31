@@ -48,7 +48,7 @@ namespace MLogix.Infrastructure
             services.AddScoped<IMoleculeAPI, MoleculeAPI>();
             /* Nuisance API */
 
-            services.AddHttpClient<INuisanceAPI>(client =>
+            services.AddHttpClient<INuisanceAPI, NuisanceAPI>(client =>
             {
                 // Assuming the API base URL is stored in configuration
                 client.BaseAddress = new Uri(configuration["CageFusion:NuisanceAPIURL"]);
@@ -57,7 +57,7 @@ namespace MLogix.Infrastructure
             });
 
 
-            services.AddScoped<INuisanceAPI, NuisanceAPI>();
+            //services.AddScoped<INuisanceAPI, NuisanceAPI>();
 
             return services;
         }

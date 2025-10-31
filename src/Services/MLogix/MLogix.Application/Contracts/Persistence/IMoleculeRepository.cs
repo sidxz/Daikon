@@ -13,6 +13,7 @@ namespace MLogix.Application.Contracts.Persistence
         Task<Molecule> GetByName(string name);
         Task<List<Molecule>> GetAllMolecules();
         Task<List<Molecule>> GetDisclosedMolecules(DateTime? startDate = null, DateTime? endDate = null);
+        Task<List<Molecule>> GetAllRegisteredMolecules(); // returns molecules with a non-empty requested SMILES
 
     }
 }

@@ -198,5 +198,24 @@ namespace MLogix.Infrastructure.Query.Repositories
         }
 
 
+        public async Task<List<Molecule>> GetAllRegisteredMolecules()
+        {
+            try
+            {
+                _logger.LogInformation("GetAllRegisteredMolecules: Fetching all registered molecules with non-empty RequestedSMILES");
+
+                var filter = Builders<Molecule>.Filter.Ne(m => m.RequestedSMILES, null) &
+                             Builders<Molecule>.Filter.Ne(m => m.RequestedSMILES, string.Empty);
+
+                return await _moleculeCollection.Find(filter).ToListAsync();
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching all registered molecules");
+                throw new RepositoryException(nameof(MoleculeRepository), "Error fetching registered molecules", ex);
+            }
+        }
+
+
     }
 }
