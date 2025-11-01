@@ -68,6 +68,7 @@ namespace MLogix.Application.Mappings
             CreateMap<RegisterMoleculeCommandWithRegId, RegisterUndisclosedCommand>().ReverseMap();
 
             CreateMap<Daikon.Shared.Embedded.MLogix.Nuisance, Daikon.Shared.Embedded.MLogix.Nuisance>().ReverseMap();
+            CreateMap<MLogix.Domain.Entities.MoleculePredictions, Daikon.Shared.VM.MLogix.MoleculePredictionsVM>().ReverseMap();
         }
     }
 }

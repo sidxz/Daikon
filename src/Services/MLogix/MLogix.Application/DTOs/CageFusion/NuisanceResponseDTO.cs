@@ -39,6 +39,22 @@ namespace MLogix.Application.DTOs.CageFusion
 
         [JsonPropertyName("promiscuous")]
         public double Promiscuous { get; set; } = 0.0;
+
+        [JsonPropertyName("top_tokens")]
+        public string TopTokens { get; set; } = string.Empty;
+
+        [JsonPropertyName("atom_total_contrib_base64")]
+        public string AtomTotalContribBase64 { get; set; } = string.Empty;
+
+        [JsonPropertyName("prompt_atn_image_base64")]
+        public string PromptAtnImageBase64 { get; set; } = string.Empty;
+
+        [JsonPropertyName("attention_summary_image_base64")]
+        public string AttentionSummaryImageBase64 { get; set; } = string.Empty;
+
+        [JsonPropertyName("overall_contrib_base64")]
+        public string OverallContribBase64 { get; set; } = string.Empty;
+
     }
     public class NuisanceResponseDTO
     {

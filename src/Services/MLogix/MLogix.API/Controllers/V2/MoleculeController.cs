@@ -23,6 +23,7 @@ using MLogix.Application.Features.Queries.GetRecentDisclosures;
 using MLogix.Application.Features.Previews.RegisterMoleculePreview;
 using MLogix.Application.Features.Commands.PredictNuisance;
 using MLogix.Application.Features.Batch.RefreshAllNuisancePredictions;
+using MLogix.Application.Features.Calculations.ExplainNuisance;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -244,10 +245,10 @@ namespace MLogix.API.Controllers.V2
             return Ok(molecules);
         }
 
-        [HttpPost("predict-nuisance", Name = "PredictNuisance")]
+        [HttpPost("explain-nuisance", Name = "ExplainNuisance")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> PredictNuisance([FromBody] PredictNuisanceCommand command)
+        public async Task<IActionResult> ExplainNuisance([FromBody] ExplainNuisanceCommand command)
         {
             var response = await _mediator.Send(command);
             return Ok(response);
@@ -262,5 +263,7 @@ namespace MLogix.API.Controllers.V2
             _ = _mlogixBackgroundServices.QueueRefreshNuisance(command, HttpContext.RequestAborted);
             return Accepted("RefreshAllNuisancePredictions job has been queued and is processing in the background.");
         }
+
+
     }
 }
