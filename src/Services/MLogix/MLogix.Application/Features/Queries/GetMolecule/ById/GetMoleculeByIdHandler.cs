@@ -13,12 +13,14 @@ using MLogix.Application.Contracts.Persistence;
 namespace MLogix.Application.Features.Queries.GetMolecule.ById
 {
     public class GetMoleculeByIdHandler(IMoleculeRepository moleculeRepository, IMapper mapper,
-    ILogger<GetMoleculeByIdHandler> logger, IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor) : IRequestHandler<GetMoleculeByIdQuery, MoleculeVM>
+    ILogger<GetMoleculeByIdHandler> logger, IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor, IMoleculePredictionRepository moleculePredictionRepository) : IRequestHandler<GetMoleculeByIdQuery, MoleculeVM>
     {
         private readonly IMoleculeRepository _moleculeRepository = moleculeRepository;
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<GetMoleculeByIdHandler> _logger = logger;
         private readonly IMoleculeAPI _iMoleculeAPI = iMoleculeAPI;
+
+        private readonly IMoleculePredictionRepository _moleculePredictionRepository = moleculePredictionRepository;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<MoleculeVM> Handle(GetMoleculeByIdQuery request, CancellationToken cancellationToken)
@@ -40,6 +42,11 @@ namespace MLogix.Application.Features.Queries.GetMolecule.ById
 
                 _mapper.Map(vaultMolecule, moleculeVm);
 
+                var predictions = await _moleculePredictionRepository.GetByMoleculeIdAsync(molecule.Id);
+                if (predictions != null)
+                {
+                    moleculeVm.Predictions = _mapper.Map<MoleculePredictionsVM>(predictions);
+                }
                 // Fix Ids
                 moleculeVm.RegistrationId = vaultMolecule.Id;
                 moleculeVm.Id = molecule.Id;

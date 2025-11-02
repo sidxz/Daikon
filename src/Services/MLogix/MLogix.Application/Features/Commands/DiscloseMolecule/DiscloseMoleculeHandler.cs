@@ -12,12 +12,14 @@ using MLogix.Application.Contracts.Persistence;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Domain.Aggregates;
+using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.DTOs.CageFusion;
 
 namespace MLogix.Application.Features.Commands.DiscloseMolecule
 {
     public class DiscloseMoleculeHandler(IMapper mapper, ILogger<DiscloseMoleculeHandler> logger,
     IMoleculeRepository moleculeRepository, IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler,
-    IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor)
+    IMoleculeAPI iMoleculeAPI, IHttpContextAccessor httpContextAccessor, IMediator mediator)
     : IRequestHandler<DiscloseMoleculeCommand, MoleculeVM>
     {
 
@@ -27,6 +29,8 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
         private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
         private readonly IMoleculeAPI _MoleculeAPI = iMoleculeAPI ?? throw new ArgumentNullException(nameof(IMoleculeAPI));
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
+        private readonly IMediator _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         private const string ErrorMoleculeNotFound = "Molecule not found";
         private const string ErrorAlreadyDisclosed = "The molecule has already been disclosed";
@@ -121,6 +125,34 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
             {
                 _logger.LogWarning(ex, "Aggregate not found");
                 throw new ResourceNotFoundException(nameof(MoleculeAggregate), request.Id);
+            }
+
+            // check for nuisance prediction request
+
+            var nuisanceCommand = new PredictNuisanceCommand
+            {
+                NuisanceRequestTuple = [
+                  new NuisanceRequestTuple
+                      {
+                          Id = moleculeDisclosedEvent.Id.ToString(),
+                          SMILES = moleculeDisclosedEvent.SmilesCanonical
+                      }
+                ],
+                PlotAllAttention = false,
+                RequestorUserId = request.RequestorUserId,
+                CreatedById = request.CreatedById,
+                DateCreated = request.DateCreated,
+                IsModified = false,
+                LastModifiedById = request.LastModifiedById,
+                DateModified = request.DateModified,
+            };
+            try
+            {
+                await _mediator.Send(nuisanceCommand, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to trigger nuisance predictions.");
             }
 
             // Map the response

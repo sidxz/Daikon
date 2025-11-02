@@ -10,6 +10,12 @@ using MLogix.Application.Contracts.Persistence;
 using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
+using MLogix.Application.DTOs.CageFusion;
+using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.BackgroundServices;
+using MLogix.Application.Features.Queries.GetMolecules.ByIDs;
+using Daikon.Shared.VM.MLogix;
+using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
 
 
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
@@ -43,6 +49,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
         private readonly IMoleculeAPI _moleculeAPI;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMediator _mediator;
+        private readonly INuisanceJobQueue _nuisanceQueue;
+
 
         public RegisterMoleculeBatchHandler(
             IMapper mapper,
@@ -51,6 +59,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             IEventSourcingHandler<MoleculeAggregate> eventSourcingHandler,
             IMoleculeAPI moleculeAPI,
             IHttpContextAccessor httpContextAccessor,
+            INuisanceJobQueue nuisanceQueue,
             IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -60,10 +69,12 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             _moleculeAPI = moleculeAPI ?? throw new ArgumentNullException(nameof(moleculeAPI));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _nuisanceQueue = nuisanceQueue ?? throw new ArgumentNullException(nameof(nuisanceQueue));
         }
 
         public async Task<List<RegisterMoleculeResponseDTO>> Handle(RegisterMoleculeBatchCommand request, CancellationToken cancellationToken)
         {
+
             if (request?.Commands == null || request.Commands.Count == 0)
                 throw new ArgumentException("Molecule batch request must contain at least one command.");
 
@@ -78,6 +89,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             {
                 cmd.RegistrationId = cmd.RegistrationId == Guid.Empty ? Guid.NewGuid() : cmd.RegistrationId;
                 cmd.Id = cmd.Id == Guid.Empty ? Guid.NewGuid() : cmd.Id;
+                cmd.SetCreateProperties(request.RequestorUserId);
 
                 var disclosedDate = cmd.StructureDisclosedDate == default
                     ? (DateTime?)null
@@ -112,6 +124,15 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 {
                     foreach (var cmd in batch)
                         cmd.SetCreateProperties(request.RequestorUserId);
+
+                    
+                    // TODO: Bug if a list is provided without SMILES but a already registered molecule, 
+                    // it would be tried to be registered as undisclosed, and would fail.
+                    // This is further complicated if a synonym is provided of an already disclosed molecule, 
+                    // mongo does not have an entry for synonyms, and will simply register it again as undisclosed.
+
+                    // ChemVault does not have a method now to check for exact synonym matches, and will need db changes.
+
 
                     var undisclosedCommands = batch
                         .Where(c => string.IsNullOrEmpty(c.SMILES) && !string.IsNullOrEmpty(c.Name))
@@ -187,13 +208,25 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             CancellationToken cancellationToken)
         {
             _logger.LogInformation("Processing disclosed molecules: Count = {Count}", disclosedBatch.Count);
+            var currentTime = DateTime.UtcNow;
 
             var apiResponses = await _moleculeAPI.RegisterBatch(disclosedBatch, headers);
 
             _logger.LogInformation("Molecule API responded with {Count} entries", apiResponses.Count);
 
+            List<NuisanceRequestTuple> checkForNuisanceList = [];
+
+            // Requestor user id from header (for audit)
+            Guid requestorUserId = Guid.Empty;
+            if (headers.TryGetValue("AppUser-Id", out var requestorUserId_FromHeader) &&
+                Guid.TryParse(requestorUserId_FromHeader, out var parsedRequestor))
+            {
+                requestorUserId = parsedRequestor;
+            }
+
             foreach (var apiResponse in apiResponses)
             {
+
                 var existing = await _moleculeRepository.GetMoleculeByRegistrationId(apiResponse.Id);
                 RegisterMoleculeResponseDTO dto;
 
@@ -217,6 +250,14 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     }
 
                     // carry through original IDs/inputs
+
+                    newEvent.RequestorUserId = requestorUserId;
+                    newEvent.CreatedById = requestorUserId;
+                    newEvent.DateCreated = currentTime;
+                    newEvent.IsModified = false;
+                    newEvent.LastModifiedById = requestorUserId;
+                    newEvent.DateModified = currentTime;
+
                     newEvent.Id = original.OriginalId;
                     newEvent.RequestedSMILES = original.RequestedSmiles;
                     newEvent.RegistrationId = apiResponse.Id;
@@ -233,20 +274,21 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     // OrgId precedence: command > header > Guid.Empty
                     var resolvedOrgId = ResolveOrgId(disclosure, headers);
 
-                    // Requestor user id from header (for audit)
-                    Guid requestorUserId = Guid.Empty;
-                    if (headers.TryGetValue("AppUser-Id", out var requestorUserId_FromHeader) &&
-                        Guid.TryParse(requestorUserId_FromHeader, out var parsedRequestor))
-                    {
-                        requestorUserId = parsedRequestor;
-                    }
+
 
                     // Disclosure date precedence: command > event created > now UTC
                     var resolvedDate = ResolveDisclosedDate(disclosure, newEvent.DateCreated);
 
                     var moleculeDisclosedEvent = new MoleculeDisclosedEvent
                     {
-                        RequestorUserId = newEvent.RequestorUserId,
+                        RequestorUserId = requestorUserId,
+                        CreatedById = requestorUserId,
+                        DateCreated = currentTime,
+                        IsModified = false,
+                        LastModifiedById = requestorUserId,
+                        DateModified = currentTime,
+
+
                         Id = newEvent.Id,
                         RegistrationId = newEvent.RegistrationId,
                         Name = newEvent.Name,
@@ -273,10 +315,48 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     dto.WasAlreadyRegistered = false;
                     dto.Id = newEvent.Id;
                     dto.RegistrationId = apiResponse.Id;
+
+                    checkForNuisanceList.Add(new NuisanceRequestTuple
+                    {
+                        Id = newEvent.Id.ToString(),
+                        SMILES = dto.SmilesCanonical
+                    });
                 }
 
                 allResponses.Add(dto);
             }
+            // Trigger nuisance prediction for newly registered molecules
+            if (checkForNuisanceList.Count > 0)
+            {
+
+                var nuisanceCommand = new PredictNuisanceCommand
+                {
+                    NuisanceRequestTuple = checkForNuisanceList,
+                    PlotAllAttention = false,
+                    RequestorUserId = requestorUserId,
+                    CreatedById = requestorUserId,
+                    DateCreated = currentTime,
+                    IsModified = false,
+                    LastModifiedById = requestorUserId,
+                    DateModified = currentTime,
+                };
+                try
+                {
+                    var correlationId = Guid.NewGuid().ToString("N");
+                    using (_logger.BeginScope(new Dictionary<string, object> { ["corrId"] = correlationId }))
+                    {
+                        var job = new NuisanceJob(nuisanceCommand, correlationId);
+                        await _nuisanceQueue.EnqueueAsync(job, CancellationToken.None);
+                        _logger.LogInformation("Queued nuisance prediction for {Count} molecules.", checkForNuisanceList.Count);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to trigger nuisance predictions.");
+                }
+
+            }
+
         }
 
         /* Helper resolvers keep precedence rules explicit and testable */
@@ -308,6 +388,14 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 _logger.LogInformation("Registered Molecule: {Name}, Id: {Id}, RegId: {RegId}, AlreadyRegistered: {Status}",
                     res.Name, res.Id, res.RegistrationId, res.WasAlreadyRegistered);
             }
+        }
+
+
+        private async Task<List<MoleculeVM>> CheckIfSMILESRegistered(List<string> smilesList)
+        {
+            GetMoleculesBySMILESQuery getMoleculeByIDsQuery = new GetMoleculesBySMILESQuery { SMILES = smilesList };
+            var result = await _mediator.Send(getMoleculeByIDsQuery);
+            return result;
         }
     }
 }
