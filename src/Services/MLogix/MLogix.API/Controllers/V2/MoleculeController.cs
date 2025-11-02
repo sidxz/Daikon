@@ -24,6 +24,7 @@ using MLogix.Application.Features.Previews.RegisterMoleculePreview;
 using MLogix.Application.Features.Commands.PredictNuisance;
 using MLogix.Application.Features.Batch.RefreshAllNuisancePredictions;
 using MLogix.Application.Features.Calculations.ExplainNuisance;
+using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -75,6 +76,15 @@ namespace MLogix.API.Controllers.V2
 
         }
 
+        [HttpPost("get-by-smiles-list/", Name = "GetMoleculesBySMILES")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetMoleculesBySMILES([FromBody] GetMoleculesBySMILESQuery query)
+        {
+            var molecules = await _mediator.Send(query);
+            return Ok(molecules);
+        }
 
         [HttpGet("by-registration/{regId}", Name = "GetMoleculeByRegistrationId")]
         [MapToApiVersion("2.0")]
