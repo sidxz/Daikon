@@ -13,6 +13,9 @@ using MLogix.Domain.Aggregates;
 using MLogix.Application.DTOs.CageFusion;
 using MLogix.Application.Features.Commands.PredictNuisance;
 using MLogix.Application.BackgroundServices;
+using MLogix.Application.Features.Queries.GetMolecules.ByIDs;
+using Daikon.Shared.VM.MLogix;
+using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
 
 
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
@@ -121,6 +124,15 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 {
                     foreach (var cmd in batch)
                         cmd.SetCreateProperties(request.RequestorUserId);
+
+                    
+                    // TODO: Bug if a list is provided without SMILES but a already registered molecule, 
+                    // it would be tried to be registered as undisclosed, and would fail.
+                    // This is further complicated if a synonym is provided of an already disclosed molecule, 
+                    // mongo does not have an entry for synonyms, and will simply register it again as undisclosed.
+
+                    // ChemVault does not have a method now to check for exact synonym matches, and will need db changes.
+
 
                     var undisclosedCommands = batch
                         .Where(c => string.IsNullOrEmpty(c.SMILES) && !string.IsNullOrEmpty(c.Name))
@@ -376,6 +388,14 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 _logger.LogInformation("Registered Molecule: {Name}, Id: {Id}, RegId: {RegId}, AlreadyRegistered: {Status}",
                     res.Name, res.Id, res.RegistrationId, res.WasAlreadyRegistered);
             }
+        }
+
+
+        private async Task<List<MoleculeVM>> CheckIfSMILESRegistered(List<string> smilesList)
+        {
+            GetMoleculesBySMILESQuery getMoleculeByIDsQuery = new GetMoleculesBySMILESQuery { SMILES = smilesList };
+            var result = await _mediator.Send(getMoleculeByIDsQuery);
+            return result;
         }
     }
 }
