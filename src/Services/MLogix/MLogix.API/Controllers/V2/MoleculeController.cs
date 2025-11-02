@@ -21,6 +21,10 @@ using MLogix.Application.Features.Calculations.Clustering;
 using Daikon.Shared.DTO.MLogix;
 using MLogix.Application.Features.Queries.GetRecentDisclosures;
 using MLogix.Application.Features.Previews.RegisterMoleculePreview;
+using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.Features.Batch.RefreshAllNuisancePredictions;
+using MLogix.Application.Features.Calculations.ExplainNuisance;
+using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -30,11 +34,13 @@ namespace MLogix.API.Controllers.V2
     {
         private readonly IMediator _mediator;
         private readonly VaultBackgroundServices _vaultBackgroundServices;
+        private readonly MLogixBackgroundServices _mlogixBackgroundServices;
 
-        public MoleculeController(IMediator mediator, VaultBackgroundServices vaultBackgroundServices)
+        public MoleculeController(IMediator mediator, VaultBackgroundServices vaultBackgroundServices, MLogixBackgroundServices mlogixBackgroundServices)
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _vaultBackgroundServices = vaultBackgroundServices ?? throw new ArgumentNullException(nameof(vaultBackgroundServices));
+            _mlogixBackgroundServices = mlogixBackgroundServices ?? throw new ArgumentNullException(nameof(mlogixBackgroundServices));
         }
 
         [HttpGet("{id}", Name = "GetMoleculeById")]
@@ -70,6 +76,15 @@ namespace MLogix.API.Controllers.V2
 
         }
 
+        [HttpPost("get-by-smiles-list/", Name = "GetMoleculesBySMILES")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetMoleculesBySMILES([FromBody] GetMoleculesBySMILESQuery query)
+        {
+            var molecules = await _mediator.Send(query);
+            return Ok(molecules);
+        }
 
         [HttpGet("by-registration/{regId}", Name = "GetMoleculeByRegistrationId")]
         [MapToApiVersion("2.0")]
@@ -239,5 +254,26 @@ namespace MLogix.API.Controllers.V2
             var molecules = await _mediator.Send(query);
             return Ok(molecules);
         }
+
+        [HttpPost("explain-nuisance", Name = "ExplainNuisance")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> ExplainNuisance([FromBody] ExplainNuisanceCommand command)
+        {
+            var response = await _mediator.Send(command);
+            return Ok(response);
+        }
+
+        [HttpPost("refresh-all-nuisance", Name = "RefreshAllNuisancePredictions")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.Accepted)]
+        public IActionResult RefreshAllNuisancePredictions([FromBody] RefreshAllNuisancePredictionsCommand command)
+        {
+            // Queue the background job
+            _ = _mlogixBackgroundServices.QueueRefreshNuisance(command, HttpContext.RequestAborted);
+            return Accepted("RefreshAllNuisancePredictions job has been queued and is processing in the background.");
+        }
+
+
     }
 }

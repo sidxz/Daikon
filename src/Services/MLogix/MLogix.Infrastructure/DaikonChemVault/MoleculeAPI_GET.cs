@@ -24,11 +24,20 @@ namespace MLogix.Infrastructure.DaikonChemVault
             return molecules;
         }
 
+
+
         public async Task<MoleculeBase> GetMoleculeBySMILES(string smiles, IDictionary<string, string> headers)
         {
             string apiUrl = $"{_apiBaseUrl}/molecules/by-smiles-canonical/?smiles={Uri.EscapeDataString(smiles)}";
             var molecule = await SendRequestAsync<MoleculeBase>(apiUrl, HttpMethod.Get, headers);
             return molecule;
+        }
+        
+        public async Task<List<MoleculeBase>> GetMoleculesBySMILES(List<string> smiles, IDictionary<string, string> headers)
+        {
+            string apiUrl = $"{_apiBaseUrl}/molecules/by-smiles-list/";
+            var molecules = await SendRequestAsync<List<MoleculeBase>>(apiUrl, HttpMethod.Post, headers, smiles);
+            return molecules;
         }
 
         public async Task<List<MoleculeBase>> FindByName(string name, int limit, IDictionary<string, string> headers)

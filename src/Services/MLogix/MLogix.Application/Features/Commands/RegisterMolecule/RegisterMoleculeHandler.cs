@@ -11,6 +11,8 @@ using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
 using MLogix.Domain.Entities;
+using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.DTOs.CageFusion;
 
 namespace MLogix.Application.Features.Commands.RegisterMolecule
 {
@@ -153,6 +155,35 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
                 // fix Ids
                 registerMoleculeResponseDTO.RegistrationId = registrationReq.Id;
                 registerMoleculeResponseDTO.Id = request.Id;
+
+
+                // check for nuisance prediction request
+
+                var nuisanceCommand = new PredictNuisanceCommand
+                {
+                    NuisanceRequestTuple = [
+                      new NuisanceRequestTuple
+                      {
+                          Id = newMoleculeCreatedEvent.Id.ToString(),
+                          SMILES = newMoleculeCreatedEvent.SmilesCanonical
+                      }
+                    ],
+                    PlotAllAttention = false,
+                    RequestorUserId = request.RequestorUserId,
+                    CreatedById = request.CreatedById,
+                    DateCreated = request.DateCreated,
+                    IsModified = false,
+                    LastModifiedById = request.LastModifiedById,
+                    DateModified = request.DateModified,
+                };
+                try
+                {
+                    await _mediator.Send(nuisanceCommand, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to trigger nuisance predictions.");
+                }
 
 
 

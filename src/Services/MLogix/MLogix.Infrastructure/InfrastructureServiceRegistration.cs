@@ -18,6 +18,9 @@ using Confluent.Kafka;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Infrastructure.DaikonChemVault;
 using MongoDB.Bson.Serialization.Conventions;
+using MLogix.Application.Contracts.Infrastructure.CageFusion;
+using MLogix.Infrastructure.CageFusion;
+using Daikon.Shared.Constants.InternalSettings;
 
 namespace MLogix.Infrastructure
 {
@@ -35,6 +38,7 @@ namespace MLogix.Infrastructure
             ConfigureKafkaProducer(services, configuration);
             /* Query */
             services.AddScoped<IMoleculeRepository, MoleculeRepository>();
+            services.AddScoped<IMoleculePredictionRepository, MoleculePredictionsRepository>();
 
             /* Consumers */
             services.AddScoped<IEventConsumer, MLogixEventConsumer>();
@@ -42,6 +46,18 @@ namespace MLogix.Infrastructure
 
             /* MolDb API */
             services.AddScoped<IMoleculeAPI, MoleculeAPI>();
+            /* Nuisance API */
+
+            services.AddHttpClient<INuisanceAPI, NuisanceAPI>(client =>
+            {
+                // Assuming the API base URL is stored in configuration
+                client.BaseAddress = new Uri(configuration["CageFusion:NuisanceAPIURL"]);
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = Timeouts.HttpClientTimeout;
+            });
+
+
+            //services.AddScoped<INuisanceAPI, NuisanceAPI>();
 
             return services;
         }
@@ -54,6 +70,7 @@ namespace MLogix.Infrastructure
             BsonClassMap.RegisterClassMap<MoleculeUpdatedEvent>();
             BsonClassMap.RegisterClassMap<MoleculeDisclosedEvent>();
             BsonClassMap.RegisterClassMap<MoleculeDeletedEvent>();
+            BsonClassMap.RegisterClassMap<MoleculeNuisancePredictedEvent>();
         }
 
         private static void ConfigureEventDatabase(IServiceCollection services, IConfiguration configuration)

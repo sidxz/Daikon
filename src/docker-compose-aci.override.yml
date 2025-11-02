@@ -422,6 +422,7 @@ services:
       - "EndPointRouting__event-history=http://localhost:8012"
       - "EndPointRouting__user-preferences=http://localhost:8016"
       - "EndPointRouting__event-management=http://localhost:8015"
+      - "EndPointRouting__aggregators=http://localhost:8017"
 
 
 
@@ -536,3 +537,21 @@ services:
 
     ports:
       - "8016:80"
+
+  aggregators-api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+
+      - "MLogixAPI__Url=http://localhost:8007/api/v2"
+      - "UserStoreAPI__Url=http://localhost:8011/api/v2"
+      - "GeneAPI__Url=http://localhost:8001/api/v2"
+      - "TargetAPI__Url=http://localhost:8002/api/v2"
+      - "ScreenAPI__Url=http://localhost:8003/api/v2"
+      - "HitAssessmentAPI__Url=http://localhost:8004/api/v2"
+      - "ProjectAPI__Url=http://localhost:8005/api/v2"
+      - "HorizonAPI__Url=http://localhost:8006/api/v2"
+
+
+    ports:
+      - "8017:80"

@@ -13,12 +13,13 @@ namespace MLogix.Application.Features.Queries.GetMolecules.ByIDs
 {
     public class GetMoleculeByIDsHandler(IMoleculeRepository moleculeRepository, IMapper mapper,
                                    ILogger<GetMoleculeByIDsHandler> logger, IMoleculeAPI iMoleculeAPI,
-                                   IHttpContextAccessor httpContextAccessor) : IRequestHandler<GetMoleculeByIDsQuery, List<MoleculeVM>>
+                                   IHttpContextAccessor httpContextAccessor, IMoleculePredictionRepository moleculePredictionRepository) : IRequestHandler<GetMoleculeByIDsQuery, List<MoleculeVM>>
     {
         private readonly IMoleculeRepository _moleculeRepository = moleculeRepository;
         private readonly IMapper _mapper = mapper;
         private readonly ILogger<GetMoleculeByIDsHandler> _logger = logger;
         private readonly IMoleculeAPI _iMoleculeAPI = iMoleculeAPI;
+        private readonly IMoleculePredictionRepository _moleculePredictionRepository = moleculePredictionRepository;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
         public async Task<List<MoleculeVM>> Handle(GetMoleculeByIDsQuery request, CancellationToken cancellationToken)
@@ -60,6 +61,19 @@ namespace MLogix.Application.Features.Queries.GetMolecules.ByIDs
                         var trackableEntities = new List<VMMeta> { moleculeVm };
                         (moleculeVm.PageLastUpdatedDate, moleculeVm.PageLastUpdatedUser)
                                     = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
+                    }
+                }
+
+                // Fetch predictions for all molecules and map them
+                var moleculeIds = molecules.Select(m => m.Id).ToList();
+                var predictionsList = await _moleculePredictionRepository.GetByMoleculeIdsAsync(moleculeIds);
+
+                foreach (var prediction in predictionsList)
+                {
+                    var moleculeVm = moleculeVMs.FirstOrDefault(vm => vm.Id == prediction.MoleculeId);
+                    if (moleculeVm != null)
+                    {
+                        moleculeVm.Predictions = _mapper.Map<MoleculePredictionsVM>(prediction);
                     }
                 }
 

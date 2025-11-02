@@ -76,5 +76,18 @@ namespace MLogix.Domain.Aggregates
         {
             _active = false;
         }
+
+
+        public void PredictNuisance(MoleculeNuisancePredictedEvent @event)
+        {
+            if (!_active)
+                throw new InvalidOperationException("Molecule is not active");
+
+            RaiseEvent(@event);
+        }
+        public void Apply(MoleculeNuisancePredictedEvent @event)
+        {
+            // Do nothing
+        }
     }
 }
