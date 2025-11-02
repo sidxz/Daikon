@@ -14,6 +14,7 @@ using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Domain.Aggregates;
 using MLogix.Application.Features.Commands.PredictNuisance;
 using MLogix.Application.DTOs.CageFusion;
+using MLogix.Application.BackgroundServices;
 
 namespace MLogix.Application.Features.Commands.DiscloseMolecule
 {
@@ -26,6 +27,8 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
         private readonly IMoleculeAPI _moleculeAPI;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMediator _mediator;
+        private readonly INuisanceJobQueue _nuisanceQueue;
+
 
         public DiscloseMoleculeBatchHandler(
             IMapper mapper,
@@ -34,6 +37,7 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
             IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler,
             IMoleculeAPI moleculeAPI,
             IHttpContextAccessor httpContextAccessor,
+            INuisanceJobQueue nuisanceQueue,
             IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -43,6 +47,7 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
             _moleculeAPI = moleculeAPI ?? throw new ArgumentNullException(nameof(moleculeAPI));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _nuisanceQueue = nuisanceQueue ?? throw new ArgumentNullException(nameof(nuisanceQueue));
         }
 
         public async Task<IList<MoleculeVM>> Handle(DiscloseMoleculeBatchCommand request, CancellationToken cancellationToken)
@@ -179,7 +184,13 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
             };
             try
             {
-                await _mediator.Send(nuisanceCommand, cancellationToken);
+                var correlationId = Guid.NewGuid().ToString("N");
+                using (_logger.BeginScope(new Dictionary<string, object> { ["corrId"] = correlationId }))
+                {
+                    var job = new NuisanceJob(nuisanceCommand, correlationId);
+                    await _nuisanceQueue.EnqueueAsync(job, CancellationToken.None);
+                    _logger.LogInformation("Queued nuisance prediction for {Count} molecules.", checkForNuisanceList.Count);
+                }
             }
             catch (Exception ex)
             {

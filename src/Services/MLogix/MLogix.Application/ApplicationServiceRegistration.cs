@@ -23,7 +23,10 @@ namespace MLogix.Application
             services.AddHostedService<VaultBackgroundServices>();
             services.AddSingleton<MLogixBackgroundServices>();
             services.AddHostedService<MLogixBackgroundServices>();
-            
+
+            services.AddSingleton<INuisanceJobQueue, ChannelNuisanceJobQueue>();
+            services.AddHostedService<NuisanceWorker>();
+
 
 
 

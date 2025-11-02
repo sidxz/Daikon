@@ -12,6 +12,7 @@ using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
 using MLogix.Application.DTOs.CageFusion;
 using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.BackgroundServices;
 
 
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
@@ -45,6 +46,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
         private readonly IMoleculeAPI _moleculeAPI;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMediator _mediator;
+        private readonly INuisanceJobQueue _nuisanceQueue;
+
 
         public RegisterMoleculeBatchHandler(
             IMapper mapper,
@@ -53,6 +56,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             IEventSourcingHandler<MoleculeAggregate> eventSourcingHandler,
             IMoleculeAPI moleculeAPI,
             IHttpContextAccessor httpContextAccessor,
+            INuisanceJobQueue nuisanceQueue,
             IMediator mediator)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -62,14 +66,11 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             _moleculeAPI = moleculeAPI ?? throw new ArgumentNullException(nameof(moleculeAPI));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _nuisanceQueue = nuisanceQueue ?? throw new ArgumentNullException(nameof(nuisanceQueue));
         }
 
         public async Task<List<RegisterMoleculeResponseDTO>> Handle(RegisterMoleculeBatchCommand request, CancellationToken cancellationToken)
         {
-
-            // _logger.LogError("REQUESTOR USER ID: {UserId}", request.RequestorUserId);
-            // // dummy return and exit for now
-            // return new List<RegisterMoleculeResponseDTO>();
 
             if (request?.Commands == null || request.Commands.Count == 0)
                 throw new ArgumentException("Molecule batch request must contain at least one command.");
@@ -315,7 +316,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             // Trigger nuisance prediction for newly registered molecules
             if (checkForNuisanceList.Count > 0)
             {
-                
+
                 var nuisanceCommand = new PredictNuisanceCommand
                 {
                     NuisanceRequestTuple = checkForNuisanceList,
@@ -329,7 +330,13 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 };
                 try
                 {
-                    await _mediator.Send(nuisanceCommand, cancellationToken);
+                    var correlationId = Guid.NewGuid().ToString("N");
+                    using (_logger.BeginScope(new Dictionary<string, object> { ["corrId"] = correlationId }))
+                    {
+                        var job = new NuisanceJob(nuisanceCommand, correlationId);
+                        await _nuisanceQueue.EnqueueAsync(job, CancellationToken.None);
+                        _logger.LogInformation("Queued nuisance prediction for {Count} molecules.", checkForNuisanceList.Count);
+                    }
                 }
                 catch (Exception ex)
                 {
