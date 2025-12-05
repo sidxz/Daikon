@@ -15,8 +15,8 @@ namespace Daikon.Shared
             {
                 AppVersion = new
                 {
-                    Version = "2.12.0",
-                    Name = "Valparaiso Kube Beta2"
+                    Version = "3.0.0",
+                    Name = "Sintra ML Beta"
                 },
                 AppTarget = new
                 {
