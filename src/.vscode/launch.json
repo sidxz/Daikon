@@ -1,24 +1,189 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Screen.API",
+      "name": "userstore-api",
       "type": "coreclr",
-      "request": "attach",
-      "processId": "${command:pickRemoteProcess}",
-      "pipeTransport": {
-        "pipeProgram": "docker",
-        "pipeArgs": ["exec", "-i", "src-Screen.API-1"],
-        "debuggerPath": "/v/vsdbg",
-        "pipeCwd": "${workspaceFolder}",
-        "quoteArgs": false
-      },
-      "sourceFileMap": {
-        "/app": "${workspaceFolder}"
-      }
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Identities/UserStore/UserStore.API/bin/Debug/net8.0/UserStore.API.dll",
+      "cwd": "${workspaceFolder}/Identities/UserStore/UserStore.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "gene-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/Gene/Gene.API/bin/Debug/net8.0/Gene.API.dll",
+      "cwd": "${workspaceFolder}/Services/Gene/Gene.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "target-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/Target/Target.API/bin/Debug/net8.0/Target.API.dll",
+      "cwd": "${workspaceFolder}/Services/Target/Target.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "screen-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/Screen/Screen.API/bin/Debug/net8.0/Screen.API.dll",
+      "cwd": "${workspaceFolder}/Services/Screen/Screen.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "hitassessment-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/HitAssessment/HitAssessment.API/bin/Debug/net8.0/HitAssessment.API.dll",
+      "cwd": "${workspaceFolder}/Services/HitAssessment/HitAssessment.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "project-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/Project/Project.API/bin/Debug/net8.0/Project.API.dll",
+      "cwd": "${workspaceFolder}/Services/Project/Project.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "horizon-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/Horizon/Horizon.API/bin/Debug/net8.0/Horizon.API.dll",
+      "cwd": "${workspaceFolder}/Services/Horizon/Horizon.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "mlogix-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/MLogix/MLogix.API/bin/Debug/net8.0/MLogix.API.dll",
+      "cwd": "${workspaceFolder}/Services/MLogix/MLogix.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "questionnaire-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/Questionnaire/Questionnaire.API/bin/Debug/net8.0/Questionnaire.API.dll",
+      "cwd": "${workspaceFolder}/Services/Questionnaire/Questionnaire.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "comment-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/Comment/Comment.API/bin/Debug/net8.0/Comment.API.dll",
+      "cwd": "${workspaceFolder}/Services/Comment/Comment.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "event-history-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/EventHistory/EventHistory.API/bin/Debug/net8.0/EventHistory.API.dll",
+      "cwd": "${workspaceFolder}/Services/EventHistory/EventHistory.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "docustore-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/DocuStore/DocuStore.API/bin/Debug/net8.0/DocuStore.API.dll",
+      "cwd": "${workspaceFolder}/Services/DocuStore/DocuStore.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "simplegw-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/ApiGateways/SimpleGW/SimpleGW.API/bin/Debug/net8.0/SimpleGW.API.dll",
+      "cwd": "${workspaceFolder}/ApiGateways/SimpleGW/SimpleGW.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "event-management-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Extensions/Daikon.EventManagement/bin/Debug/net8.0/Daikon.EventManagement.dll",
+      "cwd": "${workspaceFolder}/Extensions/Daikon.EventManagement",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "user-preferences-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Services/UserPreferences/UserPreferences.API/bin/Debug/net8.0/UserPreferences.API.dll",
+      "cwd": "${workspaceFolder}/Services/UserPreferences/UserPreferences.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "aggregators-api",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Build Solution",
+      "program": "${workspaceFolder}/Aggregators/Aggregators.API/bin/Debug/net8.0/Aggregators.API.dll",
+      "cwd": "${workspaceFolder}/Aggregators/Aggregators.API",
+      "envFile": "${workspaceFolder}/.env.local",
+      "console": "integratedTerminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Run All APIs (Dev)",
+      "configurations": [
+        "userstore-api",
+        "gene-api",
+        "target-api",
+        "screen-api",
+        "hitassessment-api",
+        "project-api",
+        "horizon-api",
+        "mlogix-api",
+        "questionnaire-api",
+        "comment-api",
+        "event-history-api",
+        "docustore-api",
+        "simplegw-api",
+        "event-management-api",
+        "user-preferences-api",
+        "aggregators-api"
+      ],
+      "stopAll": true
     }
   ]
 }

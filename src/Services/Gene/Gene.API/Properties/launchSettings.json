@@ -8,13 +8,12 @@
     }
   },
   "profiles": {
-    "Gene.API": {
+    "gene-api": {
       "commandName": "Project",
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5001",
+      "applicationUrl": "http://localhost:8001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "GENE_KAFKA_TOPIC": "gene"
       },
       "dotnetRunMessages": true
     },

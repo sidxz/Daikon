@@ -22,6 +22,7 @@ namespace MLogix.Application.Contracts.Infrastructure.DaikonChemVault
         public Task<List<MoleculeBase>> FindSubstructure(FindSubstructuresQuery query, IDictionary<string, string> headers);
         public Task<List<MoleculeBase>> FindByName(string name, int limit, IDictionary<string, string> headers);
         public Task<MoleculeBase> FindByNameExact(string name, IDictionary<string, string> headers);
+        public Task<List<MoleculeBase>> FindByNamesOrSynonymsExact(List<string> name, IDictionary<string, string> headers);
         public Task<List<MoleculeBase>> FindByNameWithFilters(GetByNameQuery query, IDictionary<string, string> headers);
         public Task<MoleculeBase> Register(RegisterMoleculeCommand registerMoleculeCommand, IDictionary<string, string> headers);
         public Task<MoleculeBase> Update(Guid RegistrationId, UpdateMoleculeCommand command, IDictionary<string, string> headers);

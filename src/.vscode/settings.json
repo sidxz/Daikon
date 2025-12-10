@@ -22,5 +22,15 @@
     "toxicologies",
     "userstore",
     "v'VVV"
-  ]
+  ],
+  "dotnet.defaultSolution": "",
+  "terminal.integrated.env.osx": {},
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true
+  },
+  "search.exclude": {
+    "**/bin": true,
+    "**/obj": true
+  }
 }
