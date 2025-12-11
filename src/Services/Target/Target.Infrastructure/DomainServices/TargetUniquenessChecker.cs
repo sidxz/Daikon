@@ -3,6 +3,7 @@ using Daikon.Events.Targets;
 using Target.Domain.Aggregates;
 using Target.Domain.Exceptions;
 using Target.Domain.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Target.Infrastructure.DomainServices
 {

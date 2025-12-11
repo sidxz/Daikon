@@ -10,6 +10,7 @@ namespace Target.Application.Features.Commands.RenameTarget
 {
     public class RenameTargetCommand : BaseCommand, IRequest<Unit>
     {
+        public Guid StrainId { get; set; }
         public string Name { get; set; }
     }
 }
