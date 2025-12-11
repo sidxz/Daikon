@@ -2,11 +2,13 @@ using System.Reflection;
 using CQRS.Core.Middlewares;
 using Daikon.ApiHost.Routing;
 using Daikon.ApiHost.Swagger;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 

@@ -1,6 +1,6 @@
 using Daikon.ApiHost;
 using DocuStore.Application;
-using DocuStore.Application.Features.Commands.Documents.AddParsedDoc;
+using DocuStore.Application.Features.Commands.AddParsedDoc;
 using DocuStore.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);

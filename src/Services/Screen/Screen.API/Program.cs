@@ -1,6 +1,6 @@
 using Daikon.ApiHost;
 using Screen.Application;
-using Screen.Application.Features.Command.NewScreen;
+using Screen.Application.Features.Commands.NewScreen;
 using Screen.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
