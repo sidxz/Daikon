@@ -3,6 +3,8 @@ using Daikon.Events.Targets;
 using CQRS.Core.Comparators;
 using Daikon.Shared.Constants.AppTarget;
 using Daikon.EventStore.Aggregate;
+using Target.Domain.Exceptions;
+using Target.Domain.Services;
 namespace Target.Domain.Aggregates
 {
     public partial class TargetAggregate : AggregateRoot
@@ -28,6 +30,26 @@ namespace Target.Domain.Aggregates
             RaiseEvent(@event);
         }
 
+        public static async Task<TargetAggregate> CreateAsync(TargetCreatedEvent @event, ITargetUniquenessChecker targetUniquenessChecker)
+        {
+            ArgumentNullException.ThrowIfNull(targetUniquenessChecker);
+            ArgumentNullException.ThrowIfNull(@event);
+
+            await EnsureNewTargetAllowed(@event, targetUniquenessChecker).ConfigureAwait(false);
+
+            return new TargetAggregate(@event);
+        }
+
+        public static async Task EnsureNewTargetAllowed(TargetCreatedEvent @event, ITargetUniquenessChecker targetUniquenessChecker)
+        {
+            if (string.IsNullOrWhiteSpace(@event.Name))
+            {
+                throw new DomainInvariantViolationException("Target name is required.");
+            }
+
+            await targetUniquenessChecker.EnsureTargetNameIsUniqueAsync(@event.StrainId, @event.Name).ConfigureAwait(false);
+        }
+
         public void Apply(TargetCreatedEvent @event)
         {
             _id = @event.Id;
@@ -42,6 +64,16 @@ namespace Target.Domain.Aggregates
             if (!_active)
             {
                 throw new InvalidOperationException("This target is deleted.");
+            }
+
+            if (!string.Equals(_Name, @event.Name, StringComparison.Ordinal))
+            {
+                throw new DomainInvariantViolationException("Target name cannot be modified.");
+            }
+
+            if (!_associatedGenes.DictionaryEqual(@event.AssociatedGenes))
+            {
+                throw new DomainInvariantViolationException("Associated genes cannot be modified using this command.");
             }
 
             @event.Id = _id;
@@ -66,7 +98,7 @@ namespace Target.Domain.Aggregates
 
             if (_associatedGenes.DictionaryEqual(@event.AssociatedGenes))
             {
-                throw new InvalidOperationException("Associated genes are not modified");
+                throw new DomainInvariantViolationException("Associated genes are not modified");
             }
 
             @event.Id = _id;
@@ -87,7 +119,7 @@ namespace Target.Domain.Aggregates
         {
             if (!_active)
             {
-                throw new InvalidOperationException("This target is already deleted.");
+                throw new DomainInvariantViolationException("This target is already deleted.");
             }
 
             RaiseEvent(@event);

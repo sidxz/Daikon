@@ -13,6 +13,8 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
+using Target.Domain.Services;
+using Target.Infrastructure.DomainServices;
 using Target.Infrastructure.Query.Consumers;
 using Target.Infrastructure.Query.Repositories;
 
@@ -27,6 +29,7 @@ namespace Target.Infrastructure
 
             ConfigureEventDatabase(services, configuration);
             ConfigureKafkaProducer(services, configuration);
+            ConfigureDomainServices(services);
             ConfigureRepositories(services);
             ConfigureConsumers(services);
 
@@ -98,6 +101,11 @@ namespace Target.Infrastructure
             services.AddScoped<ITargetRepository, TargetRepository>();
             services.AddScoped<IPQResponseRepository, PQResponseRepository>();
             services.AddScoped<IToxicologyRepo, ToxicologyRepo>();
+        }
+
+        private static void ConfigureDomainServices(IServiceCollection services)
+        {
+            services.AddScoped<ITargetUniquenessChecker, TargetUniquenessChecker>();
         }
 
         private static void ConfigureConsumers(IServiceCollection services)

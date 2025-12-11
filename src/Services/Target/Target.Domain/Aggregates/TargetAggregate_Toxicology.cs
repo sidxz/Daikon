@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Daikon.Events.Targets;
 using Target.Domain.Entities;
+using Target.Domain.Exceptions;
 
 namespace Target.Domain.Aggregates
 {

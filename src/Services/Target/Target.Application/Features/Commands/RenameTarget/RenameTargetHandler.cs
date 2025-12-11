@@ -5,8 +5,8 @@ using Daikon.EventStore.Handlers;
 using Daikon.Events.Targets;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
+using Target.Domain.Services;
 
 namespace Target.Application.Features.Commands.RenameTarget
 {
@@ -16,35 +16,21 @@ namespace Target.Application.Features.Commands.RenameTarget
         private readonly IMapper _mapper;
 
         private readonly IEventSourcingHandler<TargetAggregate> _eventSourcingHandler;
-        private readonly ITargetRepository _targetRepository;
+        private readonly ITargetUniquenessChecker _targetUniquenessChecker;
 
-        public RenameTargetHandler(ILogger<RenameTargetHandler> logger, IMapper mapper, IEventSourcingHandler<TargetAggregate> eventSourcingHandler, ITargetRepository targetRepository)
+        public RenameTargetHandler(ILogger<RenameTargetHandler> logger, IMapper mapper, IEventSourcingHandler<TargetAggregate> eventSourcingHandler, ITargetUniquenessChecker targetUniquenessChecker)
         {
             _logger = logger;
             _mapper = mapper;
             _eventSourcingHandler = eventSourcingHandler;
-            _targetRepository = targetRepository;
+            _targetUniquenessChecker = targetUniquenessChecker;
         }
 
         public async Task<Unit> Handle(RenameTargetCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation("Handling RenameTargetCommand");
             request.SetUpdateProperties(request.RequestorUserId);
-            
-            var existingTarget = await _targetRepository.ReadTargetById(request.Id) ?? throw new InvalidOperationException("Target not found");
-            if (existingTarget.Name == request.Name)
-            {
-                _logger.LogWarning("Name is the same as the existing name");
-                throw new InvalidOperationException("Name is the same as the existing name");
-            }
-
-            // check if name is available
-            var checkTargetName = await _targetRepository.ReadTargetByName(request.Name);
-            if (checkTargetName != null)
-            {
-                _logger.LogWarning("Name is already taken");
-                throw new DuplicateEntityRequestException(nameof(TargetAggregate), request.Name);
-            }
+            await _targetUniquenessChecker.EnsureTargetNameIsUniqueAsync(request.StrainId, request.Name, request.Id);
 
             var targetRenamedEvent = _mapper.Map<TargetRenamedEvent>(request);
 

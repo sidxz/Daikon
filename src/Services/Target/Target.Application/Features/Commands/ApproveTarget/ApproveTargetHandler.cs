@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Target.Application.Contracts.Persistence;
 using Target.Application.Features.Command.NewTarget;
 using Target.Domain.Aggregates;
+using Target.Domain.Services;
 using Daikon.Shared.Constants.AppTarget;
 using Daikon.Events.Targets;
 
@@ -17,32 +18,24 @@ namespace Target.Application.Features.Commands.ApproveTarget
 
         private readonly IMapper _mapper;
         private readonly ILogger<ApproveTargetHandler> _logger;
-        private readonly IEventSourcingHandler<TargetAggregate> _targetESH;
         private readonly IEventSourcingHandler<TPQuestionnaireAggregate> _questionnaireESH;
-        private readonly ITargetRepository _targetRepository;
         private readonly IPQResponseRepository _pQResponseRepository;
+        private readonly ITargetUniquenessChecker _targetUniquenessChecker;
         private readonly IMediator _mediator;
 
-        public ApproveTargetHandler(IMapper mapper, ILogger<ApproveTargetHandler> logger, IEventSourcingHandler<TargetAggregate> targetESH, IEventSourcingHandler<TPQuestionnaireAggregate> questionnaireESH, ITargetRepository targetRepository, IPQResponseRepository pQResponseRepository, IMediator mediator)
+        public ApproveTargetHandler(IMapper mapper, ILogger<ApproveTargetHandler> logger, IEventSourcingHandler<TPQuestionnaireAggregate> questionnaireESH, IPQResponseRepository pQResponseRepository, IMediator mediator, ITargetUniquenessChecker targetUniquenessChecker)
         {
             _mapper = mapper;
             _logger = logger;
-            _targetESH = targetESH;
             _questionnaireESH = questionnaireESH;
-            _targetRepository = targetRepository;
             _pQResponseRepository = pQResponseRepository;
+            _targetUniquenessChecker = targetUniquenessChecker;
             _mediator = mediator;
         }
 
         public async Task<Unit> Handle(ApproveTargetCommand request, CancellationToken cancellationToken)
         {
-            // check if target (targetName) already exists within same strain ; reject if it does
-            var existingTarget = await _targetRepository.ReadTargetByName(request.TargetName);
-            if (existingTarget != null &&
-                (existingTarget.Name == request.TargetName && existingTarget.StrainId == request.StrainId))
-            {
-                throw new DuplicateEntityRequestException(nameof(ApproveTargetCommand), request.TargetName);
-            }
+            await _targetUniquenessChecker.EnsureTargetNameIsUniqueAsync(request.StrainId, request.TargetName);
 
             // Now check if the TPQ has been submitted
             var tpq = await _pQResponseRepository.ReadById(request.TPQId);

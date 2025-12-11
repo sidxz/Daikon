@@ -2,11 +2,9 @@
 using AutoMapper;
 using CQRS.Core.Exceptions;
 using Daikon.EventStore.Handlers;
-using Target.Application.Contracts.Persistence;
 using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using CQRS.Core.Comparators;
 using Daikon.Events.Targets;
 
 namespace Target.Application.Features.Command.UpdateTargetAssociatedGenes
@@ -18,30 +16,19 @@ namespace Target.Application.Features.Command.UpdateTargetAssociatedGenes
         private readonly IMapper _mapper;
 
         private readonly IEventSourcingHandler<TargetAggregate> _eventSourcingHandler;
-        private readonly ITargetRepository _targetRepository;
 
 
         public UpdateTargetAssociatedGenesCommandHandler(ILogger<UpdateTargetAssociatedGenesCommandHandler> logger, IEventSourcingHandler<TargetAggregate> eventSourcingHandler,
-                                        ITargetRepository targetRepository, IMapper mapper)
+                                        IMapper mapper)
         {
             _logger = logger;
             _mapper = mapper;
             _eventSourcingHandler = eventSourcingHandler;
-            _targetRepository = targetRepository;
         }
 
         public async Task<Unit> Handle(UpdateTargetAssociatedGenesCommand request, CancellationToken cancellationToken)
         {
             request.SetUpdateProperties(request.RequestorUserId);
-            // check if name is modified; reject if it is
-            var target = await _targetRepository.ReadTargetById(request.Id);
-            
-            // check if associated genes have been modified; reject if they have, perform a deep comparison
-            if (target.AssociatedGenes.DictionaryEqual(request.AssociatedGenes))
-            {
-                throw new InvalidOperationException("No changes to associated genes detected.");
-            }
-
             try
             {
                 var aggregate = await _eventSourcingHandler.GetByAsyncId(request.Id);

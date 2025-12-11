@@ -5,8 +5,8 @@ using Daikon.EventStore.Handlers;
 using Target.Domain.Aggregates;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Target.Application.Contracts.Persistence;
 using Daikon.Events.Targets;
+using Target.Domain.Services;
 
 namespace Target.Application.Features.Command.NewTarget
 {
@@ -17,16 +17,16 @@ namespace Target.Application.Features.Command.NewTarget
         private readonly ILogger<NewTargetCommandHandler> _logger;
 
         private readonly IEventSourcingHandler<TargetAggregate> _eventSourcingHandler;
-        private readonly ITargetRepository _targetRepository;
+        private readonly ITargetUniquenessChecker _targetUniquenessChecker;
 
         public NewTargetCommandHandler(ILogger<NewTargetCommandHandler> logger,
             IEventSourcingHandler<TargetAggregate> eventSourcingHandler,
-            IMapper mapper, ITargetRepository targetRepository)
+            IMapper mapper, ITargetUniquenessChecker targetUniquenessChecker)
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _eventSourcingHandler = eventSourcingHandler ?? throw new ArgumentNullException(nameof(eventSourcingHandler));
-            _targetRepository = targetRepository ?? throw new ArgumentNullException(nameof(targetRepository));
+            _targetUniquenessChecker = targetUniquenessChecker ?? throw new ArgumentNullException(nameof(targetUniquenessChecker));
         }
 
 
@@ -34,18 +34,11 @@ namespace Target.Application.Features.Command.NewTarget
         {
 
             request.SetCreateProperties(request.RequestorUserId);
-            // check if target (targetName) already exists within same strain ; reject if it does
-            var existingTarget = await _targetRepository.ReadTargetByName(request.Name);
-            if (existingTarget!= null && (existingTarget.Name == request.Name && existingTarget.StrainId == request.StrainId))
-            {
-                throw new DuplicateEntityRequestException(nameof(NewTargetCommand), request.Name);
-            }
-
             try
             {
                 var targetCreatedEvent = _mapper.Map<TargetCreatedEvent>(request);
 
-                var aggregate = new TargetAggregate(targetCreatedEvent);
+                var aggregate = await TargetAggregate.CreateAsync(targetCreatedEvent, _targetUniquenessChecker);
 
                 await _eventSourcingHandler.SaveAsync(aggregate);
 
