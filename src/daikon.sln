@@ -113,6 +113,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLogix.Infrastructure", "Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daikon.Shared", "BuildingBlocks\Daikon.Shared\Daikon.Shared.csproj", "{A4CD01D8-54E7-4FF9-9AB1-B99F0A4CE755}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Daikon.ApiHost", "BuildingBlocks\Daikon.ApiHost\Daikon.ApiHost.csproj", "{D2E84559-49AA-4E39-A8E0-4CF3A5C6B78D}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SimpleGW", "SimpleGW", "{71D9D823-9CD1-4DED-AD17-2E9645B5B418}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleGW.API", "ApiGateways\SimpleGW\SimpleGW.API\SimpleGW.API.csproj", "{03159503-AF45-4A2A-9414-95A0F92DCE02}"
@@ -176,6 +178,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2E84559-49AA-4E39-A8E0-4CF3A5C6B78D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2E84559-49AA-4E39-A8E0-4CF3A5C6B78D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2E84559-49AA-4E39-A8E0-4CF3A5C6B78D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2E84559-49AA-4E39-A8E0-4CF3A5C6B78D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5DEFFCAF-631A-4A01-B3D6-4923ABE06D94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5DEFFCAF-631A-4A01-B3D6-4923ABE06D94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5DEFFCAF-631A-4A01-B3D6-4923ABE06D94}.Release|Any CPU.ActiveCfg = Release|Any CPU
