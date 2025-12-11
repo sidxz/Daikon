@@ -176,7 +176,70 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     /* Deal with Requested Compounds WITH SMILES */
                     if (requestedCompoundsWithSmiles.Count > 0)
                     {
-                        // 
+                        // Lets check which of these exist in ChemVault by SMILES
+                        var smilesToCheck = requestedCompoundsWithSmiles
+                            .Select(c => c.SMILES)
+                            .Where(smiles => !string.IsNullOrEmpty(smiles))
+                            .Distinct()
+                            .Cast<string>()
+                            .ToList();
+                        var existingInChemVaultBySmiles = await _moleculeAPI.GetMoleculesBySMILES(smilesToCheck, requestHeaders);
+
+                        // Now if we find direct name or synonym matches in ChemVault, we will consider them existing and remove them from registration list
+                        List<string> existingMoleculeNamesInChemVault = existingInChemVaultBySmiles
+                            .Select(m => m.Name)
+                            .Concat(existingInChemVaultBySmiles.SelectMany(m => ExtractSynonyms(m.Synonyms)))
+                            .Distinct()
+                            .ToList();
+                        
+                        if (existingMoleculeNamesInChemVault.Count > 0)
+                        {
+                            // These are exact matches, lets remove them from requestedCompoundsWithSmiles
+                            requestedCompoundsWithSmiles.RemoveAll(c => existingMoleculeNamesInChemVault.Contains(c.Name));
+                            _logger.LogInformation("Found {Count} compounds with SMILES already existing in ChemVault by SMILES.", existingMoleculeNamesInChemVault.Count);
+                            _logger.LogInformation("Existing compound names in ChemVault: {Names}", string.Join(", ", existingMoleculeNamesInChemVault));
+                        }
+
+                        // Here these are new compounds or new synonyms
+                        // possibilites are:
+                        // 1. Completely New Compound To DAIKON
+                        // 2. Existing Compound in DAIKON but New Synonym
+                        // 3. Name known (Undisclosed), so now disclosing structure
+
+                        // Lets findout undisclosed ones in MLogix DB by Name
+                        var namesToCheckInMlogix = requestedCompoundsWithSmiles
+                            .Select(c => c.Name)
+                            .Where(name => !string.IsNullOrEmpty(name))
+                            .Distinct()
+                            .Cast<string>()
+                            .ToList();
+                        var existingInMLogixByName = await _moleculeRepository.GetByNames(namesToCheckInMlogix);
+                        var existingUndisclosedNamesInMLogixByName = existingInMLogixByName
+                            .Where(m => string.IsNullOrEmpty(m.RequestedSMILES))
+                            .Select(m => m.Name)
+                            .Distinct()
+                            .ToList();
+                        // Lets now copy them to a new list and remove from requestedCompoundsWithSmiles
+                        var toBeDisclosedNow = requestedCompoundsWithSmiles
+                            .Where(c => existingUndisclosedNamesInMLogixByName.Contains(c.Name))
+                            .ToList();
+                        if (toBeDisclosedNow.Count > 0)
+                        {
+                            requestedCompoundsWithSmiles.RemoveAll(c => existingUndisclosedNamesInMLogixByName.Contains(c.Name));
+                            _logger.LogInformation("Found {Count} compounds with SMILES already existing in MLogix by name for disclosure.", toBeDisclosedNow.Count);
+
+                            //TODO : Use Disclosure Command to disclose these structures (SMILES might exists with different name, let disclosure handle that)
+                        }
+
+                        // Rest are either new compounds or new synonyms
+                        // lets register them in chemvault
+
+                        // for existing in chemvault we do nothing,
+                        // for new ones we create new registrayion and disclouser event
+
+
+
+                        
                         
                     }
 

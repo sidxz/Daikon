@@ -9,7 +9,7 @@
       "program": "${workspaceFolder}/Identities/UserStore/UserStore.API/bin/Debug/net8.0/UserStore.API.dll",
       "cwd": "${workspaceFolder}/Identities/UserStore/UserStore.API",
       "envFile": "${workspaceFolder}/.env.local",
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
     },
     {
       "name": "gene-api",
