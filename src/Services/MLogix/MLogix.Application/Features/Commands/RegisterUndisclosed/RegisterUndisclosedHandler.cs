@@ -57,14 +57,24 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
                 throw new InvalidOperationException("Name is required");
             }
 
-            // check if molecule is already registered in chemvault
-            var moleculeInChemVault = await _iMoleculeAPI.FindByNameExact(request.Name, headers);
 
-            if (moleculeInChemVault != null)
+            if (request.ChemVaultCheck)
             {
+                // check if molecule is already registered in ChemVault
+                var moleculeInChemVault = await _iMoleculeAPI.FindByNamesOrSynonymsExact([request.Name], headers);
 
-                throw new InvalidOperationException("ERROR: The Molecule is already disclosed. Molecule was registered in ChemVault with id: " + moleculeInChemVault.Id);
+                if (moleculeInChemVault.Count > 0)
+                {
+
+                    throw new InvalidOperationException("ERROR: The Molecule is already disclosed. Molecule was registered in ChemVault with id: " + moleculeInChemVault[0].Id);
+                }
             }
+            else
+            {
+                _logger.LogInformation("ChemVault uniqueness check skipped. Command.ChemVaultCheck is set to false for molecule name: {Name}", request.Name);
+            }
+            
+
 
             // check if name is already registered
             var molecule = await _moleculeRepository.GetByName(request.Name);

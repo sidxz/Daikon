@@ -1,401 +1,431 @@
-// using AutoMapper;
-// using CQRS.Core.Extensions;
-// using Daikon.EventStore.Handlers;
-// using Daikon.Events.MLogix;
-// using MediatR;
-// using Microsoft.AspNetCore.Http;
-// using Microsoft.Extensions.Logging;
-// using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
-// using MLogix.Application.Contracts.Persistence;
-// using MLogix.Application.Features.Commands.RegisterMolecule;
-// using MLogix.Application.Features.Commands.RegisterUndisclosed;
-// using MLogix.Domain.Aggregates;
-// using MLogix.Application.DTOs.CageFusion;
-// using MLogix.Application.Features.Commands.PredictNuisance;
-// using MLogix.Application.BackgroundServices;
-// using MLogix.Application.Features.Queries.GetMolecules.ByIDs;
-// using Daikon.Shared.VM.MLogix;
-// using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
+using AutoMapper;
+using CQRS.Core.Extensions;
+using Daikon.EventStore.Handlers;
+using Daikon.Events.MLogix;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
+using MLogix.Application.Contracts.Persistence;
+using MLogix.Application.Features.Commands.RegisterMolecule;
+using MLogix.Application.Features.Commands.RegisterUndisclosed;
+using MLogix.Domain.Aggregates;
+using MLogix.Application.DTOs.CageFusion;
+using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.BackgroundServices;
+using MLogix.Application.Features.Commands.DiscloseMolecule;
 
 
-// namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
-// {
-//     /* Small value object to hold disclosure info in a single place */
-//     public record DisclosureInfo(
-//         string Stage,
-//         string Scientist,
-//         Guid OrgId,
-//         string Reason,
-//         string? Notes,
-//         string LiteratureReferences,
-//         DateTime? StructureDisclosedDateUtc
-//     );
+namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
+{
 
-//     /* Represents the original incoming ID, requested SMILES, and disclosure info */
-//     public record OriginalRequestInfo(
-//         Guid OriginalId,
-//         string? RequestedSmiles,
-//         DisclosureInfo Disclosure
-//     );
+    public class RegisterMoleculeBatchHandler : IRequestHandler<RegisterMoleculeBatchCommand, List<RegisterMoleculeResponseDTO>>
+    {
+        private const int BatchSize = 500;
 
-//     public class RegisterMoleculeBatchHandler : IRequestHandler<RegisterMoleculeBatchCommand, List<RegisterMoleculeResponseDTO>>
-//     {
-//         private const int BatchSize = 500;
-
-//         private readonly IMapper _mapper;
-//         private readonly ILogger<RegisterMoleculeBatchHandler> _logger;
-//         private readonly IMoleculeRepository _moleculeRepository;
-//         private readonly IEventSourcingHandler<MoleculeAggregate> _eventSourcingHandler;
-//         private readonly IMoleculeAPI _moleculeAPI;
-//         private readonly IHttpContextAccessor _httpContextAccessor;
-//         private readonly IMediator _mediator;
-//         private readonly INuisanceJobQueue _nuisanceQueue;
+        private readonly IMapper _mapper;
+        private readonly ILogger<RegisterMoleculeBatchHandler> _logger;
+        private readonly IMoleculeRepository _moleculeRepository;
+        private readonly IEventSourcingHandler<MoleculeAggregate> _eventSourcingHandler;
+        private readonly IMoleculeAPI _moleculeAPI;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IMediator _mediator;
+        private readonly INuisanceJobQueue _nuisanceQueue;
 
 
-//         public RegisterMoleculeBatchHandler(
-//             IMapper mapper,
-//             ILogger<RegisterMoleculeBatchHandler> logger,
-//             IMoleculeRepository moleculeRepository,
-//             IEventSourcingHandler<MoleculeAggregate> eventSourcingHandler,
-//             IMoleculeAPI moleculeAPI,
-//             IHttpContextAccessor httpContextAccessor,
-//             INuisanceJobQueue nuisanceQueue,
-//             IMediator mediator)
-//         {
-//             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-//             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-//             _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
-//             _eventSourcingHandler = eventSourcingHandler ?? throw new ArgumentNullException(nameof(eventSourcingHandler));
-//             _moleculeAPI = moleculeAPI ?? throw new ArgumentNullException(nameof(moleculeAPI));
-//             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-//             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-//             _nuisanceQueue = nuisanceQueue ?? throw new ArgumentNullException(nameof(nuisanceQueue));
-//         }
+        public RegisterMoleculeBatchHandler(
+            IMapper mapper,
+            ILogger<RegisterMoleculeBatchHandler> logger,
+            IMoleculeRepository moleculeRepository,
+            IEventSourcingHandler<MoleculeAggregate> eventSourcingHandler,
+            IMoleculeAPI moleculeAPI,
+            IHttpContextAccessor httpContextAccessor,
+            INuisanceJobQueue nuisanceQueue,
+            IMediator mediator)
+        {
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
+            _eventSourcingHandler = eventSourcingHandler ?? throw new ArgumentNullException(nameof(eventSourcingHandler));
+            _moleculeAPI = moleculeAPI ?? throw new ArgumentNullException(nameof(moleculeAPI));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _nuisanceQueue = nuisanceQueue ?? throw new ArgumentNullException(nameof(nuisanceQueue));
+        }
 
-//         public async Task<List<RegisterMoleculeResponseDTO>> Handle(RegisterMoleculeBatchCommand request, CancellationToken cancellationToken)
-//         {
+        public async Task<List<RegisterMoleculeResponseDTO>> Handle(RegisterMoleculeBatchCommand request, CancellationToken cancellationToken)
+        {
 
-//             if (request?.Commands == null || request.Commands.Count == 0)
-//                 throw new ArgumentException("Molecule batch request must contain at least one command.");
+            if (request?.Commands == null || request.Commands.Count == 0)
+                throw new ArgumentException("Molecule batch request must contain at least one command.");
 
-//             var requestHeaders = _httpContextAccessor.HttpContext?.Request?.Headers?
-//                 .ToDictionary(h => h.Key, h => h.Value.ToString()) ?? new Dictionary<string, string>();
+            var requestHeaders = _httpContextAccessor.HttpContext?.Request?.Headers?
+                .ToDictionary(h => h.Key, h => h.Value.ToString()) ?? new Dictionary<string, string>();
 
-//             var responses = new List<RegisterMoleculeResponseDTO>();
-//             var originalIdMapping = new Dictionary<Guid, OriginalRequestInfo>();
+            /* STEP 1: Prepare and normalize commands */
+            foreach (var cmd in request.Commands)
+            {
+                cmd.RegistrationId = cmd.RegistrationId == Guid.Empty ? Guid.NewGuid() : cmd.RegistrationId;
+                cmd.Id = cmd.Id == Guid.Empty ? Guid.NewGuid() : cmd.Id;
+                cmd.SetCreateProperties(request.RequestorUserId);
 
-//             /* STEP 1: Prepare and normalize commands */
-//             foreach (var cmd in request.Commands)
-//             {
-//                 cmd.RegistrationId = cmd.RegistrationId == Guid.Empty ? Guid.NewGuid() : cmd.RegistrationId;
-//                 cmd.Id = cmd.Id == Guid.Empty ? Guid.NewGuid() : cmd.Id;
-//                 cmd.SetCreateProperties(request.RequestorUserId);
+            }
 
-//                 var disclosedDate = cmd.StructureDisclosedDate == default
-//                     ? (DateTime?)null
-//                     : DateTime.SpecifyKind(cmd.StructureDisclosedDate, DateTimeKind.Utc);
+            // lets create a deep copy of commands for future reference
+            
+            
 
-//                 var disclosure = new DisclosureInfo(
-//                     Stage: (cmd.DisclosureStage ?? string.Empty).Trim(),
-//                     Scientist: (cmd.DisclosureScientist ?? string.Empty).Trim(),
-//                     OrgId: cmd.DisclosureOrgId,
-//                     Reason: (cmd.DisclosureReason ?? string.Empty).Trim(),
-//                     Notes: string.IsNullOrWhiteSpace(cmd.DisclosureNotes) ? null : cmd.DisclosureNotes.Trim(),
-//                     LiteratureReferences: (cmd.LiteratureReferences ?? string.Empty).Trim(),
-//                     StructureDisclosedDateUtc: disclosedDate
-//                 );
+            var responses = new List<RegisterMoleculeResponseDTO>();
 
-//                 originalIdMapping[cmd.RegistrationId] = new OriginalRequestInfo(
-//                     OriginalId: cmd.Id,
-//                     RequestedSmiles: cmd.SMILES,
-//                     Disclosure: disclosure
-//                 );
 
-//                 // Use RegistrationId as the event-sourced Id for consistency downstream
-//                 cmd.Id = cmd.RegistrationId;
-//             }
+            /* STEP 2: Process in batches */
+            foreach (var batch in request.Commands.Batch(BatchSize))
+            {
+                try
+                {
+                    foreach (var cmd in batch)
+                        cmd.SetCreateProperties(request.RequestorUserId);
 
-//             LogOriginalMapping(originalIdMapping);
+                    var requestedCompoundsWithoutSmiles = batch
+                        .Where(c => string.IsNullOrEmpty(c.SMILES) && !string.IsNullOrEmpty(c.Name))
+                        .ToList();
 
-//             /* STEP 2: Process in batches */
-//             foreach (var batch in request.Commands.Batch(BatchSize))
-//             {
-//                 try
-//                 {
-//                     foreach (var cmd in batch)
-//                         cmd.SetCreateProperties(request.RequestorUserId);
+                    var requestedCompoundsWithSmiles = batch
+                        .Where(c => !string.IsNullOrEmpty(c.SMILES))
+                        .ToList();
+
+                    var commandsCopy = new List<RegisterMoleculeCommandWithRegId>(batch);
+
+                    var toRegisterAsUndisclosed = new List<RegisterUndisclosedCommand>();
+
+                    /* Deal with Requested Compounds WITHOUT SMILES */
+
+                    if (requestedCompoundsWithoutSmiles.Count > 0)
+                    {
+                        // lets check by name with ChemVault if they exist, ChemVault looks for both names and synonyms internally
+                        var namesToCheck = requestedCompoundsWithoutSmiles
+                            .Select(c => c.Name)
+                            .Where(name => !string.IsNullOrEmpty(name))
+                            .Distinct()
+                            .Cast<string>()
+                            .ToList();
+                        var existingInChemVault = await _moleculeAPI.FindByNamesOrSynonymsExact(namesToCheck, requestHeaders);
+
+                        // Now from requestedCompoundsWithoutSmiles, lets remove those that exist in ChemVault
+                        // Note that to compare namesToCheck with existingInChemVault, we need to check both Name and Synonyms
+
+                        List<string> existingInChemVaultNames = [];
+                        foreach (var mol in existingInChemVault)
+                        {
+                            existingInChemVaultNames.Add(mol.Name);
+                            var synonymsList = ExtractSynonyms(mol.Synonyms);
+                            existingInChemVaultNames.AddRange(synonymsList);
+                        }
+                        // now remove them from requestedCompoundsWithoutSmiles list
+                        if (existingInChemVaultNames.Count > 0)
+                        {
+                            requestedCompoundsWithoutSmiles.RemoveAll(c => existingInChemVaultNames.Contains(c.Name));
+                            _logger.LogInformation("Found {Count} compounds without SMILES already existing in ChemVault by name/synonym.", namesToCheck.Count - requestedCompoundsWithoutSmiles.Count);
+                            _logger.LogInformation("Existing compound names/synonyms in ChemVault: {Names}", string.Join(", ", existingInChemVaultNames));
+                            // Return removed compounds as already registered in response
+                            responses.AddRange(existingInChemVault.Select(m => _mapper.Map<RegisterMoleculeResponseDTO>(m)));
+                        }
+
+                        // now requestedCompoundsWithoutSmiles contains only those that do not exist in ChemVault
+                        // Now lets find out which of these exist in our local MLogix DB
+                        var namesToCheckInMLogix = requestedCompoundsWithoutSmiles
+                            .Select(c => c.Name)
+                            .Where(name => !string.IsNullOrEmpty(name))
+                            .Distinct()
+                            .Cast<string>()
+                            .ToList();
+                        var existingInMLogix = await _moleculeRepository.GetByNames(namesToCheckInMLogix);
+
+                        // now remove those that exist in MLogix from requestedCompoundsWithoutSmiles
+                        if (existingInMLogix.Count > 0)
+                        {
+                            var existingNamesInMLogix = existingInMLogix.Select(m => m.Name).Distinct().ToList();
+                            requestedCompoundsWithoutSmiles.RemoveAll(c => existingNamesInMLogix.Contains(c.Name));
+                            _logger.LogInformation("Found {Count} compounds without SMILES already existing in MLogix by name.", existingNamesInMLogix.Count);
+                            _logger.LogInformation("Existing compound names in MLogix: {Names}", string.Join(", ", existingNamesInMLogix));
+                        }
+
+                        // now whatever is left in requestedCompoundsWithoutSmiles are truly new compounds without SMILES
+                        // Register them as undisclosed
+                        var undisclosedCommands = requestedCompoundsWithoutSmiles
+                            .Select(c => _mapper.Map<RegisterUndisclosedCommand>(c))
+                            .ToList();
+                        if (undisclosedCommands.Count > 0)
+                        {
+                            await ProcessUndisclosedMoleculesAsync(undisclosedCommands, responses, cancellationToken);
+                        }
+                        _logger.LogInformation("Registering {Count} new compounds without SMILES as undisclosed.", requestedCompoundsWithoutSmiles.Count);
+                        _logger.LogInformation("New compound names to register as undisclosed: {Names}", string.Join(", ", requestedCompoundsWithoutSmiles.Select(c => c.Name)));
+                    }
+
+
+                    /* Deal with Requested Compounds WITH SMILES */
+                    if (requestedCompoundsWithSmiles.Count > 0)
+                    {
+                        List<NuisanceRequestTuple> checkForNuisanceList = [];
+
+                        // Lets check which of these exist in ChemVault by SMILES
+                        var smilesToCheck = requestedCompoundsWithSmiles
+                            .Select(c => c.SMILES)
+                            .Where(smiles => !string.IsNullOrEmpty(smiles))
+                            .Distinct()
+                            .Cast<string>()
+                            .ToList();
+                        var existingInChemVaultBySmiles = await _moleculeAPI.GetMoleculesBySMILES(smilesToCheck, requestHeaders);
+
+                        // Now if we find direct name or synonym matches in ChemVault, we will consider them existing and remove them from registration list
+                        List<string> existingMoleculeNamesInChemVault = existingInChemVaultBySmiles
+                            .Select(m => m.Name)
+                            .Concat(existingInChemVaultBySmiles.SelectMany(m => ExtractSynonyms(m.Synonyms)))
+                            .Distinct()
+                            .ToList();
+
+                        if (existingMoleculeNamesInChemVault.Count > 0)
+                        {
+                            // These are exact matches, lets remove them from requestedCompoundsWithSmiles
+                            requestedCompoundsWithSmiles.RemoveAll(c => existingMoleculeNamesInChemVault.Contains(c.Name));
+                            _logger.LogInformation("Found {Count} compounds with SMILES already existing in ChemVault by SMILES.", existingMoleculeNamesInChemVault.Count);
+                            _logger.LogInformation("Existing compound names in ChemVault: {Names}", string.Join(", ", existingMoleculeNamesInChemVault));
+                        }
+
+                        // Here these are new compounds or new synonyms
+                        // possibilities are:
+                        // 1. Completely New Compound To DAIKON
+                        // 2. Existing Compound in DAIKON but New Synonym
+                        // 3. Name known (Undisclosed), so now disclosing structure
+
+                        // Lets find  undisclosed ones in MLogix DB by Name
+                        var namesToCheckInMlogix = requestedCompoundsWithSmiles
+                            .Select(c => c.Name)
+                            .Where(name => !string.IsNullOrEmpty(name))
+                            .Distinct()
+                            .Cast<string>()
+                            .ToList();
+                        var existingInMLogixByName = await _moleculeRepository.GetByNames(namesToCheckInMlogix);
+                        var existingUndisclosedNamesInMLogixByName = existingInMLogixByName
+                            .Where(m => string.IsNullOrEmpty(m.RequestedSMILES))
+                            .Select(m => m.Name)
+                            .Distinct()
+                            .ToList();
+                        // Lets now copy them to a new list and remove from requestedCompoundsWithSmiles
+                        var toBeDisclosedNow = requestedCompoundsWithSmiles
+                            .Where(c => existingUndisclosedNamesInMLogixByName.Contains(c.Name))
+                            .ToList();
+                        if (toBeDisclosedNow.Count > 0)
+                        {
+                            requestedCompoundsWithSmiles.RemoveAll(c => existingUndisclosedNamesInMLogixByName.Contains(c.Name));
+                            _logger.LogInformation("Found {Count} compounds with SMILES already existing in MLogix by name for disclosure.", toBeDisclosedNow.Count);
+
+                            //Use Disclosure Command to disclose these structures (SMILES might exists with different name, let disclosure handle that)
+
+                            var discloseBatchCmd = new DiscloseMoleculeBatchCommand
+                            {
+                                Molecules = toBeDisclosedNow.Select(c => _mapper.Map<DiscloseMoleculeCommand>(c)).ToList()
+                            };
+
+                            var discloseResult = await _mediator.Send(discloseBatchCmd, cancellationToken);
+                            responses.AddRange(discloseResult.Select(d => _mapper.Map<RegisterMoleculeResponseDTO>(d)));
+                            checkForNuisanceList.AddRange(discloseResult.Select(d => new NuisanceRequestTuple
+                            {
+                                Id = d.Id.ToString(),
+                                SMILES = d.SmilesCanonical
+                            }));
+                        }
+
+                        // Rest are either new compounds or new synonyms
+                        // Lets register them in ChemVault
+
+                        // If existing in ChemVault we do nothing, synonym would be automatically added
+                        // For new ones we create new registration and disclosure event
+
+                        var currentTime = DateTime.UtcNow;
+
+                        List<RegisterMoleculeCommandWithRegId> requestCompoundWithSmilesIDmapped = [];
+                        foreach (var cmd in requestedCompoundsWithSmiles)
+                        {
+                            // map to new object to avoid modifying original command
+                            var newCmd = _mapper.Map<RegisterMoleculeCommandWithRegId>(cmd);
+                            newCmd.Id = cmd.RegistrationId;
+                            requestCompoundWithSmilesIDmapped.Add(newCmd);
+                        }
+
+                        var registerMoleculeResponses = await _moleculeAPI.RegisterBatch(requestCompoundWithSmilesIDmapped, requestHeaders);
+
+                        _logger.LogInformation("ChemVault API responded with {Count} entries", registerMoleculeResponses.Count);
 
                     
-//                     // TODO: Bug if a list is provided without SMILES but a already registered molecule, 
-//                     // it would be tried to be registered as undisclosed, and would fail.
-//                     // This is further complicated if a synonym is provided of an already disclosed molecule, 
-//                     // mongo does not have an entry for synonyms, and will simply register it again as undisclosed.
+                        foreach (var apiResponse in registerMoleculeResponses)
+                        {
 
-//                     // ChemVault does not have a method now to check for exact synonym matches, and will need db changes.
+                            var existingInMLogix = await _moleculeRepository.GetMoleculeByRegistrationId(apiResponse.Id);
+                            RegisterMoleculeResponseDTO dto;
 
+                            if (existingInMLogix != null)
+                            {
+                                dto = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
+                                dto.WasAlreadyRegistered = true;
+                                dto.Id = existingInMLogix.Id;
+                                dto.RegistrationId = apiResponse.Id;
 
-//                     var undisclosedCommands = batch
-//                         .Where(c => string.IsNullOrEmpty(c.SMILES) && !string.IsNullOrEmpty(c.Name))
-//                         .Select(c => _mapper.Map<RegisterUndisclosedCommand>(c))
-//                         .ToList();
-
-//                     var disclosedCommands = batch
-//                         .Where(c => !string.IsNullOrEmpty(c.SMILES))
-//                         .ToList();
-
-//                     if (undisclosedCommands.Any())
-//                         await ProcessUndisclosedMoleculesAsync(undisclosedCommands, responses, cancellationToken);
-
-//                     if (disclosedCommands.Any())
-//                         await ProcessDisclosedMoleculesAsync(disclosedCommands, originalIdMapping, requestHeaders, responses, cancellationToken);
-//                 }
-//                 catch (Exception ex)
-//                 {
-//                     _logger.LogError(ex, "Batch processing failed. Error: {Message}", ex.Message);
-//                     throw new InvalidOperationException("An error occurred while processing molecule batch.", ex);
-//                 }
-//             }
-
-//             LogFinalResponses(responses);
-//             return responses;
-//         }
-
-//         /* Logs original mappings of RegistrationId to original Id, SMILES, and disclosure info */
-//         private void LogOriginalMapping(Dictionary<Guid, OriginalRequestInfo> originalMap)
-//         {
-//             _logger.LogInformation("==== ORIGINAL REQUEST ====");
-//             foreach (var entry in originalMap)
-//             {
-//                 var d = entry.Value.Disclosure;
-//                 _logger.LogInformation(
-//                     "RegistrationId: {RegId}, OriginalId: {Id}, SMILES: {SMILES}, Stage: {Stage}, Scientist: {Scientist}, OrgId: {OrgId}, Reason: {Reason}, DateUTC: {Date}, Refs: {Refs}",
-//                     entry.Key,
-//                     entry.Value.OriginalId,
-//                     entry.Value.RequestedSmiles,
-//                     d.Stage,
-//                     d.Scientist,
-//                     d.OrgId,
-//                     d.Reason,
-//                     d.StructureDisclosedDateUtc,
-//                     d.LiteratureReferences
-//                 );
-//             }
-//             _logger.LogInformation("==========================");
-//         }
-
-//         /* Handles undisclosed molecule registration one-by-one via mediator */
-//         private async Task ProcessUndisclosedMoleculesAsync(
-//             List<RegisterUndisclosedCommand> undisclosedBatch,
-//             List<RegisterMoleculeResponseDTO> allResponses,
-//             CancellationToken cancellationToken)
-//         {
-//             _logger.LogInformation("Processing undisclosed molecules: Count = {Count}", undisclosedBatch.Count);
-
-//             foreach (var cmd in undisclosedBatch)
-//             {
-//                 var result = await _mediator.Send(cmd, cancellationToken);
-//                 var responseDto = _mapper.Map<RegisterMoleculeResponseDTO>(result);
-//                 allResponses.Add(responseDto);
-//             }
-//         }
-
-//         /* Handles disclosed molecule registration via API and event sourcing */
-//         private async Task ProcessDisclosedMoleculesAsync(
-//             List<RegisterMoleculeCommandWithRegId> disclosedBatch,
-//             Dictionary<Guid, OriginalRequestInfo> originalMap,
-//             Dictionary<string, string> headers,
-//             List<RegisterMoleculeResponseDTO> allResponses,
-//             CancellationToken cancellationToken)
-//         {
-//             _logger.LogInformation("Processing disclosed molecules: Count = {Count}", disclosedBatch.Count);
-//             var currentTime = DateTime.UtcNow;
-
-//             var apiResponses = await _moleculeAPI.RegisterBatch(disclosedBatch, headers);
-
-//             _logger.LogInformation("Molecule API responded with {Count} entries", apiResponses.Count);
-
-//             List<NuisanceRequestTuple> checkForNuisanceList = [];
-
-//             // Requestor user id from header (for audit)
-//             Guid requestorUserId = Guid.Empty;
-//             if (headers.TryGetValue("AppUser-Id", out var requestorUserId_FromHeader) &&
-//                 Guid.TryParse(requestorUserId_FromHeader, out var parsedRequestor))
-//             {
-//                 requestorUserId = parsedRequestor;
-//             }
-
-//             foreach (var apiResponse in apiResponses)
-//             {
-
-//                 var existing = await _moleculeRepository.GetMoleculeByRegistrationId(apiResponse.Id);
-//                 RegisterMoleculeResponseDTO dto;
-
-//                 if (existing != null)
-//                 {
-//                     dto = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
-//                     dto.WasAlreadyRegistered = true;
-//                     dto.Id = existing.Id;
-//                     dto.RegistrationId = apiResponse.Id;
-
-//                     _logger.LogInformation("Molecule '{Name}' already registered.", apiResponse.Name);
-//                 }
-//                 else
-//                 {
-//                     var newEvent = _mapper.Map<MoleculeCreatedEvent>(apiResponse);
-
-//                     if (!originalMap.TryGetValue(apiResponse.Id, out var original))
-//                     {
-//                         _logger.LogWarning("Missing original mapping for Name: {Name}, RegistrationId: {Id}", apiResponse.Name, apiResponse.Id);
-//                         throw new InvalidOperationException($"Missing original mapping for  Name: {apiResponse.Name}, RegistrationId: {apiResponse.Id}");
-//                     }
-
-//                     // carry through original IDs/inputs
-
-//                     newEvent.RequestorUserId = requestorUserId;
-//                     newEvent.CreatedById = requestorUserId;
-//                     newEvent.DateCreated = currentTime;
-//                     newEvent.IsModified = false;
-//                     newEvent.LastModifiedById = requestorUserId;
-//                     newEvent.DateModified = currentTime;
-
-//                     newEvent.Id = original.OriginalId;
-//                     newEvent.RequestedSMILES = original.RequestedSmiles;
-//                     newEvent.RegistrationId = apiResponse.Id;
-//                     newEvent.SmilesCanonical = apiResponse.SmilesCanonical;
-
-//                     var aggregate = new MoleculeAggregate(newEvent);
-
-//                     // build MoleculeDisclosedEvent with resolved disclosure fields
-//                     var disclosure = original.Disclosure;
-
-//                     // Try to get "AppUser-FullName" from headers; used as fallback for scientist
-//                     var resolvedScientist = ResolveScientist(disclosure, headers);
-
-//                     // OrgId precedence: command > header > Guid.Empty
-//                     var resolvedOrgId = ResolveOrgId(disclosure, headers);
+                                _logger.LogInformation("Molecule '{Name}' already registered. New Synonyms if any added", apiResponse.Name);
+                                responses.Add(dto);
+                            }
+                            else
+                            {
+                                var originalCmd = commandsCopy
+                                    .FirstOrDefault(c => c.RegistrationId == apiResponse.Id);
+                                if (originalCmd == null)
+                                {
+                                    _logger.LogWarning("Missing original command for Name: {Name}, RegistrationId: {Id}", apiResponse.Name, apiResponse.Id);
+                                    throw new InvalidOperationException($"Missing original command for Name: {apiResponse.Name}, RegistrationId: {apiResponse.Id}");
+                                }
 
 
+                                var moleculeCreatedEvent = _mapper.Map<MoleculeCreatedEvent>(apiResponse);
+                                // carry through original IDs/inputs
 
-//                     // Disclosure date precedence: command > event created > now UTC
-//                     var resolvedDate = ResolveDisclosedDate(disclosure, newEvent.DateCreated);
+                                moleculeCreatedEvent.RequestorUserId = request.RequestorUserId;
+                                moleculeCreatedEvent.CreatedById = request.RequestorUserId;
+                                moleculeCreatedEvent.DateCreated = currentTime;
+                                moleculeCreatedEvent.IsModified = false;
+                                moleculeCreatedEvent.LastModifiedById = request.RequestorUserId;
+                                moleculeCreatedEvent.DateModified = currentTime;
 
-//                     var moleculeDisclosedEvent = new MoleculeDisclosedEvent
-//                     {
-//                         RequestorUserId = requestorUserId,
-//                         CreatedById = requestorUserId,
-//                         DateCreated = currentTime,
-//                         IsModified = false,
-//                         LastModifiedById = requestorUserId,
-//                         DateModified = currentTime,
+                                moleculeCreatedEvent.Id = originalCmd.Id;
+                                moleculeCreatedEvent.RequestedSMILES = originalCmd.SMILES;
+                                moleculeCreatedEvent.RegistrationId = apiResponse.Id;
+                                moleculeCreatedEvent.SmilesCanonical = apiResponse.SmilesCanonical;
+
+                                var aggregate = new MoleculeAggregate(moleculeCreatedEvent);
+
+                                // Now lets create Disclosure Event as these all have SMILES
+
+                                string scientistFromHeaders = string.Empty;
+                                if (requestHeaders.TryGetValue("AppUser-FullName", out var fullName))
+                                {
+                                    scientistFromHeaders = fullName;
+                                }
+                                Guid disclosureOrgIdFromHeaders = Guid.Empty;
+                                if (requestHeaders.TryGetValue("AppOrg-Id", out var disclosureOrgIdFromHeader))
+                                {
+                                    disclosureOrgIdFromHeaders = Guid.Parse(disclosureOrgIdFromHeader);
+                                }
+                                var moleculeDisclosedEvent = new MoleculeDisclosedEvent
+                                {
+                                    RequestorUserId = request.RequestorUserId,
+                                    CreatedById = request.RequestorUserId,
+                                    DateCreated = currentTime,
+                                    IsModified = false,
+                                    LastModifiedById = request.RequestorUserId,
+                                    DateModified = currentTime,
+                                    RegistrationId = moleculeCreatedEvent.RegistrationId,
+                                    Name = moleculeCreatedEvent.Name,
+                                    RequestedSMILES = moleculeCreatedEvent.RequestedSMILES,
+                                    SmilesCanonical = moleculeCreatedEvent.SmilesCanonical,
+                                    IsStructureDisclosed = true,
+                                    StructureDisclosedDate = originalCmd.StructureDisclosedDate != default ? originalCmd.StructureDisclosedDate : currentTime,
+                                    StructureDisclosedByUserId = request.RequestorUserId,
+                                    // Disclosure bundle
+                                    DisclosureScientist = originalCmd.DisclosureScientist ?? scientistFromHeaders,
+                                    DisclosureOrgId = originalCmd.DisclosureOrgId != Guid.Empty ? originalCmd.DisclosureOrgId : disclosureOrgIdFromHeaders,
+                                    DisclosureStage = originalCmd.DisclosureStage,
+                                    DisclosureReason = string.IsNullOrWhiteSpace(originalCmd.DisclosureReason) ? "Automatic registration" : originalCmd.DisclosureReason,
+                                    DisclosureNotes = originalCmd.DisclosureNotes,
+                                    LiteratureReferences = originalCmd.LiteratureReferences
+                                };
+
+                                aggregate.DiscloseMolecule(moleculeDisclosedEvent);
+                                await _eventSourcingHandler.SaveAsync(aggregate);
+
+                                dto = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
+                                dto.WasAlreadyRegistered = false;
+                                dto.Id = moleculeCreatedEvent.Id;
+                                dto.RegistrationId = apiResponse.Id;
+
+                                checkForNuisanceList.Add(new NuisanceRequestTuple
+                                {
+                                    Id = moleculeCreatedEvent.Id.ToString(),
+                                    SMILES = dto.SmilesCanonical
+                                });
+
+                                responses.Add(dto);
+                            }
+
+                        }
+
+                        if (checkForNuisanceList.Count > 0)
+                        {
+                            _logger.LogInformation("Preparing to trigger nuisance predictions for {Count} molecules.", checkForNuisanceList.Count);
+
+                            var nuisanceCommand = new PredictNuisanceCommand
+                            {
+                                NuisanceRequestTuple = checkForNuisanceList,
+                                PlotAllAttention = false,
+                                RequestorUserId = request.RequestorUserId,
+                                CreatedById = request.RequestorUserId,
+                                DateCreated = currentTime,
+                                IsModified = false,
+                                LastModifiedById = request.RequestorUserId,
+                                DateModified = currentTime,
+                            };
+                            try
+                            {
+                                var correlationId = Guid.NewGuid().ToString("N");
+                                using (_logger.BeginScope(new Dictionary<string, object> { ["corrId"] = correlationId }))
+                                {
+                                    var job = new NuisanceJob(nuisanceCommand, correlationId);
+                                    await _nuisanceQueue.EnqueueAsync(job, CancellationToken.None);
+                                    _logger.LogInformation("Queued nuisance prediction for {Count} molecules.", checkForNuisanceList.Count);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Failed to trigger nuisance predictions.");
+                            }
+
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Batch processing failed. Error: {Message}", ex.Message);
+                    throw new InvalidOperationException("An error occurred while processing molecule batch.", ex);
+                }
+            }
+
+            return responses;
+        }
+
+        private List<string> ExtractSynonyms(string synonyms)
+        {
+            // Remove white space from split strings as well
+            var synonymList = synonyms.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+            return synonymList;
+        }
+
+        /* Logs original mappings of RegistrationId to original Id, SMILES, and disclosure info */
 
 
-//                         Id = newEvent.Id,
-//                         RegistrationId = newEvent.RegistrationId,
-//                         Name = newEvent.Name,
-//                         RequestedSMILES = newEvent.RequestedSMILES,
-//                         SmilesCanonical = newEvent.SmilesCanonical,
+        /* Handles undisclosed molecule registration one-by-one via mediator */
+        private async Task ProcessUndisclosedMoleculesAsync(
+            List<RegisterUndisclosedCommand> undisclosedBatch,
+            List<RegisterMoleculeResponseDTO> allResponses,
+            CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Processing undisclosed molecules: Count = {Count}", undisclosedBatch.Count);
 
-//                         IsStructureDisclosed = true,
-//                         StructureDisclosedDate = resolvedDate,
-//                         StructureDisclosedByUserId = requestorUserId,
-
-//                         // Disclosure bundle (now includes additional fields)
-//                         DisclosureScientist = resolvedScientist,
-//                         DisclosureOrgId = resolvedOrgId,
-//                         DisclosureStage = disclosure.Stage,
-//                         DisclosureReason = string.IsNullOrWhiteSpace(disclosure.Reason) ? "Automatic registration" : disclosure.Reason,
-//                         DisclosureNotes = disclosure.Notes,
-//                         LiteratureReferences = disclosure.LiteratureReferences
-//                     };
-
-//                     aggregate.DiscloseMolecule(moleculeDisclosedEvent);
-//                     await _eventSourcingHandler.SaveAsync(aggregate);
-
-//                     dto = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
-//                     dto.WasAlreadyRegistered = false;
-//                     dto.Id = newEvent.Id;
-//                     dto.RegistrationId = apiResponse.Id;
-
-//                     checkForNuisanceList.Add(new NuisanceRequestTuple
-//                     {
-//                         Id = newEvent.Id.ToString(),
-//                         SMILES = dto.SmilesCanonical
-//                     });
-//                 }
-
-//                 allResponses.Add(dto);
-//             }
-//             // Trigger nuisance prediction for newly registered molecules
-//             if (checkForNuisanceList.Count > 0)
-//             {
-
-//                 var nuisanceCommand = new PredictNuisanceCommand
-//                 {
-//                     NuisanceRequestTuple = checkForNuisanceList,
-//                     PlotAllAttention = false,
-//                     RequestorUserId = requestorUserId,
-//                     CreatedById = requestorUserId,
-//                     DateCreated = currentTime,
-//                     IsModified = false,
-//                     LastModifiedById = requestorUserId,
-//                     DateModified = currentTime,
-//                 };
-//                 try
-//                 {
-//                     var correlationId = Guid.NewGuid().ToString("N");
-//                     using (_logger.BeginScope(new Dictionary<string, object> { ["corrId"] = correlationId }))
-//                     {
-//                         var job = new NuisanceJob(nuisanceCommand, correlationId);
-//                         await _nuisanceQueue.EnqueueAsync(job, CancellationToken.None);
-//                         _logger.LogInformation("Queued nuisance prediction for {Count} molecules.", checkForNuisanceList.Count);
-//                     }
-//                 }
-//                 catch (Exception ex)
-//                 {
-//                     _logger.LogError(ex, "Failed to trigger nuisance predictions.");
-//                 }
-
-//             }
-
-//         }
-
-//         /* Helper resolvers keep precedence rules explicit and testable */
-//         private static string ResolveScientist(DisclosureInfo fromCmd, IDictionary<string, string> headers)
-//         {
-//             if (!string.IsNullOrWhiteSpace(fromCmd.Scientist)) return fromCmd.Scientist;
-//             return headers.TryGetValue("AppUser-FullName", out var fullName) ? fullName : string.Empty;
-//         }
-
-//         private static Guid ResolveOrgId(DisclosureInfo fromCmd, IDictionary<string, string> headers)
-//         {
-//             if (fromCmd.OrgId != Guid.Empty) return fromCmd.OrgId;
-//             return headers.TryGetValue("AppOrg-Id", out var v) && Guid.TryParse(v, out var gid) ? gid : Guid.Empty;
-//         }
-
-//         private static DateTime ResolveDisclosedDate(DisclosureInfo fromCmd, DateTime? eventCreatedUtc)
-//         {
-//             // preference: explicit command date (already normalized to UTC), else event created date, else now
-//             return fromCmd.StructureDisclosedDateUtc
-//                 ?? eventCreatedUtc
-//                 ?? DateTime.UtcNow;
-//         }
-
-//         /* Logs all molecule registration responses */
-//         private void LogFinalResponses(IEnumerable<RegisterMoleculeResponseDTO> responses)
-//         {
-//             foreach (var res in responses)
-//             {
-//                 _logger.LogInformation("Registered Molecule: {Name}, Id: {Id}, RegId: {RegId}, AlreadyRegistered: {Status}",
-//                     res.Name, res.Id, res.RegistrationId, res.WasAlreadyRegistered);
-//             }
-//         }
-
-
-//         private async Task<List<MoleculeVM>> CheckIfSMILESRegistered(List<string> smilesList)
-//         {
-//             GetMoleculesBySMILESQuery getMoleculeByIDsQuery = new GetMoleculesBySMILESQuery { SMILES = smilesList };
-//             var result = await _mediator.Send(getMoleculeByIDsQuery);
-//             return result;
-//         }
-//     }
-// }
+            foreach (var cmd in undisclosedBatch)
+            {
+                cmd.ChemVaultCheck = false; // skip ChemVault check as already done
+                var result = await _mediator.Send(cmd, cancellationToken);
+                var responseDto = _mapper.Map<RegisterMoleculeResponseDTO>(result);
+                allResponses.Add(responseDto);
+            }
+        }
+    }
+}

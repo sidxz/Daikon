@@ -34,6 +34,10 @@ namespace MLogix.Application.Mappings
             CreateMap<RegisterMoleculeCommand, RegisterMoleculeCommand>()
                 .ReverseMap();
 
+            CreateMap<RegisterMoleculeCommandWithRegId, DiscloseMoleculeCommand>()
+                .ForMember(dest => dest.RequestedSMILES,
+                           opt => opt.MapFrom(src => src.SMILES));
+
             CreateMap<MoleculeCreatedEvent, RegisterUndisclosedCommand>()
                 .ReverseMap();
 
