@@ -51,7 +51,17 @@ public static class ServiceCollectionExtensions
 
         services.AddEndpointsApiExplorer();
         services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(c =>
+        {
+            // whatever you already configure (docs, security, xml comments, etc.)
+
+            c.CustomSchemaIds(type =>
+            {
+                var fullName = type.FullName ?? type.Name;
+                return fullName.Replace("+", "."); // nested types
+            });
+        });
+
 
         services.AddHttpContextAccessor();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RequestorIdBehavior<,>));

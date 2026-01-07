@@ -14,6 +14,7 @@ using MLogix.Application.DTOs.CageFusion;
 using MLogix.Application.Features.Commands.PredictNuisance;
 using MLogix.Application.BackgroundServices;
 using MLogix.Application.Features.Commands.DiscloseMolecule;
+using MLogix.Application.Features.Queries.GetMolecules.ByRegistrationIDs;
 
 
 namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
@@ -148,6 +149,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                             requestedCompoundsWithoutSmiles.RemoveAll(c => existingNamesInMLogix.Contains(c.Name));
                             _logger.LogInformation("Found {Count} compounds without SMILES already existing in MLogix by name.", existingNamesInMLogix.Count);
                             _logger.LogInformation("Existing compound names in MLogix: {Names}", string.Join(", ", existingNamesInMLogix));
+                            // add to responses
+                            responses.AddRange(existingInMLogix.Select(m => _mapper.Map<RegisterMoleculeResponseDTO>(m)));
                         }
 
                         // now whatever is left in requestedCompoundsWithoutSmiles are truly new compounds without SMILES
@@ -191,6 +194,19 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                             requestedCompoundsWithSmiles.RemoveAll(c => existingMoleculeNamesInChemVault.Contains(c.Name));
                             _logger.LogInformation("Found {Count} compounds with SMILES already existing in ChemVault by SMILES.", existingMoleculeNamesInChemVault.Count);
                             _logger.LogInformation("Existing compound names in ChemVault: {Names}", string.Join(", ", existingMoleculeNamesInChemVault));
+                            // add to responses
+                            // we need to fetch from Mlogix DB to get our internal Ids by RegistrationId
+                            GetMoleculeByRegistrationIDsQuery getMolsQuery = new GetMoleculeByRegistrationIDsQuery
+                            {
+                                RegistrationIDs = existingInChemVaultBySmiles.Select(m => m.Id).ToList()
+                            };
+                            var existingMolsInMLogix = await _mediator.Send(getMolsQuery, cancellationToken);
+                            // will have to mark dto.WasAlreadyRegistered = true;
+                            foreach (var dto in existingMolsInMLogix.Select(m => _mapper.Map<RegisterMoleculeResponseDTO>(m)))
+                            {
+                                dto.WasAlreadyRegistered = true;
+                                responses.Add(dto);
+                            }
                         }
 
                         // Here these are new compounds or new synonyms
@@ -216,8 +232,22 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                         var toBeDisclosedNow = requestedCompoundsWithSmiles
                             .Where(c => existingUndisclosedNamesInMLogixByName.Contains(c.Name))
                             .ToList();
+                        
                         if (toBeDisclosedNow.Count > 0)
                         {
+                            // first lets copy id and reg id from existingUndisclosedNamesInMLogixByName
+                            foreach (var cmd in toBeDisclosedNow)
+                            {
+                                var existingMolecule = existingInMLogixByName
+                                    .FirstOrDefault(m => string.Equals(m.Name, cmd.Name, StringComparison.OrdinalIgnoreCase));
+                                if (existingMolecule != null)
+                                {
+                                    cmd.Id = existingMolecule.Id;
+                                    cmd.RegistrationId = existingMolecule.RegistrationId;
+                                }
+                            }
+
+
                             requestedCompoundsWithSmiles.RemoveAll(c => existingUndisclosedNamesInMLogixByName.Contains(c.Name));
                             _logger.LogInformation("Found {Count} compounds with SMILES already existing in MLogix by name for disclosure.", toBeDisclosedNow.Count);
 
@@ -226,7 +256,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                             var discloseBatchCmd = new DiscloseMoleculeBatchCommand
                             {
                                 Molecules = toBeDisclosedNow.Select(c => _mapper.Map<DiscloseMoleculeCommand>(c)).ToList()
-                            };
+                            };                            
 
                             var discloseResult = await _mediator.Send(discloseBatchCmd, cancellationToken);
                             responses.AddRange(discloseResult.Select(d => _mapper.Map<RegisterMoleculeResponseDTO>(d)));

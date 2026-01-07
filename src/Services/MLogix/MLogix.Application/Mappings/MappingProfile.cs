@@ -66,6 +66,10 @@ namespace MLogix.Application.Mappings
             CreateMap<UpdateMoleculeResponseDTO, MoleculeBase>().ReverseMap();
 
             CreateMap<RegisterMoleculeResponseDTO, RegisterUndisclosedDTO>().ReverseMap();
+            CreateMap<RegisterMoleculeResponseDTO, MoleculeVM>().ReverseMap();
+            CreateMap<RegisterMoleculeResponseDTO, MoleculeBase>().ReverseMap();
+            CreateMap<RegisterMoleculeResponseDTO, Molecule>().ReverseMap();
+
 
 
 
