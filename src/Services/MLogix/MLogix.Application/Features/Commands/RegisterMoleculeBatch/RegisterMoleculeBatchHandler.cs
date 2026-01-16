@@ -34,7 +34,6 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
         private readonly IMediator _mediator;
         private readonly INuisanceJobQueue _nuisanceQueue;
 
-
         public RegisterMoleculeBatchHandler(
             IMapper mapper,
             ILogger<RegisterMoleculeBatchHandler> logger,
@@ -83,16 +82,21 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             if (request?.Commands == null || request.Commands.Count == 0)
                 throw new ArgumentException("Molecule batch request must contain at least one command.");
 
+            if (request.PreviewMode)
+            {
+                _logger.LogInformation("Preview mode enabled: No molecules will be registered.");
+            }
+
             var responses = new List<RegisterMoleculeResponseDTO>();
             var headers = ExtractRequestHeaders();
 
-            NormalizeAndAssignCommandIds(request.Commands, request.RequestorUserId);
+            NormalizeAndAssignCommandIds(commands: request.Commands, requestorId: request.RequestorUserId);
 
             foreach (var batch in request.Commands.Batch(BatchSize))
             {
                 try
                 {
-                    await ProcessBatchAsync(batch, request, headers, responses, cancellationToken);
+                    await ProcessBatchAsync(batch: batch, request: request, headers: headers, responses: responses, isPreviewMode: request.PreviewMode, cancellationToken: cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -113,6 +117,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             RegisterMoleculeBatchCommand request,
             Dictionary<string, string> headers,
             List<RegisterMoleculeResponseDTO> responses,
+            bool isPreviewMode,
             CancellationToken cancellationToken)
         {
             /* Ensure audit metadata is always correct */
@@ -120,6 +125,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             {
                 cmd.SetCreateProperties(request.RequestorUserId);
             }
+            /* Remove if Name is null/empty or white spaces */
+            batch = [.. batch.Where(c => !string.IsNullOrWhiteSpace(c.Name))];
 
             /* Split commands based on SMILES presence */
             var withoutSmiles = batch
@@ -136,49 +143,29 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             if (withoutSmiles.Count > 0)
             {
                 await HandleCompoundsWithoutSmilesAsync(
-                    withoutSmiles,
-                    headers,
-                    responses,
-                    cancellationToken);
+                    compounds: withoutSmiles,
+                    headers: headers,
+                    responses: responses,
+                    isPreviewMode: isPreviewMode,
+                    cancellationToken: cancellationToken);
             }
 
             if (withSmiles.Count > 0)
             {
                 await HandleCompoundsWithSmilesAsync(
-                    withSmiles,
-                    commandSnapshot,
-                    request,
-                    headers,
-                    responses,
-                    cancellationToken);
+                    compounds: withSmiles,
+                    commandSnapshot: commandSnapshot,
+                    request: request,
+                    headers: headers,
+                    responses: responses,
+                    isPreviewMode: isPreviewMode,
+                    cancellationToken: cancellationToken);
             }
 
         }
 
 
-        /*
-         * Processes undisclosed molecule registrations one-by-one via Mediator.
-         * Skips ChemVault checks as already handled upstream.
-         */
-        private async Task ProcessUndisclosedMoleculesAsync(
-            List<RegisterUndisclosedCommand> undisclosedBatch,
-            List<RegisterMoleculeResponseDTO> allResponses,
-            CancellationToken cancellationToken)
-        {
-            _logger.LogInformation(
-                "Processing {Count} undisclosed molecules...",
-                undisclosedBatch.Count);
 
-            foreach (var cmd in undisclosedBatch)
-            {
-                cmd.ChemVaultCheck = false;
-
-                var result = await _mediator.Send(cmd, cancellationToken);
-                var responseDto = _mapper.Map<RegisterMoleculeResponseDTO>(result);
-
-                allResponses.Add(responseDto);
-            }
-        }
 
 
 
@@ -193,6 +180,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             List<RegisterMoleculeCommandWithRegId> compounds,
             Dictionary<string, string> headers,
             List<RegisterMoleculeResponseDTO> responses,
+            bool isPreviewMode,
             CancellationToken cancellationToken)
         {
 
@@ -224,9 +212,15 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             };
 
             var fullDetails = await _mediator.Send(query, cancellationToken);
-
             responses.AddRange(
-                fullDetails.Select(m => _mapper.Map<RegisterMoleculeResponseDTO>(m)));
+                fullDetails.Select(m =>
+                {
+                    var dto = _mapper.Map<RegisterMoleculeResponseDTO>(m);
+                    dto.WasAlreadyRegistered = true;
+                    dto.PreviewMessage = "A disclosed molecule with this name (or synonym) already exists.";
+                    dto.PreviewStatus = "DUPLICATE_DISCLOSED";
+                    return dto;
+                }));
 
             /* At this point compounds contains only those that do not exist in ChemVault */
             /* ---- Local DB Check ---- */
@@ -243,7 +237,14 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             compounds.RemoveAll(c => localNames.Contains(c.Name));
 
             responses.AddRange(
-                existingLocal.Select(m => _mapper.Map<RegisterMoleculeResponseDTO>(m)));
+                existingLocal.Select(m =>
+                {
+                    var dto = _mapper.Map<RegisterMoleculeResponseDTO>(m);
+                    dto.WasAlreadyRegistered = true;
+                    dto.PreviewMessage = "An undisclosed molecule with this name already exists.";
+                    dto.PreviewStatus = "DUPLICATE_UNDISCLOSED";
+                    return dto;
+                }));
 
 
             /* ---- Register Truly New as Undisclosed ---- */
@@ -259,9 +260,36 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 .ToList();
 
             await ProcessUndisclosedMoleculesAsync(
-                undisclosedCommands,
-                responses,
-                cancellationToken);
+                undisclosedBatch: undisclosedCommands,
+                allResponses: responses,
+                isPreviewMode: isPreviewMode,
+                cancellationToken: cancellationToken);
+        }
+
+
+        /*
+         * Processes undisclosed molecule registrations one-by-one via Mediator.
+         * Skips ChemVault checks as already handled upstream.
+         */
+        private async Task ProcessUndisclosedMoleculesAsync(
+            List<RegisterUndisclosedCommand> undisclosedBatch,
+            List<RegisterMoleculeResponseDTO> allResponses,
+            bool isPreviewMode,
+            CancellationToken cancellationToken)
+        {
+            _logger.LogInformation(
+                "Processing {Count} undisclosed molecules...",
+                undisclosedBatch.Count);
+
+            foreach (var cmd in undisclosedBatch)
+            {
+                cmd.ChemVaultCheck = false;
+                cmd.PreviewMode = isPreviewMode;
+                var result = await _mediator.Send(cmd, cancellationToken);
+                var responseDto = _mapper.Map<RegisterMoleculeResponseDTO>(result);
+
+                allResponses.Add(responseDto);
+            }
         }
 
 
@@ -283,6 +311,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             RegisterMoleculeBatchCommand request,
             Dictionary<string, string> headers,
             List<RegisterMoleculeResponseDTO> responses,
+            bool isPreviewMode,
             CancellationToken cancellationToken)
         {
             var nuisanceQueue = new List<NuisanceRequestTuple>();
@@ -310,22 +339,40 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 
             if (chemVaultNames.Count > 0)
             {
-                compounds.RemoveAll(c => chemVaultNames.Contains(c.Name)); // Remove exact matches
+                // Find compounds that are being removed due to ChemVault match
+                var compoundsToRemove = compounds
+                    .Where(c => c.Name != null && chemVaultNames.Contains(c.Name))
+                    .ToList();
 
-                // Rehydrate Full molecule details to return in response.
-                // Need to query to get this info.
+                compounds.RemoveAll(c => c.Name != null && chemVaultNames.Contains(c.Name)); // Remove exact matches
 
-                var query = new GetMoleculeByRegistrationIDsQuery
+                if (compoundsToRemove.Count > 0)
                 {
-                    RegistrationIDs = chemVaultMatches.Select(m => m.Id).ToList()
-                };
+                    // Rehydrate Full molecule details to return in response.
+                    var query = new GetMoleculeByRegistrationIDsQuery
+                    {
+                        RegistrationIDs = chemVaultMatches.Select(m => m.Id).ToList()
+                    };
 
-                var existingLocal = await _mediator.Send(query, cancellationToken);
+                    var existingLocal = await _mediator.Send(query, cancellationToken);
 
-                foreach (var dto in existingLocal.Select(m => _mapper.Map<RegisterMoleculeResponseDTO>(m)))
-                {
-                    dto.WasAlreadyRegistered = true;
-                    responses.Add(dto);
+                    // Only add responses for compounds that were actually removed
+                    foreach (var removed in compoundsToRemove)
+                    {
+                        var match = existingLocal
+                            .FirstOrDefault(m =>
+                                string.Equals(m.Name, removed.Name, StringComparison.OrdinalIgnoreCase) ||
+                                (m.Synonyms != null && StringUtilities.ExtractSynonyms(m.Synonyms)
+                                    .Any(syn => string.Equals(syn, removed.Name, StringComparison.OrdinalIgnoreCase))));
+                        if (match != null)
+                        {
+                            var dto = _mapper.Map<RegisterMoleculeResponseDTO>(match);
+                            dto.WasAlreadyRegistered = true;
+                            dto.PreviewMessage = "A disclosed molecule with this name (or synonym) already exists.";
+                            dto.PreviewStatus = "DUPLICATE_DISCLOSED";
+                            responses.Add(dto);
+                        }
+                    }
                 }
             }
 
@@ -374,29 +421,45 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     Molecules = toDisclose
                         .Select(c => _mapper.Map<DiscloseMoleculeCommand>(c))
                         .ToList()
+                    ,
+                    PreviewMode = isPreviewMode
+                    ,
+                    SkipNuisanceCheck = true
                 };
 
                 var disclosed = await _mediator.Send(discloseBatch, cancellationToken);
 
                 responses.AddRange(
-                    disclosed.Select(d => _mapper.Map<RegisterMoleculeResponseDTO>(d)));
+                disclosed.Select(m =>
+                    {
+                        var dto = _mapper.Map<RegisterMoleculeResponseDTO>(m);
+                        dto.PreviewMessage = "The molecule will be disclosed.";
+                        dto.PreviewStatus = "DISCLOSURE";
+                        return dto;
+                    }));
 
-                nuisanceQueue.AddRange(
+
+                if (!isPreviewMode)
+                {
+                    nuisanceQueue.AddRange(
                     disclosed.Select(d => new NuisanceRequestTuple
                     {
                         Id = d.Id.ToString(),
                         SMILES = d.SmilesCanonical
                     }));
+
+                }
             }
 
             // Quick return if now compounds is empty
             if (compounds.Count == 0)
             {
-                await QueueNuisancePredictionsAsync(
-                    nuisanceQueue,
-                    request,
-                    utcNow,
-                    cancellationToken);
+                if (!isPreviewMode)
+                    await QueueNuisancePredictionsAsync(
+                        nuisanceQueue,
+                        request,
+                        utcNow,
+                        cancellationToken);
                 return;
             }
 
@@ -412,7 +475,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             }).ToList();
 
             var chemVaultResponses = await _moleculeAPI
-                .RegisterBatch(chemVaultRequests, headers);
+                .RegisterBatch(registerMoleculeCommands: chemVaultRequests, previewMode: isPreviewMode, headers: headers);
 
 
             foreach (var apiResponse in chemVaultResponses)
@@ -424,6 +487,8 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     dto.WasAlreadyRegistered = true;
                     dto.Id = existingLocal.Id;
                     dto.RegistrationId = apiResponse.Id;
+                    dto.PreviewMessage = "This molecule is already disclosed and registered in ChemVault. Any differing submitted name will be added as a synonym.";
+                    dto.PreviewStatus = "DUPLICATE_DISCLOSED";
                     responses.Add(dto);
                     continue;
                 }
@@ -432,9 +497,17 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 /* -------------------------------------------------
                  * STEP 4: Event sourcing (Created + Disclosed)
                  * ------------------------------------------------- */
-
+                
                 var originalCmd = commandSnapshot
-                  .First(c => c.RegistrationId == apiResponse.Id);
+                  .FirstOrDefault(c => c.RegistrationId == apiResponse.Id);
+                if (originalCmd == null)
+                {
+                    // This is a failsafe case and should not happen in normal scenarios unless ChemVault has drifted away from MLogix
+                    _logger.LogWarning(
+                        "ChemVault Drift Detected: Molecule in ChemVault With Registration ID: {RegId}, Name {name}, but NOT found in MLogix",
+                        apiResponse.Id, apiResponse.Name);
+                    continue;
+                }
 
                 var moleculeCreatedEvent = _mapper.Map<MoleculeCreatedEvent>(apiResponse);
                 moleculeCreatedEvent.RequestorUserId = request.RequestorUserId;
@@ -448,41 +521,45 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 moleculeCreatedEvent.RegistrationId = apiResponse.Id;
                 moleculeCreatedEvent.SmilesCanonical = apiResponse.SmilesCanonical;
 
-                var aggregate = new MoleculeAggregate(moleculeCreatedEvent);
-
-                // Now lets create Disclosure Event as these all have SMILES
-                var disclosedEvent = BuildMoleculeDisclosedEvent(
-                    moleculeCreatedEvent,
-                    originalCmd,
-                    headers,
-                    request.RequestorUserId,
-                    utcNow);
-
-                aggregate.DiscloseMolecule(disclosedEvent);
-                await _eventSourcingHandler.SaveAsync(aggregate);
 
                 var response = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
                 response.Id = moleculeCreatedEvent.Id;
                 response.WasAlreadyRegistered = false;
+                response.PreviewMessage = "This molecule would be registered and disclosed.";
+                response.PreviewStatus = "REGISTRATION";
 
                 responses.Add(response);
 
-                nuisanceQueue.Add(new NuisanceRequestTuple
+                if (!isPreviewMode)
                 {
-                    Id = moleculeCreatedEvent.Id.ToString(),
-                    SMILES = response.SmilesCanonical
-                });
+                    var aggregate = new MoleculeAggregate(moleculeCreatedEvent);
+
+                    // Now lets create Disclosure Event as these all have SMILES
+                    var disclosedEvent = BuildMoleculeDisclosedEvent(
+                        moleculeCreatedEvent,
+                        originalCmd,
+                        headers,
+                        request.RequestorUserId,
+                        utcNow);
+
+                    aggregate.DiscloseMolecule(disclosedEvent);
+                    await _eventSourcingHandler.SaveAsync(aggregate);
+
+                    nuisanceQueue.Add(new NuisanceRequestTuple
+                    {
+                        Id = moleculeCreatedEvent.Id.ToString(),
+                        SMILES = response.SmilesCanonical
+                    });
 
 
-                await QueueNuisancePredictionsAsync(
-                nuisanceQueue,
-                request,
-                utcNow,
-                cancellationToken);
+                    await QueueNuisancePredictionsAsync(
+                    nuisanceQueue,
+                    request,
+                    utcNow,
+                    cancellationToken);
+                }
 
             }
-
-
 
 
         }

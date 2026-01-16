@@ -15,5 +15,6 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
     public class RegisterMoleculeBatchCommand : BaseCommand, IRequest<List<RegisterMoleculeResponseDTO>>
     {
         public List<RegisterMoleculeCommandWithRegId> Commands { get; set; } = [];
+        public bool PreviewMode { get; set; } = false;
     }
 }

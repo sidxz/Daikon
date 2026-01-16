@@ -28,7 +28,7 @@ namespace MLogix.Application.Contracts.Infrastructure.DaikonChemVault
         public Task<MoleculeBase> Update(Guid RegistrationId, UpdateMoleculeCommand command, IDictionary<string, string> headers);
         public Task<Unit> Delete(Guid RegistrationId, IDictionary<string, string> headers);
 
-        public Task<List<MoleculeBase>> RegisterBatch(List<RegisterMoleculeCommandWithRegId> registerMoleculeCommands, IDictionary<string, string> headers);
+        public Task<List<MoleculeBase>> RegisterBatch(List<RegisterMoleculeCommandWithRegId> registerMoleculeCommands, bool previewMode, IDictionary<string, string> headers);
         public Task<Unit> BatchCreateParents(IDictionary<string, string> headers);
 
         public Task<List<ClusterVM>> CalculateClusters(List<ClusterDTO> Molecules, double CutOff, IDictionary<string, string> headers);

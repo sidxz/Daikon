@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Daikon.EventStore.Handlers;
 using Daikon.Events.MLogix;
@@ -16,104 +12,130 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
 {
     public class RegisterUndisclosedHandler : IRequestHandler<RegisterUndisclosedCommand, RegisterUndisclosedDTO>
     {
+        /*
+        * Handler responsible for registering undisclosed molecules.
+        * Implements validation, uniqueness checks, and conditional registration logic.
+     */
         private readonly IMapper _mapper;
         private readonly ILogger<RegisterUndisclosedHandler> _logger;
         private readonly IMoleculeRepository _moleculeRepository;
         private readonly IEventSourcingHandler<MoleculeAggregate> _moleculeEventSourcingHandler;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IMoleculeAPI _iMoleculeAPI;
+        private readonly IMoleculeAPI _moleculeApi;
 
-        public RegisterUndisclosedHandler(IMapper mapper, ILogger<RegisterUndisclosedHandler> logger, IMoleculeRepository moleculeRepository,
-        IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler, IHttpContextAccessor httpContextAccessor, IMoleculeAPI iMoleculeAPI)
+        public RegisterUndisclosedHandler(
+            IMapper mapper,
+            ILogger<RegisterUndisclosedHandler> logger,
+            IMoleculeRepository moleculeRepository,
+            IEventSourcingHandler<MoleculeAggregate> moleculeEventSourcingHandler,
+            IHttpContextAccessor httpContextAccessor,
+            IMoleculeAPI moleculeApi)
         {
-            _mapper = mapper;
-            _logger = logger;
-            _moleculeRepository = moleculeRepository;
-            _moleculeEventSourcingHandler = moleculeEventSourcingHandler;
-            _httpContextAccessor = httpContextAccessor;
-            _iMoleculeAPI = iMoleculeAPI;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _moleculeRepository = moleculeRepository ?? throw new ArgumentNullException(nameof(moleculeRepository));
+            _moleculeEventSourcingHandler = moleculeEventSourcingHandler ?? throw new ArgumentNullException(nameof(moleculeEventSourcingHandler));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _moleculeApi = moleculeApi ?? throw new ArgumentNullException(nameof(moleculeApi));
         }
 
         public async Task<RegisterUndisclosedDTO> Handle(RegisterUndisclosedCommand request, CancellationToken cancellationToken)
         {
 
-            var headers = _httpContextAccessor.HttpContext.Request.Headers
-                        .ToDictionary(h => h.Key, h => h.Value.ToString());
+            /*
+             * Validate input
+             */
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                throw new ArgumentException("Molecule name is required.", nameof(request.Name));
+            }
+
+            /*
+             * Retrieve headers for external API calls
+             */
+            var headers = _httpContextAccessor.HttpContext?.Request?.Headers?
+                .ToDictionary(h => h.Key, h => h.Value.ToString()) ?? new Dictionary<string, string>();
+
 
             request.SetCreateProperties(request.RequestorUserId);
 
             request.Id = request.Id == Guid.Empty ? Guid.NewGuid() : request.Id;
 
-            var registerUndisclosedResponseDTO = new RegisterUndisclosedDTO
+            var responseDto = new RegisterUndisclosedDTO
             {
                 Id = request.Id,
                 Name = request.Name,
                 WasAlreadyRegistered = false
             };
 
-            // Check if name is blank throw exception
-            if (string.IsNullOrEmpty(request.Name))
-            {
-                throw new InvalidOperationException("Name is required");
-            }
-
-
             if (request.ChemVaultCheck)
             {
-                // check if molecule is already registered in ChemVault
-                var moleculeInChemVault = await _iMoleculeAPI.FindByNamesOrSynonymsExact([request.Name], headers);
+                var existingMoleculeInChemVault = await _moleculeApi.FindByNamesOrSynonymsExact([request.Name], headers);
 
-                if (moleculeInChemVault.Count > 0)
+                if (existingMoleculeInChemVault?.Count > 0)
                 {
-
-                    throw new InvalidOperationException("ERROR: The Molecule is already disclosed. Molecule was registered in ChemVault with id: " + moleculeInChemVault[0].Id);
+                    var existingRegId = existingMoleculeInChemVault[0].Id;
+                    throw new InvalidOperationException($"A disclosed molecule with this name (or synonym) already exists in ChemVault with Registration ID: {existingRegId}");
                 }
             }
-            else
+
+            /*
+             * Check if the molecule already exists in MLogix
+             */
+
+            var existingMoleculeInMLogix = await _moleculeRepository.GetByName(request.Name);
+            if (existingMoleculeInMLogix != null)
             {
-                _logger.LogInformation("ChemVault uniqueness check skipped. Command.ChemVaultCheck is set to false for molecule name: {Name}", request.Name);
+                _logger.LogInformation("Molecule '{Name}' already registered in MLogix with Id {Id}.", request.Name, existingMoleculeInMLogix.Id);
+
+                responseDto.Id = existingMoleculeInMLogix.Id;
+                responseDto.RegistrationId = existingMoleculeInMLogix.RegistrationId;
+                responseDto.WasAlreadyRegistered = true;
+                responseDto.PreviewMessage = "Already exists as undisclosed.";
+                responseDto.PreviewStatus = "DUPLICATE_UNDISCLOSED";
+                return responseDto;
             }
-            
 
-
-            // check if name is already registered
-            var molecule = await _moleculeRepository.GetByName(request.Name);
-            if (molecule != null)
+            /*
+             * If in preview mode, simulate the registration and return
+             */
+            if (request.PreviewMode)
             {
-                _logger.LogInformation("Molecule already registered in MLogix");
-                registerUndisclosedResponseDTO.Id = molecule.Id;
-                registerUndisclosedResponseDTO.RegistrationId = molecule.RegistrationId;
-                registerUndisclosedResponseDTO.WasAlreadyRegistered = true;
-                return registerUndisclosedResponseDTO;
+                _logger.LogInformation("Preview mode enabled: No molecule will be registered.");
+                responseDto.RegistrationId = Guid.NewGuid();
+                responseDto.PreviewMessage = "Would register new undisclosed molecule.";
+                responseDto.PreviewStatus = "REGISTER_UNDISCLOSED";
+                return responseDto;
             }
 
-            // Register the molecule in the database
+            /*
+            * Proceed with actual registration
+            */
             try
             {
-                _logger.LogInformation("Creating new undisclosed molecule in our MLogix");
+                _logger.LogInformation("Registering new undisclosed molecule '{Name}' in MLogix.", request.Name);
                 var newMoleculeCreatedEvent = _mapper.Map<MoleculeCreatedEvent>(request);
                 newMoleculeCreatedEvent.Id = request.Id;
                 newMoleculeCreatedEvent.RegistrationId = Guid.NewGuid();
 
 
-
                 // create new molecule aggregate
-                var aggregate = new MoleculeAggregate(newMoleculeCreatedEvent);
-                await _moleculeEventSourcingHandler.SaveAsync(aggregate);
+                var newAggregate = new MoleculeAggregate(newMoleculeCreatedEvent);
+                await _moleculeEventSourcingHandler.SaveAsync(newAggregate);
 
-                registerUndisclosedResponseDTO.RegistrationId = newMoleculeCreatedEvent.RegistrationId;
+                responseDto.RegistrationId = newMoleculeCreatedEvent.RegistrationId;
+                responseDto.PreviewMessage = "Would register new undisclosed molecule.";
+                responseDto.PreviewStatus = "REGISTER_UNDISCLOSED";
 
-                return registerUndisclosedResponseDTO;
+                return responseDto;
 
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registering undisclosed molecule");
-                throw;
+                _logger.LogError(ex, "Error registering undisclosed molecule '{Name}'", request.Name);
+                throw new ApplicationException("An unexpected error occurred while registering the molecule. Please contact support.", ex);
             }
-
-
         }
     }
 

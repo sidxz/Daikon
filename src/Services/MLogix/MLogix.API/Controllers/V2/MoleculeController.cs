@@ -2,7 +2,6 @@
 using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Queries.GetMolecule.ById;
 using MLogix.Application.Features.Queries.GetMolecule.BySMILES;
 using MLogix.Application.Features.Queries.GetMolecule.ByRegistrationId;
@@ -21,7 +20,6 @@ using MLogix.Application.Features.Calculations.Clustering;
 using Daikon.Shared.DTO.MLogix;
 using MLogix.Application.Features.Queries.GetRecentDisclosures;
 using MLogix.Application.Features.Previews.RegisterMoleculePreview;
-using MLogix.Application.Features.Commands.PredictNuisance;
 using MLogix.Application.Features.Batch.RefreshAllNuisancePredictions;
 using MLogix.Application.Features.Calculations.ExplainNuisance;
 using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
@@ -129,18 +127,6 @@ namespace MLogix.API.Controllers.V2
             return Ok(molecules);
         }
 
-        [HttpPost(Name = "RegisterMolecule")]
-        [MapToApiVersion("2.0")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> RegisterMolecule([FromBody] RegisterMoleculeCommand command)
-        {
-            var id = Guid.NewGuid();
-            command.Id = id;
-            RegisterMoleculeResponseDTO registerMoleculeResponseDTO = await _mediator.Send(command);
-            return StatusCode(StatusCodes.Status201Created, registerMoleculeResponseDTO);
-
-        }
-
         [HttpPut("{id}", Name = "UpdateMolecule")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -165,9 +151,9 @@ namespace MLogix.API.Controllers.V2
         [HttpPost("batch", Name = "RegisterMoleculeBatch")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> RegisterMoleculeBatch([FromBody] List<RegisterMoleculeCommandWithRegId> commands)
+        public async Task<IActionResult> RegisterMoleculeBatch([FromBody] List<RegisterMoleculeCommandWithRegId> commands, [FromQuery] bool previewMode = false)
         {
-            var batchCommand = new RegisterMoleculeBatchCommand { Commands = commands };
+            var batchCommand = new RegisterMoleculeBatchCommand { Commands = commands, PreviewMode = previewMode };
             var response = await _mediator.Send(batchCommand);
             return Ok(response);
         }
@@ -273,7 +259,5 @@ namespace MLogix.API.Controllers.V2
             _ = _mlogixBackgroundServices.QueueRefreshNuisance(command, HttpContext.RequestAborted);
             return Accepted("RefreshAllNuisancePredictions job has been queued and is processing in the background.");
         }
-
-
     }
 }

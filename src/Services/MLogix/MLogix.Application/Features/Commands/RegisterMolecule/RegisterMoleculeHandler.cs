@@ -16,6 +16,7 @@ using MLogix.Application.DTOs.CageFusion;
 
 namespace MLogix.Application.Features.Commands.RegisterMolecule
 {
+    [Obsolete("Deprecated: use RegisterMoleculeBatchCommand (single-item batches supported). This handler will be removed in a future release.", error: true)]
     public class RegisterMoleculeHandler : IRequestHandler<RegisterMoleculeCommand, RegisterMoleculeResponseDTO>
     {
 
@@ -44,6 +45,11 @@ namespace MLogix.Application.Features.Commands.RegisterMolecule
 
         public async Task<RegisterMoleculeResponseDTO> Handle(RegisterMoleculeCommand request, CancellationToken cancellationToken)
         {
+
+            throw new NotSupportedException(
+                "RegisterMoleculeCommand is deprecated. Use RegisterMoleculeBatchCommand (single-item batches supported).");
+
+
             var headers = _httpContextAccessor.HttpContext.Request.Headers
                         .ToDictionary(h => h.Key, h => h.Value.ToString());
 
