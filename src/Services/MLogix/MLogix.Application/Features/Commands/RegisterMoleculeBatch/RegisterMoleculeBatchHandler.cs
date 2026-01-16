@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.Contracts.Infrastructure.DaikonChemVault;
 using MLogix.Application.Contracts.Persistence;
-using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Domain.Aggregates;
 using MLogix.Application.DTOs.CageFusion;

@@ -3,7 +3,6 @@ using Daikon.Shared.DTO.MLogix;
 using Daikon.Shared.VM.MLogix;
 using MediatR;
 using MLogix.Application.DTOs.DaikonChemVault;
-using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 using MLogix.Application.Features.Commands.UpdateMolecule;
 using MLogix.Application.Features.Queries.FindSimilarMolecules;

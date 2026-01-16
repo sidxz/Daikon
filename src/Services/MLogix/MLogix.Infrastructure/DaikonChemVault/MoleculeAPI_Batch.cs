@@ -2,7 +2,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using MLogix.Application.DTOs.DaikonChemVault;
-using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 
 namespace MLogix.Infrastructure.DaikonChemVault

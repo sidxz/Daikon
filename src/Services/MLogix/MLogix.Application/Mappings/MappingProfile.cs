@@ -4,7 +4,6 @@ using Daikon.Events.MLogix;
 using Daikon.Shared.VM.MLogix;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.DiscloseMolecule;
-using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Application.Features.Commands.UpdateMolecule;
@@ -43,6 +42,14 @@ namespace MLogix.Application.Mappings
 
             CreateMap<MoleculeDisclosedEvent, DiscloseMoleculeCommand>()
                 .ReverseMap();
+
+            
+            CreateMap<UpdateMoleculeCommand, UpdateMoleculeCommand>()
+                .ReverseMap();
+            
+            CreateMap<UpdateMoleculeCommand, MoleculeUpdatedEvent>()
+                .ReverseMap();
+                
 
 
             /* Events */

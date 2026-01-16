@@ -1,8 +1,7 @@
 
 using Daikon.Shared.VM.MLogix;
-using MLogix.Application.DTOs.DaikonChemVault;
 
-namespace MLogix.Application.Features.Commands.RegisterMolecule
+namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 {
     public class RegisterMoleculeResponseDTO : MoleculeVM
     {

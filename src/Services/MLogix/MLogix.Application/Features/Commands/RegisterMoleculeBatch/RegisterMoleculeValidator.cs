@@ -1,16 +1,14 @@
 
 
 using FluentValidation;
-
-namespace MLogix.Application.Features.Commands.RegisterMolecule
+namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 {
     public class RegisterMoleculeValidator : AbstractValidator<RegisterMoleculeCommand>
     {
         public RegisterMoleculeValidator()
         {
-            
-            RuleFor(p => p.SMILES)
-                .NotEmpty().WithMessage("SMILES is required.")
+            RuleFor(p => p.Name)
+                .NotEmpty().WithMessage("Name is required.")
                 .NotNull();
         }
 

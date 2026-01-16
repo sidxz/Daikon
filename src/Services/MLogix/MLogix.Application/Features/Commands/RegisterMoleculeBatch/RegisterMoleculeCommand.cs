@@ -2,7 +2,7 @@
 using CQRS.Core.Command;
 using MediatR;
 
-namespace MLogix.Application.Features.Commands.RegisterMolecule
+namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 {
     public class RegisterMoleculeCommand : BaseCommand, IRequest<RegisterMoleculeResponseDTO>
     {
