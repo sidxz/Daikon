@@ -7,7 +7,6 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
     {
         
         public bool WasAlreadyRegistered { get; set; }
-        public string PreviewMessage { get; set; } = string.Empty;
-        public string PreviewStatus { get; set; } = string.Empty;
+
     }
 }

@@ -14,5 +14,8 @@ namespace CQRS.Core.Domain
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public virtual Guid? PageLastUpdatedUser { get; set; }
+
+        public virtual string PreviewMessage { get; set; } = string.Empty;
+        public virtual string PreviewStatus { get; set; } = string.Empty;
     }
 }
