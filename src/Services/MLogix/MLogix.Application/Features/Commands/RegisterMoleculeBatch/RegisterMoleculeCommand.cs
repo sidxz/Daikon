@@ -6,7 +6,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 {
     public class RegisterMoleculeCommand : BaseCommand, IRequest<RegisterMoleculeResponseDTO>
     {
-        public string? Name { get; set; }
+        public required string Name { get; set; }
         public string SMILES { get; set; } = string.Empty;
         public string? Synonyms { get; set; }
         public string? DisclosureStage { get; set; } = string.Empty;
