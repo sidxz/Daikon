@@ -169,14 +169,14 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
                         "MLogix Molecule {Name} Id: {Id} RegId: {RegId},  SMILES already registered in ChemVault with a different Molecule. ChemVault: {CvName}, RegId: {CvRegId}",
                         local.Name, local.Id, local.RegistrationId,
                         vaultMol.Name, vaultMol.Id);
-                
+
 
                     // This is where merger should happen
-                    
-                }
-            } 
 
-             // END TEST CODE
+                }
+            }
+
+            // END TEST CODE
 
             foreach (var candidate in candidates)
             {
@@ -207,6 +207,9 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
                 {
                     // In preview mode, we do not persist changes, so skip to next
                     var vmPreview = _mapper.Map<MoleculeVM>(vaultMol);
+                    // add disclosure details map to VM using mapper
+                    _mapper.Map(disclosedEvent, vmPreview);
+                    vmPreview.IsStructureDisclosed = true;
                     vmPreview.Id = local.Id;
                     vmPreview.RegistrationId = local.RegistrationId;
                     results.Add(vmPreview);
@@ -229,6 +232,8 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
 
 
                 var vm = _mapper.Map<MoleculeVM>(vaultMol);
+                _mapper.Map(disclosedEvent, vm);
+                vm.IsStructureDisclosed = true;
                 vm.Id = local.Id;
                 vm.RegistrationId = local.RegistrationId;
                 results.Add(vm);

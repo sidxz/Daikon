@@ -591,6 +591,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 
             return new MoleculeDisclosedEvent
             {
+                Id = createdEvent.Id,
                 RequestorUserId = requestorUserId,
                 CreatedById = requestorUserId,
                 LastModifiedById = requestorUserId,

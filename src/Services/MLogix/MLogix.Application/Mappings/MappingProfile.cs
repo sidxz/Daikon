@@ -58,6 +58,7 @@ namespace MLogix.Application.Mappings
             CreateMap<Molecule, MoleculeCreatedEvent>().ReverseMap();
             CreateMap<Molecule, MoleculeUpdatedEvent>().ReverseMap();
             CreateMap<Molecule, MoleculeDisclosedEvent>().ReverseMap();
+            CreateMap<MoleculeVM, MoleculeDisclosedEvent>().ReverseMap();
 
             /* Queries */
             CreateMap<Molecule, MoleculeVM>()
