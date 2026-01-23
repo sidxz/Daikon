@@ -150,16 +150,28 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
         {
             _logger.LogInformation("Handling disclosed molecule update...");
 
-            var nameChanged = !string.Equals(molecule.Name, request.Name, StringComparison.Ordinal);
-            var smilesChanged = !string.Equals(molecule.RequestedSMILES, request.RequestedSMILES, StringComparison.Ordinal);
-
-            
-
-            if (nameChanged && smilesChanged)
+            var chemVaultMolecule = await _moleculeAPI.GetMoleculeById(molecule.RegistrationId, headers);
+            if (chemVaultMolecule is null)
             {
                 return request.PreviewMode
-                    ? PreviewFailure("PREVIEW_FAILED_INVALID", "Cannot update both name and SMILES in a single update.")
-                    : throw new InvalidOperationException("Cannot update both name and SMILES in a single update.");
+                    ? PreviewFailure("PREVIEW_FAILED_NOT_FOUND", "ChemVault molecule not found.")
+                    : throw new InvalidOperationException("ChemVault molecule not found.");
+            }
+
+            var nameChanged = !string.Equals(molecule.Name, request.Name, StringComparison.Ordinal);
+            var smilesChanged = !string.Equals(molecule.RequestedSMILES, request.RequestedSMILES, StringComparison.Ordinal);
+            var existingSynonyms = StringUtilities.ExtractSynonyms(chemVaultMolecule.Synonyms);
+            var requestedSynonyms = StringUtilities.ExtractSynonyms(request.Synonyms ?? string.Empty);
+            var synonymsChanged = !existingSynonyms.SequenceEqual(requestedSynonyms);
+            var nameOrSynonymsChanged = nameChanged || synonymsChanged;
+
+
+
+            if (nameOrSynonymsChanged && smilesChanged)
+            {
+                return request.PreviewMode
+                    ? PreviewFailure("PREVIEW_FAILED_INVALID", "Cannot update both name/synonyms and SMILES in a single update.")
+                    : throw new InvalidOperationException("Cannot update both name/synonyms and SMILES in a single update.");
             }
 
             var updateEvent = PrepareMoleculeUpdatedEvent(request, molecule);
@@ -175,13 +187,7 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                         : throw new InvalidOperationException($"Molecule name '{request.Name}' is already in use.");
                 }
 
-                var chemVaultMolecule = await _moleculeAPI.GetMoleculeById(molecule.RegistrationId, headers);
-                if (chemVaultMolecule is null)
-                {
-                    return request.PreviewMode
-                        ? PreviewFailure("PREVIEW_FAILED_NOT_FOUND", "ChemVault molecule not found.")
-                        : throw new InvalidOperationException("ChemVault molecule not found.");
-                }
+
 
                 updateEvent.Name = request.Name;
 
@@ -202,6 +208,42 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
                     request.PreviewMode ? "will be updated (preview)" : "updated",
                     request.Name);
             }
+
+            // synonyms update flow (read-only checks allowed in preview; mutations forbidden in preview)
+            if (synonymsChanged)
+            {
+                // lets loop through the new synonyms and check if they are available, fail if any one is not
+                var newSynonyms = requestedSynonyms.Except(existingSynonyms, StringComparer.OrdinalIgnoreCase);
+                foreach (var synonym in newSynonyms)
+                {
+                    var isSynonymAvailable = await _moleculeUtils.IsNameAvailableAsync(synonym, headers);
+                    if (!isSynonymAvailable)
+                    {
+                        return request.PreviewMode
+                            ? PreviewFailure("PREVIEW_FAILED_CONFLICT", $"Molecule synonym '{synonym}' is already in use.")
+                            : throw new InvalidOperationException($"Molecule synonym '{synonym}' is already in use.");
+                    }
+                }
+                // There is no need to set anything in the event for synonyms, as they are not stored in our aggregate
+                // we just need to update ChemVault
+
+                // Only mutate ChemVault if not preview.
+                if (!request.PreviewMode)
+                {
+                    var updateVaultMoleculeCmd = new UpdateMoleculeCommand
+                    {
+                        Name = chemVaultMolecule.Name,
+                        RequestedSMILES = chemVaultMolecule.SmilesCanonical,
+                        Synonyms = request.Synonyms
+                    };
+
+                    await _moleculeAPI.Update(molecule.RegistrationId, updateVaultMoleculeCmd, headers);
+                }
+                _logger.LogInformation("Synonyms {Action}",
+                    request.PreviewMode ? "will be updated (preview)" : "updated");
+            }
+
+
 
             // --- SMILES update flow (read-only checks allowed in preview; mutations forbidden in preview)
             if (smilesChanged)
