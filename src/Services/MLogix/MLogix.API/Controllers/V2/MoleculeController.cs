@@ -22,6 +22,7 @@ using MLogix.Application.Features.Queries.GetRecentDisclosures;
 using MLogix.Application.Features.Batch.RefreshAllNuisancePredictions;
 using MLogix.Application.Features.Calculations.ExplainNuisance;
 using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
+using MLogix.Application.Features.Commands.PredictNuisance;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -235,6 +236,15 @@ namespace MLogix.API.Controllers.V2
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> ExplainNuisance([FromBody] ExplainNuisanceCommand command)
+        {
+            var response = await _mediator.Send(command);
+            return Ok(response);
+        }
+
+        [HttpPost("predict-nuisance", Name = "PredictNuisance")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> PredictNuisance([FromBody] PredictNuisanceCommand command)
         {
             var response = await _mediator.Send(command);
             return Ok(response);
