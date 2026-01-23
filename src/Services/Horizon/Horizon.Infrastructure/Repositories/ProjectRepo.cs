@@ -153,7 +153,7 @@ namespace Horizon.Infrastructure.Repositories
             }
 
         }
-        public Task Delete(string hitAssessmentId)
+        public Task Delete(string Id)
         {
             var query = @"
                 MATCH (p:Project { uniId: $uniId})
@@ -161,7 +161,7 @@ namespace Horizon.Infrastructure.Repositories
             ";
             var parameters = new
             {
-                uniId = hitAssessmentId
+                uniId = Id
             };
 
             return _driver.ExecutableQuery(query).WithParameters(parameters).ExecuteAsync();

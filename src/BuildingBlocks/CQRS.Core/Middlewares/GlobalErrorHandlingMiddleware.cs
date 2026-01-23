@@ -106,6 +106,12 @@ public sealed class GlobalErrorHandlingMiddleware
                 _logger.LogWarning(exception, "Not implemented");
                 break;
 
+            case ResourceCannotBeDeletedException:
+                statusCode = HttpStatusCode.BadRequest;
+                response.Message = baseEx.Message;
+                _logger.LogWarning(exception, "Resource cannot be deleted");
+                break;
+
             default:
                 _logger.LogError(exception, "Unhandled exception occurred");
                 break;

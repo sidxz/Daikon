@@ -74,8 +74,12 @@ namespace Screen.Application.EventHandlers
         {
             _logger.LogInformation("Processing ScreenDeletedEvent - ScreenId: {ScreenId}", @event.Id);
 
+            // Delete all screen runs of that screen
+            
+
             try
             {
+                await _screenRunRepository.DeleteScreenRunsByScreenId(@event.Id);
                 await _screenRepository.DeleteScreen(@event.Id);
             }
             catch (RepositoryException ex)
