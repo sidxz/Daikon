@@ -4,7 +4,6 @@ using Daikon.Events.MLogix;
 using Daikon.Shared.VM.MLogix;
 using MLogix.Application.DTOs.DaikonChemVault;
 using MLogix.Application.Features.Commands.DiscloseMolecule;
-using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
 using MLogix.Application.Features.Commands.RegisterUndisclosed;
 using MLogix.Application.Features.Commands.UpdateMolecule;
@@ -34,11 +33,23 @@ namespace MLogix.Application.Mappings
             CreateMap<RegisterMoleculeCommand, RegisterMoleculeCommand>()
                 .ReverseMap();
 
+            CreateMap<RegisterMoleculeCommandWithRegId, DiscloseMoleculeCommand>()
+                .ForMember(dest => dest.RequestedSMILES,
+                           opt => opt.MapFrom(src => src.SMILES));
+
             CreateMap<MoleculeCreatedEvent, RegisterUndisclosedCommand>()
                 .ReverseMap();
 
             CreateMap<MoleculeDisclosedEvent, DiscloseMoleculeCommand>()
                 .ReverseMap();
+
+            
+            CreateMap<UpdateMoleculeCommand, UpdateMoleculeCommand>()
+                .ReverseMap();
+            
+            CreateMap<UpdateMoleculeCommand, MoleculeUpdatedEvent>()
+                .ReverseMap();
+                
 
 
             /* Events */
@@ -47,6 +58,7 @@ namespace MLogix.Application.Mappings
             CreateMap<Molecule, MoleculeCreatedEvent>().ReverseMap();
             CreateMap<Molecule, MoleculeUpdatedEvent>().ReverseMap();
             CreateMap<Molecule, MoleculeDisclosedEvent>().ReverseMap();
+            CreateMap<MoleculeVM, MoleculeDisclosedEvent>().ReverseMap();
 
             /* Queries */
             CreateMap<Molecule, MoleculeVM>()
@@ -62,6 +74,10 @@ namespace MLogix.Application.Mappings
             CreateMap<UpdateMoleculeResponseDTO, MoleculeBase>().ReverseMap();
 
             CreateMap<RegisterMoleculeResponseDTO, RegisterUndisclosedDTO>().ReverseMap();
+            CreateMap<RegisterMoleculeResponseDTO, MoleculeVM>().ReverseMap();
+            CreateMap<RegisterMoleculeResponseDTO, MoleculeBase>().ReverseMap();
+            CreateMap<RegisterMoleculeResponseDTO, Molecule>().ReverseMap();
+
 
 
 

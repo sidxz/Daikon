@@ -8,12 +8,12 @@
     }
   },
   "profiles": {
-    "Project.API": {
+    "project-api": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5005",
+      "applicationUrl": "http://localhost:8005",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -24,17 +24,13 @@ namespace Screen.API.Controllers.V2
 
         public async Task<ActionResult> AddHit(Guid id, NewHitCommand command)
         {
-            var hitId = Guid.NewGuid();
-            command.Id = id;
-            command.HitId = hitId;
+            // var hitId = Guid.NewGuid();
+            // command.Id = id;
+            // command.HitId = hitId;
 
-            await _mediator.Send(command);
+            // await _mediator.Send(command);
 
-            return StatusCode(StatusCodes.Status201Created, new AddResponse
-            {
-                Id = hitId,
-                Message = "Hit added successfully",
-            });
+            return StatusCode(StatusCodes.Status501NotImplemented);
         }
 
         [HttpPost("{id}/hit/batch", Name = "AddHitBatch")]

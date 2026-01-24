@@ -46,6 +46,10 @@ services:
       - "EndPointRouting:event-history=http://event-history-api"
       - "EndPointRouting:user-preferences=http://user-preferences-api"
       - "EndPointRouting:aggregators=http://aggregators-api"
+      - "EndPointRouting:event-management=http://event-management-api"
+      - "HealthPolling:ExternalServices:external-cf-nuisance:BaseUrl=http://cage_fusion_nuisance_api:10002/cage-fusion-api"
+      - "HealthPolling:ExternalServices:external-chemvault-api:BaseUrl=http://daikon_chem_vault_api:10001/"
+      - "HealthPolling:ExternalServices:external-chemvault-api:HealthPath=/config/health"
 
     ports:
       - "8010:80"
@@ -59,13 +63,6 @@ services:
 
       ## MongoDb Data Store
       - UserStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-
-      - "UserStoreMongoDbSettings:DatabaseName=UserStore"
-
-      - "UserStoreMongoDbSettings:AppOrgCollectionName=AppOrgs"
-      - "UserStoreMongoDbSettings:AppUserCollectionName=AppUsers"
-      - "UserStoreMongoDbSettings:AppRoleCollectionName=AppRoles"
-      - "UserStoreMongoDbSettings:APIResourceCollectionName=AppAPIResources"
     ports:
       - "8011:80"
     networks:
@@ -78,7 +75,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -92,27 +88,8 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=gene-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - GeneMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-
-      - "GeneMongoDbSettings:DatabaseName=Gene"
-      - "GeneMongoDbSettings:GeneCollectionName=Genes"
-      - "GeneMongoDbSettings:StrainCollectionName=Strains"
-      - "GeneMongoDbSettings:GeneEssentialityCollectionName=Essentialities"
-      - "GeneMongoDbSettings:GeneProteinProductionCollectionName=ProteinProductions"
-      - "GeneMongoDbSettings:GeneProteinActivityAssayCollectionName=ProteinActivityAssays"
-      - "GeneMongoDbSettings:GeneHypomorphCollectionName=Hypomorphs"
-      - "GeneMongoDbSettings:GeneCrispriStrainCollectionName=CrispriStrains"
-      - "GeneMongoDbSettings:GeneResistanceMutationCollectionName=ResistanceMutations"
-      - "GeneMongoDbSettings:GeneVulnerabilityCollectionName=Vulnerabilities"
-      - "GeneMongoDbSettings:GeneUnpublishedStructuralInformationCollectionName=UnpublishedStructuralInformations"
-      - "GeneMongoDbSettings:GeneExpansionPropCollectionName=GeneExpansionProps"
-
     ports:
       - "8001:80"
 
@@ -126,7 +103,6 @@ services:
 
         ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -140,19 +116,8 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=target-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - TargetMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-
-      - "TargetMongoDbSettings:DatabaseName=Target"
-
-      - "TargetMongoDbSettings:TargetCollectionName=Targets"
-      - "TargetMongoDbSettings:PromotionResponseCollectionName=PromotionResponses"
-      - "TargetMongoDbSettings:TargetToxicologyCollectionName=TargetToxicologies"
 
     ports:
       - "8002:80"
@@ -167,7 +132,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -181,22 +145,9 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=screen-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - ScreenMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "ScreenMongoDbSettings:DatabaseName=Screen"
-
-      - "ScreenMongoDbSettings:ScreenCollectionName=Screens"
-      - "ScreenMongoDbSettings:ScreenRunCollectionName=ScreenRuns"
-      - "ScreenMongoDbSettings:HitCollectionCollectionName=HitCollections"
-      - "ScreenMongoDbSettings:HitCollectionName=Hits"
-
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
@@ -211,7 +162,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -225,20 +175,9 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=hitassessment-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - HAMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "HAMongoDbSettings:DatabaseName=HitAssessment"
-
-      - "HAMongoDbSettings:HitAssessmentCollectionName=HitAssessments"
-      - "HAMongoDbSettings:HaCompoundEvolutionCollectionName=HaCompoundEvolutions"
-
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
@@ -253,7 +192,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -267,21 +205,10 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=project-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - ProjectMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
 
-      - "ProjectMongoDbSettings:DatabaseName=Project"
-
-      - "ProjectMongoDbSettings:ProjectCollectionName=Projects"
-      - "ProjectMongoDbSettings:ProjectCompoundEvolutionCollectionName=ProjectCompoundEvolutions"
-
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
@@ -298,18 +225,12 @@ services:
       - HorizonNeo4jSettings:Uri=${HorizonNeo4jURI}
       - HorizonNeo4jSettings:User=${HorizonNeo4jUser}
       - HorizonNeo4jSettings:Password=${HorizonNeo4jPassword}
-      - "HorizonNeo4jSettings:Database=neo4j"
 
       ## Kafka Consumer
       - KafkaConsumerSettings:BootstrapServers=${KafkaBootstrapServers}
       - KafkaConsumerSettings:ConnectionString=${KafkaConnectionString}
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
-
-      - "KafkaConsumerSettings:GroupId=horizon-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
 
     ports:
       - "8006:80"
@@ -323,7 +244,6 @@ services:
 
       # Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       # Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -337,21 +257,13 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=mlogix-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       # MongoDb Data Store
       - MLxMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "MLxMongoDbSettings:DatabaseName=MoleculeLogix"
-      - "MLxMongoDbSettings:MoleculeCollectionName=Molecules"
-      - "MLxMongoDbSettings:MoleculePredictionsCollectionName=MoleculePredictions"
 
       # Internal APIs
       - "DaikonChemVault:Url=http://daikon_chem_vault_api:10001"
       - "CageFusion:NuisanceAPIURL=http://cage_fusion_nuisance_api:10002"
-  
+
     ports:
       - "8007:80"
     networks:
@@ -364,8 +276,6 @@ services:
 
       ## Data Store
       - QuestionnaireMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-      - "QuestionnaireMongoDbSettings:DatabaseName=Questionnaire"
-
     ports:
       - "8008:80"
     networks:
@@ -378,7 +288,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -392,21 +301,10 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=comment-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - CommentMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
 
-      - "CommentMongoDbSettings:DatabaseName=Comments"
-
-      - "CommentMongoDbSettings:CommentCollectionName=Comments"
-      - "CommentMongoDbSettings:CommentReplyCollectionName=CommentReplies"
-
       ## Internal APIs
-      - "MolDbAPI:Url=http://moldb-api/api/v2/mol-db"
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
     ports:
@@ -421,7 +319,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       - "UserStoreAPI:Url=http://userstore-api/api/v2"
       - "GeneAPI:Url=http://gene-api/api/v2"
@@ -442,7 +339,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -456,17 +352,8 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=docustore-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - DocuStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-
-      - "DocuStoreMongoDbSettings:DatabaseName=DocuStore"
-
-      - "DocuStoreMongoDbSettings:ParsedDocCollectionName=ParsedDocs"
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
@@ -482,8 +369,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
-
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
       - KafkaProducerSettings:ConnectionString=${KafkaConnectionString}
@@ -502,7 +387,6 @@ services:
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
-      - "EventDatabaseSettings:DatabaseName=DaikonEventStore"
 
       ## Kafka Producer
       - KafkaProducerSettings:BootstrapServers=${KafkaBootstrapServers}
@@ -516,19 +400,8 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-      - "KafkaConsumerSettings:GroupId=user-preferences-consumer-group"
-      - "KafkaConsumerSettings:AutoOffsetReset=Earliest"
-      - "KafkaConsumerSettings:EnableAutoCommit=true"
-      - "KafkaConsumerSettings:AllowAutoCreateTopics=true"
-
       ## MongoDb Data Store
       - UserPreferencesMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-
-      - "UserPreferencesMongoDbSettings:DatabaseName=UserPreferences"
-
-      - "UserPreferencesMongoDbSettings:TableDefaultsCollectionName=TableDefaults"
-      - "UserPreferencesMongoDbSettings:TableGlobalConfigCollectionName=TableGlobalConfig"
-      - "UserPreferencesMongoDbSettings:TableUserCustomizationCollectionName=TableUserCustomization"
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 

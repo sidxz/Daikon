@@ -10,6 +10,8 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
     public class RegisterUndisclosedCommand : BaseCommand, IRequest<RegisterUndisclosedDTO>
     {
         public required string Name { get; set; }
+        public bool ChemVaultCheck { get; set; } = true;
+        public bool PreviewMode { get; set; } = false;
         
     }
 }

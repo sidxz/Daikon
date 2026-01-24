@@ -9,5 +9,7 @@ namespace MLogix.Application.Features.Commands.RegisterUndisclosed
         public Guid RegistrationId { get; set; }
         public required string Name { get; set; }
         public bool WasAlreadyRegistered { get; set; }
+        public string PreviewMessage { get; set; } = string.Empty;
+        public string PreviewStatus { get; set; } = string.Empty;
     }
 }

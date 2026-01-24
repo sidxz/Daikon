@@ -11,5 +11,7 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
     public class DiscloseMoleculeBatchCommand : BaseCommand, IRequest<IList<MoleculeVM>>
     {
         public List<DiscloseMoleculeCommand> Molecules { get; set; } = [];
+        public bool PreviewMode { get; set; } = false;
+        public bool SkipNuisanceCheck { get; set; } = false;
     }
 }

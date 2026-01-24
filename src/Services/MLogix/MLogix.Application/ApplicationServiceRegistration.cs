@@ -4,8 +4,9 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using MLogix.Application.Mappings;
 using MLogix.Application.EventHandlers;
-using MLogix.Application.Features.Commands.RegisterMolecule;
 using MLogix.Application.BackgroundServices;
+using MLogix.Application.Features.Commands.RegisterMoleculeBatch;
+using MLogix.Application.Utils;
 
 namespace MLogix.Application
 {
@@ -16,7 +17,7 @@ namespace MLogix.Application
         {
 
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
-            services.AddMediatR(typeof(RegisterMoleculeCommand).Assembly);
+            services.AddMediatR(typeof(RegisterMoleculeBatchCommand).Assembly);
             services.AddValidatorsFromAssembly(typeof(RegisterMoleculeValidator).Assembly);
             services.AddHttpContextAccessor();
             services.AddSingleton<VaultBackgroundServices>();
@@ -34,6 +35,8 @@ namespace MLogix.Application
             // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Behaviours.ValidationBehaviour<,>));
 
             services.AddScoped<IMLogixEventHandler, MLogixEventHandler>();
+            services.AddScoped<MoleculeUtils>();
+
 
             return services;
         }

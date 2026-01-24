@@ -8,12 +8,12 @@
     }
   },
   "profiles": {
-    "Horizon.API": {
+    "horizon-api": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5006",
+      "applicationUrl": "http://localhost:8006",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

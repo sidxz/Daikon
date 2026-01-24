@@ -9,9 +9,13 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
 {
     public class UpdateMoleculeCommand : BaseCommand, IRequest<UpdateMoleculeResponseDTO>
     {
-        public string? Name { get; set; }
-        public required string RequestedSMILES { get; set; }
+        public required string Name { get; set; }
+        public string RequestedSMILES { get; set; } = string.Empty;
         public string? Synonyms { get; set; }
+
+
+        /* Dry Run */
+        public bool PreviewMode { get; set; } = false;
 
         /* --- Disclosure Fields --- */
 
