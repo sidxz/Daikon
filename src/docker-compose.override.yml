@@ -47,6 +47,9 @@ services:
       - "EndPointRouting:user-preferences=http://user-preferences-api"
       - "EndPointRouting:aggregators=http://aggregators-api"
       - "EndPointRouting:event-management=http://event-management-api"
+      - "HealthPolling:ExternalServices:external-cf-nuisance:BaseUrl=http://cage_fusion_nuisance_api:10002/cage-fusion-api"
+      - "HealthPolling:ExternalServices:external-chemvault-api:BaseUrl=http://daikon_chem_vault_api:10001/"
+      - "HealthPolling:ExternalServices:external-chemvault-api:HealthPath=/config/health"
 
     ports:
       - "8010:80"
