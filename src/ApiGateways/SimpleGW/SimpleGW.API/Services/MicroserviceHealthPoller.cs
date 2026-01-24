@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -66,10 +67,13 @@ namespace SimpleGW.API.Services
                         {
                             var response = await client.GetAsync(healthUrl, timeoutCts.Token);
                             var body = await response.Content.ReadAsStringAsync(timeoutCts.Token);
+                            var bodyPayload = TryParseJson(body, out var parsedBody)
+                                ? (object)parsedBody
+                                : body;
 
                             _healthStore.Update(
                                 serviceName,
-                                new MicroserviceHealthStatus((int)response.StatusCode, body, checkedAt, null));
+                                new MicroserviceHealthStatus((int)response.StatusCode, bodyPayload, checkedAt, null));
                         }
                         catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
                         {
@@ -91,5 +95,31 @@ namespace SimpleGW.API.Services
                 }
             }
         }
+
+
+
+        private static bool TryParseJson(string body, out JsonElement parsed)
+        {
+            parsed = default;
+            if (string.IsNullOrWhiteSpace(body))
+            {
+                return false;
+            }
+
+            try
+            {
+                using var document = JsonDocument.Parse(body);
+                parsed = document.RootElement.Clone();
+                return true;
+            }
+            catch (JsonException)
+            {
+                return false;
+            }
+        }
     }
+
 }
+
+
+

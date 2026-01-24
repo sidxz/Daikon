@@ -4,7 +4,7 @@ namespace SimpleGW.API.Services
 {
     public sealed record MicroserviceHealthStatus(
         int? StatusCode,
-        string? Body,
+        object? Body,
         DateTimeOffset LastCheckedUtc,
         string? Error);
 }

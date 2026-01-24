@@ -46,6 +46,7 @@ services:
       - "EndPointRouting:event-history=http://event-history-api"
       - "EndPointRouting:user-preferences=http://user-preferences-api"
       - "EndPointRouting:aggregators=http://aggregators-api"
+      - "EndPointRouting:event-management=http://event-management-api"
 
     ports:
       - "8010:80"

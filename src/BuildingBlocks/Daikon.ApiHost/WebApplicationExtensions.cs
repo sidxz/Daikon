@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Reflection;
+using Daikon.Shared;
 
 namespace Daikon.ApiHost;
 
@@ -42,12 +43,14 @@ public static class WebApplicationExtensions
     {
         var entryAssembly = Assembly.GetEntryAssembly();
         var serviceName = app.Environment.ApplicationName ?? entryAssembly?.GetName().Name;
-        var version = entryAssembly?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
-            ?? entryAssembly?.GetName().Version?.ToString();
+        // var version = entryAssembly?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+        //     ?? entryAssembly?.GetName().Version?.ToString();
+        var versionInfo = ConstantsVM.AppVersion;
         var response = new Dictionary<string, object?>
         {
             ["service"] = serviceName,
-            ["version"] = version,
+            ["version"] = versionInfo.Version,
+            ["versionName"] = versionInfo.Name,
             ["environment"] = app.Environment.EnvironmentName,
             ["timestamp"] = DateTimeOffset.UtcNow,
             ["uptime"] = DateTimeOffset.UtcNow - StartedAt
