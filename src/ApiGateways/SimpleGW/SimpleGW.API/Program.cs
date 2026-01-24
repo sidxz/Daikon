@@ -65,6 +65,11 @@ try
 
     Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
 
+    app.UseRouting();
+    app.UseCors("AllowAll");
+    app.UseAuthentication();
+    app.UseAuthorization();
+
     app.Map("/health/services", healthApp =>
     {
         healthApp.Run(async context =>
@@ -75,11 +80,6 @@ try
             await context.Response.WriteAsJsonAsync(snapshot, context.RequestAborted);
         });
     });
-
-    app.UseRouting();
-    app.UseAuthentication();
-    app.UseAuthorization();
-    app.UseCors("AllowAll");
 
     app.UseMiddleware<RequestTimingMiddleware>();
     app.UseMiddleware<AuthenticationValidatorMiddleware>();
