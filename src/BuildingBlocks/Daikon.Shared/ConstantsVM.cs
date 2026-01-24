@@ -7,17 +7,23 @@ using Daikon.Shared.Constants.Workflow;
 
 namespace Daikon.Shared
 {
+    public sealed class AppVersionInfo
+    {
+        public string Version { get; init; } = default!;
+        public string Name { get; init; } = default!;
+    }
     public class ConstantsVM
     {
+        public static AppVersionInfo AppVersion => new()
+        {
+            Version = "3.1.0",
+            Name = "Sintra"
+        };
         public static object Get()
         {
             return new
             {
-                AppVersion = new
-                {
-                    Version = "2.12.0",
-                    Name = "Valparaiso Kube Beta2"
-                },
+                AppVersion,
                 AppTarget = new
                 {
                     TargetTypes = TargetType.GetTargetTypes()

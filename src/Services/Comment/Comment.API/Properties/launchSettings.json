@@ -8,12 +8,12 @@
     }
   },
   "profiles": {
-    "Comment.API": {
-      "commandName": "Comment",
+    "comment-api": {
+      "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5007",
+      "applicationUrl": "http://localhost:8009",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

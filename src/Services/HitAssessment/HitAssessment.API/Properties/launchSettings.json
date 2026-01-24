@@ -8,12 +8,12 @@
     }
   },
   "profiles": {
-    "HitAssessment.API": {
+    "hitassessment-api": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5004",
+      "applicationUrl": "http://localhost:8004",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

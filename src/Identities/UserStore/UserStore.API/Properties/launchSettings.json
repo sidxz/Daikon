@@ -8,12 +8,12 @@
     }
   },
   "profiles": {
-    "UserStore.API": {
+    "userstore-api": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5011",
+      "applicationUrl": "http://localhost:8011",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

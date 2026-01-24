@@ -56,6 +56,14 @@ namespace MLogix.Infrastructure.DaikonChemVault
             return molecules;
         }
 
+        public async Task<List<MoleculeBase>> FindByNamesOrSynonymsExact(List<string> names, IDictionary<string, string> headers)
+        {
+            string apiUrl = $"{_apiBaseUrl}/molecules/get-molecules-by-name-or-synonym-exact";
+            var body = new List<string>(names);
+            var molecules = await SendRequestAsync<List<MoleculeBase>>(apiUrl, HttpMethod.Post, headers, body);
+            return molecules;
+        }
+
         public async Task <MoleculeBase> FindByNameExact(string name, IDictionary<string, string> headers)
         {
             // Build the query string safely

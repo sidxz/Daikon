@@ -8,13 +8,12 @@
     }
   },
   "profiles": {
-    "Target.API": {
+    "target-api": {
       "commandName": "Project",
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5002",
+      "applicationUrl": "http://localhost:8002",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "GENE_KAFKA_TOPIC": "targets"
+        "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true
     },

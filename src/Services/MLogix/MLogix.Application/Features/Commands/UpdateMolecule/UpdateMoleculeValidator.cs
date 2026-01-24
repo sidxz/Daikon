@@ -7,8 +7,8 @@ namespace MLogix.Application.Features.Commands.UpdateMolecule
     {
         public UpdateMoleculeValidator()
         {
-            RuleFor(p => p.RequestedSMILES)
-                .NotEmpty().WithMessage("SMILES is required.")
+            RuleFor(p => p.Name)
+                .NotEmpty().WithMessage("Name is required.")
                 .NotNull();
         }
     }

@@ -78,7 +78,7 @@ namespace MLogix.Application.Features.Commands.ReregisterVault
         {
             try
             {
-                var registrationResponses = await _moleculeApi.RegisterBatch(batch, headers);
+                var registrationResponses = await _moleculeApi.RegisterBatch(registerMoleculeCommands: batch, previewMode: false, headers: headers);
                 _logger.LogInformation("Successfully registered a batch of {Count} molecules.", batch.Count);
             }
             catch (Exception ex)
