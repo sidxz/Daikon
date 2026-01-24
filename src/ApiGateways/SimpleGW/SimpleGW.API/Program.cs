@@ -1,6 +1,7 @@
 
 using Microsoft.IdentityModel.Logging;
 using SimpleGW.API.Middlewares;
+using SimpleGW.API.Services;
 using SimpleGW.Contracts.Infrastructure;
 using SimpleGW.OIDCProviders;
 
@@ -46,6 +47,8 @@ try
             client.Timeout = TimeSpan.FromMinutes(5);
         });
     builder.Services.AddMemoryCache();
+    builder.Services.AddSingleton<IMicroserviceHealthStore, MicroserviceHealthStore>();
+    builder.Services.AddHostedService<MicroserviceHealthPoller>();
 
 
     builder.Services.AddScoped<IUserStoreAPIService, UserStoreAPIService>();
@@ -61,6 +64,17 @@ try
     var app = builder.Build();
 
     Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
+
+    app.Map("/health/services", healthApp =>
+    {
+        healthApp.Run(async context =>
+        {
+            var store = context.RequestServices.GetRequiredService<IMicroserviceHealthStore>();
+            var snapshot = store.GetSnapshot();
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(snapshot, context.RequestAborted);
+        });
+    });
 
     app.UseRouting();
     app.UseAuthentication();
