@@ -47,6 +47,15 @@ namespace Daikon.Events.Screens
         public DVariable<string>? PctInhibitionConcentration { get; set; }
         public DVariable<string>? PctInhibitionConcentrationUnit { get; set; }
 
+        /* More Protocols */
+        public DVariable<string>? Cytotoxicity { get; set; }
+        public DVariable<string>? IntramacrophageActivity { get; set; }
+        public DVariable<string>? SelectivityIndex { get; set; }
+        public DVariable<string>? QC { get; set; }
+        public DVariable<string>? Targets { get; set; }
+        public DVariable<string>? WholeCellActive { get; set; } 
+        public DVariable<string>? BindingAssessment { get; set; }
+
         /* Full Dose-Response Data */
         public List<DoseResponse>? DoseResponses { get; set; }
 

@@ -47,6 +47,15 @@ namespace Daikon.Shared.VM.Screen
         /* Full Dose-Response Data */
         public List<DoseResponse> DoseResponses { get; set; } = new();
 
+         /* More Protocols */
+        public object Cytotoxicity { get; set; }
+        public object IntramacrophageActivity { get; set; }
+        public object SelectivityIndex { get; set; }
+        public object QC { get; set; }
+        public object Targets { get; set; }
+        public object WholeCellActive { get; set; } 
+        public object BindingAssessment { get; set; }
+
         /* Grouping and Notes */
         public object ClusterGroup { get; set; }
         public object Notes { get; set; }
