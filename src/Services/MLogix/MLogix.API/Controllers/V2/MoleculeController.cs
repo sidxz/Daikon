@@ -23,6 +23,8 @@ using MLogix.Application.Features.Batch.RefreshAllNuisancePredictions;
 using MLogix.Application.Features.Calculations.ExplainNuisance;
 using MLogix.Application.Features.Queries.GetMolecules.BySMILES;
 using MLogix.Application.Features.Commands.PredictNuisance;
+using MLogix.Application.Features.Commands.RefreshAdmet;
+using MLogix.Application.Features.Queries.GetAdmetBackfillStatus;
 namespace MLogix.API.Controllers.V2
 {
     [ApiController]
@@ -258,6 +260,33 @@ namespace MLogix.API.Controllers.V2
             // Queue the background job
             _ = _mlogixBackgroundServices.QueueRefreshNuisance(command, HttpContext.RequestAborted);
             return Accepted("RefreshAllNuisancePredictions job has been queued and is processing in the background.");
+        }
+
+        [HttpPost("refresh-admet", Name = "RefreshAdmet")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.Accepted)]
+        public async Task<IActionResult> RefreshAdmet(
+            [FromQuery] int chunkSize = 1000,
+            [FromQuery] int? limit = null,
+            [FromQuery] bool includeErrors = false)
+        {
+            var command = new RefreshAdmetCommand
+            {
+                ChunkSize = chunkSize,
+                Limit = limit,
+                IncludeErrors = includeErrors
+            };
+            var response = await _mediator.Send(command);
+            return Accepted(response);
+        }
+
+        [HttpGet("refresh-admet/status", Name = "GetAdmetBackfillStatus")]
+        [MapToApiVersion("2.0")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAdmetBackfillStatus()
+        {
+            var counts = await _mediator.Send(new GetAdmetBackfillStatusQuery());
+            return Ok(counts);
         }
     }
 }
