@@ -67,6 +67,7 @@ namespace MLogix.Application.Mappings
             CreateMap<MoleculeBase, MoleculeVM>().ReverseMap();
 
             CreateMap<Daikon.Shared.VM.MLogix.PainsVM, DTOs.DaikonChemVault.PainsVM>().ReverseMap();
+            CreateMap<Daikon.Shared.VM.MLogix.AdmetVM, DTOs.DaikonChemVault.AdmetVM>().ReverseMap();
             CreateMap<Molecule, SimilarMoleculeVM>().ReverseMap();
             CreateMap<SimilarMolecule, SimilarMoleculeVM>().ReverseMap();
 

@@ -16,7 +16,7 @@ namespace Daikon.Shared
     {
         public static AppVersionInfo AppVersion => new()
         {
-            Version = "3.1.0",
+            Version = "3.2.0",
             Name = "Sintra"
         };
         public static object Get()

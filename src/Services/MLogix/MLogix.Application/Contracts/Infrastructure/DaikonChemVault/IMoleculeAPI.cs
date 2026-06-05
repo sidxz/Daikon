@@ -31,5 +31,11 @@ namespace MLogix.Application.Contracts.Infrastructure.DaikonChemVault
         public Task<Unit> BatchCreateParents(IDictionary<string, string> headers);
 
         public Task<List<ClusterVM>> CalculateClusters(List<ClusterDTO> Molecules, double CutOff, IDictionary<string, string> headers);
+
+        public Task<List<AdmetCalcResult>> PredictAdmet(List<string> smilesList, IDictionary<string, string> headers);
+        public Task<MLogix.Application.DTOs.DaikonChemVault.AdmetVM> GetAdmetByMoleculeId(Guid RegistrationId, IDictionary<string, string> headers);
+        public Task<List<MLogix.Application.DTOs.DaikonChemVault.AdmetVM>> GetAdmetByMoleculeIds(List<Guid> RegistrationIds, IDictionary<string, string> headers);
+        public Task<AdmetBackfillTriggerVM> TriggerAdmetBackfill(int chunkSize, int? limit, bool includeErrors, IDictionary<string, string> headers);
+        public Task<AdmetBackfillCountsVM> GetAdmetBackfillStatus(IDictionary<string, string> headers);
     }
 }

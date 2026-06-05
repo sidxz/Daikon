@@ -121,5 +121,8 @@ namespace MLogix.Application.DTOs.DaikonChemVault
 
         [JsonPropertyName("pains")]
         public PainsVM Pains { get; set; }
+
+        [JsonPropertyName("admet_prediction")]
+        public AdmetVM AdmetPrediction { get; set; }
     }
 }

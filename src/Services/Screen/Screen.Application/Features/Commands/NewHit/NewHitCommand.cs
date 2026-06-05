@@ -102,6 +102,34 @@ namespace Screen.Application.Features.Commands.NewHit
         public List<DoseResponse>? DoseResponses { get; set; }
 
 
+         /* More Protocols */
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Cytotoxicity { get; set; }
+
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? IntramacrophageActivity { get; set; }
+
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? SelectivityIndex { get; set; }
+
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? QC { get; set; }
+
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? Targets { get; set; }
+
+
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? WholeCellActive { get; set; } 
+
+        
+        [JsonConverter(typeof(DVariableJsonConverter<string>))]
+        public DVariable<string>? BindingAssessment { get; set; }
+
 
 
         /* Grouping and Notes */

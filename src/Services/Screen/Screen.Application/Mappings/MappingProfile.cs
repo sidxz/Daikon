@@ -170,6 +170,16 @@ namespace Screen.Application.Mappings
                 .ForMember(dest => dest.PctInhibitionConcentration, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.PctInhibitionConcentration)))
                 .ForMember(dest => dest.PctInhibitionConcentrationUnit, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.PctInhibitionConcentrationUnit)))
 
+                /* More Protocols */
+                .ForMember(dest => dest.Cytotoxicity, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.Cytotoxicity)))
+                .ForMember(dest => dest.IntramacrophageActivity, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.IntramacrophageActivity)))
+                .ForMember(dest => dest.SelectivityIndex, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.SelectivityIndex)))
+                .ForMember(dest => dest.QC, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.QC)))
+                .ForMember(dest => dest.Targets, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.Targets)))
+                .ForMember(dest => dest.WholeCellActive, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.WholeCellActive)))
+                .ForMember(dest => dest.BindingAssessment, opt => opt.MapFrom(new MapperDVariableMetaResolver<Hit, IValueProperty<string>, string>(src => src.BindingAssessment)))
+                
+
                 /* Dose Responses */
                 .ForMember(dest => dest.DoseResponses, opt => opt.MapFrom(src => src.DoseResponses))
 

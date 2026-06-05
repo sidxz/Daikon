@@ -103,6 +103,16 @@ namespace Screen.Domain.Entities
         public List<DoseResponse>? DoseResponses { get; set; } = [];
 
 
+        /* More Protocols */
+        public DVariable<string>? Cytotoxicity { get; set; }
+        public DVariable<string>? IntramacrophageActivity { get; set; }
+        public DVariable<string>? SelectivityIndex { get; set; }
+        public DVariable<string>? QC { get; set; }
+        public DVariable<string>? Targets { get; set; }
+        public DVariable<string>? WholeCellActive { get; set; } 
+        public DVariable<string>? BindingAssessment { get; set; }
+
+
 
         /* --- Grouping and Free-Text Notes --- */
 
