@@ -140,11 +140,14 @@ namespace Screen.API.Controllers.V2
         [HttpPut("HitMoleculeAttachBatch", Name = "HandleUnattachedMolecules")]
         [MapToApiVersion("2.0")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<ActionResult> HandleUnattachedMolecules(CancellationToken cancellationToken)
+        public ActionResult HandleUnattachedMolecules(CancellationToken cancellationToken)
         {
-            var command = new HitHandleUnattachedMoleculesCommand();
-            await _hitBackgroundService.QueueHandleUnattachedHitsJobAsync(command, cancellationToken);
-            return Ok("Hit job queued successfully.");
+            // Disabled: a bulk relink of every unattached hit belongs to the gen3 data migration, and the background job calls
+            // MLogix after this request (and the user's token) has ended, the same problem as MLogix's ReregisterVault:
+            // var command = new HitHandleUnattachedMoleculesCommand();
+            // await _hitBackgroundService.QueueHandleUnattachedHitsJobAsync(command, cancellationToken);
+            // return Ok("Hit job queued successfully.");
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Attaching molecules to unattached hits is disabled.");
         }
     }
 }

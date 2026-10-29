@@ -94,7 +94,8 @@ namespace HitAssessment.Application.Features.Commands.NewHaCompoundEvolution
                     Name = request.MoleculeName,
                     SMILES = request.RequestedSMILES,
                     DisclosureStage = Daikon.Shared.Constants.Workflow.Stages.HA
-                });
+                }) ?? throw new InvalidOperationException(
+                    $"Molecule '{request.MoleculeName}' could not be registered: the name may already belong to a different structure, or the structure to a molecule that cannot be linked.");
 
                 eventToAdd.MoleculeId = mLogiXResponse.Id;
 

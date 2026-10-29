@@ -125,7 +125,8 @@ namespace Screen.Application.Features.Commands.NewHitBatch
                             hitRes.HitCollectionId = hitCollectionId;
                             hitRes.Id = (Guid)cmd.HitId;
                             HitVM hitVM = _mapper.Map<HitVM>(hitRes, opts => opts.Items["WithMeta"] = false);
-                            hitVM.Molecule = _mapper.Map<MoleculeVM>(resultMap[cmd.MoleculeName], opts => opts.Items["WithMeta"] = false);
+                            if (molReg != null)
+                                hitVM.Molecule = _mapper.Map<MoleculeVM>(molReg, opts => opts.Items["WithMeta"] = false);
                             addedHitsResults.Add(hitVM);
                         }
 

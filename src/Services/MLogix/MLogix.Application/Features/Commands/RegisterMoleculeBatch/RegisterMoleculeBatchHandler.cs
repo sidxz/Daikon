@@ -476,6 +476,9 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
             var chemVaultResponses = await _moleculeAPI
                 .RegisterBatch(registerMoleculeCommands: chemVaultRequests, previewMode: isPreviewMode, headers: headers);
 
+            // Registrations created by this batch (registration ID -> local molecule ID). ChemVault answers with the existing
+            // registration when a structure arrives twice, so a repeat must become a synonym, never a second molecule.
+            var registeredInThisBatch = new Dictionary<Guid, Guid>();
 
             foreach (var apiResponse in chemVaultResponses)
             {
@@ -499,12 +502,27 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 
                 var originalCmd = commandSnapshot
                   .FirstOrDefault(c => c.RegistrationId == apiResponse.Id);
+                if (registeredInThisBatch.TryGetValue(apiResponse.Id, out var localId))
+                {
+                    // Same structure earlier in this batch under another name: one molecule, and ChemVault keeps this name as its synonym
+                    _logger.LogInformation(
+                        "Structure already registered as {RegId} ({Name}); submitted name kept as a synonym", apiResponse.Id, apiResponse.Name);
+                    var duplicate = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
+                    duplicate.WasAlreadyRegistered = true;
+                    duplicate.Id = localId;
+                    duplicate.RegistrationId = apiResponse.Id;
+                    duplicate.PreviewMessage = "The same structure is earlier in this batch under another name. This name is kept as a synonym.";
+                    duplicate.PreviewStatus = "DUPLICATE_DISCLOSED";
+                    responses.Add(duplicate);
+                    continue;
+                }
                 if (originalCmd == null)
                 {
-                    // This is a failsafe case and should not happen in normal scenarios unless ChemVault has drifted away from MLogix
+                    // ChemVault already holds this structure but MLogix has no molecule for it (registered by a concurrent request
+                    // the read model doesn't show yet, or only in ChemVault): nothing to link to, so no response for this row.
+                    // ponytail: the caller stores the hit unlinked; a lookup retry or a backfill would link it, left to gen3
                     _logger.LogWarning(
-                        "ChemVault Drift Detected: Molecule in ChemVault With Registration ID: {RegId}, Name {name}, but NOT found in MLogix",
-                        apiResponse.Id, apiResponse.Name);
+                        "ChemVault returned {RegId} ({Name}), which has no MLogix molecule; row not registered", apiResponse.Id, apiResponse.Name);
                     continue;
                 }
 
@@ -519,6 +537,7 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                 moleculeCreatedEvent.RequestedSMILES = originalCmd.SMILES;
                 moleculeCreatedEvent.RegistrationId = apiResponse.Id;
                 moleculeCreatedEvent.SmilesCanonical = apiResponse.SmilesCanonical;
+                registeredInThisBatch[apiResponse.Id] = moleculeCreatedEvent.Id;
 
 
                 var response = _mapper.Map<RegisterMoleculeResponseDTO>(apiResponse);
