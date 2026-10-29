@@ -1,3 +1,4 @@
+using CQRS.Core.Exceptions;
 using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Extensions;
@@ -38,8 +39,8 @@ namespace Screen.Application.Features.Queries.GetHitCollection.ById
             var hitCollection = await _hitCollectionRepository.ReadHitCollectionById(request.Id);
             if (hitCollection == null)
             {
-                _logger.LogWarning("No Hit Collection found for Id: {HitCollectionId}", request.Id);
-                return null;
+                // 404 rather than an empty 200/204, which callers can't parse
+                throw new ResourceNotFoundException("HitCollection", request.Id.ToString());
             }
 
             var hitCollectionViewModel = _mapper.Map<HitCollectionVM>(hitCollection, opts =>

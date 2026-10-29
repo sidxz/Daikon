@@ -1,4 +1,5 @@
 
+using CQRS.Core.Exceptions;
 using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Extensions;
@@ -28,13 +29,18 @@ namespace Target.Application.Features.Queries.GetTPQ.ById
         {
             try
             {
-                var pqResponse = await _pqResponseRepository.ReadById(request.Id);
+                var pqResponse = await _pqResponseRepository.ReadById(request.Id)
+                    ?? throw new ResourceNotFoundException("PQResponse", request.Id.ToString());
                 var pqResponseVM = _mapper.Map<PQResponseVM>(pqResponse);
 
                 var trackableEntities = new List<VMMeta> { pqResponseVM };
                 (pqResponseVM.PageLastUpdatedDate, pqResponseVM.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
                 return pqResponseVM;
 
+            }
+            catch (ResourceNotFoundException)
+            {
+                throw; // 404, not an error
             }
             catch (Exception ex)
             {
