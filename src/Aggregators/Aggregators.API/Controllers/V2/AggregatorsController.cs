@@ -2,6 +2,7 @@
 using System.Net;
 using Aggregators.Application.Disclosure.Dashboard;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 namespace Aggregators.API.Controllers.V2
 {

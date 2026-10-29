@@ -4,6 +4,7 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Extensions;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using UserStore.Application.Features.Commands.Users.AddUser;
 using UserStore.Application.Features.Commands.Users.DeleteUser;

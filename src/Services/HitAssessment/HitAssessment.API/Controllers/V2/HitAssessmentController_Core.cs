@@ -2,6 +2,7 @@
 using System.Net;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using HitAssessment.Application.Features.Commands.DeleteHitAssessment;
 using HitAssessment.Application.Features.Commands.NewHitAssessment;

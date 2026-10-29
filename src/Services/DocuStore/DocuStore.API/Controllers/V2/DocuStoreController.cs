@@ -11,6 +11,7 @@ using DocuStore.Application.Features.Queries.GetParsedDoc.ById;
 using DocuStore.Application.Features.Queries.GetParsedDoc.ByPath;
 using DocuStore.Application.Features.Queries.GetParsedDoc.ByTags;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DocuStore.API.Controllers.V2

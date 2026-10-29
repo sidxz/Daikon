@@ -7,7 +7,7 @@ using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.Versioning;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,9 +37,9 @@ public static class ServiceCollectionExtensions
             opt.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
                                                             new HeaderApiVersionReader("x-api-version"),
                                                             new MediaTypeApiVersionReader("x-api-version"));
-        });
-
-        services.AddVersionedApiExplorer(setup =>
+        })
+        .AddMvc()                       // controller support; without it [ApiVersion] on controllers is ignored
+        .AddApiExplorer(setup =>
         {
             setup.GroupNameFormat = "'v'VVV";
             setup.SubstituteApiVersionInUrl = true;

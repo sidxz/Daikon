@@ -1,6 +1,7 @@
 
 using CQRS.Core.Extensions;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using UserStore.Application.Features.Queries.AppVars.GetAppVars;
 using UserStore.Application.Features.Queries.GlobalValues.GetGlobalValues;

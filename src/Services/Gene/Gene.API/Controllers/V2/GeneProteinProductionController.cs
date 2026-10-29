@@ -4,6 +4,7 @@ using CQRS.Core.Responses;
 using Gene.Application.Features.Command.DeleteProteinProduction;
 using Gene.Application.Features.Command.NewProteinProduction;
 using Gene.Application.Features.Command.UpdateProteinProduction;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

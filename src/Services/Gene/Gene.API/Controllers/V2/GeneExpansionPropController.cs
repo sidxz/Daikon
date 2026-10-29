@@ -3,6 +3,7 @@ using CQRS.Core.Responses;
 using Gene.Application.Features.Command.AddExpansionProp;
 using Gene.Application.Features.Command.DeleteExpansionProp;
 using Gene.Application.Features.Command.UpdateExpansionProp;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

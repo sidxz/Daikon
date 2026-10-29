@@ -1,6 +1,7 @@
 // ✅ TableCustomizationController.cs
 using System.Net;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using UserPreferences.Application.Features.Commands.RemoveTableUserCustom;
 using UserPreferences.Application.Features.Commands.SetTableDefaults;

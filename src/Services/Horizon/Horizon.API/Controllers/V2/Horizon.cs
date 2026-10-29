@@ -3,6 +3,7 @@ using Horizon.Application.Features.Queries.FindRelatedTarget;
 using Horizon.Application.Features.Queries.FIndTargetRelations;
 using Horizon.Application.Features.Queries.GenerateHorizon;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Horizon.API.Controllers.V2

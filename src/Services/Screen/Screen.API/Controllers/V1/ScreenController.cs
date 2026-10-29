@@ -1,5 +1,6 @@
 
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Screen.API.Controllers.V1

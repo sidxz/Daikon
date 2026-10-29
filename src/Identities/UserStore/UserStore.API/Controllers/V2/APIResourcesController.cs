@@ -2,6 +2,7 @@
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using UserStore.Application.Features.Commands.APIResources.AddAPIResource;
 using UserStore.Application.Features.Commands.APIResources.DeleteAPIResource;

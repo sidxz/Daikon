@@ -4,6 +4,7 @@ using CQRS.Core.Exceptions;
 using CQRS.Core.Extensions;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Target.Application.Features.Command.DeleteTarget;
 using Target.Application.Features.Command.NewTarget;

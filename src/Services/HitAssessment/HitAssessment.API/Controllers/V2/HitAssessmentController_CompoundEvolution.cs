@@ -4,6 +4,7 @@ using CQRS.Core.Responses;
 using HitAssessment.Application.Features.Commands.DeleteHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.NewHaCompoundEvolution;
 using HitAssessment.Application.Features.Commands.UpdateHaCompoundEvolution;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HitAssessment.API.Controllers.V2

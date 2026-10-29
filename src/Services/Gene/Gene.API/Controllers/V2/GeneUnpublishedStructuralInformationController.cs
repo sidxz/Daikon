@@ -6,6 +6,7 @@ using Gene.Application.Features.Command.DeleteUnpublishedStructuralInformation;
 using Gene.Application.Features.Command.NewUnpublishedStructuralInformation;
 using Gene.Application.Features.Command.UpdateUnpublishedStructuralInformation;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

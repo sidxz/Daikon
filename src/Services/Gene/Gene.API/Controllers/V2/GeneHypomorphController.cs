@@ -6,6 +6,7 @@ using Gene.Application.Features.Command.DeleteHypomorph;
 using Gene.Application.Features.Command.NewHypomorph;
 using Gene.Application.Features.Command.UpdateHypomorph;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

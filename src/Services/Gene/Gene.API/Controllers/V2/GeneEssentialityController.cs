@@ -4,6 +4,7 @@ using CQRS.Core.Responses;
 using Gene.Application.Features.Command.DeleteEssentiality;
 using Gene.Application.Features.Command.NewEssentiality;
 using Gene.Application.Features.Command.UpdateEssentiality;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

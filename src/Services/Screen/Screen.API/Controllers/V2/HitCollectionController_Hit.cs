@@ -2,6 +2,7 @@
 using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Screen.Application.Features.Batch.HitHandleUnattachedMolecules;
 using Screen.Application.Features.Commands.DeleteHit;
