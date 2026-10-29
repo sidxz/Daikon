@@ -537,7 +537,6 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
                     var disclosedEvent = BuildMoleculeDisclosedEvent(
                         moleculeCreatedEvent,
                         originalCmd,
-                        headers,
                         request.RequestorUserId,
                         utcNow);
 
@@ -565,28 +564,26 @@ namespace MLogix.Application.Features.Commands.RegisterMoleculeBatch
 
         /*
          * Builds a MoleculeDisclosedEvent for a new molecule.
-         * Pulls disclosure metadata from headers or command.
+         * Pulls disclosure metadata from the command, falling back to the signed-in user.
          */
         private MoleculeDisclosedEvent BuildMoleculeDisclosedEvent(
             MoleculeCreatedEvent createdEvent,
             RegisterMoleculeCommandWithRegId originalCmd,
-            Dictionary<string, string> headers,
             Guid requestorUserId,
             DateTime utcNow)
         {
+            var user = _httpContextAccessor.HttpContext?.User;
+
             var disclosureScientist = originalCmd.DisclosureScientist;
-            if (string.IsNullOrWhiteSpace(disclosureScientist) &&
-                headers.TryGetValue("AppUser-FullName", out var nameFromHeader))
+            if (string.IsNullOrWhiteSpace(disclosureScientist) && user.GetFullName() is { } fullName)
             {
-                disclosureScientist = nameFromHeader;
+                disclosureScientist = fullName;
             }
 
             var disclosureOrgId = originalCmd.DisclosureOrgId;
-            if (disclosureOrgId == Guid.Empty &&
-                headers.TryGetValue("AppOrg-Id", out var orgIdFromHeader) &&
-                Guid.TryParse(orgIdFromHeader, out var parsedOrgId))
+            if (disclosureOrgId == Guid.Empty)
             {
-                disclosureOrgId = parsedOrgId;
+                disclosureOrgId = user.GetAppOrgId();
             }
 
             return new MoleculeDisclosedEvent

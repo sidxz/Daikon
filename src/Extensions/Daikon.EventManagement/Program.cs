@@ -12,7 +12,7 @@ using MongoDB.Bson.Serialization.Conventions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDaikonApiDefaults();
+builder.Services.AddDaikonApiDefaults(builder.Configuration);
 
 builder.Services.AddSingleton<ReplayStatusTracker>();
 builder.Services.AddScoped<EventReplayService>();
@@ -88,7 +88,7 @@ var app = builder.Build();
 
 app.UseDaikonApiDefaults();
 
-app.MapHealthChecks("/health");
-app.MapHealthChecks("/health/ready");
+app.MapHealthChecks("/health").AllowAnonymous();
+app.MapHealthChecks("/health/ready").AllowAnonymous();
 
 app.Run();

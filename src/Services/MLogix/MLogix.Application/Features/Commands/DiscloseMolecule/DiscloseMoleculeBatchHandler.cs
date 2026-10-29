@@ -1,6 +1,7 @@
 
 using AutoMapper;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using Daikon.EventStore.Handlers;
 using Daikon.Events.MLogix;
 using Daikon.Shared.VM.MLogix;
@@ -142,10 +143,9 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
             // 5) Event sourcing + results
             var nuisanceList = new List<NuisanceRequestTuple>(capacity: registered.Count);
 
-            headers.TryGetValue("AppUser-FullName", out var scientistFromHeader);
-            Guid orgIdFromHeader = Guid.Empty;
-            if (headers.TryGetValue("AppOrg-Id", out var orgStr))
-                Guid.TryParse(orgStr, out orgIdFromHeader);
+            var user = _httpContextAccessor.HttpContext?.User;
+            var scientistFromUser = user.GetFullName();
+            var orgIdFromUser = user.GetAppOrgId();
 
             var utcNow = DateTime.UtcNow;
             // Find out candidates that were successfully registered in ChemVault but have a different RegId than local
@@ -196,11 +196,11 @@ namespace MLogix.Application.Features.Commands.DiscloseMolecule
 
                 disclosedEvent.DisclosureScientist = !string.IsNullOrWhiteSpace(candidate.DisclosureScientist)
                     ? candidate.DisclosureScientist
-                    : (scientistFromHeader ?? string.Empty);
+                    : (scientistFromUser ?? string.Empty);
 
                 disclosedEvent.DisclosureOrgId = candidate.DisclosureOrgId != Guid.Empty
                     ? candidate.DisclosureOrgId
-                    : orgIdFromHeader;
+                    : orgIdFromUser;
 
 
                 if (request.PreviewMode)

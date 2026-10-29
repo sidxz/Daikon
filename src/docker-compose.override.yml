@@ -12,6 +12,9 @@ services:
       - EntraID:ClientId=${EntraID_ClientId}
       - EntraID:Audience=${EntraID_Audience}
 
+      ## Browser origins allowed to call the API (comma-separated); the gateway refuses to start without it
+      - "Cors:AllowedOrigins=${DAIKON_AllowedOrigins}"
+
       ## OIDC
       # - OIDCProvider=KeyCloak
       # - KeyCloak:Instance=${Keycloak_Instance}
@@ -21,8 +24,6 @@ services:
       # - KeyCloak:Authority=${Keycloak_Authority}
 
       ## Internal API Routing
-      - "UserStoreAPI:BaseUrl=http://userstore-api/api/v2/"
-
       - "EndPointRouting:gene=http://gene-api"
       - "EndPointRouting:gene-batch=http://gene-api"
       - "EndPointRouting:strain=http://gene-api"
@@ -61,6 +62,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+
       ## MongoDb Data Store
       - UserStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
     ports:
@@ -72,6 +81,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
@@ -101,6 +119,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
+
         ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
 
@@ -129,6 +156,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
@@ -160,6 +196,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
+
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
 
@@ -189,6 +234,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
@@ -221,6 +275,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
+
       # Neo4j
       - HorizonNeo4jSettings:Uri=${HorizonNeo4jURI}
       - HorizonNeo4jSettings:User=${HorizonNeo4jUser}
@@ -241,6 +304,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
       # Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
@@ -274,6 +346,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
+
       ## Data Store
       - QuestionnaireMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
     ports:
@@ -285,6 +366,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
@@ -317,6 +407,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
 
@@ -336,6 +434,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
@@ -367,6 +474,15 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
 
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
+
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
       ## Kafka Producer
@@ -384,6 +500,15 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
+      - "UserStoreAPI:Url=http://userstore-api/api/v2"
 
       ## Event Store
       - EventDatabaseSettings:ConnectionString=${EventDB_ConnectionString}
@@ -414,6 +539,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+
+      ## Auth: verify the forwarded token (must match simplegw-api), then resolve its DAIKON user via UserStore
+      - OIDCProvider=EntraID
+      - EntraID:Instance=${EntraID_Instance}
+      - EntraID:Domain=${EntraID_Domain}
+      - EntraID:TenantId=${EntraID_TenantId}
+      - EntraID:ClientId=${EntraID_ClientId}
+      - EntraID:Audience=${EntraID_Audience}
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
       - "UserStoreAPI:Url=http://userstore-api/api/v2"
       - "GeneAPI:Url=http://gene-api/api/v2"

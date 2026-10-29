@@ -31,9 +31,15 @@ public static class WebApplicationExtensions
             });
         }
 
-        app.MapGet("/health", () => Results.Ok(BuildHealthResponse(app)));
-        app.MapGet("/health/ready", () => Results.Ok(BuildHealthResponse(app)));
+        // After Swagger (Development only), whose UI could not load under the API's CSP
+        app.UseMiddleware<SecurityHeadersMiddleware>();
+
+        app.MapGet("/health", () => Results.Ok(BuildHealthResponse(app))).AllowAnonymous();
+        app.MapGet("/health/ready", () => Results.Ok(BuildHealthResponse(app))).AllowAnonymous();
         app.UseMiddleware<GlobalErrorHandlingMiddleware>();
+        app.UseAuthentication();
+        app.UseMiddleware<AppUserMiddleware>();
+        app.UseAuthorization();
         app.MapControllers();
 
         return app;

@@ -44,6 +44,15 @@ namespace DocuStore.Application.Features.Commands.UpdateParsedDoc
                 throw new InvalidOperationException("FilePath is required.");
             }
 
+            // The frontend opens ExternalPath in a new tab; a javascript: URL would be stored XSS
+            if (!string.IsNullOrWhiteSpace(request.ExternalPath) &&
+                !(Uri.TryCreate(request.ExternalPath, UriKind.Absolute, out var externalUri) &&
+                  (externalUri.Scheme == Uri.UriSchemeHttp || externalUri.Scheme == Uri.UriSchemeHttps)))
+            {
+                _logger.LogWarning("ExternalPath is not an http(s) URL.");
+                throw new InvalidOperationException("ExternalPath must be an http(s) URL.");
+            }
+
             try
             {
                 var existingDoc = await _parsedDocRepository.ReadByPath(request.FilePath);

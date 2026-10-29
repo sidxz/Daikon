@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Http;
 using CQRS.Core.Command;
 using CQRS.Core.Query;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
+using CQRS.Core.Extensions;
 
 namespace CQRS.Core.Middlewares
 {
@@ -16,6 +18,9 @@ namespace CQRS.Core.Middlewares
     public class RequestorIdBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
+        // trace-id is stored with documents, so a caller-supplied value must look like an id
+        private static readonly Regex SafeTraceId = new("^[A-Za-z0-9:-]{1,64}$", RegexOptions.Compiled);
+
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ILogger<RequestorIdBehavior<TRequest, TResponse>> _logger;
 
@@ -69,28 +74,20 @@ namespace CQRS.Core.Middlewares
         }
 
         /// <summary>
-        /// Extracts the RequestorUserId from the HTTP header, if available.
+        /// Gets the RequestorUserId from the user resolved off the validated bearer token (never from request headers).
         /// </summary>
-        /// <returns>The extracted Guid, or Guid.Empty if not found or invalid.</returns>
+        /// <returns>The user's Guid, or Guid.Empty when there is no signed-in user (e.g. background services).</returns>
         private Guid GetRequestorUserId()
         {
-            if (_httpContextAccessor.HttpContext == null)
-            {
-                // No HTTP context, typically in a background service.
-                return Guid.Empty;
-            }
-
-            // Attempt to parse the AppUser-Id from headers
-            var headers = _httpContextAccessor.HttpContext.Request.Headers;
-            return Guid.TryParse(headers["AppUser-Id"], out var appUserId) ? appUserId : Guid.Empty;
+            return _httpContextAccessor.HttpContext?.User.GetAppUserId() ?? Guid.Empty;
         }
 
         private string GetTraceId()
         {
             if (_httpContextAccessor.HttpContext == null) return string.Empty;
-            var headers = _httpContextAccessor.HttpContext.Request.Headers;
-            return !string.IsNullOrWhiteSpace(headers["trace-id"])
-                ? headers["trace-id"].ToString()
+            var traceId = _httpContextAccessor.HttpContext.Request.Headers["trace-id"].ToString();
+            return SafeTraceId.IsMatch(traceId)
+                ? traceId
                 : Activity.Current?.TraceId.ToString() ?? _httpContextAccessor.HttpContext.TraceIdentifier;
         }
     }

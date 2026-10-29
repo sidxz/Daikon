@@ -2,8 +2,7 @@
 using Microsoft.IdentityModel.Logging;
 using SimpleGW.API.Middlewares;
 using SimpleGW.API.Services;
-using SimpleGW.Contracts.Infrastructure;
-using SimpleGW.OIDCProviders;
+using Daikon.ApiHost;
 
 var builder = WebApplication.CreateBuilder(args);
 var loggerFactory = LoggerFactory.Create(loggingBuilder =>
@@ -21,24 +20,10 @@ builder.Logging.AddFilter("IdentityModelEventSource.ShowPII", LogLevel.Warning);
 
 try
 {
-    // Select the OIDC provider based on the settings
-    var authProvider = builder.Configuration["OIDCProvider"];
-    if (string.IsNullOrWhiteSpace(authProvider))
-    {
-        throw new InvalidOperationException("OIDCProvider configuration is missing.");
-    }
-
-    switch (authProvider)
-    {
-        case "KeyCloak":
-            KeyCloak.Configure(builder.Services, builder.Configuration);
-            break;
-        case "EntraID":
-            MicrosoftEntraID.Configure(builder.Services, builder.Configuration, logger);
-            break;
-        default:
-            throw new InvalidOperationException($"Unrecognized OIDCProvider configuration: {authProvider}.");
-    }
+    // Same token validation as every downstream service (OIDCProvider selects EntraID or KeyCloak)
+    builder.Services.AddDaikonAuthentication(builder.Configuration);
+    builder.Services.AddAuthorization();
+    builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddHttpClient("SimpleGWClient")
@@ -46,30 +31,40 @@ try
         {
             client.Timeout = TimeSpan.FromMinutes(5);
         });
-    builder.Services.AddMemoryCache();
     builder.Services.AddSingleton<IMicroserviceHealthStore, MicroserviceHealthStore>();
     builder.Services.AddHostedService<MicroserviceHealthPoller>();
 
-
-    builder.Services.AddScoped<IUserStoreAPIService, UserStoreAPIService>();
-
+    // Only the configured frontend origin(s) may call the API from a browser, e.g. "https://daikon.example.org,http://localhost:3000"
+    var allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    if (allowedOrigins is not { Length: > 0 })
+    {
+        throw new InvalidOperationException("Cors:AllowedOrigins configuration is missing or empty.");
+    }
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy("AllowAll", builder =>
-        {
-            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-        });
+        options.AddPolicy("Frontend", policy => policy
+            .WithOrigins(allowedOrigins)
+            .WithMethods("GET", "POST", "PUT", "DELETE")
+            .WithHeaders("Authorization", "Content-Type", "x-api-version"));
     });
 
     var app = builder.Build();
 
     Console.WriteLine($"Environment: {app.Environment.EnvironmentName}");
 
+    // No-store and security headers on every response, including CORS preflights and errors
+    app.UseMiddleware<SecurityHeadersMiddleware>();
+
     app.UseRouting();
-    app.UseCors("AllowAll");
+    app.UseCors("Frontend");
     app.UseAuthentication();
     app.UseAuthorization();
 
+    app.UseMiddleware<RequestTimingMiddleware>();
+    app.UseMiddleware<AuthenticationValidatorMiddleware>();
+
+    // Signed-in users only: it lists internal services, versions and errors
     app.Map("/health/services", healthApp =>
     {
         healthApp.Run(async context =>
@@ -81,9 +76,6 @@ try
         });
     });
 
-    app.UseMiddleware<RequestTimingMiddleware>();
-    app.UseMiddleware<AuthenticationValidatorMiddleware>();
-    app.UseMiddleware<UserProfileEnricherMiddleware>();
     app.UseMiddleware<MicroServiceRoutingMiddleware>();
     app.UseMiddleware<RequestForwardingMiddleware>();
 

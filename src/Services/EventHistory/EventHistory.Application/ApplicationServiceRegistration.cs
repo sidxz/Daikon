@@ -1,5 +1,4 @@
 ﻿
-using EventHistory.Application.BackgroundServices;
 using EventHistory.Application.Features.Processors;
 using EventHistory.Application.Features.Queries.GetEventHistory;
 using EventHistory.Application.Mappers;
@@ -19,7 +18,6 @@ namespace EventHistory.Application
             services.AddAutoMapper(typeof(MappingProfile).Assembly);
             services.AddMediatR(typeof(GetEventHistoryQuery).Assembly);
             services.AddScoped<EventMessageProcessor>();
-            services.AddHostedService<DefaultEventHistoryPrepBackgroundService>();
 
 
             //services.AddValidatorsFromAssembly(typeof(NewProjectCommandValidator).Assembly);
