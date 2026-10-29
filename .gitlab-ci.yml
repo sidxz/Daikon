@@ -1,23 +1,75 @@
-image: docker:latest
+# CI images are pinned by digest; the tag is there for readers. Bump tag and digest together.
+image: docker:29.9.2-dind@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
 
 services:
-  - docker:dind
+  - name: docker:29.9.2-dind@sha256:9e79b879b177fbd72c34376a3dd3d91747da5db49e1f560f76aea59561471977
+    alias: docker
 
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_TAG_BASE: "$CI_REGISTRY/sid/daikon"
+  DOTNET_SDK_IMAGE: "mcr.microsoft.com/dotnet/sdk:8.0.427@sha256:6ba9644da07bb5b560a402acec9ca38711a0762969f1b61da261df5c9f6f85da"
+  GITLEAKS_IMAGE: "ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f"
+  TRIVY_IMAGE: "aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c"
+  # Trivy reads these from the environment. Report-only for now: set TRIVY_EXIT_CODE to "1" to stop images with
+  # fixable HIGH/CRITICAL findings from being pushed (and to fail the weekly scan). Accepted findings: .trivyignore
+  TRIVY_SEVERITY: "HIGH,CRITICAL"
+  TRIVY_IGNORE_UNFIXED: "true"
+  TRIVY_EXIT_CODE: "0"
+  TRIVY_IGNOREFILE: "$CI_PROJECT_DIR/.trivyignore"
+  TRIVY_CACHE_DIR: "$CI_PROJECT_DIR/.trivycache"
 
 before_script:
   - cd src
   - docker info
-  - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
 
 stages:
+  - test
   - build
-  - push
 
+# Pushes to lab-main. The weekly pipeline schedule runs only scan-published-images.
+.lab-main:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "lab-main" && $CI_PIPELINE_SOURCE != "schedule"
+
+# Tests, plus NuGet's vulnerability audit with high/critical findings as errors. Build only runs if these pass.
+test:
+  stage: test
+  extends: .lab-main
+  image: $DOTNET_SDK_IMAGE
+  services: []
+  before_script:
+    - cd src
+  script:
+    # No server-side response caching anywhere: it would serve one user's data to another
+    - "! grep -rnE --include='*.cs' --exclude-dir=obj --exclude-dir=bin 'AddOutputCache|UseOutputCache|AddResponseCaching|UseResponseCaching|\\[OutputCache|\\[ResponseCache' ."
+    - dotnet restore daikon.sln -warnaserror:NU1903,NU1904
+    - dotnet test BuildingBlocks/Daikon.ApiHost.Test/Daikon.ApiHost.Test.csproj
+    - dotnet test ApiGateways/SimpleGW/SimpleGW.Test/SimpleGW.Test.csproj
+    - dotnet test Identities/UserStore/UserStore.Test/UserStore.Test.csproj
+
+# Secrets in the commits being pushed (not older history, which still holds a since-replaced Neo4j password).
+secrets:
+  stage: test
+  extends: .lab-main
+  image:
+    name: $GITLEAKS_IMAGE
+    entrypoint: [""]
+  services: []
+  variables:
+    GIT_DEPTH: 0
+  before_script: []
+  script:
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - if [ "$CI_COMMIT_BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then RANGE="-1"; else RANGE="$CI_COMMIT_BEFORE_SHA..$CI_COMMIT_SHA"; fi
+    - gitleaks git --redact --verbose --log-opts="$RANGE" .
+
+# Build each image on freshly pulled base images, scan it, and push it from the same job
+# (separate build and push jobs each get their own Docker daemon, so a push job can't see the built image).
 build:
   stage: build
+  extends: .lab-main
   parallel:
     matrix:
       - SERVICE: "userstore-api"
@@ -52,34 +104,72 @@ build:
         DOCKERFILE: "Services/UserPreferences/UserPreferences.API/Dockerfile"
       - SERVICE: "aggregators-api"
         DOCKERFILE: "Aggregators/Aggregators.API/Dockerfile"
+  cache:
+    key: trivy-db
+    paths:
+      - .trivycache/
   script:
-        - docker build -t ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME -f ${DOCKERFILE} .
-  only:
-    - lab-main
+    - IMAGE="${IMAGE_TAG_BASE}/${SERVICE}:${CI_COMMIT_REF_NAME}"
+    - docker build --pull -t "$IMAGE" -f "$DOCKERFILE" .
+    # Trivy, copied out of its pinned image, scans the built image before anything is pushed
+    - docker create --name trivy "$TRIVY_IMAGE" >/dev/null
+    - docker cp trivy:/usr/local/bin/trivy /usr/local/bin/trivy
+    - docker rm trivy >/dev/null
+    - docker save "$IMAGE" -o image.tar
+    - trivy image --input image.tar --output "trivy-${SERVICE}.txt" || TRIVY_STATUS=$?
+    - rm image.tar
+    - cat "trivy-${SERVICE}.txt"
+    - test "${TRIVY_STATUS:-0}" -eq 0
+    - docker push "$IMAGE"
+  artifacts:
+    when: always
+    paths:
+      - src/trivy-*.txt
+    expire_in: 30 days
 
-push:
-  stage: push
+# Weekly: re-scan the published lab-main images for newly disclosed CVEs.
+# Needs a pipeline schedule on lab-main (CI/CD > Schedules > weekly).
+scan-published-images:
+  stage: test
+  image:
+    name: $TRIVY_IMAGE
+    entrypoint: [""]
+  services: []
+  before_script: []
+  variables:
+    TRIVY_USERNAME: $CI_REGISTRY_USER
+    TRIVY_PASSWORD: $CI_REGISTRY_PASSWORD
   parallel:
     matrix:
-      - SERVICE: "userstore-api"
-      - SERVICE: "gene-api"
-      - SERVICE: "target-api"
-      - SERVICE: "screen-api"
-      - SERVICE: "hitassessment-api"
-      - SERVICE: "project-api"
-      - SERVICE: "horizon-api"
-      - SERVICE: "mlogix-api"
-      - SERVICE: "questionnaire-api"
-      - SERVICE: "comment-api"
-      - SERVICE: "simplegw-api"
-      - SERVICE: "event-history-api"
-      - SERVICE: "docustore-api"
-      - SERVICE: "event-management-api"
-      - SERVICE: "user-preferences-api"
-      - SERVICE: "aggregators-api"
+      - SERVICE:
+          - userstore-api
+          - gene-api
+          - target-api
+          - screen-api
+          - hitassessment-api
+          - project-api
+          - horizon-api
+          - mlogix-api
+          - questionnaire-api
+          - comment-api
+          - simplegw-api
+          - event-history-api
+          - docustore-api
+          - event-management-api
+          - user-preferences-api
+          - aggregators-api
+  cache:
+    key: trivy-db
+    paths:
+      - .trivycache/
   script:
-    - docker info
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-    - docker push ${IMAGE_TAG_BASE}/${SERVICE}:$CI_COMMIT_REF_NAME
-  only:
-    - lab-main
+    - trivy image --output "trivy-${SERVICE}.txt" "${IMAGE_TAG_BASE}/${SERVICE}:lab-main" || TRIVY_STATUS=$?
+    - cat "trivy-${SERVICE}.txt"
+    - test "${TRIVY_STATUS:-0}" -eq 0
+  artifacts:
+    when: always
+    paths:
+      - trivy-*.txt
+    expire_in: 90 days
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"

@@ -1,0 +1,17 @@
+<Project>
+  <!-- NuGet vulnerability audit of the packages we reference directly; CI turns high and critical findings into errors
+       (test job in .gitlab-ci.yml). Not "all": on .NET 8 that also flags framework packages (System.Formats.Asn1,
+       System.Security.Cryptography.*, ...) whose patched shared-framework copies are what actually run. The image scan
+       (Trivy) covers everything that ships. Switch to "all" on .NET 10, whose SDK prunes those framework packages. -->
+  <PropertyGroup>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>direct</NuGetAuditMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Accepted until 2027-01-31, the same expiry as its .trivyignore entry: AutoMapper 12 DoS via uncontrolled recursion
+         (CVE-2026-32933). The fixed versions (15.1.1+) need a commercial licence; by then, buy it, replace AutoMapper,
+         or re-accept with a new date. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+  </ItemGroup>
+</Project>

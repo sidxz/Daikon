@@ -408,3 +408,6 @@ src/ApiGateways/OcelotApiGw/appsettings.json
 src/ApiGateways/SimpleGW/SimpleGW.API/appsettings.Development.json
 
 *container_deployment-prd*.yaml
+# Internal notes and AI workflow files, never committed
+internal-docs/
+/CLAUDE.md

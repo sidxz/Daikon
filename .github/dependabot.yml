@@ -1,0 +1,28 @@
+# Weekly dependency updates as GitHub pull requests (origin is GitHub; CI runs on GitLab once merged to lab-main).
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: "/src"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      nuget-minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Major versions are deliberate upgrades (the .NET 10 move, AutoMapper's commercial 15+), not weekly bumps
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: docker
+    directories:
+      - "/src/**"
+    schedule:
+      interval: weekly
+      day: monday
+    groups:
+      base-images:
+        patterns: ["*"]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

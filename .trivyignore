@@ -1,0 +1,6 @@
+# Accepted Trivy findings. Each entry needs a reason and an expiry (exp:); after it, Trivy reports the finding again.
+
+# AutoMapper 12.0.1: denial of service via uncontrolled recursion (GHSA-rvv3-g6hj-g44x). Fixed only in 15.1.1+ and 16.1.1+,
+# which need a commercial licence. By the expiry: buy it, replace AutoMapper, or re-accept with a new date.
+# Also suppressed for NuGet's audit in src/Directory.Build.props.
+CVE-2026-32933 exp:2027-01-31
