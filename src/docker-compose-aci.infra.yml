@@ -15,7 +15,7 @@ services:
     restart: always
     environment:
       - PGADMIN_DEFAULT_EMAIL=sid@tamu.edu
-      - PGADMIN_DEFAULT_PASSWORD=admin1234
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "5050:80"
     volumes:
@@ -57,15 +57,15 @@ services:
     volumes:
       - "eventdb_mongo_data:/data/db"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
 
   MolDb_Postgres:
     image: ${DOCKER_REGISTRY-}informaticsmatters/rdkit-cartridge-debian
     environment:
       POSTGRES_DB: chemdb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - MolDb_data:/var/lib/postgresql/data
     ports:
