@@ -8,7 +8,7 @@ services:
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE_TAG_BASE: "$CI_REGISTRY/sid/daikon"
-  DOTNET_SDK_IMAGE: "mcr.microsoft.com/dotnet/sdk:8.0.427@sha256:6ba9644da07bb5b560a402acec9ca38711a0762969f1b61da261df5c9f6f85da"
+  DOTNET_SDK_IMAGE: "mcr.microsoft.com/dotnet/sdk:10.0.403@sha256:de4fe90a98845d75910b9769662465c84de1a934665c431279d1382b2bddc02b"
   GITLEAKS_IMAGE: "ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f"
   TRIVY_IMAGE: "aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c"
   # Trivy reads these from the environment. Report-only for now: set TRIVY_EXIT_CODE to "1" to stop images with

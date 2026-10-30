@@ -1,5 +1,5 @@
 # Use the SDK image for development, as it includes all necessary tools
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS development
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS development
 
 # Set the working directory inside the container
 WORKDIR /app
