@@ -1,6 +1,7 @@
 
 using System.Net;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using MLogix.Application.Features.Queries.GetMolecule.ById;
 using MLogix.Application.Features.Queries.GetMolecule.BySMILES;
@@ -158,9 +159,11 @@ namespace MLogix.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.Accepted)]
         public IActionResult ReregisterVault([FromBody] ReRegisterVaultCommand command)
         {
-            // Queue the background job
-            _ = _vaultBackgroundServices.QueueReregisterVaultJobAsync(command, HttpContext.RequestAborted);
-            return Accepted("ReregisterVault job has been queued and is processing in the background.");
+            // Temporarily disabled: the job keeps calling chemvault after this request (and the user's token) has ended,
+            // which fails once chemvault validates tokens. Re-enable when MLogix has its own service token:
+            // _ = _vaultBackgroundServices.QueueReregisterVaultJobAsync(command, HttpContext.RequestAborted);
+            // return Accepted("ReregisterVault job has been queued and is processing in the background.");
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Vault re-registration is temporarily disabled.");
         }
 
         [HttpPost("generate-parent-batch", Name = "GenerateParentBatch")]
@@ -168,9 +171,11 @@ namespace MLogix.API.Controllers.V2
         [ProducesResponseType((int)HttpStatusCode.Accepted)]
         public IActionResult GenerateParent([FromBody] GenerateParentBatchCommand command)
         {
-            // Queue the background job
-            _ = _vaultBackgroundServices.QueueGenerateParentBatchJobAsync(command, HttpContext.RequestAborted);
-            return Accepted("GenerateParentBatch job has been queued and is processing in the background.");
+            // Temporarily disabled for the same reason as ReregisterVault (background calls to chemvault without a token).
+            // Re-enable when MLogix has its own service token:
+            // _ = _vaultBackgroundServices.QueueGenerateParentBatchJobAsync(command, HttpContext.RequestAborted);
+            // return Accepted("GenerateParentBatch job has been queued and is processing in the background.");
+            return StatusCode(StatusCodes.Status503ServiceUnavailable, "Generate parent batch is temporarily disabled.");
         }
 
 

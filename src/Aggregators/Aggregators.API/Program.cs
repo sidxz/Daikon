@@ -3,7 +3,7 @@ using Aggregators.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDaikonApiDefaults();
+builder.Services.AddDaikonApiDefaults(builder.Configuration);
 builder.Services.AddMemoryCache();
 builder.Services.AddApplicationServices(builder.Configuration);
 

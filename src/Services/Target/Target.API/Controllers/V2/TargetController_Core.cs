@@ -1,8 +1,10 @@
 
 using System.Net;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Target.Application.Features.Command.DeleteTarget;
 using Target.Application.Features.Command.NewTarget;
@@ -27,7 +29,7 @@ namespace Target.API.Controllers.V2
         {
             foreach (var header in HttpContext.Request.Headers)
             {
-                _logger.LogInformation($"{header.Key}: {header.Value}");
+                _logger.LogInformation("{HeaderName}: {HeaderValue}", header.Key, header.LoggableValue());
             }
         }
 

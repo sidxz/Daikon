@@ -1,5 +1,6 @@
 
 using Horizon.Application.Features.Queries.CompoundRelations;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Horizon.API.Controllers.V2

@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Gene.Application.Features.Command.NewGene;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V1

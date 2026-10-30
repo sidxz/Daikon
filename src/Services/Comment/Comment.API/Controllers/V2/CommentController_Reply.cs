@@ -4,6 +4,7 @@ using CQRS.Core.Responses;
 using Comment.Application.Features.Commands.NewCommentReply;
 using Comment.Application.Features.Commands.UpdateCommentReply;
 using Comment.Application.Features.Commands.DeleteCommentReply;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Comment.API.Controllers.V2

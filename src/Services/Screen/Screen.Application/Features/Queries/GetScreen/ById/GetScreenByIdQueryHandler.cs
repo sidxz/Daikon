@@ -1,4 +1,5 @@
 
+using CQRS.Core.Exceptions;
 using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Extensions;
@@ -32,7 +33,8 @@ namespace Screen.Application.Features.Queries.GetScreen.ById
         {
             try
             {
-                var screen = await _screenRepository.ReadScreenById(request.Id);
+                var screen = await _screenRepository.ReadScreenById(request.Id)
+                    ?? throw new ResourceNotFoundException("Screen", request.Id.ToString());
                 var screenVm = _mapper.Map<ScreenVM>(screen, opts => opts.Items["WithMeta"] = request.WithMeta);
 
                 var screenRuns = await _screenRunRepository.GetScreenRunsListByScreenId(screen.Id);
@@ -44,6 +46,10 @@ namespace Screen.Application.Features.Queries.GetScreen.ById
                 (screenVm.PageLastUpdatedDate, screenVm.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
 
                 return screenVm;
+            }
+            catch (ResourceNotFoundException)
+            {
+                throw; // 404, not an error
             }
             catch (Exception ex)
             {

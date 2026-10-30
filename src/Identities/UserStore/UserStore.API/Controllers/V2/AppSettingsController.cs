@@ -1,5 +1,7 @@
 
+using CQRS.Core.Extensions;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using UserStore.Application.Features.Queries.AppVars.GetAppVars;
 using UserStore.Application.Features.Queries.GlobalValues.GetGlobalValues;
@@ -42,9 +44,7 @@ namespace UserStore.API.Controllers.V2
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAppVars()
         {
-            // try getting user id from header named "AppUser-Id" and parse it to Guid
-            var userId = Guid.TryParse(HttpContext.Request.Headers["AppUser-Id"], out var id) ? id : (Guid?)null;
-            var query = new GetAppVarsQuery { UserId = userId ?? Guid.Empty };
+            var query = new GetAppVarsQuery { UserId = User.GetAppUserId() };
 
             try
             {

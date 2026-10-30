@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 
 namespace SimpleGW.API.Middlewares
 {
@@ -30,9 +31,9 @@ namespace SimpleGW.API.Middlewares
             }
             else
             {
-                // Respond with an error, e.g., Status Code Unauthorized
+                // 401 with WWW-Authenticate: Bearer (required by RFC 6750), including why the token was rejected
                 _logger.LogWarning("AuthenticationValidatorMiddleware : User is not authenticated");
-                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                await context.ChallengeAsync();
                 return;
             }
         }

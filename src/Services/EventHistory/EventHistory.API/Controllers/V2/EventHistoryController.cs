@@ -2,6 +2,7 @@ using System.Net;
 using EventHistory.Application.Features.Queries.GetAggregateHistory;
 using EventHistory.Application.Features.Queries.GetEventHistory;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventHistory.API.Controllers.V2

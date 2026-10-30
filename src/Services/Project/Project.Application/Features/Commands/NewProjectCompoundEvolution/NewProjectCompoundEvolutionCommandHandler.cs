@@ -99,7 +99,8 @@ namespace Project.Application.Features.Commands.NewProjectCompoundEvolution
                     Name = request.MoleculeName,
                     SMILES = request.RequestedSMILES,
                     DisclosureStage = request.Stage ?? Daikon.Shared.Constants.Workflow.Stages.Portfolio
-                });
+                }) ?? throw new InvalidOperationException(
+                    $"Molecule '{request.MoleculeName}' could not be registered: the name may already belong to a different structure, or the structure to a molecule that cannot be linked.");
 
                 eventToAdd.MoleculeId = mLogiXResponse.Id;
                 response.MoleculeId = mLogiXResponse.Id;

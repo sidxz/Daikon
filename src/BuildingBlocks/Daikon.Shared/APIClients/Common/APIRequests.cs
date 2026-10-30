@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CQRS.Core.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -79,13 +80,10 @@ namespace Daikon.Shared.APIClients.Common
         {
             var request = new HttpRequestMessage(method, apiUrl);
 
-            // Copy request headers from the current HTTP context.
-            if (_httpContextAccessor.HttpContext?.Request?.Headers != null)
+            // Pass on only the caller's token and trace id (not Host, cookies or anything else the caller sent)
+            if (_httpContextAccessor.HttpContext?.Request?.Headers is { } headers)
             {
-                foreach (var header in _httpContextAccessor.HttpContext.Request.Headers)
-                {
-                    request.Headers.TryAddWithoutValidation(header.Key, header.Value.ToString());
-                }
+                request.AddHeaders(headers);
             }
 
             // Add content for methods that support a body (POST, PUT, PATCH).

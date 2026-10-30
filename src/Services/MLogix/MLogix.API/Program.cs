@@ -4,7 +4,7 @@ using MLogix.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDaikonApiDefaults();
+builder.Services.AddDaikonApiDefaults(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 

@@ -3,6 +3,7 @@ using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Screen.Application.BackgroundServices;
 using Screen.Application.Features.Commands.ClusterHitCollection;

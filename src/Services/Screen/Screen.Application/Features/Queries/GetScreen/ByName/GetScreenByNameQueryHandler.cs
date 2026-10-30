@@ -1,4 +1,5 @@
 
+using CQRS.Core.Exceptions;
 using AutoMapper;
 using CQRS.Core.Domain;
 using CQRS.Core.Extensions;
@@ -29,7 +30,8 @@ namespace Screen.Application.Features.Queries.GetScreen.ByName
         {
             try
             {
-                var screen = await _screenRepository.ReadScreenByName(request.Name);
+                var screen = await _screenRepository.ReadScreenByName(request.Name)
+                    ?? throw new ResourceNotFoundException("Screen", request.Name);
                 var screenVm = _mapper.Map<ScreenVM>(screen, opts => opts.Items["WithMeta"] = request.WithMeta);
 
                 var trackableEntities = new List<VMMeta> { screenVm };
@@ -38,6 +40,10 @@ namespace Screen.Application.Features.Queries.GetScreen.ByName
                 (screenVm.PageLastUpdatedDate, screenVm.PageLastUpdatedUser) = VMUpdateTracker.CalculatePageLastUpdated(trackableEntities);
 
                 return screenVm;
+            }
+            catch (ResourceNotFoundException)
+            {
+                throw; // 404, not an error
             }
             catch (Exception ex)
             {

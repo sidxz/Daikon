@@ -6,7 +6,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Identities/UserStore/UserStore.API/bin/Debug/net8.0/UserStore.API.dll",
+      "program": "${workspaceFolder}/Identities/UserStore/UserStore.API/bin/Debug/net10.0/UserStore.API.dll",
       "cwd": "${workspaceFolder}/Identities/UserStore/UserStore.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal",
@@ -16,7 +16,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/Gene/Gene.API/bin/Debug/net8.0/Gene.API.dll",
+      "program": "${workspaceFolder}/Services/Gene/Gene.API/bin/Debug/net10.0/Gene.API.dll",
       "cwd": "${workspaceFolder}/Services/Gene/Gene.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -26,7 +26,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/Target/Target.API/bin/Debug/net8.0/Target.API.dll",
+      "program": "${workspaceFolder}/Services/Target/Target.API/bin/Debug/net10.0/Target.API.dll",
       "cwd": "${workspaceFolder}/Services/Target/Target.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -36,7 +36,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/Screen/Screen.API/bin/Debug/net8.0/Screen.API.dll",
+      "program": "${workspaceFolder}/Services/Screen/Screen.API/bin/Debug/net10.0/Screen.API.dll",
       "cwd": "${workspaceFolder}/Services/Screen/Screen.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -46,7 +46,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/HitAssessment/HitAssessment.API/bin/Debug/net8.0/HitAssessment.API.dll",
+      "program": "${workspaceFolder}/Services/HitAssessment/HitAssessment.API/bin/Debug/net10.0/HitAssessment.API.dll",
       "cwd": "${workspaceFolder}/Services/HitAssessment/HitAssessment.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -56,7 +56,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/Project/Project.API/bin/Debug/net8.0/Project.API.dll",
+      "program": "${workspaceFolder}/Services/Project/Project.API/bin/Debug/net10.0/Project.API.dll",
       "cwd": "${workspaceFolder}/Services/Project/Project.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -66,7 +66,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/Horizon/Horizon.API/bin/Debug/net8.0/Horizon.API.dll",
+      "program": "${workspaceFolder}/Services/Horizon/Horizon.API/bin/Debug/net10.0/Horizon.API.dll",
       "cwd": "${workspaceFolder}/Services/Horizon/Horizon.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -76,7 +76,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/MLogix/MLogix.API/bin/Debug/net8.0/MLogix.API.dll",
+      "program": "${workspaceFolder}/Services/MLogix/MLogix.API/bin/Debug/net10.0/MLogix.API.dll",
       "cwd": "${workspaceFolder}/Services/MLogix/MLogix.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -86,7 +86,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/Questionnaire/Questionnaire.API/bin/Debug/net8.0/Questionnaire.API.dll",
+      "program": "${workspaceFolder}/Services/Questionnaire/Questionnaire.API/bin/Debug/net10.0/Questionnaire.API.dll",
       "cwd": "${workspaceFolder}/Services/Questionnaire/Questionnaire.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -96,7 +96,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/Comment/Comment.API/bin/Debug/net8.0/Comment.API.dll",
+      "program": "${workspaceFolder}/Services/Comment/Comment.API/bin/Debug/net10.0/Comment.API.dll",
       "cwd": "${workspaceFolder}/Services/Comment/Comment.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -106,7 +106,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/EventHistory/EventHistory.API/bin/Debug/net8.0/EventHistory.API.dll",
+      "program": "${workspaceFolder}/Services/EventHistory/EventHistory.API/bin/Debug/net10.0/EventHistory.API.dll",
       "cwd": "${workspaceFolder}/Services/EventHistory/EventHistory.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -116,7 +116,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/DocuStore/DocuStore.API/bin/Debug/net8.0/DocuStore.API.dll",
+      "program": "${workspaceFolder}/Services/DocuStore/DocuStore.API/bin/Debug/net10.0/DocuStore.API.dll",
       "cwd": "${workspaceFolder}/Services/DocuStore/DocuStore.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -126,7 +126,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/ApiGateways/SimpleGW/SimpleGW.API/bin/Debug/net8.0/SimpleGW.API.dll",
+      "program": "${workspaceFolder}/ApiGateways/SimpleGW/SimpleGW.API/bin/Debug/net10.0/SimpleGW.API.dll",
       "cwd": "${workspaceFolder}/ApiGateways/SimpleGW/SimpleGW.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -136,7 +136,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Extensions/Daikon.EventManagement/bin/Debug/net8.0/Daikon.EventManagement.dll",
+      "program": "${workspaceFolder}/Extensions/Daikon.EventManagement/bin/Debug/net10.0/Daikon.EventManagement.dll",
       "cwd": "${workspaceFolder}/Extensions/Daikon.EventManagement",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -146,7 +146,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Services/UserPreferences/UserPreferences.API/bin/Debug/net8.0/UserPreferences.API.dll",
+      "program": "${workspaceFolder}/Services/UserPreferences/UserPreferences.API/bin/Debug/net10.0/UserPreferences.API.dll",
       "cwd": "${workspaceFolder}/Services/UserPreferences/UserPreferences.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"
@@ -156,7 +156,7 @@
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build Solution",
-      "program": "${workspaceFolder}/Aggregators/Aggregators.API/bin/Debug/net8.0/Aggregators.API.dll",
+      "program": "${workspaceFolder}/Aggregators/Aggregators.API/bin/Debug/net10.0/Aggregators.API.dll",
       "cwd": "${workspaceFolder}/Aggregators/Aggregators.API",
       "envFile": "${workspaceFolder}/.env.local",
       "console": "integratedTerminal"

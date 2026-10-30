@@ -1,11 +1,18 @@
 
 using System.Diagnostics;
-using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace SimpleGW.API.Middlewares
 {
     public class RequestForwardingMiddleware
     {
+        // Zero trust in both directions: only these headers cross the gateway. Everything else the client sends
+        // (cookies, X-Forwarded-*, hop-by-hop, identity or trace headers) stays out of the services, and everything
+        // else a service returns (Server, internal URLs, hop-by-hop, CORS/caching headers the gateway owns) stays in.
+        private static readonly string[] ForwardedRequestHeaders = { "Authorization", "Accept", "x-api-version" };
+        private static readonly string[] ReturnedResponseHeaders = { "WWW-Authenticate", "Retry-After", "api-supported-versions", "api-deprecated-versions" };
+        private static readonly string[] ReturnedContentHeaders = { "Content-Type", "Content-Disposition", "Content-Language" };
+
         private readonly RequestDelegate _next;
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<RequestForwardingMiddleware> _logger;
@@ -41,35 +48,43 @@ namespace SimpleGW.API.Middlewares
                               ?? Activity.Current?.TraceId.ToString()
                               ?? context.TraceIdentifier;
 
-                proxiedRequest.Headers.TryAddWithoutValidation("trace-id", traceId);
+                proxiedRequest.Headers.TryAddWithoutValidation("trace-id", traceId); // the gateway's, never the client's
 
-                // Copy headers, excluding specific ones
-                foreach (var header in context.Request.Headers)
+                foreach (var name in ForwardedRequestHeaders)
                 {
-                    if (!header.Key.Equals("Host", StringComparison.OrdinalIgnoreCase) &&
-                        !header.Key.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
+                    if (context.Request.Headers.TryGetValue(name, out var values))
                     {
-                        proxiedRequest.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                        proxiedRequest.Headers.TryAddWithoutValidation(name, values.ToArray());
                     }
                 }
-                // set the Content-Type header to application/json for POST, PUT, and PATCH requests
-                if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
+
+                // Forward a body whenever the client sent one, for any method (some DELETE endpoints take a body)
+                if (context.Features.Get<IHttpRequestBodyDetectionFeature>()?.CanHaveBody == true)
                 {
                     proxiedRequest.Content = new StreamContent(context.Request.Body);
-                    proxiedRequest.Content.Headers.ContentType = new MediaTypeHeaderValue(context.Request.ContentType);
+                    proxiedRequest.Content.Headers.ContentLength = context.Request.ContentLength;
+                    if (context.Request.ContentType is { } contentType)
+                    {
+                        // Unvalidated so parameters (charset, multipart boundary) pass through unchanged
+                        proxiedRequest.Content.Headers.TryAddWithoutValidation("Content-Type", contentType);
+                    }
                 }
 
                 var response = await client.SendAsync(proxiedRequest, context.RequestAborted);
 
                 context.Response.StatusCode = (int)response.StatusCode;
-                context.Response.ContentType = "application/json";
-                foreach (var header in response.Headers)
+                foreach (var name in ReturnedResponseHeaders)
                 {
-                    if (!header.Key.Equals("Transfer-Encoding", StringComparison.OrdinalIgnoreCase) &&
-                        !header.Key.Equals("Content-Length", StringComparison.OrdinalIgnoreCase) &&
-                        !header.Key.Equals("Connection", StringComparison.OrdinalIgnoreCase))
+                    if (response.Headers.TryGetValues(name, out var values))
                     {
-                        context.Response.Headers[header.Key] = header.Value.ToArray();
+                        context.Response.Headers[name] = values.ToArray();
+                    }
+                }
+                foreach (var name in ReturnedContentHeaders)
+                {
+                    if (response.Content.Headers.TryGetValues(name, out var values))
+                    {
+                        context.Response.Headers[name] = values.ToArray();
                     }
                 }
 

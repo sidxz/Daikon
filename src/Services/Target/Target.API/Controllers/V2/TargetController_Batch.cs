@@ -2,6 +2,7 @@
 using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Target.Application.BatchOperations.BatchCommands.ImportOne;
 

@@ -9,6 +9,7 @@ using Gene.Application.BatchOperations.BatchQueries.DTOs;
 using Gene.Application.Features.Queries.GetGene;
 using Gene.Application.Features.Queries.GetGene.ById;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

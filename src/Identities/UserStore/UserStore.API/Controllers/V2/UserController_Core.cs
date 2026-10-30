@@ -1,8 +1,10 @@
 
 using System.Net;
 using CQRS.Core.Exceptions;
+using CQRS.Core.Extensions;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using UserStore.Application.Features.Commands.Users.AddUser;
 using UserStore.Application.Features.Commands.Users.DeleteUser;
@@ -63,7 +65,7 @@ namespace UserStore.API.Controllers.V2
         {
             foreach (var header in Request.Headers)
             {
-                _logger.LogInformation("{HeaderName}: {HeaderValue}", header.Key, header.Value);
+                _logger.LogInformation("{HeaderName}: {HeaderValue}", header.Key, header.LoggableValue());
             }
 
             try
@@ -96,27 +98,18 @@ namespace UserStore.API.Controllers.V2
             }
         }
 
-        // Get User By Id in Header 'AppUser-Id'
+        // Get the signed-in user, resolved from the bearer token (route name kept for existing clients)
         [HttpGet("header")]
         [ProducesResponseType(typeof(AppUserVM), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUserByHeaderId()
         {
-            _logger.LogInformation("*************** GetUserByHeaderId :::: Header: {HeaderName}: {HeaderValue}", "AppUser-Id", Request.Headers["AppUser-Id"]);
-            var id = Guid.Empty;
-            if (Request.Headers.TryGetValue("AppUser-Id", out var headerValue))
-            {
-                if (Guid.TryParse(headerValue, out var headerId))
-                {
-                    id = headerId;
-                }
-            }
-
+            var id = User.GetAppUserId();
             if (id == Guid.Empty)
             {
                 return BadRequest(new BaseResponse
                 {
-                    Message = "Invalid request. Header 'AppUser-Id' is missing or invalid"
+                    Message = "Invalid request. No signed-in user."
                 });
             }
 

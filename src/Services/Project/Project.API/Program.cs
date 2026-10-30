@@ -5,7 +5,7 @@ using Project.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDaikonApiDefaults(typeof(NewProjectCommandValidator).Assembly);
+builder.Services.AddDaikonApiDefaults(builder.Configuration, typeof(NewProjectCommandValidator).Assembly);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 

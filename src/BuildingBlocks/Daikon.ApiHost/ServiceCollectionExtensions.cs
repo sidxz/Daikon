@@ -7,8 +7,11 @@ using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.Versioning;
+using Asp.Versioning;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -16,8 +19,16 @@ namespace Daikon.ApiHost;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddDaikonApiDefaults(this IServiceCollection services, Assembly? validatorsAssembly = null)
+    public static IServiceCollection AddDaikonApiDefaults(this IServiceCollection services, IConfiguration configuration, Assembly? validatorsAssembly = null)
     {
+        // Every endpoint requires a valid bearer token unless it opts out with AllowAnonymous (only /health does).
+        services.AddDaikonAuthentication(configuration);
+        services.AddAuthorization(options => options.FallbackPolicy = options.DefaultPolicy);
+        services.AddMemoryCache();
+        services.AddHttpClient();
+        services.TryAddScoped<IAppUserResolver, UserStoreAppUserResolver>();
+        services.Configure<KestrelServerOptions>(options => options.AddServerHeader = false);
+
         services.AddApiVersioning(opt =>
         {
             opt.DefaultApiVersion = new ApiVersion(1, 0);
@@ -26,9 +37,9 @@ public static class ServiceCollectionExtensions
             opt.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
                                                             new HeaderApiVersionReader("x-api-version"),
                                                             new MediaTypeApiVersionReader("x-api-version"));
-        });
-
-        services.AddVersionedApiExplorer(setup =>
+        })
+        .AddMvc()                       // controller support; without it [ApiVersion] on controllers is ignored
+        .AddApiExplorer(setup =>
         {
             setup.GroupNameFormat = "'v'VVV";
             setup.SubstituteApiVersionInUrl = true;

@@ -4,6 +4,7 @@ using CQRS.Core.Responses;
 using Gene.Application.Features.Command.DeleteCrispriStrain;
 using Gene.Application.Features.Command.NewCrispriStrain;
 using Gene.Application.Features.Command.UpdateCrispriStrain;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

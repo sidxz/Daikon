@@ -1,5 +1,6 @@
 
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UserStore.API.Controllers.V1

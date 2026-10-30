@@ -6,6 +6,7 @@ using Gene.Application.Features.Command.DeleteResistanceMutation;
 using Gene.Application.Features.Command.NewResistanceMutation;
 using Gene.Application.Features.Command.UpdateResistanceMutation;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

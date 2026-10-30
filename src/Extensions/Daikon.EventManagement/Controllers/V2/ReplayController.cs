@@ -1,4 +1,5 @@
 using Daikon.EventManagement.Services;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Daikon.EventManagement.Controllers.V2

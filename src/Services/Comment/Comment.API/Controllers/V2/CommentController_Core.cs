@@ -3,6 +3,7 @@ using System.Net;
 using CQRS.Core.Exceptions;
 using CQRS.Core.Responses;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Comment.Application.Features.Commands.NewComment;
 using Comment.Application.Features.Commands.UpdateComment;

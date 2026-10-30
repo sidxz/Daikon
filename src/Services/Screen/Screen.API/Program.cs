@@ -5,7 +5,7 @@ using Screen.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDaikonApiDefaults(typeof(NewScreenCommandValidator).Assembly);
+builder.Services.AddDaikonApiDefaults(builder.Configuration, typeof(NewScreenCommandValidator).Assembly);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureService(builder.Configuration);
 

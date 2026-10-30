@@ -9,6 +9,7 @@ using Gene.Application.Features.Queries.GetStrain.ById;
 using Gene.Application.Features.Queries.GetStrain.ByName;
 using Gene.Application.Features.Queries.GetStrainsList;
 using MediatR;
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gene.API.Controllers.V2

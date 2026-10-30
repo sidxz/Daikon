@@ -1,0 +1,15 @@
+<Project>
+  <!-- NuGet vulnerability audit of direct and transitive packages; CI turns high and critical findings into errors
+       (test job in .gitlab-ci.yml). -->
+  <PropertyGroup>
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Accepted until 2027-01-31, the same expiry as its .trivyignore entry: AutoMapper 12 DoS via uncontrolled recursion
+         (CVE-2026-32933). The fixed versions (15.1.1+) need a commercial licence; by then, buy it, replace AutoMapper,
+         or re-accept with a new date. -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-rvv3-g6hj-g44x" />
+  </ItemGroup>
+</Project>
