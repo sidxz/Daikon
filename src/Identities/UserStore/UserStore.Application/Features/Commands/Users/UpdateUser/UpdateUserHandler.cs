@@ -83,6 +83,10 @@ namespace UserStore.Application.Features.Commands.Users.UpdateUser
             }
 
             _mapper.Map(request, user);
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                user.NormalizedEmail = user.Email.ToUpperInvariant(); // sign-in compares the token email against this
+            }
 
 
 
