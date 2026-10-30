@@ -22,6 +22,24 @@ public static class AuthenticationExtensions
                 RequireKeys(configuration.GetSection("EntraID"), "Instance", "Domain", "TenantId", "Audience", "ClientId");
                 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi(configuration, "EntraID");
+                // Microsoft.Identity.Web accepts a token with either "scp" or "roles". DAIKON serves signed-in users only, so a
+                // delegated access token ("scp") is required: an ID token of the same app registration carries "roles" but no "scp".
+                services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+                {
+                    options.Events ??= new JwtBearerEvents();
+                    var validated = options.Events.OnTokenValidated;
+                    options.Events.OnTokenValidated = async context =>
+                    {
+                        if (validated is not null)
+                        {
+                            await validated(context);
+                        }
+                        if (context.Result is null && context.Principal?.HasClaim(c => c.Type is ClaimConstants.Scp or ClaimConstants.Scope && !string.IsNullOrWhiteSpace(c.Value)) != true)
+                        {
+                            context.Fail("Not a delegated access token (no scp claim)");
+                        }
+                    };
+                });
                 break;
 
             case "KeyCloak":

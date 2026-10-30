@@ -92,6 +92,21 @@ public class AuthenticationTests
         Assert.True(response.StatusCode == expected, $"{tokenCase}: {(int)response.StatusCode} {response.Headers.WwwAuthenticate}");
     }
 
+    [Fact]
+    public async Task An_Entra_id_token_with_app_roles_is_not_an_access_token()
+    {
+        // As deployed, the API's audience is its client id, which is also the audience of the sign-in app's ID tokens.
+        // Microsoft.Identity.Web accepts either "scp" or "roles"; DAIKON only serves signed-in users, so only "scp" counts.
+        var clientIdAudience = new Dictionary<string, string?>(EntraIdConfig) { ["EntraID:Audience"] = "22222222-2222-2222-2222-222222222222" };
+        var client = await StartService(clientIdAudience, UseLocalSigningKey(EntraIssuer));
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/api/v2/whoami");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", EntraToken(
+            audience: "22222222-2222-2222-2222-222222222222", scope: null, extra: new() { ["roles"] = new[] { "Daikon.User" } }));
+
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.SendAsync(request)).StatusCode);
+    }
+
     public static TheoryData<string?, HttpStatusCode> KeyCloakTokenTypes => new()
     {
         { "Bearer", HttpStatusCode.OK },
