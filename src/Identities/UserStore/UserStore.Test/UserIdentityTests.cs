@@ -104,6 +104,7 @@ public class UserIdentityTests
 
         await Assert.ThrowsAsync<AccountLinkingRefusedException>(() =>
             handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default));
+        users.Verify(r => r.LinkIdentity(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
         users.Verify(r => r.UpdateUser(It.IsAny<AppUser>()), Times.Never);
     }
 
@@ -113,6 +114,38 @@ public class UserIdentityTests
         var users = new Mock<IAppUserRepository>();
         users.Setup(r => r.GetUserByEmail("ada@example.org")).ReturnsAsync(User(entraObjectId: null));
         users.Setup(r => r.GetUserByEntraObjectId(Oid)).ReturnsAsync(User());
+        var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
+
+        await Assert.ThrowsAsync<AccountLinkingRefusedException>(() =>
+            handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default));
+        users.Verify(r => r.LinkIdentity(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
+        users.Verify(r => r.UpdateUser(It.IsAny<AppUser>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task First_sign_in_records_the_identity_with_one_conditional_update()
+    {
+        // Only the identity fields are written, conditionally; the record is never replaced from the stale read
+        var account = User(entraObjectId: null);
+        var users = new Mock<IAppUserRepository>();
+        users.Setup(r => r.GetUserByEmail("ada@example.org")).ReturnsAsync(account);
+        users.Setup(r => r.LinkIdentity(account.Id, Oid, null)).ReturnsAsync(true);
+        var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
+
+        await handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default);
+
+        users.Verify(r => r.LinkIdentity(account.Id, Oid, null), Times.Once);
+        users.Verify(r => r.UpdateUser(It.IsAny<AppUser>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task A_lock_or_link_applied_after_the_read_wins_over_the_sign_in()
+    {
+        // The conditional update matches nothing: the account was locked, linked to another identity or deleted meanwhile
+        var account = User(entraObjectId: null);
+        var users = new Mock<IAppUserRepository>();
+        users.Setup(r => r.GetUserByEmail("ada@example.org")).ReturnsAsync(account);
+        users.Setup(r => r.LinkIdentity(account.Id, Oid, null)).ReturnsAsync(false);
         var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
 
         await Assert.ThrowsAsync<AccountLinkingRefusedException>(() =>
@@ -153,7 +186,9 @@ public class UserIdentityTests
 
         await handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default);
 
-        users.Verify(r => r.UpdateUser(It.Is<AppUser>(u => u.EntraObjectId == Oid)), Times.Once);
+        // Nothing to record and nothing rewritten
+        users.Verify(r => r.LinkIdentity(It.IsAny<Guid>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
+        users.Verify(r => r.UpdateUser(It.IsAny<AppUser>()), Times.Never);
     }
 
     [Fact]
@@ -166,12 +201,14 @@ public class UserIdentityTests
         var users = new Mock<IAppUserRepository>();
         users.Setup(r => r.GetUserByEmail("ada@example.org")).ReturnsAsync(account);
         users.Setup(r => r.GetUserByEntraObjectId(Oid)).ReturnsAsync(alreadyLinked);
+        users.Setup(r => r.LinkIdentity(account.Id, Oid, null)).ReturnsAsync(true);
         var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
 
         await handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default);
 
-        // Saved with the id in place, never with the stale null
-        users.Verify(r => r.UpdateUser(It.Is<AppUser>(u => u.Id == account.Id && u.EntraObjectId == Oid)), Times.Once);
+        // Recorded with the id (the conditional update accepts an identical existing value); nothing replaced from the stale read
+        users.Verify(r => r.LinkIdentity(account.Id, Oid, null), Times.Once);
+        users.Verify(r => r.UpdateUser(It.IsAny<AppUser>()), Times.Never);
     }
 
     private static DefaultHttpContext ContextFor(string oid) => new()

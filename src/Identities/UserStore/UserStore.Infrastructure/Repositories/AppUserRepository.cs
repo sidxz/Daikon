@@ -133,6 +133,36 @@ namespace UserStore.Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> LinkIdentity(Guid userId, string? entraObjectId, string? oidcSub)
+        {
+            var f = Builders<AppUser>.Filter;
+            var filter = f.Eq(u => u.Id, userId) & f.Eq(u => u.IsUserLocked, false);
+            var update = Builders<AppUser>.Update
+                .Set(u => u.IsOIDCConnected, true)
+                .Set(u => u.OIDCConnectionDate, DateTime.UtcNow);
+            if (entraObjectId is not null)
+            {
+                filter &= f.Eq(u => u.EntraObjectId, null!) | f.Eq(u => u.EntraObjectId, entraObjectId);
+                update = update.Set(u => u.EntraObjectId, entraObjectId);
+            }
+            if (oidcSub is not null)
+            {
+                filter &= f.Eq(u => u.OIDCSub, null!) | f.Eq(u => u.OIDCSub, oidcSub);
+                update = update.Set(u => u.OIDCSub, oidcSub);
+            }
+            try
+            {
+                // One conditional write: nothing else on the record is rewritten, and a concurrent lock or link wins
+                var result = await _appUserCollection.UpdateOneAsync(filter, update);
+                return result.MatchedCount == 1;
+            }
+            catch (MongoException ex)
+            {
+                _logger.LogError(ex, "An error occurred while linking the identity of user {UserId}", userId);
+                throw new RepositoryException(nameof(AppUserRepository), "Error linking identity", ex);
+            }
+        }
+
         public async Task UpdateUser(AppUser user)
         {
             ArgumentNullException.ThrowIfNull(user);

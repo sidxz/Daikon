@@ -9,7 +9,7 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
     /// <summary>
     /// Handles OAuth2 connection requests for first time sign in
     /// The user must exist in the database already
-    /// Depending on the request, the user's EntraObjectId and/or OIDCSub will be updated
+    /// Depending on the request, the user's EntraObjectId and/or OIDCSub will be recorded
     /// If duplicate EntraObjectId or OIDCSub is detected, i.e. another user already has the same EntraObjectId or OIDCSub, the request will be rejected
     /// </summary>
     public class OAuth2ConnectHandler : IRequestHandler<OAuth2ConnectCommand, Unit>
@@ -30,10 +30,20 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
             ValidateEmail(request.Email);
             var user = await GetUserByEmail(request.Email);
 
-            await HandleEntraObjectId(request, user);
-            await HandleOIDCSub(request, user);
+            var entraObjectId = await IdentityToRecord(user, user.EntraObjectId, request.EntraObjectId, "EntraObjectId", _appUserRepository.GetUserByEntraObjectId);
+            var oidcSub = await IdentityToRecord(user, user.OIDCSub, request.OIDCSub, "OIDCSub", _appUserRepository.GetUserByOIDCSub);
+            if (entraObjectId is null && oidcSub is null)
+            {
+                return Unit.Value; // already linked to this identity
+            }
 
-            await _appUserRepository.UpdateUser(user);
+            // One conditional update of the identity fields only. It matches nothing if the account was locked, linked to
+            // another identity or deleted since it was read, and it never rewrites the rest of the record from that read.
+            if (!await _appUserRepository.LinkIdentity(user.Id, entraObjectId, oidcSub))
+            {
+                _logger.LogWarning("Account {UserId} changed while linking: locked, linked elsewhere or deleted", user.Id);
+                throw new AccountLinkingRefusedException("Account changed during sign-in");
+            }
 
             return Unit.Value;
         }
@@ -55,81 +65,37 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
                 _logger.LogWarning("User not found: {Email}", email);
                 throw new AccountLinkingRefusedException("User not found");
             }
-
             return user;
         }
 
         /// <summary>
-        /// Handles the assignment of EntraObjectId to the user if provided and not already set.
+        /// The identity value to record for this attribute, or null when there is nothing to record: not in the request,
+        /// or the account already carries this value (a concurrent first sign-in got here first).
+        /// Refuses when the account is linked to a different identity, or the identity belongs to another account.
         /// </summary>
-        /// <param name="request">The OAuth2 connect command containing the EntraObjectId.</param>
-        /// <param name="user">The user to update.</param>
-        private async Task HandleEntraObjectId(OAuth2ConnectCommand request, AppUser user)
+        private async Task<string?> IdentityToRecord(AppUser user, string? current, string? requested, string attributeName, Func<string, Task<AppUser>> getUserByAttribute)
         {
-            if (!string.IsNullOrEmpty(request.EntraObjectId))
+            if (string.IsNullOrEmpty(requested))
             {
-                await UpdateUserAttribute(
-                    user.EntraObjectId,
-                    request.EntraObjectId,
-                    user,
-                    "EntraObjectId",
-                    async () => await _appUserRepository.GetUserByEntraObjectId(request.EntraObjectId));
+                return null;
             }
-        }
-
-        /// <summary>
-        /// Handles the assignment of OIDCSub to the user if provided and not already set.
-        /// </summary>
-        /// <param name="request">The OAuth2 connect command containing the OIDCSub.</param>
-        /// <param name="user">The user to update.</param>
-
-        private async Task HandleOIDCSub(OAuth2ConnectCommand request, AppUser user)
-        {
-            if (!string.IsNullOrEmpty(request.OIDCSub))
+            if (!string.IsNullOrEmpty(current))
             {
-                await UpdateUserAttribute(
-                    user.OIDCSub,
-                    request.OIDCSub,
-                    user,
-                    "OIDCSub",
-                    async () => await _appUserRepository.GetUserByOIDCSub(request.OIDCSub));
-            }
-        }
-
-        /// <summary>
-        /// Generic method to update a user attribute if not already set and ensure its uniqueness across users.
-        /// </summary>
-        /// <typeparam name="T">The type of the attribute to update.</typeparam>
-        /// <param name="currentUserAttributeValue">The current value of the user's attribute.</param>
-        /// <param name="newUserAttributeValue">The new value for the attribute.</param>
-        /// <param name="user">The user to update.</param>
-        /// <param name="attributeName">The name of the attribute to update.</param>
-        /// <param name="getUserByAttribute">A function to retrieve a user by the attribute's value to ensure uniqueness.</param>
-
-        private async Task UpdateUserAttribute<T>(T currentUserAttributeValue, T newUserAttributeValue, AppUser user, string attributeName, Func<Task<AppUser>> getUserByAttribute)
-        {
-            if (!EqualityComparer<T>.Default.Equals(currentUserAttributeValue, default(T)))
-            {
-                if (EqualityComparer<T>.Default.Equals(currentUserAttributeValue, newUserAttributeValue))
+                if (current == requested)
                 {
-                    return; // already linked to this identity: a concurrent first sign-in got here first
+                    return null;
                 }
-                _logger.LogWarning($"User already has a {attributeName}: {currentUserAttributeValue}");
+                _logger.LogWarning("User already has a {AttributeName}: {Current}", attributeName, current);
                 throw new AccountLinkingRefusedException($"User already has a {attributeName}");
             }
-
-            var existingUser = await getUserByAttribute();
+            var existingUser = await getUserByAttribute(requested);
             if (existingUser != null && existingUser.Id != user.Id)
             {
-                _logger.LogWarning($"{attributeName} already exists: {newUserAttributeValue}");
+                _logger.LogWarning("{AttributeName} already exists: {Requested}", attributeName, requested);
                 throw new AccountLinkingRefusedException($"{attributeName} already exists");
             }
-            // New, or this same account linked concurrently and read before that write: (re)apply the value so the save keeps it
-
-            typeof(AppUser).GetProperty(attributeName).SetValue(user, newUserAttributeValue);
-            // update user IsOIDCConnected flag and OIDCConnectionDate
-            user.IsOIDCConnected = true;
-            user.OIDCConnectionDate = DateTime.UtcNow;
+            // New, or this same account linked concurrently and read before that write: record it (the update accepts an identical value)
+            return requested;
         }
     }
 }

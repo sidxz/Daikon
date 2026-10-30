@@ -14,6 +14,9 @@ namespace UserStore.Application.Contracts.Persistence
 
         Task<List<AppUser>> GetUsersByRole(Guid roleId);
         Task UpdateUser(AppUser user);
+        // First sign-in: records the token identity on an unlocked account whose identity fields are still unset (or already
+        // this value), touching nothing else. False when the account changed meanwhile: locked, linked elsewhere, or gone.
+        Task<bool> LinkIdentity(Guid userId, string? entraObjectId, string? oidcSub);
         Task DeleteUser(Guid id);
     }
 }
