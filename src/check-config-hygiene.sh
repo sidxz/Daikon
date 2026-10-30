@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Configuration and secret hygiene: fails when credentials or environment-specific configuration would land in git
 # or inside an image. Everything environment-specific (tenant, client id, origins, connection strings, service URLs)
 # belongs in the deployment's environment variables, never in tracked files or image layers.
@@ -7,7 +7,8 @@
 #   src/check-config-hygiene.sh image <image>    # a built image's /app; CI runs this before pushing
 #
 # Allowed: ${VAR} templates and empty values in compose/YAML, and the placeholder ids the tests use.
-set -uo pipefail
+# POSIX sh on purpose: CI's build jobs run it inside the Alpine docker image, which has no bash.
+set -u
 cd "$(dirname "$0")/.."
 
 fail=0
@@ -52,10 +53,9 @@ image() {
   local never
   never=$(cd "$dir" && find app \( -name '.env*' -o -name '*.pfx' -o -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name 'secrets*.json' -o -name 'launchSettings.json' -o -name '*.user' \) || true)
   [ -n "$never" ] && say "$ref: must not be in the image: $(printf '%s ' $never)"
-  pushd "$dir" >/dev/null
+  cd "$dir"
   for f in $(find app -name 'appsettings*.json'); do check_appsettings "$f"; done
-  popd >/dev/null
-  rm -rf "$dir"
+  cd / && rm -rf "$dir"
 }
 
 case "${1:-}" in
