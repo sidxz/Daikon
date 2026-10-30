@@ -12,12 +12,24 @@ namespace UserStore.Infrastructure.Repositories
     {
         private readonly IMongoCollection<AppUser> _appUserCollection;
         private readonly ILogger<AppUserRepository> _logger;
+        private static int _emailIndexEnsured; // the index is created once per process, not once per request-scoped instance
         public AppUserRepository(IConfiguration configuration, ILogger<AppUserRepository> logger)
         {
             var client = new MongoClient(configuration.GetValue<string>("UserStoreMongoDbSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("UserStoreMongoDbSettings:DatabaseName"));
             _appUserCollection = database.GetCollection<AppUser>(configuration.GetValue<string>("UserStoreMongoDbSettings:AppUserCollectionName"));
-            _appUserCollection.Indexes.CreateOne(new CreateIndexModel<AppUser>(Builders<AppUser>.IndexKeys.Ascending(t => t.NormalizedEmail), new CreateIndexOptions { Unique = true }));
+            if (Interlocked.CompareExchange(ref _emailIndexEnsured, 1, 0) == 0)
+            {
+                try
+                {
+                    _appUserCollection.Indexes.CreateOne(new CreateIndexModel<AppUser>(Builders<AppUser>.IndexKeys.Ascending(t => t.NormalizedEmail), new CreateIndexOptions { Unique = true }));
+                }
+                catch
+                {
+                    Interlocked.Exchange(ref _emailIndexEnsured, 0); // retried by the next request
+                    throw;
+                }
+            }
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

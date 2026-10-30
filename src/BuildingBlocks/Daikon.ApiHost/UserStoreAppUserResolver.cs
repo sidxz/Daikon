@@ -28,7 +28,9 @@ public class UserStoreAppUserResolver : IAppUserResolver
         using var request = new HttpRequestMessage(HttpMethod.Get, _currentUserUrl);
         request.Headers.TryAddWithoutValidation("Authorization", context.Request.Headers.Authorization.ToString());
 
-        using var response = await _httpClientFactory.CreateClient().SendAsync(request, context.RequestAborted);
+        var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(10); // a slow UserStore is an error here, not a 100 s stall per request
+        using var response = await client.SendAsync(request, context.RequestAborted);
         if (response.StatusCode is HttpStatusCode.Unauthorized or HttpStatusCode.NotFound)
         {
             // Usually "not a DAIKON user, or locked". If every user lands here, UserStore itself is rejecting the token:
