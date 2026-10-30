@@ -1,7 +1,5 @@
 using System.Net;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 namespace SimpleGW.Test;
@@ -9,20 +7,9 @@ namespace SimpleGW.Test;
 // Boots the real gateway (Program.cs middleware order, CORS policy, auth) in memory
 public class GatewayPipelineTests : IDisposable
 {
-    private const string Frontend = "https://daikon.example.org";
+    private const string Frontend = TestGateway.Frontend;
 
-    private readonly WebApplicationFactory<Program> _gateway = new WebApplicationFactory<Program>().WithWebHostBuilder(host =>
-    {
-        host.UseEnvironment("Testing"); // keep a developer's local appsettings.Development.json out of the test
-        host.UseSetting("OIDCProvider", "EntraID");
-        host.UseSetting("EntraID:Instance", "https://login.microsoftonline.com/");
-        host.UseSetting("EntraID:Domain", "example.onmicrosoft.com");
-        host.UseSetting("EntraID:TenantId", "11111111-1111-1111-1111-111111111111");
-        host.UseSetting("EntraID:ClientId", "22222222-2222-2222-2222-222222222222");
-        host.UseSetting("EntraID:Audience", "api://22222222-2222-2222-2222-222222222222");
-        host.UseSetting("Cors:AllowedOrigins", Frontend);
-        host.ConfigureLogging(logging => logging.ClearProviders()); // the health poller can't reach any service here
-    });
+    private readonly WebApplicationFactory<Program> _gateway = new WebApplicationFactory<Program>().WithWebHostBuilder(host => TestGateway.Configure(host));
 
     public void Dispose() => _gateway.Dispose();
 

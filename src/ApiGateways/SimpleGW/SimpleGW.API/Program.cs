@@ -23,6 +23,13 @@ try
     // Same token validation as every downstream service (OIDCProvider selects EntraID or KeyCloak)
     builder.Services.AddDaikonAuthentication(builder.Configuration);
     builder.Services.AddAuthorization();
+    // The token's owner must also be a DAIKON user, resolved through UserStore and cached per subject, as every service does
+    builder.Services.AddMemoryCache();
+    builder.Services.AddScoped<IAppUserResolver, UserStoreAppUserResolver>();
+    if (string.IsNullOrWhiteSpace(builder.Configuration["UserStoreAPI:Url"]))
+    {
+        throw new InvalidOperationException("UserStoreAPI:Url configuration is missing or empty.");
+    }
     builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
     builder.Services.AddHttpContextAccessor();
@@ -63,6 +70,7 @@ try
 
     app.UseMiddleware<RequestTimingMiddleware>();
     app.UseMiddleware<AuthenticationValidatorMiddleware>();
+    app.UseMiddleware<AppUserMiddleware>(); // valid token but not a DAIKON user: 401 here, nothing is forwarded
 
     // Signed-in users only: it lists internal services, versions and errors
     app.Map("/health/services", healthApp =>
