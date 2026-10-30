@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Enable once per clone:  git config core.hooksPath .githooks
+# Refuses a commit that would add a secret (gitleaks, if installed) or environment-specific configuration (see
+# src/check-config-hygiene.sh). CI runs the same checks on lab-main, and on every built image before it is pushed.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner
+fi
+src/check-config-hygiene.sh repo

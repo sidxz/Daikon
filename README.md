@@ -18,6 +18,8 @@ DAIKON is developed using .NET Core and React JS, employing a client-server arch
 ## Contribution
 Contributions are welcome! Please fork the repository and create a pull request with your changes. Ensure that your code follows the project's coding standards and includes appropriate tests.
 
+Configuration and secrets never go into git or into images: everything environment-specific comes from environment variables at run time. `src/check-config-hygiene.sh repo` checks the tracked files and `src/check-config-hygiene.sh image <image>` checks a built image; CI runs both, plus Trivy's secret scanner, before any image is pushed. Run `git config core.hooksPath .githooks` once per clone to get the same check, plus gitleaks, on every commit.
+
 ## License
 DAIKON is released under the MIT License. See LICENSE for more details.
 

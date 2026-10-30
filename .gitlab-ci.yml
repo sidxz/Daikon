@@ -44,6 +44,8 @@ test:
   script:
     # No server-side response caching anywhere: it would serve one user's data to another
     - "! grep -rnE --include='*.cs' --exclude-dir=obj --exclude-dir=bin 'AddOutputCache|UseOutputCache|AddResponseCaching|UseResponseCaching|\\[OutputCache|\\[ResponseCache' ."
+    # No credentials or environment-specific configuration in tracked files (the same script checks every built image below)
+    - ./check-config-hygiene.sh repo
     - dotnet restore daikon.sln -warnaserror:NU1903,NU1904
     - dotnet test BuildingBlocks/Daikon.ApiHost.Test/Daikon.ApiHost.Test.csproj
     - dotnet test ApiGateways/SimpleGW/SimpleGW.Test/SimpleGW.Test.csproj
@@ -117,6 +119,10 @@ build:
     - docker cp trivy:/usr/local/bin/trivy /usr/local/bin/trivy
     - docker rm trivy >/dev/null
     - docker save "$IMAGE" -o image.tar
+    # Nothing secret or environment-specific inside the image: the tracked-config rules on /app, then Trivy's secret
+    # scanner. Both block the push, unlike the vulnerability scan below while TRIVY_EXIT_CODE is "0".
+    - ./check-config-hygiene.sh image "$IMAGE"
+    - trivy image --scanners secret --severity CRITICAL,HIGH,MEDIUM --exit-code 1 --input image.tar
     - trivy image --input image.tar --output "trivy-${SERVICE}.txt" || TRIVY_STATUS=$?
     - rm image.tar
     - cat "trivy-${SERVICE}.txt"
