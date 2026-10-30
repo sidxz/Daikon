@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Logging;
 using SimpleGW.API.Middlewares;
 using SimpleGW.API.Services;
+using CQRS.Core.Middlewares;
 using Daikon.ApiHost;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +63,8 @@ try
 
     // No-store and security headers on every response, including CORS preflights and errors
     app.UseMiddleware<SecurityHeadersMiddleware>();
+    // A failure while resolving the user (UserStore unreachable) is a 503 with a generic body, never a raw 500
+    app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 
     app.UseRouting();
     app.UseCors("Frontend");

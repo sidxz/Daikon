@@ -25,6 +25,21 @@ public class GatewayUserGateTests
     }
 
     [Fact]
+    public async Task UserStore_being_down_is_a_503_with_the_security_headers_and_no_details()
+    {
+        var service = new CountingService();
+        using var gateway = Gateway<TestGateway.UserStoreDown>(service);
+
+        var response = await gateway.CreateClient().SendAsync(Authenticated("/v2/gene"));
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        Assert.Equal("no-store, max-age=0", response.Headers.CacheControl!.ToString());
+        Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").Single());
+        Assert.DoesNotContain("userstore-api", await response.Content.ReadAsStringAsync()); // no internal names or stack traces
+        Assert.Equal(0, service.Calls);
+    }
+
+    [Fact]
     public async Task A_daikon_user_is_forwarded()
     {
         var service = new CountingService();

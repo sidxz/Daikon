@@ -70,4 +70,10 @@ internal static class TestGateway
     {
         public Task<AppUserIdentity?> Resolve(HttpContext context) => Task.FromResult<AppUserIdentity?>(null);
     }
+
+    // UserStore unreachable or failing, as UserStoreAppUserResolver reports it
+    public class UserStoreDown : IAppUserResolver
+    {
+        public Task<AppUserIdentity?> Resolve(HttpContext context) => throw new HttpRequestException("Connection refused (userstore-api:80)");
+    }
 }
