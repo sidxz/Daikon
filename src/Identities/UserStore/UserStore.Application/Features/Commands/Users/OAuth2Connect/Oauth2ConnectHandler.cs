@@ -110,16 +110,21 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
         {
             if (!EqualityComparer<T>.Default.Equals(currentUserAttributeValue, default(T)))
             {
+                if (EqualityComparer<T>.Default.Equals(currentUserAttributeValue, newUserAttributeValue))
+                {
+                    return; // already linked to this identity: a concurrent first sign-in got here first
+                }
                 _logger.LogWarning($"User already has a {attributeName}: {currentUserAttributeValue}");
                 throw new AccountLinkingRefusedException($"User already has a {attributeName}");
             }
 
             var existingUser = await getUserByAttribute();
-            if (existingUser != null)
+            if (existingUser != null && existingUser.Id != user.Id)
             {
                 _logger.LogWarning($"{attributeName} already exists: {newUserAttributeValue}");
                 throw new AccountLinkingRefusedException($"{attributeName} already exists");
             }
+            // New, or this same account linked concurrently and read before that write: (re)apply the value so the save keeps it
 
             typeof(AppUser).GetProperty(attributeName).SetValue(user, newUserAttributeValue);
             // update user IsOIDCConnected flag and OIDCConnectionDate

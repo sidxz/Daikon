@@ -143,6 +143,37 @@ public class UserIdentityTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => new LocalAppUserResolver(mediator.Object).Resolve(ContextFor(Oid)));
     }
 
+    [Fact]
+    public async Task Linking_the_same_entra_id_again_is_not_a_refusal()
+    {
+        // Several services resolve a new user at once on first sign-in; a later one sees the account already linked to this id
+        var users = new Mock<IAppUserRepository>();
+        users.Setup(r => r.GetUserByEmail("ada@example.org")).ReturnsAsync(User(entraObjectId: Oid));
+        var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
+
+        await handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default);
+
+        users.Verify(r => r.UpdateUser(It.Is<AppUser>(u => u.EntraObjectId == Oid)), Times.Once);
+    }
+
+    [Fact]
+    public async Task Linking_tolerates_the_same_account_being_linked_concurrently()
+    {
+        // Stale read: this account shows no Entra id yet, but the uniqueness lookup finds this same account already linked
+        var account = User(entraObjectId: null);
+        var alreadyLinked = User(entraObjectId: Oid);
+        alreadyLinked.Id = account.Id;
+        var users = new Mock<IAppUserRepository>();
+        users.Setup(r => r.GetUserByEmail("ada@example.org")).ReturnsAsync(account);
+        users.Setup(r => r.GetUserByEntraObjectId(Oid)).ReturnsAsync(alreadyLinked);
+        var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
+
+        await handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default);
+
+        // Saved with the id in place, never with the stale null
+        users.Verify(r => r.UpdateUser(It.Is<AppUser>(u => u.Id == account.Id && u.EntraObjectId == Oid)), Times.Once);
+    }
+
     private static DefaultHttpContext ContextFor(string oid) => new()
     {
         User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimConstants.ObjectId, oid) }, "Bearer")),
