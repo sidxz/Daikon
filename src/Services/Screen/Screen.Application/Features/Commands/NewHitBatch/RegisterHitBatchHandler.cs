@@ -42,6 +42,7 @@ namespace Screen.Application.Features.Commands.NewHitBatch
         {
             var batches = request.Commands.Batch(500); // In case of large input
             var addedHitsResults = new List<HitVM>();
+            var failedCollections = 0;
 
             foreach (var batch in batches)
             {
@@ -101,6 +102,7 @@ namespace Screen.Application.Features.Commands.NewHitBatch
                     try
                     {
                         var aggregate = await _hitCollectionEventSourcingHandler.GetByAsyncId(hitCollectionId);
+                        var groupResults = new List<HitVM>(); // reported only once SaveAsync has succeeded
 
                         foreach (var cmd in group)
                         {
@@ -127,21 +129,30 @@ namespace Screen.Application.Features.Commands.NewHitBatch
                             HitVM hitVM = _mapper.Map<HitVM>(hitRes, opts => opts.Items["WithMeta"] = false);
                             if (molReg != null)
                                 hitVM.Molecule = _mapper.Map<MoleculeVM>(molReg, opts => opts.Items["WithMeta"] = false);
-                            addedHitsResults.Add(hitVM);
+                            groupResults.Add(hitVM);
                         }
 
                         await _hitCollectionEventSourcingHandler.SaveAsync(aggregate);
+                        addedHitsResults.AddRange(groupResults);
                         _logger.LogInformation("✅ Saved {Count} hits for HitCollection {Id}", group.Count(), hitCollectionId);
                     }
                     catch (AggregateNotFoundException ex)
                     {
                         _logger.LogWarning(ex, "⚠️ Aggregate not found for HitCollectionId: {Id}", hitCollectionId);
+                        failedCollections++;
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "❌ Failed to register hits for HitCollectionId: {Id}", hitCollectionId);
+                        failedCollections++;
                     }
                 }
+            }
+
+            if (addedHitsResults.Count == 0 && failedCollections > 0)
+            {
+                // Nothing was saved: an error, not a 201 with an empty list
+                throw new InvalidOperationException($"No hits were saved: {failedCollections} hit collection(s) failed; see the service log.");
             }
 
             return addedHitsResults;

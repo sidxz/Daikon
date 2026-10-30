@@ -48,6 +48,7 @@ test:
     - dotnet test BuildingBlocks/Daikon.ApiHost.Test/Daikon.ApiHost.Test.csproj
     - dotnet test ApiGateways/SimpleGW/SimpleGW.Test/SimpleGW.Test.csproj
     - dotnet test Identities/UserStore/UserStore.Test/UserStore.Test.csproj
+    - dotnet test Services/Screen/Screen.Test/Screen.Test.csproj
 
 # Secrets in the commits being pushed (not older history, which still holds a since-replaced Neo4j password).
 secrets:
