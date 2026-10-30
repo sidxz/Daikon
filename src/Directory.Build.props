@@ -1,11 +1,9 @@
 <Project>
-  <!-- NuGet vulnerability audit of the packages we reference directly; CI turns high and critical findings into errors
-       (test job in .gitlab-ci.yml). Not "all": on .NET 8 that also flags framework packages (System.Formats.Asn1,
-       System.Security.Cryptography.*, ...) whose patched shared-framework copies are what actually run. The image scan
-       (Trivy) covers everything that ships. Switch to "all" on .NET 10, whose SDK prunes those framework packages. -->
+  <!-- NuGet vulnerability audit of direct and transitive packages; CI turns high and critical findings into errors
+       (test job in .gitlab-ci.yml). -->
   <PropertyGroup>
     <NuGetAudit>true</NuGetAudit>
-    <NuGetAuditMode>direct</NuGetAuditMode>
+    <NuGetAuditMode>all</NuGetAuditMode>
   </PropertyGroup>
 
   <ItemGroup>
