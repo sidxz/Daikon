@@ -3,11 +3,11 @@
 # or inside an image. Everything environment-specific (tenant, client id, origins, connection strings, service URLs)
 # belongs in the deployment's environment variables, never in tracked files or image layers.
 #
-#   src/check-config-hygiene.sh repo             # tracked files; CI test stage and .githooks/pre-commit run this
-#   src/check-config-hygiene.sh image <image>    # a built image's /app; CI runs this before pushing
+#   src/check-config-hygiene.sh repo             # tracked files; the CI test job and .githooks/pre-commit run this
+#   src/check-config-hygiene.sh image <image>    # a built image's /app; CI runs this on every image it builds
 #
 # Allowed: ${VAR} templates and empty values in compose/YAML, and the placeholder ids the tests use.
-# POSIX sh on purpose: CI's build jobs run it inside the Alpine docker image, which has no bash.
+# POSIX sh on purpose, so it also runs inside minimal images that have no bash.
 set -u
 cd "$(dirname "$0")/.."
 

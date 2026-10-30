@@ -1,4 +1,4 @@
-# Weekly dependency updates as GitHub pull requests (origin is GitHub; CI runs on GitLab once merged to lab-main).
+# Weekly dependency updates as GitHub pull requests; CI (.github/workflows/ci.yml) runs on each one.
 version: 2
 updates:
   - package-ecosystem: nuget
@@ -26,3 +26,9 @@ updates:
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday

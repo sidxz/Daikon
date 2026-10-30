@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-The `lab-main` branch is the supported version and receives every fix. Older release branches are not patched; upgrade to the current release.
+The `main` branch is the supported version and receives every fix. Older release branches are not patched; upgrade to the current release.
 
 ## Reporting a vulnerability
 
@@ -18,12 +18,14 @@ DAIKON's backend sits behind its API gateway and an institutional identity provi
 
 ## Automated checks
 
-- Every push to `lab-main` runs, in `.gitlab-ci.yml`:
-  - the auth, identity and header tests;
+- Every pull request and every push to `main` runs, in `.github/workflows/ci.yml`:
+  - the auth, identity, header and hit-batch tests;
   - NuGet's vulnerability audit, with high and critical findings as errors;
-  - gitleaks on the pushed commits.
-- Every service image is built on freshly pulled base images and scanned with Trivy before it is pushed. A weekly scheduled pipeline re-scans the published images.
+  - `src/check-config-hygiene.sh`, which refuses credentials or environment-specific configuration in tracked files;
+  - gitleaks on the new commits.
+- Every service image is then built on freshly pulled base images and checked: the same configuration rules on its contents, Trivy's secret scanner, and Trivy's vulnerability scan. A weekly run repeats the image build and scans on a fresh CVE database. Nothing is published or deployed from CI; deployments build from the repository.
+- GitHub secret scanning and push protection are enabled on the repository.
 - Accepted findings are listed with a reason and an expiry: `.trivyignore`, `NuGetAuditSuppress` in `src/Directory.Build.props`, and `.gitleaksignore` for findings in old commits.
-- Dependabot proposes weekly NuGet and Docker updates.
+- Dependabot proposes weekly NuGet, Docker and GitHub Actions updates.
 - Responses are never cacheable: every service and the gateway send `Cache-Control: no-store` and strip any caching headers (including CDN-specific ones); CI fails if server-side response caching is added. Tests cover a service that tries to make its responses cacheable.
 - `src/auth-negative-test.py` checks a running stack: every route of every service must refuse missing, malformed, unsigned and forged tokens.
