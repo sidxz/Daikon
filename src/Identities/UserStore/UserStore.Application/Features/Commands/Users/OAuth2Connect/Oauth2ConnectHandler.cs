@@ -53,7 +53,7 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
             if (user == null)
             {
                 _logger.LogWarning("User not found: {Email}", email);
-                throw new InvalidOperationException("User not found");
+                throw new AccountLinkingRefusedException("User not found");
             }
 
             return user;
@@ -111,14 +111,14 @@ namespace UserStore.Application.Features.Commands.Users.OAuth2Connect
             if (!EqualityComparer<T>.Default.Equals(currentUserAttributeValue, default(T)))
             {
                 _logger.LogWarning($"User already has a {attributeName}: {currentUserAttributeValue}");
-                throw new InvalidOperationException($"User already has a {attributeName}");
+                throw new AccountLinkingRefusedException($"User already has a {attributeName}");
             }
 
             var existingUser = await getUserByAttribute();
             if (existingUser != null)
             {
                 _logger.LogWarning($"{attributeName} already exists: {newUserAttributeValue}");
-                throw new InvalidOperationException($"{attributeName} already exists");
+                throw new AccountLinkingRefusedException($"{attributeName} already exists");
             }
 
             typeof(AppUser).GetProperty(attributeName).SetValue(user, newUserAttributeValue);

@@ -102,7 +102,7 @@ public class UserIdentityTests
         users.Setup(r => r.GetUserByEmail("ada@example.org")).ReturnsAsync(User(entraObjectId: "already-linked"));
         var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<AccountLinkingRefusedException>(() =>
             handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default));
         users.Verify(r => r.UpdateUser(It.IsAny<AppUser>()), Times.Never);
     }
@@ -115,7 +115,7 @@ public class UserIdentityTests
         users.Setup(r => r.GetUserByEntraObjectId(Oid)).ReturnsAsync(User());
         var handler = new OAuth2ConnectHandler(null!, NullLogger<OAuth2ConnectHandler>.Instance, users.Object);
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<AccountLinkingRefusedException>(() =>
             handler.Handle(new OAuth2ConnectCommand { Email = "ada@example.org", EntraObjectId = Oid }, default));
         users.Verify(r => r.UpdateUser(It.IsAny<AppUser>()), Times.Never);
     }
@@ -123,14 +123,28 @@ public class UserIdentityTests
     [Fact]
     public async Task Refused_linking_means_not_a_valid_user_rather_than_an_error()
     {
+        // As the MediatR pipeline delivers it: RequestorIdBehavior wraps the handler's exception
         var mediator = new Mock<IMediator>();
         mediator.Setup(m => m.Send(It.IsAny<ValidateUserAccessCommand>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("User already has a EntraObjectId"));
-        var context = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimConstants.ObjectId, Oid) }, "Bearer")),
-        };
+            .ThrowsAsync(new InvalidOperationException("An error occurred while processing the request.",
+                new AccountLinkingRefusedException("User already has a EntraObjectId")));
 
-        Assert.Null(await new LocalAppUserResolver(mediator.Object).Resolve(context));
+        Assert.Null(await new LocalAppUserResolver(mediator.Object).Resolve(ContextFor(Oid)));
     }
+
+    [Fact]
+    public async Task A_failing_user_lookup_is_an_error_not_an_unknown_user()
+    {
+        // A database or handler failure must surface as an error; "unknown user" would be cached and answer 401 to everyone
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<ValidateUserAccessCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("An error occurred while processing the request.", new TimeoutException("MongoDB")));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => new LocalAppUserResolver(mediator.Object).Resolve(ContextFor(Oid)));
+    }
+
+    private static DefaultHttpContext ContextFor(string oid) => new()
+    {
+        User = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimConstants.ObjectId, oid) }, "Bearer")),
+    };
 }

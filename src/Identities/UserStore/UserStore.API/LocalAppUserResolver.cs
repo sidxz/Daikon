@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Daikon.ApiHost;
 using MediatR;
 using Microsoft.Identity.Web;
+using UserStore.Application.Features.Commands.Users.OAuth2Connect;
 using UserStore.Application.Features.Commands.Users.ValidateUserAccess;
 
 namespace UserStore.API
@@ -30,10 +31,11 @@ namespace UserStore.API
                     Email = context.User.FindFirst(ClaimTypes.Email)?.Value
                 }, context.RequestAborted);
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException ex) when (ex.GetBaseException() is AccountLinkingRefusedException)
             {
-                // Refused account linking, e.g. the account is already linked to a different Entra ID.
-                // Not a valid user (401), as the old /user/validate endpoint treated it; the handler has logged why.
+                // Refused account linking, e.g. the account is already linked to a different Entra ID: not a valid user (401),
+                // as the old /user/validate endpoint treated it; the handler has logged why. The MediatR pipeline wraps it, hence
+                // GetBaseException. Any other failure (database, bug) propagates and becomes an error, never a cached "unknown user".
                 return null;
             }
 
