@@ -52,8 +52,7 @@ jobs:
       - run: dotnet test Identities/UserStore/UserStore.Test/UserStore.Test.csproj
       - run: dotnet test Services/Screen/Screen.Test/Screen.Test.csproj
 
-  # Secrets in the commits being pushed or proposed (not older history, which still holds a since-replaced Neo4j
-  # password; see .gitleaksignore). GitHub's own secret scanning and push protection run on top of this.
+  # Secrets in the commits being pushed or proposed. GitHub's own secret scanning and push protection run on top of this.
   secrets:
     if: github.event_name != 'schedule'
     runs-on: ubuntu-24.04
