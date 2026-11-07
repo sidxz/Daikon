@@ -1,6 +1,6 @@
 <Project>
   <!-- NuGet vulnerability audit of direct and transitive packages; CI turns high and critical findings into errors
-       (test job in .gitlab-ci.yml). -->
+       (test job in .github/workflows/ci.yml). -->
   <PropertyGroup>
     <NuGetAudit>true</NuGetAudit>
     <NuGetAuditMode>all</NuGetAuditMode>
