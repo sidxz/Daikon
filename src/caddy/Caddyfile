@@ -1,0 +1,60 @@
+# Local reverse proxy with an auth gate in front of SimpleGW, the shape the ingress gives dev and prod: one origin
+# serves the frontend and the API under /simplegw, and every API request must carry a valid Entra access token
+# before SimpleGW sees it. Started by docker-compose-with-caddy.yml. Passes src/smoke-test.sh and
+# src/auth-negative-test.py; port deployment changes from here.
+#
+# handle_path strips /simplegw before forward_auth, so oauth2-proxy sees X-Forwarded-Uri without it. A 2xx from
+# /oauth2/auth lets the request through; a 401 stops here with the same headers SimpleGW puts on its own 401.
+
+(gated_api) {
+	# CORS preflights carry no token, and forward_auth sends its subrequest as GET, so oauth2-proxy's
+	# --skip-auth-preflight would never see OPTIONS. Skip the gate for them; SimpleGW's CORS policy decides.
+	@needs_token not method OPTIONS
+	forward_auth @needs_token oauth2-proxy-api:4180 {
+		uri /oauth2/auth
+		@denied status 401
+		handle_response @denied {
+			header {
+				Cache-Control "no-store, max-age=0"
+				Pragma "no-cache"
+				WWW-Authenticate "Bearer"
+				Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+				X-Frame-Options "DENY"
+				X-Content-Type-Options "nosniff"
+				Referrer-Policy "no-referrer"
+				Cross-Origin-Resource-Policy "same-origin"
+				Strict-Transport-Security "max-age=31536000"
+			}
+			respond 401
+		}
+	}
+	reverse_proxy simplegw-api:80
+}
+
+# Caddy adds "Server: Caddy" to every response; nothing should name the server software.
+(no_server_header) {
+	header -Server
+}
+
+# Frontend and API on one origin, http://localhost:3000: the origin the Entra app registration and
+# DAIKON_AllowedOrigins already know. The frontend is the Vite dev server on the host (see the compose file).
+:3000 {
+	import no_server_header
+	handle_path /simplegw/* {
+		import gated_api
+	}
+	handle {
+		reverse_proxy {$DAIKON_FrontendUpstream}
+	}
+}
+
+# The API alone, for scripts: http://localhost:8020/simplegw
+:8020 {
+	import no_server_header
+	handle_path /simplegw/* {
+		import gated_api
+	}
+	handle {
+		respond "The API is under /simplegw/" 404
+	}
+}

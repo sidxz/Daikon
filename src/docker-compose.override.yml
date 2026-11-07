@@ -73,8 +73,6 @@ services:
 
       ## MongoDb Data Store
       - UserStoreMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-    ports:
-      - "8011:80"
     networks:
       - daikon-be-net
 
@@ -109,8 +107,6 @@ services:
 
       ## MongoDb Data Store
       - GeneMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-    ports:
-      - "8001:80"
 
     networks:
       - daikon-be-net
@@ -147,8 +143,6 @@ services:
       ## MongoDb Data Store
       - TargetMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
 
-    ports:
-      - "8002:80"
 
     networks:
       - daikon-be-net
@@ -187,8 +181,6 @@ services:
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
-    ports:
-      - "8003:80"
     networks:
       - daikon-be-net
 
@@ -226,8 +218,6 @@ services:
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
-    ports:
-      - "8004:80"
     networks:
       - daikon-be-net
 
@@ -266,8 +256,6 @@ services:
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
-    ports:
-      - "8005:80"
     networks:
       - daikon-be-net
 
@@ -296,8 +284,6 @@ services:
       - KafkaConsumerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaConsumerSettings:Topics=${KafkaConsumerTopics}
 
-    ports:
-      - "8006:80"
     networks:
       - daikon-be-net
 
@@ -337,8 +323,6 @@ services:
       - "DaikonChemVault:Url=http://daikon_chem_vault_api:10001"
       - "CageFusion:NuisanceAPIURL=http://cage_fusion_nuisance_api:10002"
 
-    ports:
-      - "8007:80"
     networks:
       - daikon-be-net
 
@@ -358,8 +342,6 @@ services:
 
       ## Data Store
       - QuestionnaireMongoDbSettings:ConnectionString=${MongoDB_ConnectionString}
-    ports:
-      - "8008:80"
     networks:
       - daikon-be-net
 
@@ -398,8 +380,6 @@ services:
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
-    ports:
-      - "8009:80"
     networks:
       - daikon-be-net
 
@@ -426,8 +406,6 @@ services:
       - "HitAssessmentAPI:Url=http://hitassessment-api/api/v2"
       - "ProjectAPI:Url=http://project-api/api/v2"
 
-    ports:
-      - "8012:80"
     networks:
       - daikon-be-net
 
@@ -465,8 +443,6 @@ services:
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
-    ports:
-      - "8014:80"
     networks:
       - daikon-be-net
 
@@ -492,8 +468,6 @@ services:
       - KafkaProducerSettings:SecurityProtocol=${KafkaSecurityProtocol}
       - KafkaProducerSettings:Topic=${KafkaTopic}
 
-    ports:
-      - "8015:80"
     networks:
       - daikon-be-net
 
@@ -531,8 +505,6 @@ services:
       ## Internal APIs
       - "MLogixAPI:Url=http://mlogix-api/api/v2"
 
-    ports:
-      - "8016:80"
     networks:
       - daikon-be-net
 
@@ -556,8 +528,6 @@ services:
       - "HitAssessmentAPI:Url=http://hitassessment-api/api/v2"
       - "ProjectAPI:Url=http://project-api/api/v2"
       - "HorizonAPI:Url=http://horizon-api/api/v2"
-    ports:
-      - "8017:80"
     networks:
       - daikon-be-net
 

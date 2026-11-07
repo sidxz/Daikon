@@ -1,0 +1,5 @@
+# Merged after docker-compose.override.yml by docker-compose-with-caddy.yml: behind Caddy the gateway publishes no
+# host port either, so the only way in is Caddy's 3000 (frontend and API) and 8020 (API alone).
+services:
+  simplegw-api:
+    ports: !reset []

@@ -1,0 +1,60 @@
+# Local stack with Caddy serving the frontend and API. API requests pass through oauth2-proxy,
+# which validates the Entra bearer token before forwarding them to SimpleGW.
+#
+# Start the stack:
+#   docker compose -f docker-compose-with-caddy.yml up -d
+#
+# Set DAIKON_GateCookieSecret in .env; oauth2-proxy requires it even though this setup does not issue cookies.
+# Run the frontend dev server on 127.0.0.1:3005 with its API base URL set to /simplegw.
+# Override the frontend address with DAIKON_FrontendUpstream if it uses another host port.
+# Caddy serves the frontend and API at http://localhost:3000 and the API alone at http://localhost:8020/simplegw.
+# Services and SimpleGW are not published on host ports; Caddy is the only entry point.
+include:
+  - path:
+      - docker-compose.yml
+      - docker-compose.override.yml
+      - caddy/no-gateway-port.yml # Do not publish SimpleGW's port; traffic enters through Caddy.
+    env_file: caddy/defaults.env
+
+services:
+  # Validates API bearer tokens before requests reach SimpleGW. Only Caddy can reach this container.
+  oauth2-proxy-api:
+    image: quay.io/oauth2-proxy/oauth2-proxy:v7.15.6@sha256:c3415e8660af553f5e18f5d90db050614c02493c0ac6260ac59442f6d9b12048
+    command:
+      - --http-address=0.0.0.0:4180
+      - --provider=oidc
+      # API tokens use Entra's v1.0 issuer, including the trailing slash.
+      - --oidc-issuer-url=https://sts.windows.net/${EntraID_TenantId:?EntraID_TenantId missing in .env}/
+      - --client-id=${EntraID_ClientId:?EntraID_ClientId missing in .env}
+      # Accept the configured API audience as well as the client ID.
+      - --oidc-extra-audience=${EntraID_Audience:?EntraID_Audience missing in .env}
+      # Also accept v2.0 tokens for the same app.
+      - --extra-jwt-issuers=https://login.microsoftonline.com/${EntraID_TenantId}/v2.0=${EntraID_ClientId}
+      - --skip-jwt-bearer-tokens=true
+      - --upstream=static://202
+      - --email-domain=*
+      - --silence-ping-logging=true
+    environment:
+      # This setup only validates bearer tokens; it does not sign users in or issue cookies.
+      # oauth2-proxy still requires both secrets at startup, so use a placeholder client secret and a random cookie secret.
+      OAUTH2_PROXY_CLIENT_SECRET: ${DAIKON_GateClientSecret:-unused}
+      OAUTH2_PROXY_COOKIE_SECRET: ${DAIKON_GateCookieSecret:?set DAIKON_GateCookieSecret in .env}
+    networks:
+      - daikon-be-net
+
+  caddy:
+    image: caddy:2.11.9-alpine@sha256:78bd35025c7ba85961dd149ae670315129954e77abe2383ac47c89106b35ade9
+    ports:
+      - "3000:3000"
+      - "8020:8020"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    environment:
+      DAIKON_FrontendUpstream: ${DAIKON_FrontendUpstream:-host.docker.internal:3005}
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Lets Caddy reach the host frontend on Linux.
+    depends_on:
+      - oauth2-proxy-api
+      - simplegw-api
+    networks:
+      - daikon-be-net

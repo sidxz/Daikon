@@ -3,7 +3,7 @@ services:
     image: portainer/portainer
     container_name: dk_portainer
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
@@ -18,7 +18,7 @@ services:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "5050:80"
+      - "127.0.0.1:5050:80"
     volumes:
       - pgadmin_data:/root/.pgadmin
     networks:
@@ -29,8 +29,8 @@ services:
     image: bitnami/kafka:3.7
     restart: always
     ports:
-      - "9092:9092"     # INTERNAL (for other containers, optional to publish)
-      - "29092:29092"   # EXTERNAL (for host apps on macOS)
+      - "127.0.0.1:9092:9092"     # INTERNAL (for other containers, optional to publish)
+      - "127.0.0.1:29092:29092"   # EXTERNAL (for host apps on macOS)
     volumes:
       - "kafka_data:/bitnami"
     environment:
@@ -60,7 +60,7 @@ services:
     restart: always
     #cpus: '1.0'
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     volumes:
       - "eventdb_mongo_data:/data/db"
     environment:
@@ -74,7 +74,7 @@ services:
     restart: always
     #cpus: '1.0'
     ports:
-      - "27018:27017"
+      - "127.0.0.1:27018:27017"
     volumes:
       - "mongo_data:/data/db"
     environment:
@@ -86,8 +86,8 @@ services:
     image: neo4j:5.25-community
     container_name: dk_neo4j
     ports:
-      - "7474:7474" # HTTP
-      - "7687:7687" # Bolt
+      - "127.0.0.1:7474:7474" # HTTP
+      - "127.0.0.1:7687:7687" # Bolt
     volumes:
       - neo4j_data:/data
       - neo4j_import:/var/lib/neo4j/import
@@ -103,7 +103,7 @@ services:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     ports:
-      - 5051:8080
+      - "127.0.0.1:5051:8080"
     environment:
       DYNAMIC_CONFIG_ENABLED: "true"
       KAFKA_CLUSTERS_0_NAME: local
