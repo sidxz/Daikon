@@ -6,6 +6,22 @@
 # handle_path strips /simplegw before forward_auth, so oauth2-proxy sees X-Forwarded-Uri without it. A 2xx from
 # /oauth2/auth lets the request through; a 401 stops here with the same headers SimpleGW puts on its own 401.
 
+# The security headers SimpleGW sets on every response. Repeated here so the gate's own responses carry them too:
+# its 401 (below) and any error Caddy itself produces (handle_errors), e.g. a 502 when an upstream is down.
+# Not applied to the whole site, because the frontend must keep its own, looser CSP.
+(api_security_headers) {
+	header {
+		Cache-Control "no-store, max-age=0"
+		Pragma "no-cache"
+		Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+		X-Frame-Options "DENY"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+		Cross-Origin-Resource-Policy "same-origin"
+		Strict-Transport-Security "max-age=31536000"
+	}
+}
+
 (gated_api) {
 	# CORS preflights carry no token, and forward_auth sends its subrequest as GET, so oauth2-proxy's
 	# --skip-auth-preflight would never see OPTIONS. Skip the gate for them; SimpleGW's CORS policy decides.
@@ -14,17 +30,8 @@
 		uri /oauth2/auth
 		@denied status 401
 		handle_response @denied {
-			header {
-				Cache-Control "no-store, max-age=0"
-				Pragma "no-cache"
-				WWW-Authenticate "Bearer"
-				Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
-				X-Frame-Options "DENY"
-				X-Content-Type-Options "nosniff"
-				Referrer-Policy "no-referrer"
-				Cross-Origin-Resource-Policy "same-origin"
-				Strict-Transport-Security "max-age=31536000"
-			}
+			import api_security_headers
+			header WWW-Authenticate "Bearer"
 			respond 401
 		}
 	}
@@ -40,6 +47,10 @@
 # DAIKON_AllowedOrigins already know. The frontend is the Vite dev server on the host (see the compose file).
 :3000 {
 	import no_server_header
+	handle_errors {
+		import no_server_header
+		import api_security_headers
+	}
 	handle_path /simplegw/* {
 		import gated_api
 	}
@@ -51,6 +62,10 @@
 # The API alone, for scripts: http://localhost:8020/simplegw
 :8020 {
 	import no_server_header
+	handle_errors {
+		import no_server_header
+		import api_security_headers
+	}
 	handle_path /simplegw/* {
 		import gated_api
 	}
