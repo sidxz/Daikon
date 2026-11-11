@@ -1,0 +1,11 @@
+# Copy to load_sample.conf (gitignored) and set url. The token comes from the DAIKON_TOKEN environment variable.
+
+[server]
+# Gateway base, as the frontend uses it (the script appends /v2/<route>).
+url = https://daikon.example.org/simplegw
+
+[data]
+# Strain the sample genes, targets, screens, HAs and projects belong to; created if missing.
+strain = H37Rv
+# Organization (name or alias) that owns the screens, HAs and projects. Empty = the token user's organization.
+org =

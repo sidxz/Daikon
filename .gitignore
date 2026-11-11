@@ -411,3 +411,6 @@ src/ApiGateways/SimpleGW/SimpleGW.API/appsettings.Development.json
 # Internal notes and AI workflow files, never committed
 internal-docs/
 /CLAUDE.md
+
+# Sample-data loader target (environment-specific)
+src/load_sample/load_sample.conf
